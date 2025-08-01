@@ -1,0 +1,29 @@
+PODS:
+  - flutter_midi_command (0.0.1):
+    - FlutterMacOS
+  - FlutterMacOS (1.0.0)
+  - universal_ble (0.0.1):
+    - Flutter
+    - FlutterMacOS
+
+DEPENDENCIES:
+  - flutter_midi_command (from `Flutter/ephemeral/.symlinks/plugins/flutter_midi_command/macos`)
+  - FlutterMacOS (from `Flutter/ephemeral`)
+  - universal_ble (from `Flutter/ephemeral/.symlinks/plugins/universal_ble/darwin`)
+
+EXTERNAL SOURCES:
+  flutter_midi_command:
+    :path: Flutter/ephemeral/.symlinks/plugins/flutter_midi_command/macos
+  FlutterMacOS:
+    :path: Flutter/ephemeral
+  universal_ble:
+    :path: Flutter/ephemeral/.symlinks/plugins/universal_ble/darwin
+
+SPEC CHECKSUMS:
+  flutter_midi_command: c7517347a1acc8e4c7d4e9fa9809b3e87bbfd2b8
+  FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
+  universal_ble: ff19787898040d721109c6324472e5dd4bc86adc
+
+PODFILE CHECKSUM: 7eb978b976557c8c1cd717d8185ec483fd090a82
+
+COCOAPODS: 1.16.2
