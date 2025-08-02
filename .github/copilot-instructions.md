@@ -133,8 +133,12 @@ flutter test
 # Run specific test file
 flutter test test/widget_test.dart
 
-# Run tests with coverage
+# Run tests with coverage (REQUIRED for all changes)
 flutter test --coverage
+
+# Generate and view HTML coverage report
+flutter test --coverage && genhtml coverage/lcov.info -o coverage/html
+open coverage/html/index.html
 ```
 
 ### Code Quality
@@ -209,10 +213,120 @@ try {
 
 ## Testing Guidelines
 
-- Write unit tests for business logic
-- Write widget tests for UI components
-- Mock external dependencies (MIDI devices, file system)
-- Test error scenarios and edge cases
+### 🚨 **MANDATORY TEST COVERAGE REQUIREMENTS**
+
+#### **Coverage Standards**
+
+- **New Features**: ≥80% test coverage required
+- **Bug Fixes**: Must include regression tests
+- **Refactoring**: Must maintain existing coverage levels
+- **MIDI Components**: Require comprehensive testing due to complexity
+
+#### **Pre-Development Checklist**
+
+1. **Check Baseline Coverage**:
+
+   ```bash
+   flutter test --coverage
+   # Note current coverage levels for comparison
+   ```
+
+2. **Identify Test Requirements**:
+   - Unit tests for business logic (models, state management)
+   - Widget tests for UI components
+   - Integration tests for user workflows
+   - Mock external dependencies (MIDI devices, Bluetooth)
+
+#### **Development Workflow**
+
+1. **Write Tests First** (TDD approach recommended)
+2. **Implement Feature** with tests in mind
+3. **Verify Coverage** meets requirements:
+   ```bash
+   flutter test --coverage && genhtml coverage/lcov.info -o coverage/html
+   open coverage/html/index.html
+   ```
+
+#### **Test Categories**
+
+**Unit Tests** - Test business logic in isolation:
+
+- `MidiState` operations (note on/off, channel selection)
+- MIDI message parsing and validation
+- Data model transformations
+- Utility functions and calculations
+
+**Widget Tests** - Test UI components:
+
+- Piano keyboard interactions
+- MIDI settings UI
+- State-driven UI updates
+- Error state displays
+
+**Integration Tests** - Test complete workflows:
+
+- MIDI device connection flow
+- Note playing with visual feedback
+- Settings persistence and retrieval
+
+#### **Critical Testing Areas**
+
+**MIDI Functionality** (High Priority):
+
+```dart
+// Example: Test MIDI state management
+testWidgets('MidiState should handle note on/off correctly', (tester) async {
+  final midiState = MidiState();
+  midiState.noteOn(60, 127, 1);
+  expect(midiState.activeNotes.contains(60), true);
+  midiState.noteOff(60, 1);
+  expect(midiState.activeNotes.contains(60), false);
+});
+```
+
+**Error Handling** (Required):
+
+- MIDI connection failures
+- Invalid note ranges
+- Bluetooth permission denials
+- Device disconnection scenarios
+
+**Edge Cases** (Required):
+
+- Rapid note on/off events
+- Multiple simultaneous notes
+- Channel switching during playback
+- Memory cleanup and disposal
+
+#### **Test Organization**
+
+- Place tests in `test/` directory
+- Mirror source file structure: `lib/models/midi_state.dart` → `test/models/midi_state_test.dart`
+- Group related tests with descriptive names
+- Use `setUp()` and `tearDown()` for test isolation
+
+#### **Mocking Guidelines**
+
+```dart
+// Mock MIDI devices for testing
+class MockMidiDevice extends Mock implements MidiDevice {}
+
+// Mock Bluetooth functionality
+class MockBluetoothManager extends Mock implements BluetoothManager {}
+```
+
+#### **Coverage Verification**
+
+- Review HTML coverage report before submitting changes
+- Ensure all new code paths are tested
+- Pay special attention to error handling branches
+- Document any intentionally untested code with reasons
+
+### 🎯 **Current Coverage Status**
+
+- **MidiState**: 79% (Target: 80%+) ✅
+- **Overall Project**: Baseline established
+- **Goal**: Maintain 80%+ coverage for all new features
 
 ## Documentation
 
@@ -223,10 +337,27 @@ try {
 
 ## Git Workflow
 
+### **Pre-Commit Requirements**
+
+1. **Run Tests**: `flutter test --coverage`
+2. **Verify Coverage**: Meets 80% threshold for new/modified code
+3. **Code Quality**: `flutter analyze` passes without errors
+4. **Formatting**: `dart format .` applied
+
+### **Commit Guidelines**
+
 - Use descriptive commit messages
 - Create feature branches for new functionality
 - Keep commits focused and atomic
-- Include tests with new features
+- **Include tests with ALL changes** (not optional)
+
+### **Pull Request Checklist**
+
+- [ ] Tests written and passing
+- [ ] Coverage requirements met (≥80% for new code)
+- [ ] No analyzer warnings
+- [ ] Code formatted consistently
+- [ ] Documentation updated if needed
 
 ## Questions or Issues?
 

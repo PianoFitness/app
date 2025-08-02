@@ -1,4 +1,4 @@
-# CLAUDE.md
+w# CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -29,15 +29,25 @@ flutter run
 flutter run -d device_id  # specific device
 flutter run --release     # release mode
 
-# Code quality
+# Code quality (REQUIRED before commits)
 flutter analyze     # static analysis
 dart format .       # format code
 dart fix --apply    # auto-fix issues
 
-# Testing
+# Testing (MANDATORY for all changes)
 flutter test                    # all tests
 flutter test test/file_test.dart # specific test
 flutter test --coverage        # with coverage
+
+# Coverage Analysis (REQUIRED)
+flutter test --coverage && genhtml coverage/lcov.info -o coverage/html
+open coverage/html/index.html   # View coverage report
+
+# Pre-commit checklist
+# 1. Tests pass: flutter test
+# 2. Coverage ≥80%: flutter test --coverage  
+# 3. No analyzer issues: flutter analyze
+# 4. Code formatted: dart format .
 
 # Building
 flutter build apk    # Android
@@ -129,11 +139,48 @@ lib/
 
 ### Testing Strategy
 
-The codebase follows Flutter testing patterns:
+The codebase follows Flutter testing patterns with **mandatory test coverage requirements**:
+
+#### **Test Coverage Requirements**
+- **New Features**: Must have ≥80% test coverage for all new code
+- **Bug Fixes**: Must include regression tests to prevent re-occurrence  
+- **Refactoring**: Must maintain or improve existing test coverage
+- **MIDI Functionality**: Requires comprehensive unit tests due to complexity
+
+#### **Testing Workflow** (MANDATORY)
+1. **Before Development**: Check current coverage baseline
+   ```bash
+   flutter test --coverage
+   ```
+
+2. **During Development**: Write tests alongside code
+   - Unit tests for business logic (models, utilities)
+   - Widget tests for UI components  
+   - Integration tests for MIDI workflows
+
+3. **After Development**: Verify coverage meets requirements
+   ```bash
+   flutter test --coverage && genhtml coverage/lcov.info -o coverage/html
+   open coverage/html/index.html  # Review coverage report
+   ```
+
+4. **Coverage Verification**: Ensure all critical paths are tested
+   - Core MIDI operations (note on/off, device connection)
+   - State management changes (MidiState, UI updates)
+   - Error handling and edge cases
+   - User interaction flows
+
+#### **Test Organization**
 - Widget tests for UI components
-- Unit tests for business logic  
-- Mock external dependencies (MIDI devices)
+- Unit tests for business logic (MidiState, data models)
+- Mock external dependencies (MIDI devices, Bluetooth)
 - Test error scenarios and edge cases
+- Integration tests for complete workflows
+
+#### **Current Test Coverage**
+- **MidiState**: 79% coverage (45/57 lines) ✅
+- **Target**: 80%+ for all new/modified code
+- **Critical Areas**: MIDI message handling, state management, UI integration
 
 ### MIDI Platform Considerations
 
