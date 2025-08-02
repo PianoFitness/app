@@ -6,7 +6,9 @@ import 'package:flutter_midi_command/flutter_midi_command.dart';
 import 'device_controller_page.dart';
 
 class MidiSettingsPage extends StatefulWidget {
-  const MidiSettingsPage({super.key});
+  final int initialChannel;
+
+  const MidiSettingsPage({super.key, this.initialChannel = 0});
 
   @override
   State<MidiSettingsPage> createState() => _MidiSettingsPageState();
@@ -23,10 +25,12 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
   String _lastNote = '';
   bool _didAskForBluetoothPermissions = false;
   bool _isScanning = false;
+  int _selectedChannel = 0;
 
   @override
   void initState() {
     super.initState();
+    _selectedChannel = widget.initialChannel;
     _setupMidi();
   }
 
@@ -108,7 +112,8 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
       });
     } catch (e) {
       setState(() {
-        _midiStatus = 'Error initializing MIDI: $e\n\nNote: MIDI/Bluetooth may not work on simulators. Try a physical device.';
+        _midiStatus =
+            'Error initializing MIDI: $e\n\nNote: MIDI/Bluetooth may not work on simulators. Try a physical device.';
       });
       if (kDebugMode) {
         print('MIDI setup error: $e');
@@ -173,12 +178,14 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
           var rawPitch = note + (velocity << 7);
           var pitchValue = (((rawPitch) / 0x3FFF) * 2.0) - 1;
           setState(() {
-            _lastNote = 'Pitch Bend: ${pitchValue.toStringAsFixed(2)} (Ch: $channel)';
+            _lastNote =
+                'Pitch Bend: ${pitchValue.toStringAsFixed(2)} (Ch: $channel)';
           });
           break;
         default:
           setState(() {
-            _lastNote = 'MIDI: Status 0x${status.toRadixString(16).toUpperCase()} Data: ${data.map((b) => '0x${b.toRadixString(16).toUpperCase()}').join(' ')}';
+            _lastNote =
+                'MIDI: Status 0x${status.toRadixString(16).toUpperCase()} Data: ${data.map((b) => '0x${b.toRadixString(16).toUpperCase()}').join(' ')}';
           });
       }
     } else if (data.length >= 2) {
@@ -268,18 +275,26 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
         _midiCommand.stopScanningForBluetoothDevices();
       } else {
         final messages = {
-          BluetoothState.unsupported: 'Bluetooth is not supported on this device.',
-          BluetoothState.poweredOff: 'Please switch on Bluetooth and try again.',
-          BluetoothState.resetting: 'Bluetooth is currently resetting. Try again later.',
-          BluetoothState.unauthorized: 'This app needs Bluetooth permissions. Please open Settings, find Piano Fitness and assign Bluetooth access rights.',
-          BluetoothState.unknown: 'Bluetooth is not ready yet. Try again later.',
+          BluetoothState.unsupported:
+              'Bluetooth is not supported on this device.',
+          BluetoothState.poweredOff:
+              'Please switch on Bluetooth and try again.',
+          BluetoothState.resetting:
+              'Bluetooth is currently resetting. Try again later.',
+          BluetoothState.unauthorized:
+              'This app needs Bluetooth permissions. Please open Settings, find Piano Fitness and assign Bluetooth access rights.',
+          BluetoothState.unknown:
+              'Bluetooth is not ready yet. Try again later.',
           BluetoothState.other: 'Unknown Bluetooth error occurred.',
         };
 
-        String errorMessage = messages[_midiCommand.bluetoothState] ?? 'Unknown Bluetooth state: ${_midiCommand.bluetoothState}';
+        String errorMessage =
+            messages[_midiCommand.bluetoothState] ??
+            'Unknown Bluetooth state: ${_midiCommand.bluetoothState}';
 
         setState(() {
-          _midiStatus = 'Cannot scan: $errorMessage\n\nTap "Reset" to return to main screen or "Retry" to try again';
+          _midiStatus =
+              'Cannot scan: $errorMessage\n\nTap "Reset" to return to main screen or "Retry" to try again';
         });
 
         if (mounted) {
@@ -292,9 +307,11 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
       String errorMessage = 'Error scanning for devices: $e';
 
       if (e.toString().contains('bluetoothNotAvailable')) {
-        errorMessage += '\n\n🔧 Troubleshooting:\n• Simulators don\'t support Bluetooth\n• Try running on a physical device\n• Enable Bluetooth on your device\n• Check app permissions\n\nTap "Reset" to return to main screen or "Retry" to try again';
+        errorMessage +=
+            '\n\n🔧 Troubleshooting:\n• Simulators don\'t support Bluetooth\n• Try running on a physical device\n• Enable Bluetooth on your device\n• Check app permissions\n\nTap "Reset" to return to main screen or "Retry" to try again';
       } else {
-        errorMessage += '\n\nTap "Reset" to return to main screen or "Retry" to try again';
+        errorMessage +=
+            '\n\nTap "Reset" to return to main screen or "Retry" to try again';
       }
 
       setState(() {
@@ -324,7 +341,8 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
 
   void _resetToMainScreen() {
     setState(() {
-      _midiStatus = 'bluetoothNotAvailable - Reset to default mode\n\nUse the virtual piano below or tap the scan button to search for MIDI devices';
+      _midiStatus =
+          'bluetoothNotAvailable - Reset to default mode\n\nUse the virtual piano below or tap the scan button to search for MIDI devices';
       _devices.clear();
       _lastNote = '';
       _isScanning = false;
@@ -431,6 +449,12 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('MIDI Settings'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop(_selectedChannel);
+          },
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -450,13 +474,68 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
               const Center(
                 child: Text(
                   'MIDI Device Configuration',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.blue.shade200),
+                ),
+                child: Column(
+                  children: [
+                    const Text(
+                      'MIDI Output Channel',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text('Channel: '),
+                        IconButton(
+                          icon: const Icon(Icons.remove_circle),
+                          onPressed: _selectedChannel > 0
+                              ? () {
+                                  setState(() {
+                                    _selectedChannel--;
+                                  });
+                                }
+                              : null,
+                        ),
+                        Text(
+                          '${_selectedChannel + 1}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.add_circle),
+                          onPressed: _selectedChannel < 15
+                              ? () {
+                                  setState(() {
+                                    _selectedChannel++;
+                                  });
+                                }
+                              : null,
+                        ),
+                      ],
+                    ),
+                    const Text(
+                      'Channel for virtual piano output (1-16)',
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
               Text(
                 _midiStatus,
                 style: Theme.of(context).textTheme.bodyLarge,
@@ -505,11 +584,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                   ),
                   child: const Column(
                     children: [
-                      Icon(
-                        Icons.info,
-                        color: Colors.orange,
-                        size: 32,
-                      ),
+                      Icon(Icons.info, color: Colors.orange, size: 32),
                       SizedBox(height: 8),
                       Text(
                         'Alternative Options:',
@@ -529,10 +604,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
               if (_devices.isNotEmpty) ...[
                 const Text(
                   'MIDI Devices:',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
@@ -648,19 +720,19 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
             onPressed: _isScanning
                 ? null
                 : (_midiStatus.contains('Error') ||
-                        _midiStatus.contains('Cannot scan') ||
-                        _midiStatus.contains('bluetoothNotAvailable') ||
-                        _midiStatus.contains('Bluetooth not available')
-                    ? _retrySetup
-                    : _scanForDevices),
+                          _midiStatus.contains('Cannot scan') ||
+                          _midiStatus.contains('bluetoothNotAvailable') ||
+                          _midiStatus.contains('Bluetooth not available')
+                      ? _retrySetup
+                      : _scanForDevices),
             tooltip: _isScanning
                 ? 'Scanning...'
                 : (_midiStatus.contains('Error') ||
-                        _midiStatus.contains('Cannot scan') ||
-                        _midiStatus.contains('bluetoothNotAvailable') ||
-                        _midiStatus.contains('Bluetooth not available')
-                    ? 'Retry MIDI setup'
-                    : 'Scan for MIDI devices'),
+                          _midiStatus.contains('Cannot scan') ||
+                          _midiStatus.contains('bluetoothNotAvailable') ||
+                          _midiStatus.contains('Bluetooth not available')
+                      ? 'Retry MIDI setup'
+                      : 'Scan for MIDI devices'),
             backgroundColor: _isScanning ? Colors.grey : null,
             child: _isScanning
                 ? const CircularProgressIndicator(

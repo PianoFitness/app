@@ -8,7 +8,9 @@ import 'package:piano/piano.dart';
 import 'midi_settings_page.dart';
 
 class PlayPage extends StatefulWidget {
-  const PlayPage({super.key});
+  final int midiChannel;
+
+  const PlayPage({super.key, this.midiChannel = 0});
 
   @override
   State<PlayPage> createState() => _PlayPageState();
@@ -19,7 +21,8 @@ class _PlayPageState extends State<PlayPage> {
   final MidiCommand _midiCommand = MidiCommand();
 
   String _lastNote = '';
-  int _selectedChannel = 0;
+
+  int get _selectedChannel => widget.midiChannel;
 
   @override
   void initState() {
@@ -86,12 +89,14 @@ class _PlayPageState extends State<PlayPage> {
           var rawPitch = note + (velocity << 7);
           var pitchValue = (((rawPitch) / 0x3FFF) * 2.0) - 1;
           setState(() {
-            _lastNote = 'Pitch Bend: ${pitchValue.toStringAsFixed(2)} (Ch: $channel)';
+            _lastNote =
+                'Pitch Bend: ${pitchValue.toStringAsFixed(2)} (Ch: $channel)';
           });
           break;
         default:
           setState(() {
-            _lastNote = 'MIDI: Status 0x${status.toRadixString(16).toUpperCase()} Data: ${data.map((b) => '0x${b.toRadixString(16).toUpperCase()}').join(' ')}';
+            _lastNote =
+                'MIDI: Status 0x${status.toRadixString(16).toUpperCase()} Data: ${data.map((b) => '0x${b.toRadixString(16).toUpperCase()}').join(' ')}';
           });
       }
     }
@@ -102,7 +107,8 @@ class _PlayPageState extends State<PlayPage> {
       NoteOnMessage(channel: _selectedChannel, note: note, velocity: 64).send();
 
       setState(() {
-        _lastNote = 'Virtual Note ON: $note (Ch: ${_selectedChannel + 1}, Vel: 64)';
+        _lastNote =
+            'Virtual Note ON: $note (Ch: ${_selectedChannel + 1}, Vel: 64)';
       });
 
       if (kDebugMode) {
@@ -113,7 +119,9 @@ class _PlayPageState extends State<PlayPage> {
         try {
           NoteOffMessage(channel: _selectedChannel, note: note).send();
           if (kDebugMode) {
-            print('Sent virtual note off: $note on channel ${_selectedChannel + 1}');
+            print(
+              'Sent virtual note off: $note on channel ${_selectedChannel + 1}',
+            );
           }
         } catch (e) {
           if (kDebugMode) {
@@ -134,7 +142,8 @@ class _PlayPageState extends State<PlayPage> {
         _midiCommand.sendData(noteOnData);
 
         setState(() {
-          _lastNote = 'Virtual Note ON: $note (Ch: ${_selectedChannel + 1}, Vel: 64) [fallback]';
+          _lastNote =
+              'Virtual Note ON: $note (Ch: ${_selectedChannel + 1}, Vel: 64) [fallback]';
         });
 
         Future.delayed(const Duration(milliseconds: 500), () {
@@ -197,12 +206,23 @@ class _PlayPageState extends State<PlayPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.of(context).push(
+            onPressed: () async {
+              final result = await Navigator.of(context).push<int>(
                 MaterialPageRoute(
-                  builder: (context) => const MidiSettingsPage(),
+                  builder: (context) =>
+                      MidiSettingsPage(initialChannel: _selectedChannel),
                 ),
               );
+              if (result != null && result != _selectedChannel) {
+                // Channel changed, need to navigate back to PlayPage with new channel
+                if (context.mounted) {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => PlayPage(midiChannel: result),
+                    ),
+                  );
+                }
+              }
             },
             tooltip: 'MIDI Settings',
           ),
@@ -224,16 +244,6 @@ class _PlayPageState extends State<PlayPage> {
                         Icons.piano,
                         size: 80,
                         color: Colors.deepPurple,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    const Center(
-                      child: Text(
-                        'Piano Fitness',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -304,44 +314,14 @@ class _PlayPageState extends State<PlayPage> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text('MIDI Channel: '),
-                        IconButton(
-                          icon: const Icon(Icons.remove_circle),
-                          onPressed: _selectedChannel > 0
-                              ? () {
-                                  setState(() {
-                                    _selectedChannel--;
-                                  });
-                                }
-                              : null,
-                        ),
-                        Text('${_selectedChannel + 1}'),
-                        IconButton(
-                          icon: const Icon(Icons.add_circle),
-                          onPressed: _selectedChannel < 15
-                              ? () {
-                                  setState(() {
-                                    _selectedChannel++;
-                                  });
-                                }
-                              : null,
-                        ),
-                      ],
-                    ),
+                    const SizedBox(height: 16),
                     Expanded(
                       child: InteractivePiano(
                         highlightedNotes: const [],
                         naturalColor: Colors.white,
                         accidentalColor: Colors.black,
                         keyWidth: 45,
-                        noteRange: NoteRange.forClefs([
-                          Clef.Treble,
-                          Clef.Bass,
-                        ]),
+                        noteRange: NoteRange.forClefs([Clef.Treble, Clef.Bass]),
                         onNotePositionTapped: (position) {
                           int midiNote = _convertNotePositionToMidi(position);
                           _playVirtualNote(midiNote);

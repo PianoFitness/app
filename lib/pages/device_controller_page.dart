@@ -61,13 +61,15 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
 
         switch (rawStatus) {
           case 0x90:
-            _lastReceivedMessage = 'Note ON: $data1 (Ch: $channel, Vel: $data2)';
+            _lastReceivedMessage =
+                'Note ON: $data1 (Ch: $channel, Vel: $data2)';
             break;
           case 0x80:
             _lastReceivedMessage = 'Note OFF: $data1 (Ch: $channel)';
             break;
           case 0xB0:
-            _lastReceivedMessage = 'CC: Controller $data1 = $data2 (Ch: $channel)';
+            _lastReceivedMessage =
+                'CC: Controller $data1 = $data2 (Ch: $channel)';
             if (channel - 1 == _selectedChannel && data1 == _ccController) {
               _ccValue = data2;
             }
@@ -81,7 +83,8 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
           case 0xE0:
             var rawPitch = data1 + (data2 << 7);
             var pitchValue = (((rawPitch) / 0x3FFF) * 2.0) - 1;
-            _lastReceivedMessage = 'Pitch Bend: ${pitchValue.toStringAsFixed(2)} (Ch: $channel)';
+            _lastReceivedMessage =
+                'Pitch Bend: ${pitchValue.toStringAsFixed(2)} (Ch: $channel)';
             if (channel - 1 == _selectedChannel) {
               _pitchBend = pitchValue;
             }
@@ -369,7 +372,18 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
 
   Widget _buildDevicePianoKey(int midiNote, Color color) {
     final noteNames = [
-      'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B',
+      'C',
+      'C#',
+      'D',
+      'D#',
+      'E',
+      'F',
+      'F#',
+      'G',
+      'G#',
+      'A',
+      'A#',
+      'B',
     ];
     final noteName = noteNames[midiNote % 12];
 
