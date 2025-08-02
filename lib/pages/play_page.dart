@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_midi_command/flutter_midi_command.dart';
 import 'package:flutter_midi_command/flutter_midi_command_messages.dart';
 import 'package:piano/piano.dart';
+import 'package:provider/provider.dart';
+import '../models/midi_state.dart';
 import 'midi_settings_page.dart';
 
 class PlayPage extends StatefulWidget {
@@ -20,14 +22,16 @@ class _PlayPageState extends State<PlayPage> {
   StreamSubscription<MidiPacket>? _midiDataSubscription;
   final MidiCommand _midiCommand = MidiCommand();
 
-  String _lastNote = '';
-
-  int get _selectedChannel => widget.midiChannel;
-
   @override
   void initState() {
     super.initState();
     _setupMidiListener();
+
+    // Initialize the MIDI channel in the provider
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final midiState = Provider.of<MidiState>(context, listen: false);
+      midiState.setSelectedChannel(widget.midiChannel);
+    });
   }
 
   @override
@@ -52,6 +56,8 @@ class _PlayPageState extends State<PlayPage> {
 
     if (status == 0xF8 || status == 0xFE) return;
 
+    final midiState = Provider.of<MidiState>(context, listen: false);
+
     if (data.length >= 3) {
       var rawStatus = status & 0xF0;
       var channel = (status & 0x0F) + 1;
@@ -61,66 +67,58 @@ class _PlayPageState extends State<PlayPage> {
       switch (rawStatus) {
         case 0x90:
           if (velocity > 0) {
-            setState(() {
-              _lastNote = 'Note ON: $note (Ch: $channel, Vel: $velocity)';
-            });
+            midiState.noteOn(note, velocity, channel);
           } else {
-            setState(() {
-              _lastNote = 'Note OFF: $note (Ch: $channel)';
-            });
+            midiState.noteOff(note, channel);
           }
           break;
         case 0x80:
-          setState(() {
-            _lastNote = 'Note OFF: $note (Ch: $channel)';
-          });
+          midiState.noteOff(note, channel);
           break;
         case 0xB0:
-          setState(() {
-            _lastNote = 'CC: Controller $note = $velocity (Ch: $channel)';
-          });
+          midiState.setLastNote(
+            'CC: Controller $note = $velocity (Ch: $channel)',
+          );
           break;
         case 0xC0:
-          setState(() {
-            _lastNote = 'Program Change: $note (Ch: $channel)';
-          });
+          midiState.setLastNote('Program Change: $note (Ch: $channel)');
           break;
         case 0xE0:
           var rawPitch = note + (velocity << 7);
           var pitchValue = (((rawPitch) / 0x3FFF) * 2.0) - 1;
-          setState(() {
-            _lastNote =
-                'Pitch Bend: ${pitchValue.toStringAsFixed(2)} (Ch: $channel)';
-          });
+          midiState.setLastNote(
+            'Pitch Bend: ${pitchValue.toStringAsFixed(2)} (Ch: $channel)',
+          );
           break;
         default:
-          setState(() {
-            _lastNote =
-                'MIDI: Status 0x${status.toRadixString(16).toUpperCase()} Data: ${data.map((b) => '0x${b.toRadixString(16).toUpperCase()}').join(' ')}';
-          });
+          midiState.setLastNote(
+            'MIDI: Status 0x${status.toRadixString(16).toUpperCase()} Data: ${data.map((b) => '0x${b.toRadixString(16).toUpperCase()}').join(' ')}',
+          );
       }
     }
   }
 
   void _playVirtualNote(int note) {
-    try {
-      NoteOnMessage(channel: _selectedChannel, note: note, velocity: 64).send();
+    final midiState = Provider.of<MidiState>(context, listen: false);
+    final selectedChannel = midiState.selectedChannel;
 
-      setState(() {
-        _lastNote =
-            'Virtual Note ON: $note (Ch: ${_selectedChannel + 1}, Vel: 64)';
-      });
+    try {
+      NoteOnMessage(channel: selectedChannel, note: note, velocity: 64).send();
+
+      midiState.setLastNote(
+        'Virtual Note ON: $note (Ch: ${selectedChannel + 1}, Vel: 64)',
+      );
 
       if (kDebugMode) {
-        print('Sent virtual note on: $note on channel ${_selectedChannel + 1}');
+        print('Sent virtual note on: $note on channel ${selectedChannel + 1}');
       }
 
       Future.delayed(const Duration(milliseconds: 500), () {
         try {
-          NoteOffMessage(channel: _selectedChannel, note: note).send();
+          NoteOffMessage(channel: selectedChannel, note: note).send();
           if (kDebugMode) {
             print(
-              'Sent virtual note off: $note on channel ${_selectedChannel + 1}',
+              'Sent virtual note off: $note on channel ${selectedChannel + 1}',
             );
           }
         } catch (e) {
@@ -134,21 +132,16 @@ class _PlayPageState extends State<PlayPage> {
         print('Error playing virtual note: $e');
       }
       try {
-        var noteOnData = Uint8List.fromList([
-          0x90 | _selectedChannel,
-          note,
-          64,
-        ]);
+        var noteOnData = Uint8List.fromList([0x90 | selectedChannel, note, 64]);
         _midiCommand.sendData(noteOnData);
 
-        setState(() {
-          _lastNote =
-              'Virtual Note ON: $note (Ch: ${_selectedChannel + 1}, Vel: 64) [fallback]';
-        });
+        midiState.setLastNote(
+          'Virtual Note ON: $note (Ch: ${selectedChannel + 1}, Vel: 64) [fallback]',
+        );
 
         Future.delayed(const Duration(milliseconds: 500), () {
           var noteOffData = Uint8List.fromList([
-            0x80 | _selectedChannel,
+            0x80 | selectedChannel,
             note,
             0,
           ]);
@@ -207,21 +200,17 @@ class _PlayPageState extends State<PlayPage> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () async {
+              final midiState = Provider.of<MidiState>(context, listen: false);
               final result = await Navigator.of(context).push<int>(
                 MaterialPageRoute(
-                  builder: (context) =>
-                      MidiSettingsPage(initialChannel: _selectedChannel),
+                  builder: (context) => MidiSettingsPage(
+                    initialChannel: midiState.selectedChannel,
+                  ),
                 ),
               );
-              if (result != null && result != _selectedChannel) {
-                // Channel changed, need to navigate back to PlayPage with new channel
-                if (context.mounted) {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => PlayPage(midiChannel: result),
-                    ),
-                  );
-                }
+              if (result != null && result != midiState.selectedChannel) {
+                // Channel changed, update the provider
+                midiState.setSelectedChannel(result);
               }
             },
             tooltip: 'MIDI Settings',
@@ -252,44 +241,55 @@ class _PlayPageState extends State<PlayPage> {
                       style: TextStyle(fontSize: 16),
                       textAlign: TextAlign.center,
                     ),
-                    if (_lastNote.isNotEmpty) ...[
-                      const SizedBox(height: 16),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.green.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.green.shade200),
-                        ),
-                        child: Column(
-                          children: [
-                            const Icon(
-                              Icons.music_note,
-                              color: Colors.green,
-                              size: 32,
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Last MIDI Activity:',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                    Consumer<MidiState>(
+                      builder: (context, midiState, child) {
+                        if (midiState.lastNote.isNotEmpty) {
+                          return Column(
+                            children: [
+                              const SizedBox(height: 16),
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.green.shade200,
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    const Icon(
+                                      Icons.music_note,
+                                      color: Colors.green,
+                                      size: 32,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    const Text(
+                                      'Last MIDI Activity:',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      midiState.lastNote,
+                                      style: const TextStyle(
+                                        color: Colors.green,
+                                        fontSize: 16,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _lastNote,
-                              style: const TextStyle(
-                                color: Colors.green,
-                                fontSize: 16,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                            ],
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -316,15 +316,25 @@ class _PlayPageState extends State<PlayPage> {
                     ),
                     const SizedBox(height: 16),
                     Expanded(
-                      child: InteractivePiano(
-                        highlightedNotes: const [],
-                        naturalColor: Colors.white,
-                        accidentalColor: Colors.black,
-                        keyWidth: 45,
-                        noteRange: NoteRange.forClefs([Clef.Treble, Clef.Bass]),
-                        onNotePositionTapped: (position) {
-                          int midiNote = _convertNotePositionToMidi(position);
-                          _playVirtualNote(midiNote);
+                      child: Consumer<MidiState>(
+                        builder: (context, midiState, child) {
+                          return InteractivePiano(
+                            highlightedNotes:
+                                midiState.highlightedNotePositions,
+                            naturalColor: Colors.white,
+                            accidentalColor: Colors.black,
+                            keyWidth: 45,
+                            noteRange: NoteRange.forClefs([
+                              Clef.Treble,
+                              Clef.Bass,
+                            ]),
+                            onNotePositionTapped: (position) {
+                              int midiNote = _convertNotePositionToMidi(
+                                position,
+                              );
+                              _playVirtualNote(midiNote);
+                            },
+                          );
                         },
                       ),
                     ),

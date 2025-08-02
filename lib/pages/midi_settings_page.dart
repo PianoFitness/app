@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_midi_command/flutter_midi_command.dart';
+import 'package:provider/provider.dart';
+import '../models/midi_state.dart';
 import 'device_controller_page.dart';
 
 class MidiSettingsPage extends StatefulWidget {
@@ -141,6 +143,8 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
 
     if (status == 0xF8 || status == 0xFE) return;
 
+    final midiState = Provider.of<MidiState>(context, listen: false);
+
     if (data.length >= 3) {
       var rawStatus = status & 0xF0;
       var channel = (status & 0x0F) + 1;
@@ -150,16 +154,19 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
       switch (rawStatus) {
         case 0x90:
           if (velocity > 0) {
+            midiState.noteOn(note, velocity, channel);
             setState(() {
               _lastNote = 'Note ON: $note (Ch: $channel, Vel: $velocity)';
             });
           } else {
+            midiState.noteOff(note, channel);
             setState(() {
               _lastNote = 'Note OFF: $note (Ch: $channel)';
             });
           }
           break;
         case 0x80:
+          midiState.noteOff(note, channel);
           setState(() {
             _lastNote = 'Note OFF: $note (Ch: $channel)';
           });
