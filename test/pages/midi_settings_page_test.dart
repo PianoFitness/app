@@ -11,13 +11,13 @@ import 'package:piano_fitness/pages/midi_settings_page.dart';
 
 void main() {
   group('MidiSettingsPage Tests', () {
-    testWidgets('should create MidiSettingsPage without errors', (tester) async {
+    testWidgets('should create MidiSettingsPage without errors', (
+      tester,
+    ) async {
       // Create a test widget with necessary providers
       Widget testWidget = ChangeNotifierProvider(
         create: (context) => MidiState(),
-        child: const MaterialApp(
-          home: MidiSettingsPage(initialChannel: 0),
-        ),
+        child: const MaterialApp(home: MidiSettingsPage(initialChannel: 0)),
       );
 
       await tester.pumpWidget(testWidget);
@@ -31,9 +31,7 @@ void main() {
     testWidgets('should initialize with provided channel', (tester) async {
       Widget testWidget = ChangeNotifierProvider(
         create: (context) => MidiState(),
-        child: const MaterialApp(
-          home: MidiSettingsPage(initialChannel: 5),
-        ),
+        child: const MaterialApp(home: MidiSettingsPage(initialChannel: 5)),
       );
 
       await tester.pumpWidget(testWidget);
@@ -46,9 +44,7 @@ void main() {
     testWidgets('should display MIDI status and controls', (tester) async {
       Widget testWidget = ChangeNotifierProvider(
         create: (context) => MidiState(),
-        child: const MaterialApp(
-          home: MidiSettingsPage(),
-        ),
+        child: const MaterialApp(home: MidiSettingsPage()),
       );
 
       await tester.pumpWidget(testWidget);
@@ -56,7 +52,7 @@ void main() {
 
       // Verify MIDI configuration section exists
       expect(find.text('MIDI Device Configuration'), findsOneWidget);
-      
+
       // Verify control elements exist
       expect(find.text('MIDI Output Channel'), findsOneWidget);
       expect(find.text('Channel: '), findsOneWidget);
@@ -67,9 +63,7 @@ void main() {
     testWidgets('should handle channel selection changes', (tester) async {
       Widget testWidget = ChangeNotifierProvider(
         create: (context) => MidiState(),
-        child: const MaterialApp(
-          home: MidiSettingsPage(initialChannel: 0),
-        ),
+        child: const MaterialApp(home: MidiSettingsPage(initialChannel: 0)),
       );
 
       await tester.pumpWidget(testWidget);
@@ -80,18 +74,18 @@ void main() {
       if (addButton.evaluate().isNotEmpty) {
         await tester.tap(addButton.first);
         await tester.pump();
-        
+
         // Should not crash after changing channel
         expect(find.byType(MidiSettingsPage), findsOneWidget);
       }
     });
 
-    testWidgets('should display device scan button and handle taps', (tester) async {
+    testWidgets('should display device scan button and handle taps', (
+      tester,
+    ) async {
       Widget testWidget = ChangeNotifierProvider(
         create: (context) => MidiState(),
-        child: const MaterialApp(
-          home: MidiSettingsPage(),
-        ),
+        child: const MaterialApp(home: MidiSettingsPage()),
       );
 
       await tester.pumpWidget(testWidget);
@@ -102,13 +96,15 @@ void main() {
       if (refreshButton.evaluate().isNotEmpty) {
         await tester.tap(refreshButton);
         await tester.pump();
-        
+
         // Should not crash after tapping scan button
         expect(find.byType(MidiSettingsPage), findsOneWidget);
       }
     });
 
-    testWidgets('should handle navigation back with channel result', (tester) async {
+    testWidgets('should handle navigation back with channel result', (
+      tester,
+    ) async {
       Widget testWidget = ChangeNotifierProvider(
         create: (context) => MidiState(),
         child: MaterialApp(
@@ -118,7 +114,8 @@ void main() {
                 onPressed: () async {
                   await Navigator.of(context).push<int>(
                     MaterialPageRoute(
-                      builder: (context) => const MidiSettingsPage(initialChannel: 3),
+                      builder: (context) =>
+                          const MidiSettingsPage(initialChannel: 3),
                     ),
                   );
                 },
@@ -152,9 +149,7 @@ void main() {
     testWidgets('should display error states appropriately', (tester) async {
       Widget testWidget = ChangeNotifierProvider(
         create: (context) => MidiState(),
-        child: const MaterialApp(
-          home: MidiSettingsPage(),
-        ),
+        child: const MaterialApp(home: MidiSettingsPage()),
       );
 
       await tester.pumpWidget(testWidget);
@@ -162,19 +157,17 @@ void main() {
 
       // The page should render without errors even if MIDI setup fails
       expect(find.byType(MidiSettingsPage), findsOneWidget);
-      
+
       // Status text should be present (could be initializing, error, or ready)
       expect(find.textContaining('MIDI'), findsWidgets);
     });
 
     testWidgets('should integrate with MidiState provider', (tester) async {
       final midiState = MidiState();
-      
+
       Widget testWidget = ChangeNotifierProvider.value(
         value: midiState,
-        child: const MaterialApp(
-          home: MidiSettingsPage(),
-        ),
+        child: const MaterialApp(home: MidiSettingsPage()),
       );
 
       await tester.pumpWidget(testWidget);
@@ -182,7 +175,7 @@ void main() {
 
       // Verify the page can access MidiState
       expect(find.byType(MidiSettingsPage), findsOneWidget);
-      
+
       // The integration is tested by the page not throwing errors
       // when accessing Provider.of<MidiState>
     });
@@ -190,10 +183,10 @@ void main() {
     test('should handle MidiService integration for event parsing', () {
       // Test that demonstrates MidiService integration expectations
       // This is a unit test since we can't easily mock MIDI hardware in widget tests
-      
+
       // Verify that MidiService can handle typical MIDI data
       const noteOnData = [0x90, 60, 127]; // Note On, Middle C, Velocity 127
-      
+
       // This test verifies the MidiService is available and functional
       // The actual MIDI data handling is tested in MidiService tests
       expect(noteOnData.length, equals(3));

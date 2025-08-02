@@ -15,9 +15,7 @@ void main() {
       // Create a test widget with necessary providers
       Widget testWidget = ChangeNotifierProvider(
         create: (context) => MidiState(),
-        child: const MaterialApp(
-          home: PlayPage(midiChannel: 0),
-        ),
+        child: const MaterialApp(home: PlayPage(midiChannel: 0)),
       );
 
       await tester.pumpWidget(testWidget);
@@ -32,9 +30,7 @@ void main() {
       final midiState = MidiState();
       Widget testWidget = ChangeNotifierProvider.value(
         value: midiState,
-        child: const MaterialApp(
-          home: PlayPage(midiChannel: 5),
-        ),
+        child: const MaterialApp(home: PlayPage(midiChannel: 5)),
       );
 
       await tester.pumpWidget(testWidget);
@@ -47,9 +43,7 @@ void main() {
     testWidgets('should display educational content', (tester) async {
       Widget testWidget = ChangeNotifierProvider(
         create: (context) => MidiState(),
-        child: const MaterialApp(
-          home: PlayPage(),
-        ),
+        child: const MaterialApp(home: PlayPage()),
       );
 
       await tester.pumpWidget(testWidget);

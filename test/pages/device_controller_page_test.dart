@@ -28,7 +28,9 @@ void main() {
       connected: false,
     );
 
-    testWidgets('should create DeviceControllerPage without errors', (tester) async {
+    testWidgets('should create DeviceControllerPage without errors', (
+      tester,
+    ) async {
       Widget testWidget = MaterialApp(
         home: DeviceControllerPage(device: mockDevice),
       );
@@ -66,11 +68,11 @@ void main() {
       // Verify basic MIDI control elements are present
       expect(find.text('MIDI Channel'), findsOneWidget);
       expect(find.text('Control Change (CC)'), findsOneWidget);
-      
+
       // Verify control buttons are present
       expect(find.byIcon(Icons.add_circle), findsWidgets);
       expect(find.byIcon(Icons.remove_circle), findsWidgets);
-      
+
       // Verify sliders are present
       expect(find.byType(Slider), findsWidgets);
     });
@@ -88,7 +90,7 @@ void main() {
       if (addButton.evaluate().isNotEmpty) {
         await tester.tap(addButton.first);
         await tester.pump();
-        
+
         // Should not crash after changing channel
         expect(find.byType(DeviceControllerPage), findsOneWidget);
       }
@@ -108,7 +110,7 @@ void main() {
         final firstSlider = sliders.first;
         await tester.drag(firstSlider, const Offset(50, 0));
         await tester.pump();
-        
+
         // Should update without errors
         expect(find.byType(DeviceControllerPage), findsOneWidget);
       } else {
@@ -127,7 +129,7 @@ void main() {
 
       // Verify MIDI status area exists
       expect(find.text('Last Received MIDI Message'), findsOneWidget);
-      
+
       // Should show initial "no data" message or similar
       expect(find.textContaining('MIDI'), findsWidgets);
     });
@@ -146,7 +148,7 @@ void main() {
         // Test tapping the first send button
         await tester.tap(sendButtons.first);
         await tester.pump();
-        
+
         // Should not crash when sending MIDI messages
         expect(find.byType(DeviceControllerPage), findsOneWidget);
       }
@@ -173,7 +175,9 @@ void main() {
       }
     });
 
-    testWidgets('should handle device disconnection gracefully', (tester) async {
+    testWidgets('should handle device disconnection gracefully', (
+      tester,
+    ) async {
       final disconnectedDevice = MockMidiDevice(
         id: 'test-device-2',
         name: 'Disconnected Device',
@@ -219,24 +223,31 @@ void main() {
     test('should handle MidiService integration for event processing', () {
       // Test that demonstrates MidiService integration expectations
       // This verifies the expected data format and processing
-      
+
       // Typical MIDI control change data
       const controlChangeData = [0xB0, 7, 100]; // CC#7 (Volume), Value 100
-      
+
       // Verify data structure is correct for MidiService processing
       expect(controlChangeData.length, equals(3));
-      expect(controlChangeData[0] & 0xF0, equals(0xB0)); // Control Change message
+      expect(
+        controlChangeData[0] & 0xF0,
+        equals(0xB0),
+      ); // Control Change message
       expect(controlChangeData[1], equals(7)); // Controller number
       expect(controlChangeData[2], equals(100)); // Controller value
     });
 
     test('should handle pitch bend value calculations', () {
       // Test pitch bend data format
-      const pitchBendData = [0xE0, 0x00, 0x40]; // Pitch bend, LSB=0, MSB=64 (center)
-      
+      const pitchBendData = [
+        0xE0,
+        0x00,
+        0x40,
+      ]; // Pitch bend, LSB=0, MSB=64 (center)
+
       expect(pitchBendData.length, equals(3));
       expect(pitchBendData[0] & 0xF0, equals(0xE0)); // Pitch bend message
-      
+
       // Center position should be MSB=64 (0x40)
       expect(pitchBendData[2], equals(0x40));
     });
