@@ -46,12 +46,21 @@ class _PlayPageState extends State<PlayPage> {
   void _setupMidiListener() {
     final midiDataStream = _midiCommand.onMidiDataReceived;
     if (midiDataStream != null) {
-      _midiDataSubscription = midiDataStream.listen((packet) {
-        if (kDebugMode) {
-          print('Received MIDI data: ${packet.data}');
-        }
-        _handleMidiData(packet.data);
-      });
+      _midiDataSubscription = midiDataStream.listen(
+        (packet) {
+          if (kDebugMode) {
+            print('Received MIDI data: ${packet.data}');
+          }
+          try {
+            _handleMidiData(packet.data);
+          } catch (e) {
+            if (kDebugMode) print('MIDI data handler error: $e');
+          }
+        },
+        onError: (error) {
+          if (kDebugMode) print('MIDI data stream error: $error');
+        },
+      );
     } else {
       if (kDebugMode) {
         print('Warning: MIDI data stream is not available');
@@ -80,12 +89,18 @@ class _PlayPageState extends State<PlayPage> {
     });
   }
 
-  void _playVirtualNote(int note) {
+  void _playVirtualNote(int note) async {
     final midiState = Provider.of<MidiState>(context, listen: false);
     final selectedChannel = midiState.selectedChannel;
 
     try {
-      NoteOnMessage(channel: selectedChannel, note: note, velocity: 64).send();
+      await Future.microtask(() {
+        NoteOnMessage(
+          channel: selectedChannel,
+          note: note,
+          velocity: 64,
+        ).send();
+      });
 
       midiState.setLastNote(
         'Virtual Note ON: $note (Ch: ${selectedChannel + 1}, Vel: 64)',
@@ -96,10 +111,12 @@ class _PlayPageState extends State<PlayPage> {
       }
 
       _noteOffTimer?.cancel();
-      _noteOffTimer = Timer(const Duration(milliseconds: 500), () {
+      _noteOffTimer = Timer(const Duration(milliseconds: 500), () async {
         if (mounted) {
           try {
-            NoteOffMessage(channel: selectedChannel, note: note).send();
+            await Future.microtask(() {
+              NoteOffMessage(channel: selectedChannel, note: note).send();
+            });
             if (kDebugMode) {
               print(
                 'Sent virtual note off: $note on channel ${selectedChannel + 1}',
@@ -117,22 +134,30 @@ class _PlayPageState extends State<PlayPage> {
         print('Error playing virtual note: $e');
       }
       try {
-        var noteOnData = Uint8List.fromList([0x90 | selectedChannel, note, 64]);
-        _midiCommand.sendData(noteOnData);
+        await Future.microtask(() {
+          var noteOnData = Uint8List.fromList([
+            0x90 | selectedChannel,
+            note,
+            64,
+          ]);
+          _midiCommand.sendData(noteOnData);
+        });
 
         midiState.setLastNote(
           'Virtual Note ON: $note (Ch: ${selectedChannel + 1}, Vel: 64) [fallback]',
         );
 
         _noteOffTimer?.cancel();
-        _noteOffTimer = Timer(const Duration(milliseconds: 500), () {
+        _noteOffTimer = Timer(const Duration(milliseconds: 500), () async {
           if (mounted) {
-            var noteOffData = Uint8List.fromList([
-              0x80 | selectedChannel,
-              note,
-              0,
-            ]);
-            _midiCommand.sendData(noteOffData);
+            await Future.microtask(() {
+              var noteOffData = Uint8List.fromList([
+                0x80 | selectedChannel,
+                note,
+                0,
+              ]);
+              _midiCommand.sendData(noteOffData);
+            });
           }
         });
       } catch (fallbackError) {
