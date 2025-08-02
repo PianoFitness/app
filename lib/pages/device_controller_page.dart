@@ -17,6 +17,7 @@ class DeviceControllerPage extends StatefulWidget {
 class _DeviceControllerPageState extends State<DeviceControllerPage> {
   StreamSubscription<MidiPacket>? _midiDataSubscription;
   final MidiCommand _midiCommand = MidiCommand();
+  Timer? _noteOffTimer;
 
   int _selectedChannel = 0;
   int _ccController = 1;
@@ -34,6 +35,7 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
   @override
   void dispose() {
     _midiDataSubscription?.cancel();
+    _noteOffTimer?.cancel();
     super.dispose();
   }
 
@@ -395,8 +397,11 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
             note: midiNote,
             velocity: 64,
           ).send();
-          Future.delayed(const Duration(milliseconds: 500), () {
-            NoteOffMessage(channel: _selectedChannel, note: midiNote).send();
+          _noteOffTimer?.cancel();
+          _noteOffTimer = Timer(const Duration(milliseconds: 500), () {
+            if (mounted) {
+              NoteOffMessage(channel: _selectedChannel, note: midiNote).send();
+            }
           });
         } catch (e) {
           if (kDebugMode) {

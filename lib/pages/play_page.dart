@@ -21,6 +21,7 @@ class PlayPage extends StatefulWidget {
 class _PlayPageState extends State<PlayPage> {
   StreamSubscription<MidiPacket>? _midiDataSubscription;
   final MidiCommand _midiCommand = MidiCommand();
+  Timer? _noteOffTimer;
 
   @override
   void initState() {
@@ -37,6 +38,7 @@ class _PlayPageState extends State<PlayPage> {
   @override
   void dispose() {
     _midiDataSubscription?.cancel();
+    _noteOffTimer?.cancel();
     super.dispose();
   }
 
@@ -113,17 +115,20 @@ class _PlayPageState extends State<PlayPage> {
         print('Sent virtual note on: $note on channel ${selectedChannel + 1}');
       }
 
-      Future.delayed(const Duration(milliseconds: 500), () {
-        try {
-          NoteOffMessage(channel: selectedChannel, note: note).send();
-          if (kDebugMode) {
-            print(
-              'Sent virtual note off: $note on channel ${selectedChannel + 1}',
-            );
-          }
-        } catch (e) {
-          if (kDebugMode) {
-            print('Error sending note off: $e');
+      _noteOffTimer?.cancel();
+      _noteOffTimer = Timer(const Duration(milliseconds: 500), () {
+        if (mounted) {
+          try {
+            NoteOffMessage(channel: selectedChannel, note: note).send();
+            if (kDebugMode) {
+              print(
+                'Sent virtual note off: $note on channel ${selectedChannel + 1}',
+              );
+            }
+          } catch (e) {
+            if (kDebugMode) {
+              print('Error sending note off: $e');
+            }
           }
         }
       });
@@ -139,13 +144,16 @@ class _PlayPageState extends State<PlayPage> {
           'Virtual Note ON: $note (Ch: ${selectedChannel + 1}, Vel: 64) [fallback]',
         );
 
-        Future.delayed(const Duration(milliseconds: 500), () {
-          var noteOffData = Uint8List.fromList([
-            0x80 | selectedChannel,
-            note,
-            0,
-          ]);
-          _midiCommand.sendData(noteOffData);
+        _noteOffTimer?.cancel();
+        _noteOffTimer = Timer(const Duration(milliseconds: 500), () {
+          if (mounted) {
+            var noteOffData = Uint8List.fromList([
+              0x80 | selectedChannel,
+              note,
+              0,
+            ]);
+            _midiCommand.sendData(noteOffData);
+          }
         });
       } catch (fallbackError) {
         if (kDebugMode) {

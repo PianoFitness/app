@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:piano/piano.dart';
 
@@ -6,6 +7,7 @@ class MidiState extends ChangeNotifier {
   String _lastNote = '';
   int _selectedChannel = 0;
   bool _hasRecentActivity = false;
+  Timer? _activityTimer;
 
   Set<int> get activeNotes => Set.unmodifiable(_activeNotes);
   String get lastNote => _lastNote;
@@ -46,13 +48,12 @@ class MidiState extends ChangeNotifier {
 
   void _triggerActivity() {
     _hasRecentActivity = true;
-    notifyListeners();
-
-    // Auto-reset activity indicator after 1 second
-    Future.delayed(const Duration(seconds: 1), () {
+    _activityTimer?.cancel();
+    _activityTimer = Timer(const Duration(seconds: 1), () {
       _hasRecentActivity = false;
       notifyListeners();
     });
+    notifyListeners();
   }
 
   void clearActiveNotes() {
@@ -60,6 +61,12 @@ class MidiState extends ChangeNotifier {
       _activeNotes.clear();
       notifyListeners();
     }
+  }
+
+  @override
+  void dispose() {
+    _activityTimer?.cancel();
+    super.dispose();
   }
 
   NotePosition? _convertMidiToNotePosition(int midiNote) {
