@@ -7,6 +7,7 @@ import 'package:flutter_midi_command/flutter_midi_command_messages.dart';
 import 'package:piano/piano.dart';
 import 'package:provider/provider.dart';
 import '../models/midi_state.dart';
+import '../services/midi_service.dart';
 import 'midi_settings_page.dart';
 
 class PlayPage extends StatefulWidget {
@@ -43,61 +44,40 @@ class _PlayPageState extends State<PlayPage> {
   }
 
   void _setupMidiListener() {
-    _midiDataSubscription = _midiCommand.onMidiDataReceived?.listen((packet) {
+    final midiDataStream = _midiCommand.onMidiDataReceived;
+    if (midiDataStream != null) {
+      _midiDataSubscription = midiDataStream.listen((packet) {
+        if (kDebugMode) {
+          print('Received MIDI data: ${packet.data}');
+        }
+        _handleMidiData(packet.data);
+      });
+    } else {
       if (kDebugMode) {
-        print('Received MIDI data: ${packet.data}');
+        print('Warning: MIDI data stream is not available');
       }
-      _handleMidiData(packet.data);
-    });
+    }
   }
 
   void _handleMidiData(Uint8List data) {
-    if (data.isEmpty) return;
-
-    var status = data[0];
-
-    if (status == 0xF8 || status == 0xFE) return;
-
     final midiState = Provider.of<MidiState>(context, listen: false);
 
-    if (data.length >= 3) {
-      var rawStatus = status & 0xF0;
-      var channel = (status & 0x0F) + 1;
-      int note = data[1];
-      int velocity = data[2];
-
-      switch (rawStatus) {
-        case 0x90:
-          if (velocity > 0) {
-            midiState.noteOn(note, velocity, channel);
-          } else {
-            midiState.noteOff(note, channel);
-          }
+    MidiService.handleMidiData(data, (MidiEvent event) {
+      switch (event.type) {
+        case MidiEventType.noteOn:
+          midiState.noteOn(event.data1, event.data2, event.channel);
           break;
-        case 0x80:
-          midiState.noteOff(note, channel);
+        case MidiEventType.noteOff:
+          midiState.noteOff(event.data1, event.channel);
           break;
-        case 0xB0:
-          midiState.setLastNote(
-            'CC: Controller $note = $velocity (Ch: $channel)',
-          );
+        case MidiEventType.controlChange:
+        case MidiEventType.programChange:
+        case MidiEventType.pitchBend:
+        case MidiEventType.other:
+          midiState.setLastNote(event.displayMessage);
           break;
-        case 0xC0:
-          midiState.setLastNote('Program Change: $note (Ch: $channel)');
-          break;
-        case 0xE0:
-          var rawPitch = note + (velocity << 7);
-          var pitchValue = (((rawPitch) / 0x3FFF) * 2.0) - 1;
-          midiState.setLastNote(
-            'Pitch Bend: ${pitchValue.toStringAsFixed(2)} (Ch: $channel)',
-          );
-          break;
-        default:
-          midiState.setLastNote(
-            'MIDI: Status 0x${status.toRadixString(16).toUpperCase()} Data: ${data.map((b) => '0x${b.toRadixString(16).toUpperCase()}').join(' ')}',
-          );
       }
-    }
+    });
   }
 
   void _playVirtualNote(int note) {
@@ -262,10 +242,10 @@ class _PlayPageState extends State<PlayPage> {
       ),
       body: Column(
         children: [
-          SafeArea(
-            bottom: false,
-            child: Expanded(
-              flex: 1,
+          Expanded(
+            flex: 1,
+            child: SafeArea(
+              bottom: false,
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(

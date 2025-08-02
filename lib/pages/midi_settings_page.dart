@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_midi_command/flutter_midi_command.dart';
 import 'package:provider/provider.dart';
 import '../models/midi_state.dart';
+import '../services/midi_service.dart';
 import 'device_controller_page.dart';
 
 class MidiSettingsPage extends StatefulWidget {
@@ -137,74 +138,32 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
   }
 
   void _handleMidiData(Uint8List data) {
-    if (data.isEmpty) return;
-
-    var status = data[0];
-
-    if (status == 0xF8 || status == 0xFE) return;
-
     final midiState = Provider.of<MidiState>(context, listen: false);
 
-    if (data.length >= 3) {
-      var rawStatus = status & 0xF0;
-      var channel = (status & 0x0F) + 1;
-      int note = data[1];
-      int velocity = data[2];
-
-      switch (rawStatus) {
-        case 0x90:
-          if (velocity > 0) {
-            midiState.noteOn(note, velocity, channel);
-            setState(() {
-              _lastNote = 'Note ON: $note (Ch: $channel, Vel: $velocity)';
-            });
-          } else {
-            midiState.noteOff(note, channel);
-            setState(() {
-              _lastNote = 'Note OFF: $note (Ch: $channel)';
-            });
-          }
-          break;
-        case 0x80:
-          midiState.noteOff(note, channel);
+    MidiService.handleMidiData(data, (MidiEvent event) {
+      switch (event.type) {
+        case MidiEventType.noteOn:
+          midiState.noteOn(event.data1, event.data2, event.channel);
           setState(() {
-            _lastNote = 'Note OFF: $note (Ch: $channel)';
+            _lastNote = event.displayMessage;
           });
           break;
-        case 0xB0:
+        case MidiEventType.noteOff:
+          midiState.noteOff(event.data1, event.channel);
           setState(() {
-            _lastNote = 'CC: Controller $note = $velocity (Ch: $channel)';
+            _lastNote = event.displayMessage;
           });
           break;
-        case 0xC0:
+        case MidiEventType.controlChange:
+        case MidiEventType.programChange:
+        case MidiEventType.pitchBend:
+        case MidiEventType.other:
           setState(() {
-            _lastNote = 'Program Change: $note (Ch: $channel)';
+            _lastNote = event.displayMessage;
           });
           break;
-        case 0xE0:
-          var rawPitch = note + (velocity << 7);
-          var pitchValue = (((rawPitch) / 0x3FFF) * 2.0) - 1;
-          setState(() {
-            _lastNote =
-                'Pitch Bend: ${pitchValue.toStringAsFixed(2)} (Ch: $channel)';
-          });
-          break;
-        default:
-          setState(() {
-            _lastNote =
-                'MIDI: Status 0x${status.toRadixString(16).toUpperCase()} Data: ${data.map((b) => '0x${b.toRadixString(16).toUpperCase()}').join(' ')}';
-          });
       }
-    } else if (data.length >= 2) {
-      var rawStatus = status & 0xF0;
-      var channel = (status & 0x0F) + 1;
-
-      if (rawStatus == 0xC0) {
-        setState(() {
-          _lastNote = 'Program Change: ${data[1]} (Ch: $channel)';
-        });
-      }
-    }
+    });
   }
 
   Future<void> _scanForDevices() async {

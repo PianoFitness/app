@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_midi_command/flutter_midi_command.dart';
 import 'package:flutter_midi_command/flutter_midi_command_messages.dart';
+import '../services/midi_service.dart';
 
 class DeviceControllerPage extends StatefulWidget {
   final MidiDevice device;
@@ -48,51 +49,35 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
   }
 
   void _processMidiData(Uint8List data) {
-    if (data.isEmpty) return;
+    MidiService.handleMidiData(data, (MidiEvent event) {
+      setState(() {
+        _lastReceivedMessage = event.displayMessage;
 
-    var status = data[0];
-
-    if (status == 0xF8 || status == 0xFE) return;
-
-    setState(() {
-      if (data.length >= 3) {
-        var rawStatus = status & 0xF0;
-        var channel = (status & 0x0F) + 1;
-        var data1 = data[1];
-        var data2 = data[2];
-
-        switch (rawStatus) {
-          case 0x90:
-            _lastReceivedMessage =
-                'Note ON: $data1 (Ch: $channel, Vel: $data2)';
-            break;
-          case 0x80:
-            _lastReceivedMessage = 'Note OFF: $data1 (Ch: $channel)';
-            break;
-          case 0xB0:
-            _lastReceivedMessage =
-                'CC: Controller $data1 = $data2 (Ch: $channel)';
-            if (channel - 1 == _selectedChannel && data1 == _ccController) {
-              _ccValue = data2;
-            }
-            break;
-          case 0xC0:
-            _lastReceivedMessage = 'Program Change: $data1 (Ch: $channel)';
-            if (channel - 1 == _selectedChannel) {
-              _programNumber = data1;
-            }
-            break;
-          case 0xE0:
-            var rawPitch = data1 + (data2 << 7);
-            var pitchValue = (((rawPitch) / 0x3FFF) * 2.0) - 1;
-            _lastReceivedMessage =
-                'Pitch Bend: ${pitchValue.toStringAsFixed(2)} (Ch: $channel)';
-            if (channel - 1 == _selectedChannel) {
-              _pitchBend = pitchValue;
-            }
-            break;
+        // Update specific controls based on channel and event type
+        if (event.channel - 1 == _selectedChannel) {
+          switch (event.type) {
+            case MidiEventType.controlChange:
+              if (event.data1 == _ccController) {
+                _ccValue = event.data2;
+              }
+              break;
+            case MidiEventType.programChange:
+              _programNumber = event.data1;
+              break;
+            case MidiEventType.pitchBend:
+              _pitchBend = MidiService.getPitchBendValue(
+                event.data1,
+                event.data2,
+              );
+              break;
+            case MidiEventType.noteOn:
+            case MidiEventType.noteOff:
+            case MidiEventType.other:
+              // These don't update local control values
+              break;
+          }
         }
-      }
+      });
     });
   }
 
