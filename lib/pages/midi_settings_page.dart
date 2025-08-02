@@ -79,32 +79,55 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
 
   void _setupMidi() async {
     try {
-      _setupSubscription = _midiCommand.onMidiSetupChanged?.listen((
-        data,
-      ) async {
-        if (kDebugMode) {
-          print("MIDI setup changed: $data");
-        }
-        _updateDeviceList();
-      });
+      _setupSubscription = _midiCommand.onMidiSetupChanged?.listen(
+        (data) async {
+          if (kDebugMode) {
+            print("MIDI setup changed: $data");
+          }
+          try {
+            await _updateDeviceList();
+          } catch (e) {
+            if (kDebugMode) print('Setup subscription error: $e');
+          }
+        },
+        onError: (error) {
+          if (kDebugMode) print('Setup stream error: $error');
+        },
+      );
 
       _bluetoothStateSubscription = _midiCommand.onBluetoothStateChanged.listen(
         (state) {
           if (kDebugMode) {
             print("Bluetooth state changed: $state");
           }
-          setState(() {
-            _midiStatus = 'Bluetooth state: $state';
-          });
+          try {
+            setState(() {
+              _midiStatus = 'Bluetooth state: $state';
+            });
+          } catch (e) {
+            if (kDebugMode) print('Bluetooth state subscription error: $e');
+          }
+        },
+        onError: (error) {
+          if (kDebugMode) print('Bluetooth stream error: $error');
         },
       );
 
-      _midiDataSubscription = _midiCommand.onMidiDataReceived?.listen((packet) {
-        if (kDebugMode) {
-          print('Received MIDI data: ${packet.data}');
-        }
-        _handleMidiData(packet.data);
-      });
+      _midiDataSubscription = _midiCommand.onMidiDataReceived?.listen(
+        (packet) {
+          if (kDebugMode) {
+            print('Received MIDI data: ${packet.data}');
+          }
+          try {
+            _handleMidiData(packet.data);
+          } catch (e) {
+            if (kDebugMode) print('MIDI data subscription error: $e');
+          }
+        },
+        onError: (error) {
+          if (kDebugMode) print('MIDI data stream error: $error');
+        },
+      );
 
       await _updateDeviceList();
 
