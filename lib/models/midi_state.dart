@@ -5,10 +5,12 @@ class MidiState extends ChangeNotifier {
   final Set<int> _activeNotes = <int>{};
   String _lastNote = '';
   int _selectedChannel = 0;
+  bool _hasRecentActivity = false;
 
   Set<int> get activeNotes => Set.unmodifiable(_activeNotes);
   String get lastNote => _lastNote;
   int get selectedChannel => _selectedChannel;
+  bool get hasRecentActivity => _hasRecentActivity;
 
   List<NotePosition> get highlightedNotePositions {
     return _activeNotes
@@ -28,18 +30,29 @@ class MidiState extends ChangeNotifier {
   void noteOn(int midiNote, int velocity, int channel) {
     _activeNotes.add(midiNote);
     _lastNote = 'Note ON: $midiNote (Ch: $channel, Vel: $velocity)';
-    notifyListeners();
+    _triggerActivity();
   }
 
   void noteOff(int midiNote, int channel) {
     _activeNotes.remove(midiNote);
     _lastNote = 'Note OFF: $midiNote (Ch: $channel)';
-    notifyListeners();
+    _triggerActivity();
   }
 
   void setLastNote(String note) {
     _lastNote = note;
+    _triggerActivity();
+  }
+
+  void _triggerActivity() {
+    _hasRecentActivity = true;
     notifyListeners();
+
+    // Auto-reset activity indicator after 1 second
+    Future.delayed(const Duration(seconds: 1), () {
+      _hasRecentActivity = false;
+      notifyListeners();
+    });
   }
 
   void clearActiveNotes() {

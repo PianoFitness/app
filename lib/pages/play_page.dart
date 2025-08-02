@@ -195,8 +195,43 @@ class _PlayPageState extends State<PlayPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Piano Fitness'),
+        title: const Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.piano, color: Colors.deepPurple),
+            SizedBox(width: 8),
+            Text('Piano Fitness'),
+          ],
+        ),
         actions: [
+          // MIDI Activity Indicator
+          Consumer<MidiState>(
+            builder: (context, midiState, child) {
+              return GestureDetector(
+                onTap: () {
+                  if (midiState.lastNote.isNotEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('MIDI: ${midiState.lastNote}'),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(right: 8),
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: midiState.hasRecentActivity
+                        ? Colors.green
+                        : Colors.grey.shade400,
+                  ),
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () async {
@@ -228,67 +263,64 @@ class _PlayPageState extends State<PlayPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 20),
-                    const Center(
-                      child: Icon(
-                        Icons.piano,
-                        size: 80,
-                        color: Colors.deepPurple,
+                    // Educational Content Area
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.deepPurple.shade50,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.deepPurple.shade100),
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    const Text(
-                      'Welcome to Piano Fitness! Use the interactive piano below to practice. Configure MIDI devices through the settings icon above.',
-                      style: TextStyle(fontSize: 16),
-                      textAlign: TextAlign.center,
-                    ),
-                    Consumer<MidiState>(
-                      builder: (context, midiState, child) {
-                        if (midiState.lastNote.isNotEmpty) {
-                          return Column(
+                      child: Column(
+                        children: [
+                          const Icon(
+                            Icons.school,
+                            size: 32,
+                            color: Colors.deepPurple,
+                          ),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'Piano Practice',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepPurple,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Practice scales, chords, and melodies using the interactive piano below. '
+                            'Connect a MIDI keyboard for enhanced learning or use the virtual keys.',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.deepPurple.shade700,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 8,
                             children: [
-                              const SizedBox(height: 16),
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(16),
-                                decoration: BoxDecoration(
-                                  color: Colors.green.shade50,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Colors.green.shade200,
-                                  ),
-                                ),
-                                child: Column(
-                                  children: [
-                                    const Icon(
-                                      Icons.music_note,
-                                      color: Colors.green,
-                                      size: 32,
-                                    ),
-                                    const SizedBox(height: 8),
-                                    const Text(
-                                      'Last MIDI Activity:',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      midiState.lastNote,
-                                      style: const TextStyle(
-                                        color: Colors.green,
-                                        fontSize: 16,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
+                              Chip(
+                                label: const Text('Scales'),
+                                backgroundColor: Colors.deepPurple.shade100,
+                                labelStyle: const TextStyle(fontSize: 12),
+                              ),
+                              Chip(
+                                label: const Text('Chords'),
+                                backgroundColor: Colors.deepPurple.shade100,
+                                labelStyle: const TextStyle(fontSize: 12),
+                              ),
+                              Chip(
+                                label: const Text('Arpeggios'),
+                                backgroundColor: Colors.deepPurple.shade100,
+                                labelStyle: const TextStyle(fontSize: 12),
                               ),
                             ],
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
