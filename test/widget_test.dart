@@ -1,267 +1,30 @@
-// Piano Fitness widget and unit tests.
+// Main app widget tests for Piano Fitness.
 //
-// This file tests the MIDI functionality and UI components of the Piano Fitness app.
+// Tests the overall app structure and main entry points.
+// Specific component tests are in their respective directories:
+// - test/models/ for unit tests
+// - test/pages/ for page-specific widget tests
+// - test/widget_integration_test.dart for integration tests
 
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:piano/piano.dart';
-import 'package:provider/provider.dart';
 
-import 'package:piano_fitness/models/midi_state.dart';
+import 'package:piano_fitness/main.dart';
 
 void main() {
-  group('MidiState Tests', () {
-    late MidiState midiState;
-
-    setUp(() {
-      midiState = MidiState();
-    });
-
-    tearDown(() {
-      midiState.dispose();
-    });
-
-    test('MidiState should handle note on/off correctly', () {
-      // Test note on
-      midiState.noteOn(60, 127, 1);
-      expect(midiState.activeNotes.contains(60), true);
-      expect(midiState.lastNote, 'Note ON: 60 (Ch: 1, Vel: 127)');
-      expect(midiState.hasRecentActivity, true);
-
-      // Test note off
-      midiState.noteOff(60, 1);
-      expect(midiState.activeNotes.contains(60), false);
-      expect(midiState.lastNote, 'Note OFF: 60 (Ch: 1)');
-      expect(midiState.hasRecentActivity, true);
-    });
-
-    test('MidiState should handle multiple active notes', () {
-      midiState.noteOn(60, 127, 1); // C4
-      midiState.noteOn(64, 100, 1); // E4
-      midiState.noteOn(67, 80, 1); // G4
-
-      expect(midiState.activeNotes.length, 3);
-      expect(midiState.activeNotes.contains(60), true);
-      expect(midiState.activeNotes.contains(64), true);
-      expect(midiState.activeNotes.contains(67), true);
-
-      // Turn off middle note
-      midiState.noteOff(64, 1);
-      expect(midiState.activeNotes.length, 2);
-      expect(midiState.activeNotes.contains(64), false);
-      expect(midiState.activeNotes.contains(60), true);
-      expect(midiState.activeNotes.contains(67), true);
-    });
-
-    test('MidiState should convert MIDI notes to NotePosition correctly', () {
-      midiState.noteOn(60, 127, 1); // C4
-      midiState.noteOn(61, 127, 1); // C#4
-      midiState.noteOn(62, 127, 1); // D4
-
-      final positions = midiState.highlightedNotePositions;
-      expect(positions.length, 3);
-
-      // Check for C4
-      final cNote = positions.firstWhere(
-        (pos) => pos.note == Note.C && pos.octave == 4,
-      );
-      expect(cNote.accidental, anyOf(null, Accidental.None));
-
-      // Check for C#4
-      final cSharpNote = positions.firstWhere(
-        (pos) =>
-            pos.note == Note.C &&
-            pos.octave == 4 &&
-            pos.accidental == Accidental.Sharp,
-      );
-      expect(cSharpNote.accidental, Accidental.Sharp);
-
-      // Check for D4
-      final dNote = positions.firstWhere(
-        (pos) => pos.note == Note.D && pos.octave == 4,
-      );
-      expect(dNote.accidental, anyOf(null, Accidental.None));
-    });
-
-    test('MidiState should handle channel selection', () {
-      expect(midiState.selectedChannel, 0);
-
-      midiState.setSelectedChannel(5);
-      expect(midiState.selectedChannel, 5);
-
-      // Test invalid channels are ignored
-      midiState.setSelectedChannel(-1);
-      expect(midiState.selectedChannel, 5); // Should remain unchanged
-
-      midiState.setSelectedChannel(16);
-      expect(midiState.selectedChannel, 5); // Should remain unchanged
-    });
-
-    test('MidiState should clear active notes', () {
-      midiState.noteOn(60, 127, 1);
-      midiState.noteOn(64, 127, 1);
-      midiState.noteOn(67, 127, 1);
-
-      expect(midiState.activeNotes.length, 3);
-
-      midiState.clearActiveNotes();
-      expect(midiState.activeNotes.isEmpty, true);
-    });
-
-    test('MidiState should notify listeners on state changes', () {
-      bool notified = false;
-      midiState.addListener(() {
-        notified = true;
-      });
-
-      midiState.noteOn(60, 127, 1);
-      expect(notified, true);
-
-      notified = false;
-      midiState.setSelectedChannel(5);
-      expect(notified, true);
-
-      notified = false;
-      midiState.clearActiveNotes();
-      expect(notified, true);
-    });
-
-    testWidgets('Recent activity should reset after timer', (tester) async {
-      midiState.noteOn(60, 127, 1);
-      expect(midiState.hasRecentActivity, true);
-
-      // Wait for activity timer to expire
-      await tester.pump(const Duration(seconds: 2));
-      expect(midiState.hasRecentActivity, false);
-    });
-  });
-
-  group('Widget Tests', () {
-    testWidgets('MidiState should be provided to widget tree', (
+  group('Piano Fitness App Tests', () {
+    testWidgets('should create MyApp without errors', (
       WidgetTester tester,
     ) async {
-      // Create a simple test widget that uses MidiState
-      Widget testWidget = ChangeNotifierProvider(
-        create: (context) => MidiState(),
-        child: MaterialApp(
-          home: Consumer<MidiState>(
-            builder: (context, midiState, child) {
-              return Scaffold(
-                body: Text('Channel: ${midiState.selectedChannel}'),
-              );
-            },
-          ),
-        ),
-      );
-
-      await tester.pumpWidget(testWidget);
-
-      // Verify MidiState is accessible
-      expect(find.text('Channel: 0'), findsOneWidget);
+      // Test that MyApp can be instantiated
+      const app = MyApp();
+      expect(app, isNotNull);
+      expect(app.runtimeType, MyApp);
     });
 
-    testWidgets('MidiState changes should update UI', (
-      WidgetTester tester,
-    ) async {
-      late MidiState midiState;
-
-      Widget testWidget = ChangeNotifierProvider(
-        create: (context) {
-          midiState = MidiState();
-          return midiState;
-        },
-        child: MaterialApp(
-          home: Consumer<MidiState>(
-            builder: (context, state, child) {
-              return Scaffold(
-                body: Column(
-                  children: [
-                    Text('Channel: ${state.selectedChannel}'),
-                    Text('Active Notes: ${state.activeNotes.length}'),
-                    Text('Last Note: ${state.lastNote}'),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      );
-
-      await tester.pumpWidget(testWidget);
-
-      // Initial state
-      expect(find.text('Channel: 0'), findsOneWidget);
-      expect(find.text('Active Notes: 0'), findsOneWidget);
-
-      // Change channel
-      midiState.setSelectedChannel(5);
-      await tester.pump();
-      expect(find.text('Channel: 5'), findsOneWidget);
-
-      // Add a note
-      midiState.noteOn(60, 127, 1);
-      await tester.pump();
-      expect(find.text('Active Notes: 1'), findsOneWidget);
-      expect(
-        find.text('Last Note: Note ON: 60 (Ch: 1, Vel: 127)'),
-        findsOneWidget,
-      );
-    });
-  });
-
-  group('Edge Cases', () {
-    late MidiState midiState;
-
-    setUp(() {
-      midiState = MidiState();
-    });
-
-    tearDown(() {
-      midiState.dispose();
-    });
-
-    test('MidiState should handle invalid MIDI note numbers', () {
-      // Add some valid notes first to establish a baseline
-      midiState.noteOn(60, 127, 1);
-      midiState.noteOn(64, 127, 1);
-      final initialNotesCount = midiState.activeNotes.length;
-      expect(initialNotesCount, 2);
-
-      // Test notes outside valid MIDI range - these should still be added to activeNotes
-      // because the MidiState doesn't validate MIDI note ranges
-      midiState.noteOn(-1, 127, 1);
-      midiState.noteOn(128, 127, 1);
-
-      // Active notes will include invalid notes (this is the current behavior)
-      expect(midiState.activeNotes.length, initialNotesCount + 2);
-
-      // But lastNote should still be updated
-      expect(midiState.lastNote.contains('Note ON: 128'), true);
-    });
-
-    test('MidiState should handle duplicate note on/off events', () {
-      midiState.noteOn(60, 127, 1);
-      expect(midiState.activeNotes.contains(60), true);
-
-      // Duplicate note on should not create duplicate entries
-      midiState.noteOn(60, 100, 1);
-      expect(midiState.activeNotes.where((note) => note == 60).length, 1);
-
-      // Note off should remove the note
-      midiState.noteOff(60, 1);
-      expect(midiState.activeNotes.contains(60), false);
-
-      // Duplicate note off should not cause issues
-      midiState.noteOff(60, 1);
-      expect(midiState.activeNotes.contains(60), false);
-    });
-
-    test('MidiState should handle velocity and channel parameters', () {
-      midiState.noteOn(60, 0, 0); // Minimum velocity and channel
-      expect(midiState.lastNote, 'Note ON: 60 (Ch: 0, Vel: 0)');
-
-      midiState.noteOn(61, 127, 15); // Maximum velocity and channel
-      expect(midiState.lastNote, 'Note ON: 61 (Ch: 15, Vel: 127)');
+    test('should have correct app configuration', () {
+      // Test basic app properties without rendering
+      const app = MyApp();
+      expect(app.key, null); // Default key should be null
     });
   });
 }
