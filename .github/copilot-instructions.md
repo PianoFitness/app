@@ -321,6 +321,7 @@ test/
 ```
 
 **Guidelines**:
+
 - Place tests in `test/` directory following source structure
 - Mirror source file structure: `lib/models/midi_state.dart` → `test/models/midi_state_test.dart`
 - Group related tests with descriptive names
@@ -330,12 +331,14 @@ test/
 #### **Developer Test Workflow**
 
 **When modifying existing code**:
+
 1. Find related tests: `lib/models/midi_state.dart` → `test/models/midi_state_test.dart`
 2. Run existing tests: `flutter test test/models/midi_state_test.dart`
 3. Update tests for new functionality
 4. Verify coverage: `flutter test --coverage`
 
 **When adding new files**:
+
 1. Create corresponding test file in matching directory structure
 2. Write tests following existing patterns (see `test/models/midi_state_test.dart`)
 3. Ensure ≥80% coverage for new code
