@@ -47,13 +47,16 @@ class MidiState extends ChangeNotifier {
   }
 
   void _triggerActivity() {
-    _hasRecentActivity = true;
+    if (!_hasRecentActivity) {
+      _hasRecentActivity = true;
+      notifyListeners();
+    }
+
     _activityTimer?.cancel();
     _activityTimer = Timer(const Duration(seconds: 1), () {
       _hasRecentActivity = false;
       notifyListeners();
     });
-    notifyListeners();
   }
 
   void clearActiveNotes() {
