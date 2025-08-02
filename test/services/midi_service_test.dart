@@ -274,9 +274,9 @@ void main() {
           0x90,
           60,
           127,
-          0xFF,
-          0xFF,
-        ]); // Extra bytes
+          0x40,
+          0x7F,
+        ]); // Extra bytes (but valid MIDI data bytes 0-127)
 
         MidiService.handleMidiData(data, (event) {
           receivedEvent = event;
@@ -286,6 +286,53 @@ void main() {
         expect(receivedEvent!.type, MidiEventType.noteOn);
         expect(receivedEvent!.data1, 60);
         expect(receivedEvent!.data2, 127);
+      });
+    });
+
+    group('Security Validation', () {
+      test('should reject data with invalid MIDI data bytes (>127)', () {
+        MidiEvent? receivedEvent;
+        var data = Uint8List.fromList([
+          0x90,
+          60,
+          0xFF, // Invalid data byte (>127)
+        ]);
+
+        MidiService.handleMidiData(data, (event) {
+          receivedEvent = event;
+        });
+
+        expect(receivedEvent, isNull); // Should be rejected
+      });
+
+      test('should reject oversized packets', () {
+        MidiEvent? receivedEvent;
+        var data = Uint8List(300); // Oversized packet
+        data[0] = 0x90;
+        data[1] = 60;
+        data[2] = 127;
+
+        MidiService.handleMidiData(data, (event) {
+          receivedEvent = event;
+        });
+
+        expect(receivedEvent, isNull); // Should be rejected
+      });
+
+      test('should accept valid MIDI data bytes (0-127)', () {
+        MidiEvent? receivedEvent;
+        var data = Uint8List.fromList([
+          0x90,
+          60,
+          127, // Valid data byte (0-127)
+        ]);
+
+        MidiService.handleMidiData(data, (event) {
+          receivedEvent = event;
+        });
+
+        expect(receivedEvent, isNotNull); // Should be accepted
+        expect(receivedEvent!.type, MidiEventType.noteOn);
       });
     });
 
