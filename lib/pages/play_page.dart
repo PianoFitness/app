@@ -252,10 +252,11 @@ class _PlayPageState extends State<PlayPage> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
+      body: Column(
+        children: [
+          SafeArea(
+            bottom: false,
+            child: Expanded(
               flex: 1,
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
@@ -326,56 +327,26 @@ class _PlayPageState extends State<PlayPage> {
                 ),
               ),
             ),
-            Expanded(
-              flex: 1,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  border: Border(
-                    top: BorderSide(color: Colors.blue.shade200, width: 2),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    const Text(
-                      'Interactive Piano',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Expanded(
-                      child: Consumer<MidiState>(
-                        builder: (context, midiState, child) {
-                          return InteractivePiano(
-                            highlightedNotes:
-                                midiState.highlightedNotePositions,
-                            naturalColor: Colors.white,
-                            accidentalColor: Colors.black,
-                            keyWidth: 45,
-                            noteRange: NoteRange.forClefs([
-                              Clef.Treble,
-                              Clef.Bass,
-                            ]),
-                            onNotePositionTapped: (position) {
-                              int midiNote = _convertNotePositionToMidi(
-                                position,
-                              );
-                              _playVirtualNote(midiNote);
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Consumer<MidiState>(
+              builder: (context, midiState, child) {
+                return InteractivePiano(
+                  highlightedNotes: midiState.highlightedNotePositions,
+                  naturalColor: Colors.white,
+                  accidentalColor: Colors.black,
+                  keyWidth: 45,
+                  noteRange: NoteRange.forClefs([Clef.Treble, Clef.Bass]),
+                  onNotePositionTapped: (position) {
+                    int midiNote = _convertNotePositionToMidi(position);
+                    _playVirtualNote(midiNote);
+                  },
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
