@@ -33,12 +33,14 @@ class MidiState extends ChangeNotifier {
     _activeNotes.add(midiNote);
     _lastNote = 'Note ON: $midiNote (Ch: $channel, Vel: $velocity)';
     _triggerActivity();
+    notifyListeners(); // Always notify for note changes
   }
 
   void noteOff(int midiNote, int channel) {
     _activeNotes.remove(midiNote);
     _lastNote = 'Note OFF: $midiNote (Ch: $channel)';
     _triggerActivity();
+    notifyListeners(); // Always notify for note changes
   }
 
   void setLastNote(String note) {
