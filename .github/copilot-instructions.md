@@ -130,8 +130,14 @@ flutter run --release
 # Run all tests
 flutter test
 
-# Run specific test file
-flutter test test/widget_test.dart
+# Run tests by category
+flutter test test/models/       # All model unit tests
+flutter test test/pages/        # All page widget tests
+
+# Run specific test files
+flutter test test/models/midi_state_test.dart # MidiState unit tests
+flutter test test/pages/play_page_test.dart   # PlayPage widget tests
+flutter test test/widget_integration_test.dart # Integration tests
 
 # Run tests with coverage (REQUIRED for all changes)
 flutter test --coverage
@@ -300,10 +306,39 @@ testWidgets('MidiState should handle note on/off correctly', (tester) async {
 
 #### **Test Organization**
 
-- Place tests in `test/` directory
+Tests mirror the source code structure for easy navigation and maintenance:
+
+```
+test/
+├── models/
+│   └── midi_state_test.dart         # Tests lib/models/midi_state.dart
+├── pages/
+│   ├── play_page_test.dart          # Tests lib/pages/play_page.dart
+│   ├── midi_settings_page_test.dart # Tests lib/pages/midi_settings_page.dart
+│   └── device_controller_page_test.dart # Tests lib/pages/device_controller_page.dart
+├── widget_integration_test.dart     # Cross-component integration tests
+└── widget_test.dart                 # Main app structure tests
+```
+
+**Guidelines**:
+- Place tests in `test/` directory following source structure
 - Mirror source file structure: `lib/models/midi_state.dart` → `test/models/midi_state_test.dart`
 - Group related tests with descriptive names
 - Use `setUp()` and `tearDown()` for test isolation
+- Run specific test categories: `flutter test test/models/` or `flutter test test/pages/`
+
+#### **Developer Test Workflow**
+
+**When modifying existing code**:
+1. Find related tests: `lib/models/midi_state.dart` → `test/models/midi_state_test.dart`
+2. Run existing tests: `flutter test test/models/midi_state_test.dart`
+3. Update tests for new functionality
+4. Verify coverage: `flutter test --coverage`
+
+**When adding new files**:
+1. Create corresponding test file in matching directory structure
+2. Write tests following existing patterns (see `test/models/midi_state_test.dart`)
+3. Ensure ≥80% coverage for new code
 
 #### **Mocking Guidelines**
 

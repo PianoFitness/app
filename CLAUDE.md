@@ -36,7 +36,11 @@ dart fix --apply    # auto-fix issues
 
 # Testing (MANDATORY for all changes)
 flutter test                    # all tests
-flutter test test/file_test.dart # specific test
+flutter test test/models/       # all model tests
+flutter test test/pages/        # all page tests
+flutter test test/models/midi_state_test.dart # specific model test
+flutter test test/pages/play_page_test.dart   # specific page test
+flutter test test/widget_integration_test.dart # integration tests
 flutter test --coverage        # with coverage
 
 # Coverage Analysis (REQUIRED)
@@ -171,9 +175,39 @@ The codebase follows Flutter testing patterns with **mandatory test coverage req
    - User interaction flows
 
 #### **Test Organization**
-- Widget tests for UI components
-- Unit tests for business logic (MidiState, data models)
-- Mock external dependencies (MIDI devices, Bluetooth)
+Tests follow the same folder structure as source code for easy navigation:
+
+```
+test/
+├── models/
+│   └── midi_state_test.dart         # Tests lib/models/midi_state.dart
+├── pages/
+│   ├── play_page_test.dart          # Tests lib/pages/play_page.dart
+│   ├── midi_settings_page_test.dart # Tests lib/pages/midi_settings_page.dart  
+│   └── device_controller_page_test.dart # Tests lib/pages/device_controller_page.dart
+├── widget_integration_test.dart     # Cross-component integration tests
+└── widget_test.dart                 # Main app structure tests
+```
+
+**Test Categories**:
+- **Unit Tests** (`test/models/`): Business logic in isolation
+- **Widget Tests** (`test/pages/`): UI components and page functionality
+- **Integration Tests** (`test/widget_integration_test.dart`): Component interactions
+- **Mock Dependencies**: MIDI devices, Bluetooth, external services
+
+**Common Test Commands**:
+```bash
+# Development workflow
+flutter test test/models/midi_state_test.dart  # Work on MidiState
+flutter test test/pages/play_page_test.dart    # Work on PlayPage
+
+# Category testing
+flutter test test/models/     # All business logic tests
+flutter test test/pages/      # All UI component tests
+
+# Coverage verification
+flutter test --coverage      # Check coverage meets 80% requirement
+```
 - Test error scenarios and edge cases
 - Integration tests for complete workflows
 
