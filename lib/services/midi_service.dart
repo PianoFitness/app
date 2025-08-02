@@ -43,7 +43,12 @@ class MidiService {
   /// [data] - Raw MIDI data bytes
   /// [onEvent] - Callback function that receives the parsed MIDI event
   static void handleMidiData(Uint8List data, Function(MidiEvent) onEvent) {
-    if (data.isEmpty) return;
+    if (data.isEmpty || data.length > 256) return; // Prevent oversized packets
+
+    // Validate MIDI data bytes (must be 0-127)
+    for (int i = 1; i < data.length; i++) {
+      if (data[i] > 127) return; // Invalid MIDI data
+    }
 
     var status = data[0];
 
