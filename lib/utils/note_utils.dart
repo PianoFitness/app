@@ -53,11 +53,28 @@ class NoteUtils {
   }
 
   static NoteInfo midiNumberToNote(int midiNumber) {
+    // Validate MIDI number is within valid range
+    if (midiNumber < 0 || midiNumber > 127) {
+      throw ArgumentError(
+        'MIDI number must be between 0 and 127, got: $midiNumber',
+      );
+    }
+
     final octave = (midiNumber ~/ 12) - 1;
     final semitone = midiNumber % 12;
-    final note = _noteToSemitone.entries
-        .firstWhere((entry) => entry.value == semitone)
-        .key;
+
+    // Find the note for this semitone, with fallback for safety
+    final noteEntry = _noteToSemitone.entries
+        .where((entry) => entry.value == semitone)
+        .firstOrNull;
+
+    if (noteEntry == null) {
+      throw StateError(
+        'No note found for semitone $semitone (MIDI: $midiNumber). This should not happen.',
+      );
+    }
+
+    final note = noteEntry.key;
     final displayName = '${_noteToString[note]}$octave';
 
     return NoteInfo(
