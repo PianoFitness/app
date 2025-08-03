@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../models/midi_state.dart';
 import '../services/midi_service.dart';
 import 'midi_settings_page.dart';
+import 'practice_page.dart';
 
 class PlayPage extends StatefulWidget {
   final int midiChannel;
@@ -316,20 +317,53 @@ class _PlayPageState extends State<PlayPage> {
                             alignment: WrapAlignment.center,
                             spacing: 8,
                             children: [
-                              Chip(
-                                label: const Text('Scales'),
-                                backgroundColor: Colors.deepPurple.shade100,
-                                labelStyle: const TextStyle(fontSize: 12),
+                              InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => const PracticePage(
+                                        initialMode: PracticeMode.scales,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Chip(
+                                  label: const Text('Scales'),
+                                  backgroundColor: Colors.deepPurple.shade100,
+                                  labelStyle: const TextStyle(fontSize: 12),
+                                ),
                               ),
-                              Chip(
-                                label: const Text('Chords'),
-                                backgroundColor: Colors.deepPurple.shade100,
-                                labelStyle: const TextStyle(fontSize: 12),
+                              InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => const PracticePage(
+                                        initialMode: PracticeMode.chords,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Chip(
+                                  label: const Text('Chords'),
+                                  backgroundColor: Colors.deepPurple.shade100,
+                                  labelStyle: const TextStyle(fontSize: 12),
+                                ),
                               ),
-                              Chip(
-                                label: const Text('Arpeggios'),
-                                backgroundColor: Colors.deepPurple.shade100,
-                                labelStyle: const TextStyle(fontSize: 12),
+                              InkWell(
+                                onTap: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => const PracticePage(
+                                        initialMode: PracticeMode.arpeggios,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Chip(
+                                  label: const Text('Arpeggios'),
+                                  backgroundColor: Colors.deepPurple.shade100,
+                                  labelStyle: const TextStyle(fontSize: 12),
+                                ),
                               ),
                             ],
                           ),
