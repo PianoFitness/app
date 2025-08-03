@@ -1,11 +1,12 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_midi_command/flutter_midi_command.dart';
 import 'package:flutter_midi_command/flutter_midi_command_messages.dart';
 import '../models/midi_state.dart';
 
 class VirtualPianoUtils {
-  static Timer? _noteOffTimer;
+  static final Map<int, Timer> _noteOffTimers = {};
   static final MidiCommand _midiCommand = MidiCommand();
 
   static void playVirtualNote(
@@ -33,8 +34,9 @@ class VirtualPianoUtils {
         print('Sent virtual note on: $note on channel ${selectedChannel + 1}');
       }
 
-      _noteOffTimer?.cancel();
-      _noteOffTimer = Timer(const Duration(milliseconds: 500), () async {
+      // Cancel any existing timer for this specific note
+      _noteOffTimers[note]?.cancel();
+      _noteOffTimers[note] = Timer(const Duration(milliseconds: 500), () async {
         if (mounted) {
           try {
             await Future.microtask(() {
@@ -50,6 +52,8 @@ class VirtualPianoUtils {
               print('Error sending note off: $e');
             }
           }
+          // Remove the timer from the map once it's completed
+          _noteOffTimers.remove(note);
         }
       });
     } catch (e) {
@@ -70,19 +74,25 @@ class VirtualPianoUtils {
           'Virtual Note ON: $note (Ch: ${selectedChannel + 1}, Vel: 64) [fallback]',
         );
 
-        _noteOffTimer?.cancel();
-        _noteOffTimer = Timer(const Duration(milliseconds: 500), () async {
-          if (mounted) {
-            await Future.microtask(() {
-              var noteOffData = Uint8List.fromList([
-                0x80 | selectedChannel,
-                note,
-                0,
-              ]);
-              _midiCommand.sendData(noteOffData);
-            });
-          }
-        });
+        // Cancel any existing timer for this specific note (fallback)
+        _noteOffTimers[note]?.cancel();
+        _noteOffTimers[note] = Timer(
+          const Duration(milliseconds: 500),
+          () async {
+            if (mounted) {
+              await Future.microtask(() {
+                var noteOffData = Uint8List.fromList([
+                  0x80 | selectedChannel,
+                  note,
+                  0,
+                ]);
+                _midiCommand.sendData(noteOffData);
+              });
+              // Remove the timer from the map once it's completed
+              _noteOffTimers.remove(note);
+            }
+          },
+        );
       } catch (fallbackError) {
         if (kDebugMode) {
           print('Fallback MIDI send also failed: $fallbackError');
@@ -94,6 +104,10 @@ class VirtualPianoUtils {
   }
 
   static void dispose() {
-    _noteOffTimer?.cancel();
+    // Cancel all active note timers
+    for (final timer in _noteOffTimers.values) {
+      timer.cancel();
+    }
+    _noteOffTimers.clear();
   }
 }
