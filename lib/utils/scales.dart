@@ -1,6 +1,15 @@
 import 'note_utils.dart';
 
-enum ScaleType { major, minor, dorian, mixolydian }
+enum ScaleType {
+  major,
+  minor,
+  dorian,
+  phrygian,
+  lydian,
+  mixolydian,
+  aeolian,
+  locrian,
+}
 
 enum Key { c, cSharp, d, dSharp, e, f, fSharp, g, gSharp, a, aSharp, b }
 
@@ -92,14 +101,22 @@ class ScaleDefinitions {
     ScaleType.major: [2, 2, 1, 2, 2, 2, 1],
     ScaleType.minor: [2, 1, 2, 2, 1, 2, 2],
     ScaleType.dorian: [2, 1, 2, 2, 2, 1, 2],
+    ScaleType.phrygian: [1, 2, 2, 2, 1, 2, 2],
+    ScaleType.lydian: [2, 2, 2, 1, 2, 2, 1],
     ScaleType.mixolydian: [2, 2, 1, 2, 2, 1, 2],
+    ScaleType.aeolian: [2, 1, 2, 2, 1, 2, 2],
+    ScaleType.locrian: [1, 2, 2, 1, 2, 2, 2],
   };
 
   static const Map<ScaleType, String> _scaleNames = {
-    ScaleType.major: 'Major',
-    ScaleType.minor: 'Minor',
+    ScaleType.major: 'Major (Ionian)',
+    ScaleType.minor: 'Natural Minor',
     ScaleType.dorian: 'Dorian',
+    ScaleType.phrygian: 'Phrygian',
+    ScaleType.lydian: 'Lydian',
     ScaleType.mixolydian: 'Mixolydian',
+    ScaleType.aeolian: 'Aeolian',
+    ScaleType.locrian: 'Locrian',
   };
 
   static Scale getScale(Key key, ScaleType type) {
