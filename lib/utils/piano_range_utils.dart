@@ -15,6 +15,10 @@ class PianoRangeUtils {
   /// Maximum number of octaves to display (to prevent overly wide keyboards)
   static const int maxOctaves = 4;
 
+  /// 88-key keyboard range limits (A0 to C8)
+  static const int min88KeyMidi = 21; // A0
+  static const int max88KeyMidi = 108; // C8
+
   /// Buffer notes to add on each side of the highlighted range
   static const int bufferSemitones = 12; // One octave buffer
 
@@ -69,9 +73,9 @@ class PianoRangeUtils {
       endMidi = center + maxRangeSemitones ~/ 2;
     }
 
-    // Clamp to valid MIDI range (0-127)
-    startMidi = startMidi.clamp(0, 127);
-    endMidi = endMidi.clamp(0, 127);
+    // Clamp to 88-key keyboard range (A0 to C8)
+    startMidi = startMidi.clamp(min88KeyMidi, max88KeyMidi);
+    endMidi = endMidi.clamp(min88KeyMidi, max88KeyMidi);
 
     // Convert back to note positions
     final startPosition = _convertMidiToNotePosition(startMidi);
@@ -167,17 +171,12 @@ class PianoRangeUtils {
       endMidi += expansion + (minChordProgressionRange - currentRange) % 2;
     }
 
-    // Apply maximum range limit
-    final maxRangeSemitones = maxOctaves * 12;
-    if (currentRange > maxRangeSemitones) {
-      final center = (startMidi + endMidi) ~/ 2;
-      startMidi = center - maxRangeSemitones ~/ 2;
-      endMidi = center + maxRangeSemitones ~/ 2;
-    }
+    // For chord progressions, allow full 88-key range without artificial limits
+    // This ensures chord inversions don't cause confusing octave jumps
 
-    // Clamp to valid MIDI range
-    startMidi = startMidi.clamp(0, 127);
-    endMidi = endMidi.clamp(0, 127);
+    // Clamp to 88-key keyboard range (A0 to C8)
+    startMidi = startMidi.clamp(min88KeyMidi, max88KeyMidi);
+    endMidi = endMidi.clamp(min88KeyMidi, max88KeyMidi);
 
     // Convert back to note positions
     final startPosition = _convertMidiToNotePosition(startMidi);
