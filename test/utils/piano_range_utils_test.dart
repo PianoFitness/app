@@ -152,4 +152,40 @@ void main() {
       expect(range, isNotNull);
     });
   });
+
+  group('Key Width Calculation Tests', () {
+    test('should return appropriate key width for different ranges', () {
+      // Create mock note ranges
+      final smallRange = NoteRange(
+        from: NotePosition(note: Note.C, octave: 4),
+        to: NotePosition(note: Note.C, octave: 5),
+      );
+
+      final mediumRange = NoteRange(
+        from: NotePosition(note: Note.C, octave: 3),
+        to: NotePosition(note: Note.C, octave: 7),
+      );
+
+      final largeRange = NoteRange(
+        from: NotePosition(note: Note.C, octave: 2),
+        to: NotePosition(note: Note.C, octave: 8),
+      );
+
+      // Test key width calculation
+      final smallWidth = PianoRangeUtils.calculateOptimalKeyWidth(smallRange);
+      final mediumWidth = PianoRangeUtils.calculateOptimalKeyWidth(mediumRange);
+      final largeWidth = PianoRangeUtils.calculateOptimalKeyWidth(largeRange);
+
+      // All should return valid widths
+      expect(smallWidth, greaterThan(0));
+      expect(mediumWidth, greaterThan(0));
+      expect(largeWidth, greaterThan(0));
+
+      // For now, with our simplified implementation, they should all be the same
+      // This test verifies the method works and returns reasonable values
+      expect(smallWidth, equals(PianoRangeUtils.narrowKeyWidth));
+      expect(mediumWidth, equals(PianoRangeUtils.narrowKeyWidth));
+      expect(largeWidth, equals(PianoRangeUtils.narrowKeyWidth));
+    });
+  });
 }
