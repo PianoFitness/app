@@ -61,7 +61,6 @@ class _PracticePageState extends State<PracticePage> {
     super.dispose();
   }
 
-
   void _setupMidiListener() {
     final midiDataStream = _midiCommand.onMidiDataReceived;
     if (midiDataStream != null) {
@@ -110,7 +109,6 @@ class _PracticePageState extends State<PracticePage> {
     });
   }
 
-
   void _completeExercise() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -139,7 +137,6 @@ class _PracticePageState extends State<PracticePage> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -153,9 +150,7 @@ class _PracticePageState extends State<PracticePage> {
             Text('Piano Practice'),
           ],
         ),
-        actions: const [
-          MidiStatusIndicator(),
-        ],
+        actions: const [MidiStatusIndicator()],
       ),
       body: Column(
         children: [
@@ -199,7 +194,8 @@ class _PracticePageState extends State<PracticePage> {
                       currentSequence: _practiceSession.currentSequence,
                       currentNoteIndex: _practiceSession.currentNoteIndex,
                       currentChordIndex: _practiceSession.currentChordIndex,
-                      currentChordProgression: _practiceSession.currentChordProgression,
+                      currentChordProgression:
+                          _practiceSession.currentChordProgression,
                     ),
                   ],
                 ),
@@ -226,7 +222,8 @@ class _PracticePageState extends State<PracticePage> {
                         _practiceSession.currentChordProgression,
                         4, // Same octave used for chord progression generation
                       );
-                } else if (_practiceSession.currentSequence.isNotEmpty && _practiceSession.practiceActive) {
+                } else if (_practiceSession.currentSequence.isNotEmpty &&
+                    _practiceSession.practiceActive) {
                   // For other exercises, optimize for the entire sequence
                   optimalRange = PianoRangeUtils.calculateRangeForExercise(
                     _practiceSession.currentSequence,
@@ -242,7 +239,9 @@ class _PracticePageState extends State<PracticePage> {
                   highlightedNotes: highlightedNotes,
                   naturalColor: Colors.white,
                   accidentalColor: Colors.black,
-                  keyWidth: 45,
+                  keyWidth: PianoRangeUtils.calculateOptimalKeyWidth(
+                    optimalRange,
+                  ),
                   noteRange: optimalRange,
                   onNotePositionTapped: (position) {
                     int midiNote = NoteUtils.convertNotePositionToMidi(
