@@ -25,19 +25,15 @@ class ChordInfo {
 
     for (int i = 0; i < notes.length; i++) {
       int noteOctave = octave;
+      int baseMidiNote = NoteUtils.noteToMidiNumber(notes[i], noteOctave);
 
-      // For inversions, adjust octave to maintain proper voicing
-      if (inversion == ChordInversion.first && i == 2) {
-        // The bass note (originally root) goes up an octave
+      // If this note would be lower than the previous note, move it up an octave
+      if (midiNotes.isNotEmpty && baseMidiNote <= midiNotes.last) {
         noteOctave = octave + 1;
-      } else if (inversion == ChordInversion.second) {
-        if (i == 1 || i == 2) {
-          // The middle and top notes go up an octave
-          noteOctave = octave + 1;
-        }
+        baseMidiNote = NoteUtils.noteToMidiNumber(notes[i], noteOctave);
       }
 
-      midiNotes.add(NoteUtils.noteToMidiNumber(notes[i], noteOctave));
+      midiNotes.add(baseMidiNote);
     }
 
     return midiNotes;
