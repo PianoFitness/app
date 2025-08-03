@@ -8,6 +8,7 @@ import 'package:piano/piano.dart';
 import 'package:provider/provider.dart';
 import '../models/midi_state.dart';
 import '../services/midi_service.dart';
+import '../utils/piano_range_utils.dart';
 import 'midi_settings_page.dart';
 import 'practice_page.dart';
 
@@ -379,12 +380,17 @@ class _PlayPageState extends State<PlayPage> {
             flex: 1,
             child: Consumer<MidiState>(
               builder: (context, midiState, child) {
+                // Calculate optimal range based on highlighted notes
+                final optimalRange = PianoRangeUtils.calculateOptimalRange(
+                  midiState.highlightedNotePositions,
+                );
+
                 return InteractivePiano(
                   highlightedNotes: midiState.highlightedNotePositions,
                   naturalColor: Colors.white,
                   accidentalColor: Colors.black,
                   keyWidth: 45,
-                  noteRange: NoteRange.forClefs([Clef.Treble, Clef.Bass]),
+                  noteRange: optimalRange,
                   onNotePositionTapped: (position) {
                     int midiNote = _convertNotePositionToMidi(position);
                     _playVirtualNote(midiNote);

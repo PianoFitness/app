@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../models/midi_state.dart';
 import '../services/midi_service.dart';
 import '../utils/note_utils.dart';
+import '../utils/piano_range_utils.dart';
 import '../utils/scales.dart' as music;
 import '../utils/chords.dart';
 
@@ -682,14 +683,31 @@ class _PracticePageState extends State<PracticePage> {
             flex: 1,
             child: Consumer<MidiState>(
               builder: (context, midiState, child) {
+                // Calculate optimal range based on highlighted notes and exercise context
+                final highlightedNotes = _highlightedNotes.isNotEmpty
+                    ? _highlightedNotes
+                    : midiState.highlightedNotePositions;
+
+                NoteRange optimalRange;
+
+                // If we have an active exercise sequence, optimize for the entire sequence
+                if (_currentSequence.isNotEmpty && _practiceActive) {
+                  optimalRange = PianoRangeUtils.calculateRangeForExercise(
+                    _currentSequence,
+                  );
+                } else {
+                  // Otherwise, optimize for currently highlighted notes
+                  optimalRange = PianoRangeUtils.calculateOptimalRange(
+                    highlightedNotes,
+                  );
+                }
+
                 return InteractivePiano(
-                  highlightedNotes: _highlightedNotes.isNotEmpty
-                      ? _highlightedNotes
-                      : midiState.highlightedNotePositions,
+                  highlightedNotes: highlightedNotes,
                   naturalColor: Colors.white,
                   accidentalColor: Colors.black,
                   keyWidth: 45,
-                  noteRange: NoteRange.forClefs([Clef.Treble, Clef.Bass]),
+                  noteRange: optimalRange,
                   onNotePositionTapped: (position) {
                     int midiNote = NoteUtils.convertNotePositionToMidi(
                       position,
