@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:piano_fitness/models/midi_state.dart';
 import 'package:piano_fitness/pages/practice_page.dart';
 import 'package:piano_fitness/utils/scales.dart' as music;
+import 'package:piano_fitness/widgets/practice_settings_panel.dart';
 
 void main() {
   group('PracticePage Tests', () {

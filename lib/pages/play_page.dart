@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../models/midi_state.dart';
 import '../services/midi_service.dart';
 import '../utils/piano_range_utils.dart';
+import '../widgets/practice_settings_panel.dart';
 import 'midi_settings_page.dart';
 import 'practice_page.dart';
 
