@@ -9,7 +9,7 @@ class VirtualPianoUtils {
   static final Map<int, Timer> _noteOffTimers = {};
   static final MidiCommand _midiCommand = MidiCommand();
 
-  static void playVirtualNote(
+  static Future<void> playVirtualNote(
     int note,
     MidiState midiState,
     Function(int) onNotePressed, {
