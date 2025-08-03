@@ -220,9 +220,9 @@ void main() {
 
           // Should show chord progress
           expect(
-            find.text('Chord 1/21'),
+            find.text('Chord 1/28'),
             findsOneWidget,
-          ); // 7 chords × 3 inversions each
+          ); // 7 chords × 4 positions each (root, 1st, 2nd, 1st)
           expect(find.text('C'), findsWidgets); // Current chord name
           expect(find.byType(LinearProgressIndicator), findsOneWidget);
         },

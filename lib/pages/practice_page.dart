@@ -77,11 +77,11 @@ class _PracticePageState extends State<PracticePage> {
       _currentNoteIndex = 0;
       _updateHighlightedNotes();
     } else if (_practiceMode == PracticeMode.chords) {
-      _currentChordProgression = ChordDefinitions.getKeyTriadProgression(
+      _currentChordProgression = ChordDefinitions.getSmoothKeyTriadProgression(
         _selectedKey,
         _selectedScaleType,
       );
-      _currentSequence = ChordDefinitions.getChordProgressionMidiSequence(
+      _currentSequence = ChordDefinitions.getSmoothChordProgressionMidiSequence(
         _selectedKey,
         _selectedScaleType,
         4,

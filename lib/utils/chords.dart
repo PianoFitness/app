@@ -27,13 +27,20 @@ class ChordInfo {
       int noteOctave = octave;
       int baseMidiNote = NoteUtils.noteToMidiNumber(notes[i], noteOctave);
 
-      // If this note would be lower than the previous note, move it up an octave
+      // For inversions, allow notes to go higher to maintain proper voicing
+      // and avoid artificial octave limitations that cause confusing jumps
       if (midiNotes.isNotEmpty && baseMidiNote <= midiNotes.last) {
-        noteOctave = octave + 1;
-        baseMidiNote = NoteUtils.noteToMidiNumber(notes[i], noteOctave);
+        // Keep moving up octaves until we find a proper position
+        while (baseMidiNote <= midiNotes.last && baseMidiNote < 127) {
+          noteOctave++;
+          baseMidiNote = NoteUtils.noteToMidiNumber(notes[i], noteOctave);
+        }
       }
 
-      midiNotes.add(baseMidiNote);
+      // Ensure we don't exceed MIDI range
+      if (baseMidiNote <= 127) {
+        midiNotes.add(baseMidiNote);
+      }
     }
 
     return midiNotes;
@@ -171,6 +178,32 @@ class ChordDefinitions {
     return progression;
   }
 
+  /// Returns a smoother chord progression sequence for learning inversions.
+  /// Sequence: root, 1st inversion, 2nd inversion, 1st inversion, next chord...
+  /// This creates a more natural hand movement pattern for students.
+  static List<ChordInfo> getSmoothKeyTriadProgression(
+    Key key,
+    ScaleType scaleType,
+  ) {
+    final scale = ScaleDefinitions.getScale(key, scaleType);
+    final scaleNotes = scale.getNotes();
+    final chordTypes = getChordsInKey(key, scaleType);
+    final progression = <ChordInfo>[];
+
+    for (int i = 0; i < 7; i++) {
+      final rootNote = scaleNotes[i];
+      final chordType = chordTypes[i];
+
+      // Smooth sequence: root -> 1st -> 2nd -> 1st -> (next chord)
+      progression.add(getChord(rootNote, chordType, ChordInversion.root));
+      progression.add(getChord(rootNote, chordType, ChordInversion.first));
+      progression.add(getChord(rootNote, chordType, ChordInversion.second));
+      progression.add(getChord(rootNote, chordType, ChordInversion.first));
+    }
+
+    return progression;
+  }
+
   static List<int> getChordProgressionMidiSequence(
     Key key,
     ScaleType scaleType,
@@ -182,6 +215,61 @@ class ChordDefinitions {
     for (final chord in progression) {
       final chordMidi = chord.getMidiNotes(startOctave);
       midiSequence.addAll(chordMidi);
+    }
+
+    return midiSequence;
+  }
+
+  /// Returns a MIDI sequence for smooth chord progression with progressive octave management.
+  /// This version uses the smooth progression (root->1st->2nd->1st) and allows notes to
+  /// progress naturally upward without artificial octave limiting, providing a more
+  /// intuitive learning experience on 88-key keyboards.
+  static List<int> getSmoothChordProgressionMidiSequence(
+    Key key,
+    ScaleType scaleType,
+    int startOctave,
+  ) {
+    final progression = getSmoothKeyTriadProgression(key, scaleType);
+    final midiSequence = <int>[];
+    int currentOctave = startOctave;
+    int? lastHighestNote;
+
+    for (final chord in progression) {
+      final chordMidi = chord.getMidiNotes(currentOctave);
+
+      // If this chord's lowest note would be significantly lower than
+      // the previous chord's highest note, bump up the octave
+      if (lastHighestNote != null && chordMidi.isNotEmpty) {
+        final chordLowest = chordMidi.first;
+        final chordHighest = chordMidi.last;
+
+        // If there's a big downward jump (more than a perfect 5th),
+        // try starting this chord in a higher octave
+        if (lastHighestNote - chordLowest > 7) {
+          currentOctave++;
+          final higherChordMidi = chord.getMidiNotes(currentOctave);
+
+          // Only use the higher octave if it doesn't go too high
+          if (higherChordMidi.isNotEmpty && higherChordMidi.last <= 127) {
+            midiSequence.addAll(higherChordMidi);
+            lastHighestNote = higherChordMidi.last;
+          } else {
+            // Use original octave if higher would exceed range
+            midiSequence.addAll(chordMidi);
+            lastHighestNote = chordHighest;
+            currentOctave--; // Reset for next iteration
+          }
+        } else {
+          midiSequence.addAll(chordMidi);
+          lastHighestNote = chordHighest;
+        }
+      } else {
+        // First chord or no previous reference
+        midiSequence.addAll(chordMidi);
+        if (chordMidi.isNotEmpty) {
+          lastHighestNote = chordMidi.last;
+        }
+      }
     }
 
     return midiSequence;

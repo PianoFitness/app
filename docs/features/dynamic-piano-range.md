@@ -25,6 +25,28 @@ final customRange = PianoRangeUtils.calculateOptimalRange(
 );
 ```sure all highlighted keys for an exercise are visible without requiring horizontal scrolling. This improves the practice flow by eliminating the need for students to manually scroll the piano display during exercises.
 
+## Recent Enhancements (Chord Progression Improvements)
+
+### Smooth Chord Progression Sequence
+The chord progression practice now uses an improved sequence designed for natural hand movement:
+
+**Previous sequence:** Root → 1st inv → 2nd inv → Root → 1st inv → 2nd inv...
+**New sequence:** Root → 1st inv → 2nd inv → 1st inv → Next chord...
+
+This creates a smoother flow where inversions naturally progress rightward, then guide the hands back left in preparation for the next chord.
+
+### Extended Octave Range
+- **Removed artificial octave limits** that caused confusing downward jumps during inversion practice
+- **Supports full 88-key range** for natural progression to higher octaves
+- **Intelligent octave management** prevents large downward jumps while maintaining musical coherence
+- **MIDI range compliance** ensures all generated notes stay within valid MIDI range (0-127)
+
+### Benefits for Students
+- **Natural Hand Movement**: Inversions flow smoothly across the keyboard
+- **Reduced Confusion**: No unexpected octave jumps during practice
+- **Better Muscle Memory**: Consistent directional patterns help build proper technique
+- **Extended Range Practice**: Students can experience the full range of chord inversions
+
 ## Implementation
 
 ### Core Utility: `PianoRangeUtils`
@@ -81,7 +103,10 @@ The `lib/utils/piano_range_utils.dart` file provides intelligent range calculati
 - **Scales**: Entire scale range visible from start to finish
 - **Arpeggios**: All notes in the arpeggio pattern are visible
 - **Chords**: Individual chord notes fit within the visible range
-- **Chord Progressions**: Full range from lowest root to highest inversion across all chords
+- **Chord Progressions (Enhanced)**: Full range from lowest root to highest inversion across all chords
+  - **Smooth Progression**: Uses natural sequence (root → 1st → 2nd → 1st → next chord) for intuitive hand movement
+  - **Extended Range**: Allows progression to higher octaves (up to 88-key range) to avoid disruptive downward jumps
+  - **Natural Voicing**: Inversions progress rightward naturally, then guide hands back left smoothly
 - **Custom Exercises**: Automatically adapts to any note combination
 
 ## Technical Details
@@ -158,6 +183,28 @@ InteractivePiano(
   noteRange: PianoRangeUtils.calculateOptimalRange(notes),
   // ... other properties
 )
+```
+
+### Advanced Chord Progression Usage
+```dart
+// Smooth chord progression for natural learning flow
+final smoothProgression = ChordDefinitions.getSmoothKeyTriadProgression(
+  Key.c, 
+  ScaleType.major,
+);
+
+// MIDI sequence with extended octave range
+final smoothMidiSequence = ChordDefinitions.getSmoothChordProgressionMidiSequence(
+  Key.c,
+  ScaleType.major,
+  4, // Starting octave
+);
+
+// Optimal range calculation for chord progressions
+final chordRange = PianoRangeUtils.calculateRangeForChordProgression(
+  smoothProgression,
+  4, // Starting octave
+);
 ```
 
 This feature significantly improves the user experience by ensuring students can see all relevant keys without manual scrolling during their practice sessions.
