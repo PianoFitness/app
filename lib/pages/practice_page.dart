@@ -10,6 +10,7 @@ import '../models/midi_state.dart';
 import '../services/midi_service.dart';
 import '../utils/note_utils.dart';
 import '../utils/scales.dart' as music;
+import '../utils/chords.dart';
 
 enum PracticeMode { scales, chords, arpeggios }
 
@@ -41,6 +42,10 @@ class _PracticePageState extends State<PracticePage> {
   bool _practiceActive = false;
   List<NotePosition> _highlightedNotes = [];
 
+  List<ChordInfo> _currentChordProgression = [];
+  int _currentChordIndex = 0;
+  final Set<int> _currentlyHeldChordNotes = {};
+
   @override
   void initState() {
     super.initState();
@@ -70,6 +75,20 @@ class _PracticePageState extends State<PracticePage> {
       _currentSequence = scale.getFullScaleSequence(4);
       _currentNoteIndex = 0;
       _updateHighlightedNotes();
+    } else if (_practiceMode == PracticeMode.chords) {
+      _currentChordProgression = ChordDefinitions.getKeyTriadProgression(
+        _selectedKey,
+        _selectedScaleType,
+      );
+      _currentSequence = ChordDefinitions.getChordProgressionMidiSequence(
+        _selectedKey,
+        _selectedScaleType,
+        4,
+      );
+      _currentNoteIndex = 0;
+      _currentChordIndex = 0;
+      _currentlyHeldChordNotes.clear();
+      _updateHighlightedNotes();
     }
   }
 
@@ -80,16 +99,43 @@ class _PracticePageState extends State<PracticePage> {
       return;
     }
 
-    final currentMidiNote = _currentSequence[_currentNoteIndex];
-    final noteInfo = NoteUtils.midiNumberToNote(currentMidiNote);
-    final notePosition = NoteUtils.noteToNotePosition(
-      noteInfo.note,
-      noteInfo.octave,
-    );
+    if (_practiceMode == PracticeMode.scales) {
+      final currentMidiNote = _currentSequence[_currentNoteIndex];
+      final noteInfo = NoteUtils.midiNumberToNote(currentMidiNote);
+      final notePosition = NoteUtils.noteToNotePosition(
+        noteInfo.note,
+        noteInfo.octave,
+      );
 
-    setState(() {
-      _highlightedNotes = [notePosition];
-    });
+      setState(() {
+        _highlightedNotes = [notePosition];
+      });
+    } else if (_practiceMode == PracticeMode.chords) {
+      if (_currentChordIndex < _currentChordProgression.length) {
+        final currentChord = _currentChordProgression[_currentChordIndex];
+        final chordMidiNotes = currentChord.getMidiNotes(4);
+        final highlightedPositions = <NotePosition>[];
+
+        if (kDebugMode) {
+          print(
+            'Highlighting chord ${_currentChordIndex + 1}: ${currentChord.name} with MIDI notes: $chordMidiNotes',
+          );
+        }
+
+        for (final midiNote in chordMidiNotes) {
+          final noteInfo = NoteUtils.midiNumberToNote(midiNote);
+          final notePosition = NoteUtils.noteToNotePosition(
+            noteInfo.note,
+            noteInfo.octave,
+          );
+          highlightedPositions.add(notePosition);
+        }
+
+        setState(() {
+          _highlightedNotes = highlightedPositions;
+        });
+      }
+    }
   }
 
   void _setupMidiListener() {
@@ -128,6 +174,7 @@ class _PracticePageState extends State<PracticePage> {
           break;
         case MidiEventType.noteOff:
           midiState.noteOff(event.data1, event.channel);
+          _handleNoteReleased(event.data1);
           break;
         case MidiEventType.controlChange:
         case MidiEventType.programChange:
@@ -142,15 +189,54 @@ class _PracticePageState extends State<PracticePage> {
   void _handleNotePressed(int midiNote) {
     if (!_practiceActive || _currentSequence.isEmpty) return;
 
-    final expectedNote = _currentSequence[_currentNoteIndex];
+    if (_practiceMode == PracticeMode.scales) {
+      final expectedNote = _currentSequence[_currentNoteIndex];
 
-    if (midiNote == expectedNote) {
-      _currentNoteIndex++;
+      if (midiNote == expectedNote) {
+        _currentNoteIndex++;
 
-      if (_currentNoteIndex >= _currentSequence.length) {
-        _completeExercise();
-      } else {
-        _updateHighlightedNotes();
+        if (_currentNoteIndex >= _currentSequence.length) {
+          _completeExercise();
+        } else {
+          _updateHighlightedNotes();
+        }
+      }
+    } else if (_practiceMode == PracticeMode.chords) {
+      if (_currentChordIndex < _currentChordProgression.length) {
+        final currentChord = _currentChordProgression[_currentChordIndex];
+        final expectedChordNotes = currentChord.getMidiNotes(4);
+
+        if (expectedChordNotes.contains(midiNote)) {
+          _currentlyHeldChordNotes.add(midiNote);
+          _checkChordCompletion();
+        }
+      }
+    }
+  }
+
+  void _handleNoteReleased(int midiNote) {
+    if (_practiceMode == PracticeMode.chords && _practiceActive) {
+      _currentlyHeldChordNotes.remove(midiNote);
+    }
+  }
+
+  void _checkChordCompletion() {
+    if (_currentChordIndex < _currentChordProgression.length) {
+      final currentChord = _currentChordProgression[_currentChordIndex];
+      final expectedChordNotes = currentChord.getMidiNotes(4).toSet();
+
+      // Check if all required chord notes are currently being held
+      if (expectedChordNotes.every(
+        (note) => _currentlyHeldChordNotes.contains(note),
+      )) {
+        _currentChordIndex++;
+        _currentlyHeldChordNotes.clear();
+
+        if (_currentChordIndex >= _currentChordProgression.length) {
+          _completeExercise();
+        } else {
+          _updateHighlightedNotes();
+        }
       }
     }
   }
@@ -174,6 +260,8 @@ class _PracticePageState extends State<PracticePage> {
     setState(() {
       _practiceActive = true;
       _currentNoteIndex = 0;
+      _currentChordIndex = 0;
+      _currentlyHeldChordNotes.clear();
     });
     _updateHighlightedNotes();
   }
@@ -182,6 +270,8 @@ class _PracticePageState extends State<PracticePage> {
     setState(() {
       _practiceActive = false;
       _currentNoteIndex = 0;
+      _currentChordIndex = 0;
+      _currentlyHeldChordNotes.clear();
     });
     _updateHighlightedNotes();
   }
@@ -310,13 +400,21 @@ class _PracticePageState extends State<PracticePage> {
   String _getScaleTypeString(music.ScaleType type) {
     switch (type) {
       case music.ScaleType.major:
-        return 'Major';
+        return 'Major (Ionian)';
       case music.ScaleType.minor:
-        return 'Minor';
+        return 'Natural Minor';
       case music.ScaleType.dorian:
         return 'Dorian';
+      case music.ScaleType.phrygian:
+        return 'Phrygian';
+      case music.ScaleType.lydian:
+        return 'Lydian';
       case music.ScaleType.mixolydian:
         return 'Mixolydian';
+      case music.ScaleType.aeolian:
+        return 'Aeolian';
+      case music.ScaleType.locrian:
+        return 'Locrian';
     }
   }
 
@@ -519,22 +617,55 @@ class _PracticePageState extends State<PracticePage> {
                               ),
                               child: Column(
                                 children: [
-                                  Text(
-                                    'Progress: ${_currentNoteIndex + 1}/${_currentSequence.length}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
+                                  if (_practiceMode == PracticeMode.scales) ...[
+                                    Text(
+                                      'Progress: ${_currentNoteIndex + 1}/${_currentSequence.length}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  LinearProgressIndicator(
-                                    value:
-                                        (_currentNoteIndex + 1) /
-                                        _currentSequence.length,
-                                    backgroundColor: Colors.blue.shade100,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.blue.shade600,
+                                    const SizedBox(height: 8),
+                                    LinearProgressIndicator(
+                                      value:
+                                          (_currentNoteIndex + 1) /
+                                          _currentSequence.length,
+                                      backgroundColor: Colors.blue.shade100,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue.shade600,
+                                      ),
                                     ),
-                                  ),
+                                  ] else if (_practiceMode ==
+                                      PracticeMode.chords) ...[
+                                    Text(
+                                      'Chord ${_currentChordIndex + 1}/${_currentChordProgression.length}',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    if (_currentChordIndex <
+                                        _currentChordProgression.length) ...[
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        _currentChordProgression[_currentChordIndex]
+                                            .name,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Colors.blue.shade700,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                    const SizedBox(height: 8),
+                                    LinearProgressIndicator(
+                                      value:
+                                          (_currentChordIndex + 1) /
+                                          _currentChordProgression.length,
+                                      backgroundColor: Colors.blue.shade100,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue.shade600,
+                                      ),
+                                    ),
+                                  ],
                                 ],
                               ),
                             ),
