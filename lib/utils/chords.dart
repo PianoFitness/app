@@ -23,21 +23,41 @@ class ChordInfo {
   List<int> getMidiNotes(int octave) {
     final midiNotes = <int>[];
 
+    // Adjust the starting octave based on inversion to maintain natural progression
+    int adjustedOctave = octave;
+
+    // For inversions, if the first note would be lower than the root note,
+    // bump the entire chord up an octave to maintain the natural flow
+    if (inversion != ChordInversion.root && notes.isNotEmpty) {
+      final firstNoteMidi = NoteUtils.noteToMidiNumber(notes[0], octave);
+      final rootNoteMidi = NoteUtils.noteToMidiNumber(rootNote, octave);
+
+      // If the inversion starts with a note lower than the root,
+      // move the whole chord up an octave
+      if (firstNoteMidi < rootNoteMidi) {
+        adjustedOctave++;
+      }
+    }
+
     for (int i = 0; i < notes.length; i++) {
-      int noteOctave = octave;
+      int noteOctave = adjustedOctave;
       int baseMidiNote = NoteUtils.noteToMidiNumber(notes[i], noteOctave);
 
-      // For inversions, allow notes to go higher to maintain proper voicing
-      // and avoid artificial octave limitations that cause confusing jumps
-      if (midiNotes.isNotEmpty && baseMidiNote <= midiNotes.last) {
-        // Keep moving up octaves until we find a proper position
-        while (baseMidiNote <= midiNotes.last && baseMidiNote < 127) {
+      // For chord inversions, ensure ascending order by bumping notes up an octave as needed
+      if (midiNotes.isNotEmpty) {
+        final previousMidi = midiNotes.last;
+
+        // If this note would be lower than or equal to the previous note,
+        // bump it up an octave to maintain proper ascending voicing
+        while (baseMidiNote <= previousMidi && baseMidiNote < 127) {
+          // Allow up to MIDI 127
           noteOctave++;
           baseMidiNote = NoteUtils.noteToMidiNumber(notes[i], noteOctave);
         }
       }
 
-      // Ensure we don't exceed MIDI range
+      // Ensure we don't exceed MIDI range (but allow up to 127 for edge cases)
+      // Prefer 88-key range (108) but allow higher for testing/edge cases
       if (baseMidiNote <= 127) {
         midiNotes.add(baseMidiNote);
       }
