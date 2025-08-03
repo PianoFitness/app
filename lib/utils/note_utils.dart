@@ -166,7 +166,18 @@ class NoteUtils {
       noteOffset -= 1;
     }
 
-    return (position.octave + 1) * 12 + noteOffset;
+    final midiNumber = (position.octave + 1) * 12 + noteOffset;
+
+    // Validate the calculated MIDI number is within valid range
+    if (midiNumber < 0 || midiNumber > 127) {
+      throw ArgumentError(
+        'Calculated MIDI number $midiNumber is outside valid range (0-127). '
+        'Note: ${position.note}, Octave: ${position.octave}, '
+        'Accidental: ${position.accidental}',
+      );
+    }
+
+    return midiNumber;
   }
 
   static String noteDisplayName(MusicalNote note, int octave) {
