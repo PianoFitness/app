@@ -2,28 +2,7 @@
 
 ## Overview
 
-This feature automatically adjusts the interactive piano keyboard's vis### Usage Examples
-
-#### Basic Usage
-```dart
-// For highlighted notes
-final optimalRange = PianoRangeUtils.calculateOptimalRange(highlightedNotes);
-
-// For exercise sequences  
-final exerciseRange = PianoRangeUtils.calculateRangeForExercise(midiNotes);
-
-// For chord progressions with inversions
-final chordRange = PianoRangeUtils.calculateRangeForChordProgression(
-  chordProgression, 
-  startOctave,
-);
-
-// With custom fallback
-final customRange = PianoRangeUtils.calculateOptimalRange(
-  notes,
-  fallbackRange: customFallback,
-);
-```sure all highlighted keys for an exercise are visible without requiring horizontal scrolling. This improves the practice flow by eliminating the need for students to manually scroll the piano display during exercises.
+This feature automatically adjusts the interactive piano keyboard's visible range to ensure all highlighted keys for an exercise are visible without requiring horizontal scrolling. This improves the practice flow by eliminating the need for students to manually scroll the piano display during exercises.
 
 ## Recent Enhancements (Chord Progression Improvements)
 
