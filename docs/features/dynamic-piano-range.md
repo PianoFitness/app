@@ -2,7 +2,28 @@
 
 ## Overview
 
-This feature automatically adjusts the interactive piano keyboard's visible range to ensure all highlighted keys for an exercise are visible without requiring horizontal scrolling. This improves the practice flow by eliminating the need for students to manually scroll the piano display during exercises.
+This feature automatically adjusts the interactive piano keyboard's vis### Usage Examples
+
+#### Basic Usage
+```dart
+// For highlighted notes
+final optimalRange = PianoRangeUtils.calculateOptimalRange(highlightedNotes);
+
+// For exercise sequences  
+final exerciseRange = PianoRangeUtils.calculateRangeForExercise(midiNotes);
+
+// For chord progressions with inversions
+final chordRange = PianoRangeUtils.calculateRangeForChordProgression(
+  chordProgression, 
+  startOctave,
+);
+
+// With custom fallback
+final customRange = PianoRangeUtils.calculateOptimalRange(
+  notes,
+  fallbackRange: customFallback,
+);
+```sure all highlighted keys for an exercise are visible without requiring horizontal scrolling. This improves the practice flow by eliminating the need for students to manually scroll the piano display during exercises.
 
 ## Implementation
 
@@ -23,6 +44,13 @@ The `lib/utils/piano_range_utils.dart` file provides intelligent range calculati
    - Analyzes the entire sequence to find the optimal range
    - Ensures all notes in the exercise are visible from the start
 
+3. **`calculateRangeForChordProgression(List<dynamic> chordProgression, int startOctave)`**
+   - Specialized for chord progression practice with multiple inversions
+   - Analyzes all chords and their inversions to find the complete range
+   - Ensures the full range from lowest root note to highest inversion note is visible
+   - Uses a smaller buffer (6 semitones) optimized for chord work
+   - Maintains minimum range of 2.5 octaves for comprehensive chord practice
+
 #### Smart Range Logic
 
 - **Buffer Zone**: Adds one octave (12 semitones) on each side of highlighted notes
@@ -33,9 +61,10 @@ The `lib/utils/piano_range_utils.dart` file provides intelligent range calculati
 ### Integration Points
 
 #### Practice Page (`practice_page.dart`)
-- Uses `calculateRangeForExercise()` when an exercise is active
+- Uses `calculateRangeForChordProgression()` when in chord progression mode for optimal inversion visibility
+- Uses `calculateRangeForExercise()` when an exercise is active for other modes
 - Falls back to `calculateOptimalRange()` for individual highlighted notes
-- Provides the best experience for structured exercises
+- Provides the best experience for structured exercises with mode-aware optimization
 
 #### Play Page (`play_page.dart`)
 - Uses `calculateOptimalRange()` for real-time note highlighting
@@ -51,7 +80,8 @@ The `lib/utils/piano_range_utils.dart` file provides intelligent range calculati
 ### For Exercises
 - **Scales**: Entire scale range visible from start to finish
 - **Arpeggios**: All notes in the arpeggio pattern are visible
-- **Chords**: Chord progressions fit within the visible range
+- **Chords**: Individual chord notes fit within the visible range
+- **Chord Progressions**: Full range from lowest root to highest inversion across all chords
 - **Custom Exercises**: Automatically adapts to any note combination
 
 ## Technical Details
@@ -72,7 +102,9 @@ The `lib/utils/piano_range_utils.dart` file provides intelligent range calculati
 ```dart
 static const int minOctaves = 2;           // Minimum visible octaves
 static const int maxOctaves = 4;           // Maximum visible octaves  
-static const int bufferSemitones = 12;     // Buffer size (1 octave)
+static const int bufferSemitones = 12;     // Buffer size for general use (1 octave)
+static const int chordProgressionBuffer = 6; // Smaller buffer for chord progressions
+static const int minChordProgressionRange = 30; // Minimum range for chord work (2.5 octaves)
 ```
 
 ## Testing

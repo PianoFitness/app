@@ -108,6 +108,88 @@ class PianoRangeUtils {
     return calculateOptimalRange(notePositions, fallbackRange: fallbackRange);
   }
 
+  /// Calculates an optimal range for chord progressions with multiple inversions.
+  ///
+  /// This method is specifically designed for chord progression practice where
+  /// we need to see the full range from the lowest note of the first chord
+  /// to the highest note of the last chord (including all inversions).
+  ///
+  /// [chordProgression] - List of ChordInfo objects representing the progression
+  /// [startOctave] - The octave to start the progression from
+  /// [fallbackRange] - Range to use if progression is empty
+  ///
+  /// Returns a NoteRange that encompasses the full chord progression range.
+  static NoteRange calculateRangeForChordProgression(
+    List<dynamic> chordProgression, // Using dynamic to avoid import issues
+    int startOctave, {
+    NoteRange? fallbackRange,
+  }) {
+    if (chordProgression.isEmpty) {
+      return fallbackRange ?? defaultRange;
+    }
+
+    // Collect all MIDI notes from all chords in the progression
+    final allMidiNotes = <int>[];
+
+    for (final chord in chordProgression) {
+      try {
+        // Assuming chord has a getMidiNotes method
+        final chordMidi =
+            (chord as dynamic).getMidiNotes(startOctave) as List<int>;
+        allMidiNotes.addAll(chordMidi);
+      } catch (e) {
+        // If we can't get MIDI notes from this chord, skip it
+        continue;
+      }
+    }
+
+    if (allMidiNotes.isEmpty) {
+      return fallbackRange ?? defaultRange;
+    }
+
+    // Find the absolute minimum and maximum notes across all chords
+    final globalMin = allMidiNotes.reduce((a, b) => a < b ? a : b);
+    final globalMax = allMidiNotes.reduce((a, b) => a > b ? a : b);
+
+    // Use a slightly smaller buffer for chord progressions since we want to see
+    // the full progression without too much extra space
+    const chordProgressionBuffer = 6; // Half octave buffer
+
+    int startMidi = globalMin - chordProgressionBuffer;
+    int endMidi = globalMax + chordProgressionBuffer;
+
+    // Ensure minimum range for chord progressions (at least 2.5 octaves)
+    const minChordProgressionRange = 30; // 2.5 octaves
+    final currentRange = endMidi - startMidi;
+    if (currentRange < minChordProgressionRange) {
+      final expansion = (minChordProgressionRange - currentRange) ~/ 2;
+      startMidi -= expansion;
+      endMidi += expansion + (minChordProgressionRange - currentRange) % 2;
+    }
+
+    // Apply maximum range limit
+    final maxRangeSemitones = maxOctaves * 12;
+    if (currentRange > maxRangeSemitones) {
+      final center = (startMidi + endMidi) ~/ 2;
+      startMidi = center - maxRangeSemitones ~/ 2;
+      endMidi = center + maxRangeSemitones ~/ 2;
+    }
+
+    // Clamp to valid MIDI range
+    startMidi = startMidi.clamp(0, 127);
+    endMidi = endMidi.clamp(0, 127);
+
+    // Convert back to note positions
+    final startPosition = _convertMidiToNotePosition(startMidi);
+    final endPosition = _convertMidiToNotePosition(endMidi);
+
+    if (startPosition == null || endPosition == null) {
+      return fallbackRange ?? defaultRange;
+    }
+
+    return NoteRange(from: startPosition, to: endPosition);
+  }
+
   /// Converts a NotePosition to MIDI number
   static int _convertNotePositionToMidi(NotePosition position) {
     int noteOffset;

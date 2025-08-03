@@ -690,8 +690,17 @@ class _PracticePageState extends State<PracticePage> {
 
                 NoteRange optimalRange;
 
-                // If we have an active exercise sequence, optimize for the entire sequence
-                if (_currentSequence.isNotEmpty && _practiceActive) {
+                // For chord progression practice, use specialized range calculation
+                if (_practiceMode == PracticeMode.chords &&
+                    _currentChordProgression.isNotEmpty &&
+                    _practiceActive) {
+                  optimalRange =
+                      PianoRangeUtils.calculateRangeForChordProgression(
+                        _currentChordProgression,
+                        4, // Same octave used for chord progression generation
+                      );
+                } else if (_currentSequence.isNotEmpty && _practiceActive) {
+                  // For other exercises, optimize for the entire sequence
                   optimalRange = PianoRangeUtils.calculateRangeForExercise(
                     _currentSequence,
                   );
