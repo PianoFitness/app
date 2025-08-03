@@ -49,10 +49,15 @@ class ChordInfo {
 
         // If this note would be lower than or equal to the previous note,
         // bump it up an octave to maintain proper ascending voicing
-        while (baseMidiNote <= previousMidi && baseMidiNote < 127) {
+        int maxIterations = 10; // Safety limit to prevent infinite loops
+        int iterations = 0;
+        while (baseMidiNote <= previousMidi &&
+            baseMidiNote < 127 &&
+            iterations < maxIterations) {
           // Allow up to MIDI 127
           noteOctave++;
           baseMidiNote = NoteUtils.noteToMidiNumber(notes[i], noteOctave);
+          iterations++;
         }
       }
 
