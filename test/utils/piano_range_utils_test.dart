@@ -18,23 +18,47 @@ void main() {
     test('should return default range when no notes highlighted', () {
       final result = PianoRangeUtils.calculateOptimalRange([]);
       expect(result, isNotNull);
-      // Can't easily test equality, but we can ensure it returns a valid range
+
+      // Should return a default range (we can't access properties directly,
+      // but we can verify it's not the same instance when notes are provided)
+      final resultWithNotes = PianoRangeUtils.calculateOptimalRange([
+        NotePosition(note: Note.C, octave: 4),
+      ]);
+      expect(result, isNot(equals(resultWithNotes)));
     });
 
     test('should calculate range for single note', () {
       final noteC4 = NotePosition(note: Note.C, octave: 4);
       final result = PianoRangeUtils.calculateOptimalRange([noteC4]);
       expect(result, isNotNull);
+
+      // Should be different from default range
+      final defaultResult = PianoRangeUtils.calculateOptimalRange([]);
+      expect(result, isNot(equals(defaultResult)));
+
+      // Should be consistent - same input should give same output
+      final result2 = PianoRangeUtils.calculateOptimalRange([noteC4]);
+      expect(result.toString(), equals(result2.toString()));
     });
 
     test('should calculate range for multiple notes in same octave', () {
       final notes = [
-        NotePosition(note: Note.C, octave: 4),
-        NotePosition(note: Note.E, octave: 4),
-        NotePosition(note: Note.G, octave: 4),
+        NotePosition(note: Note.C, octave: 4), // MIDI 60
+        NotePosition(note: Note.E, octave: 4), // MIDI 64
+        NotePosition(note: Note.G, octave: 4), // MIDI 67
       ];
       final result = PianoRangeUtils.calculateOptimalRange(notes);
       expect(result, isNotNull);
+
+      // Range for multiple notes should be different from single note
+      final singleNoteResult = PianoRangeUtils.calculateOptimalRange([
+        notes[0],
+      ]);
+      expect(result, isNot(equals(singleNoteResult)));
+
+      // Should be consistent
+      final result2 = PianoRangeUtils.calculateOptimalRange(notes);
+      expect(result.toString(), equals(result2.toString()));
     });
 
     test('should calculate range for notes spanning multiple octaves', () {
@@ -46,6 +70,21 @@ void main() {
       ];
       final result = PianoRangeUtils.calculateOptimalRange(notes);
       expect(result, isNotNull);
+
+      // Range spanning multiple octaves should be different from single octave range
+      final singleOctaveNotes = [
+        NotePosition(note: Note.C, octave: 4),
+        NotePosition(note: Note.E, octave: 4),
+        NotePosition(note: Note.G, octave: 4),
+      ];
+      final singleOctaveResult = PianoRangeUtils.calculateOptimalRange(
+        singleOctaveNotes,
+      );
+      expect(result, isNot(equals(singleOctaveResult)));
+
+      // Should be consistent with same input
+      final result2 = PianoRangeUtils.calculateOptimalRange(notes);
+      expect(result.toString(), equals(result2.toString()));
     });
 
     test('should calculate range for exercise sequence', () {
