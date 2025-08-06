@@ -15,21 +15,18 @@ This document contains all the promotional and descriptive content for the Piano
 ## 📢 Promotional Text (170 characters max)
 
 ### Current Promotional Text
-🎼 Master scales, chords and arpeggios with real-time MIDI feedback and intelligent progress tracking for faster skill development!
+🎹 Practice piano scales, chords, and arpeggios with MIDI keyboard support and visual feedback on an interactive piano interface!
 
 ### Alternative Promotional Text Options
 
-**Option 1 - Feature Focus (169 chars):**
-🎹 Revolutionary piano practice with sub-millisecond MIDI timing, AI progress tracking, and adaptive exercises for all skill levels!
+**Option 1 - Simple & Direct (158 chars):**
+🎼 Connect your MIDI keyboard and practice scales, chords, and arpeggios with real-time visual feedback on an interactive piano display.
 
-**Option 2 - Benefits Focus (168 chars):**
-🏆 Transform your piano technique! Join thousands using data-driven practice tools to accelerate learning and build lasting muscle memory.
+**Option 2 - Feature Focus (164 chars):**
+🎹 Piano practice app with MIDI keyboard support, interactive piano interface, and guided exercises for scales, chords, and arpeggios.
 
-**Option 3 - Educational Focus (164 chars):**
-🎓 Professional-grade piano training tools used by students and teachers worldwide. Real-time feedback meets intelligent practice planning.
-
-**Option 4 - Technology Focus (167 chars):**
-⚡ Precision MIDI integration with high-accuracy timing analysis. Practice smarter with instant feedback and comprehensive progress analytics.
+**Option 3 - Benefits Focus (169 chars):**
+🎵 Improve your piano technique with structured practice exercises. Connect any MIDI keyboard for enhanced learning with visual feedback.
 
 ---
 
@@ -37,84 +34,64 @@ This document contains all the promotional and descriptive content for the Piano
 
 ### Main Description
 
-**Transform Your Piano Practice with Precision Technology**
+**Practice Piano with MIDI Integration and Interactive Feedback**
 
-Piano Fitness revolutionizes piano education by combining cutting-edge MIDI technology with proven pedagogical methods. Whether you're a beginner building foundational skills or an advanced pianist refining technique, our app provides the tools you need to practice more effectively and see measurable progress.
+Piano Fitness is a piano practice app that combines MIDI keyboard integration with an interactive visual piano interface. Practice scales, chords, and arpeggios with real-time visual feedback and guided exercises designed to improve your technique.
 
-**🎹 Real-Time MIDI Integration**
-- Sub-millisecond timing accuracy for professional-grade practice
-- Compatible with USB, Bluetooth, and network MIDI devices
-- Instant note detection with velocity and timing analysis
-- Visual feedback on the interactive 49-key piano interface
+**🎹 MIDI Keyboard Integration**
+- Connect via Bluetooth or USB MIDI devices
+- Real-time note detection from your MIDI keyboard
+- Visual feedback showing played notes on the piano interface
+- Support for multiple MIDI channels and device types
 
-**📚 Comprehensive Exercise Library**
-- Major and minor scales (natural, harmonic, melodic)
-- Chord progressions and inversions in all keys
-- Arpeggios from one to three octaves
-- Technical studies for coordination and independence
-- Custom exercises created by you or your teacher
+**📚 Guided Practice Exercises**
+- Scales: Major and minor scales in all keys
+- Chords: Triads and chord progressions 
+- Arpeggios: Practice broken chord patterns across octaves
+- Visual note highlighting to guide your practice
+- Selectable keys, scale types, and arpeggio configurations
 
-**⏱️ Intelligent Practice Tools**
-- High-precision metronome with customizable patterns
-- Session timer with practice goals and break reminders
-- Practice planning with structured session templates
-- Smart break management to prevent fatigue
+**🎨 Interactive Piano Interface**
+- Visual 49-key piano keyboard display
+- Notes highlight in real-time as you play
+- Virtual piano mode - play notes by tapping the screen
+- Adaptive piano range that focuses on your current exercise
+- Optimal key sizing for different screen sizes
 
-**📊 Advanced Progress Tracking**
-- Real-time performance metrics: accuracy, timing, legato quality
-- Historical trend analysis with detailed charts
-- Achievement system with badges and milestones
-- Practice calendar with heat map visualization
-- Goal setting with adaptive recommendations
-
-**👨‍🏫 Teacher Integration**
-- Student progress monitoring with detailed insights
-- Exercise assignment system with completion tracking
-- Class management tools for multiple students
-- Progress sharing controls with privacy protection
-
-**🎓 Evidence-Based Learning**
-Built on established music education principles:
-- Deliberate practice with specific, measurable goals
-- Immediate feedback for faster skill acquisition
-- Spaced repetition for long-term retention
-- Progressive difficulty to maintain optimal challenge
-
-**✨ Premium Features**
-- Cloud synchronization across all your devices
-- Offline practice with automatic sync when connected
-- Advanced analytics and trend analysis
-- Custom exercise creation and sharing
-- Priority customer support
+**⚙️ MIDI Device Management**
+- Scan and connect to available MIDI devices
+- Device controller with MIDI message testing
+- Channel selection (1-16) for virtual piano output
+- Support for control change, program change, and pitch bend messages
+- Troubleshooting tools and connection status indicators
 
 **Perfect for:**
-- Piano students of all levels
-- Music teachers and instructors
-- Music schools and conservatories
-- Self-taught pianists seeking structure
-- Anyone serious about improving their piano technique
+- Piano students wanting structured practice
+- Players with MIDI keyboards seeking visual feedback
+- Self-taught pianists looking for guided exercises
+- Anyone wanting to practice scales, chords, and arpeggios
 
-Join thousands of pianists who are already experiencing faster progress with Piano Fitness. Download now and transform your practice sessions into efficient, data-driven skill-building experiences.
+**Requires:** For full functionality, a compatible MIDI keyboard is recommended. The app includes a virtual piano mode for practice without external hardware.
 
-**Requires:** Compatible MIDI keyboard for full functionality. App works with most USB and Bluetooth MIDI devices.
+Start your structured piano practice journey with Piano Fitness. Connect your MIDI keyboard and begin improving your technique today!
 
 ---
 
 ## 🔍 Keywords (100 characters max)
 
 ### Primary Keywords
-piano, practice, MIDI, scales, chords, arpeggios, music education, timing, metronome, progress
+piano, practice, MIDI, scales, chords, arpeggios, keyboard, music, education, visual
 
 ### Alternative Keyword Sets
 
 **Option 1 - Technical Focus:**
-piano, MIDI, practice, scales, chords, music, education, timing, accuracy, feedback, progress, teacher
+piano, MIDI keyboard, practice, scales, chords, arpeggios, music, visual, feedback, interface
 
 **Option 2 - Educational Focus:**
-piano lessons, music education, practice tools, scales, chords, student, teacher, progress, learning
+piano practice, music education, scales, chords, arpeggios, MIDI, student, learning, visual
 
 **Option 3 - Feature Focus:**
-piano, MIDI keyboard, practice app, metronome, scales, chords, arpeggios, timing, progress tracker
+piano, MIDI, keyboard, practice app, scales, chords, arpeggios, visual feedback, interactive
 
 ---
 
