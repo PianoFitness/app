@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:piano/piano.dart';
+import '../utils/arpeggios.dart';
 import '../utils/chords.dart';
 import '../utils/note_utils.dart';
 import '../utils/scales.dart' as music;
@@ -12,6 +13,11 @@ class PracticeSession {
   PracticeMode _practiceMode = PracticeMode.scales;
   music.Key _selectedKey = music.Key.c;
   music.ScaleType _selectedScaleType = music.ScaleType.major;
+  
+  // Arpeggio-specific state
+  MusicalNote _selectedRootNote = MusicalNote.c;
+  ArpeggioType _selectedArpeggioType = ArpeggioType.major;
+  ArpeggioOctaves _selectedArpeggioOctaves = ArpeggioOctaves.one;
   
   List<int> _currentSequence = [];
   int _currentNoteIndex = 0;
@@ -29,6 +35,9 @@ class PracticeSession {
   PracticeMode get practiceMode => _practiceMode;
   music.Key get selectedKey => _selectedKey;
   music.ScaleType get selectedScaleType => _selectedScaleType;
+  MusicalNote get selectedRootNote => _selectedRootNote;
+  ArpeggioType get selectedArpeggioType => _selectedArpeggioType;
+  ArpeggioOctaves get selectedArpeggioOctaves => _selectedArpeggioOctaves;
   List<int> get currentSequence => _currentSequence;
   int get currentNoteIndex => _currentNoteIndex;
   bool get practiceActive => _practiceActive;
@@ -49,6 +58,24 @@ class PracticeSession {
 
   void setSelectedScaleType(music.ScaleType type) {
     _selectedScaleType = type;
+    _practiceActive = false;
+    _initializeSequence();
+  }
+
+  void setSelectedRootNote(MusicalNote rootNote) {
+    _selectedRootNote = rootNote;
+    _practiceActive = false;
+    _initializeSequence();
+  }
+
+  void setSelectedArpeggioType(ArpeggioType type) {
+    _selectedArpeggioType = type;
+    _practiceActive = false;
+    _initializeSequence();
+  }
+
+  void setSelectedArpeggioOctaves(ArpeggioOctaves octaves) {
+    _selectedArpeggioOctaves = octaves;
     _practiceActive = false;
     _initializeSequence();
   }
@@ -76,6 +103,15 @@ class PracticeSession {
       _currentChordIndex = 0;
       _currentlyHeldChordNotes.clear();
       _updateHighlightedNotes();
+    } else if (_practiceMode == PracticeMode.arpeggios) {
+      final arpeggio = ArpeggioDefinitions.getArpeggio(
+        _selectedRootNote,
+        _selectedArpeggioType,
+        _selectedArpeggioOctaves,
+      );
+      _currentSequence = arpeggio.getFullArpeggioSequence(4);
+      _currentNoteIndex = 0;
+      _updateHighlightedNotes();
     }
   }
 
@@ -86,7 +122,7 @@ class PracticeSession {
       return;
     }
 
-    if (_practiceMode == PracticeMode.scales) {
+    if (_practiceMode == PracticeMode.scales || _practiceMode == PracticeMode.arpeggios) {
       final currentMidiNote = _currentSequence[_currentNoteIndex];
       final noteInfo = NoteUtils.midiNumberToNote(currentMidiNote);
       final notePosition = NoteUtils.noteToNotePosition(
@@ -123,7 +159,7 @@ class PracticeSession {
   void handleNotePressed(int midiNote) {
     if (!_practiceActive || _currentSequence.isEmpty) return;
 
-    if (_practiceMode == PracticeMode.scales) {
+    if (_practiceMode == PracticeMode.scales || _practiceMode == PracticeMode.arpeggios) {
       final expectedNote = _currentSequence[_currentNoteIndex];
 
       if (midiNote == expectedNote) {

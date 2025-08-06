@@ -168,6 +168,9 @@ class _PracticePageState extends State<PracticePage> {
                       practiceMode: _practiceSession.practiceMode,
                       selectedKey: _practiceSession.selectedKey,
                       selectedScaleType: _practiceSession.selectedScaleType,
+                      selectedRootNote: _practiceSession.selectedRootNote,
+                      selectedArpeggioType: _practiceSession.selectedArpeggioType,
+                      selectedArpeggioOctaves: _practiceSession.selectedArpeggioOctaves,
                       practiceActive: _practiceSession.practiceActive,
                       onStartPractice: _startPractice,
                       onResetPractice: _resetPractice,
@@ -184,6 +187,21 @@ class _PracticePageState extends State<PracticePage> {
                       onScaleTypeChanged: (type) {
                         setState(() {
                           _practiceSession.setSelectedScaleType(type);
+                        });
+                      },
+                      onRootNoteChanged: (rootNote) {
+                        setState(() {
+                          _practiceSession.setSelectedRootNote(rootNote);
+                        });
+                      },
+                      onArpeggioTypeChanged: (type) {
+                        setState(() {
+                          _practiceSession.setSelectedArpeggioType(type);
+                        });
+                      },
+                      onArpeggioOctavesChanged: (octaves) {
+                        setState(() {
+                          _practiceSession.setSelectedArpeggioOctaves(octaves);
                         });
                       },
                     ),

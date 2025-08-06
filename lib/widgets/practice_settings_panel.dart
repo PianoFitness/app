@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../utils/arpeggios.dart';
+import '../utils/note_utils.dart';
 import '../utils/scales.dart' as music;
 
 enum PracticeMode { scales, chords, arpeggios }
@@ -7,24 +9,36 @@ class PracticeSettingsPanel extends StatelessWidget {
   final PracticeMode practiceMode;
   final music.Key selectedKey;
   final music.ScaleType selectedScaleType;
+  final MusicalNote selectedRootNote;
+  final ArpeggioType selectedArpeggioType;
+  final ArpeggioOctaves selectedArpeggioOctaves;
   final bool practiceActive;
   final VoidCallback onStartPractice;
   final VoidCallback onResetPractice;
   final ValueChanged<PracticeMode> onPracticeModeChanged;
   final ValueChanged<music.Key> onKeyChanged;
   final ValueChanged<music.ScaleType> onScaleTypeChanged;
+  final ValueChanged<MusicalNote> onRootNoteChanged;
+  final ValueChanged<ArpeggioType> onArpeggioTypeChanged;
+  final ValueChanged<ArpeggioOctaves> onArpeggioOctavesChanged;
 
   const PracticeSettingsPanel({
     super.key,
     required this.practiceMode,
     required this.selectedKey,
     required this.selectedScaleType,
+    required this.selectedRootNote,
+    required this.selectedArpeggioType,
+    required this.selectedArpeggioOctaves,
     required this.practiceActive,
     required this.onStartPractice,
     required this.onResetPractice,
     required this.onPracticeModeChanged,
     required this.onKeyChanged,
     required this.onScaleTypeChanged,
+    required this.onRootNoteChanged,
+    required this.onArpeggioTypeChanged,
+    required this.onArpeggioOctavesChanged,
   });
 
   String _getPracticeModeString(PracticeMode mode) {
@@ -88,6 +102,38 @@ class PracticeSettingsPanel extends StatelessWidget {
     }
   }
 
+  String _getRootNoteString(MusicalNote note) {
+    return NoteUtils.noteDisplayName(note, 0).replaceAll('0', '');
+  }
+
+  String _getArpeggioTypeString(ArpeggioType type) {
+    switch (type) {
+      case ArpeggioType.major:
+        return 'Major';
+      case ArpeggioType.minor:
+        return 'Minor';
+      case ArpeggioType.diminished:
+        return 'Diminished';
+      case ArpeggioType.augmented:
+        return 'Augmented';
+      case ArpeggioType.dominant7:
+        return 'Dominant 7th';
+      case ArpeggioType.minor7:
+        return 'Minor 7th';
+      case ArpeggioType.major7:
+        return 'Major 7th';
+    }
+  }
+
+  String _getArpeggioOctavesString(ArpeggioOctaves octaves) {
+    switch (octaves) {
+      case ArpeggioOctaves.one:
+        return '1 Octave';
+      case ArpeggioOctaves.two:
+        return '2 Octaves';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -142,24 +188,43 @@ class PracticeSettingsPanel extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: DropdownButtonFormField<music.Key>(
-                  value: selectedKey,
-                  decoration: const InputDecoration(
-                    labelText: 'Key',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: music.Key.values.map((key) {
-                    return DropdownMenuItem(
-                      value: key,
-                      child: Text(_getKeyString(key)),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      onKeyChanged(value);
-                    }
-                  },
-                ),
+                child: practiceMode == PracticeMode.arpeggios
+                    ? DropdownButtonFormField<MusicalNote>(
+                        value: selectedRootNote,
+                        decoration: const InputDecoration(
+                          labelText: 'Root Note',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: MusicalNote.values.map((note) {
+                          return DropdownMenuItem(
+                            value: note,
+                            child: Text(_getRootNoteString(note)),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            onRootNoteChanged(value);
+                          }
+                        },
+                      )
+                    : DropdownButtonFormField<music.Key>(
+                        value: selectedKey,
+                        decoration: const InputDecoration(
+                          labelText: 'Key',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: music.Key.values.map((key) {
+                          return DropdownMenuItem(
+                            value: key,
+                            child: Text(_getKeyString(key)),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            onKeyChanged(value);
+                          }
+                        },
+                      ),
               ),
             ],
           ),
@@ -182,6 +247,59 @@ class PracticeSettingsPanel extends StatelessWidget {
                   onScaleTypeChanged(value);
                 }
               },
+            ),
+          ],
+          if (practiceMode == PracticeMode.arpeggios) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<ArpeggioType>(
+                    value: selectedArpeggioType,
+                    decoration: const InputDecoration(
+                      labelText: 'Arpeggio Type',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: [
+                      ArpeggioType.major,
+                      ArpeggioType.minor,
+                      ArpeggioType.diminished,
+                      ArpeggioType.augmented,
+                    ].map((type) {
+                      return DropdownMenuItem(
+                        value: type,
+                        child: Text(_getArpeggioTypeString(type)),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        onArpeggioTypeChanged(value);
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: DropdownButtonFormField<ArpeggioOctaves>(
+                    value: selectedArpeggioOctaves,
+                    decoration: const InputDecoration(
+                      labelText: 'Octaves',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: ArpeggioOctaves.values.map((octaves) {
+                      return DropdownMenuItem(
+                        value: octaves,
+                        child: Text(_getArpeggioOctavesString(octaves)),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        onArpeggioOctavesChanged(value);
+                      }
+                    },
+                  ),
+                ),
+              ],
             ),
           ],
           const SizedBox(height: 16),
