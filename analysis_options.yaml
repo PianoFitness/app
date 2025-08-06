@@ -25,6 +25,17 @@ linter:
     prefer_single_quotes: false # Disable single quote preference - use double quotes
     prefer_double_quotes: true # Use double quotes for strings
     unnecessary_breaks: false # Disable unnecessary breaks warning for switch statements
+    # Code quality rules to enforce best practices
+    avoid_function_literals_in_foreach_calls: true
+    avoid_redundant_argument_values: true
+    avoid_unused_constructor_parameters: true
+    prefer_final_locals: true
+    prefer_final_in_for_each: true
+    prefer_if_null_operators: true
+    prefer_null_aware_operators: true
+    prefer_spread_collections: true
+    sort_constructors_first: true
+    sort_unnamed_constructors_first: true
     # avoid_print: false  # Uncomment to disable the `avoid_print` rule
 
 # Custom analyzer rules
@@ -33,10 +44,5 @@ analyzer:
     strict-casts: true
     strict-inference: true
     strict-raw-types: true
-
-# Set line length to 120 characters for dart format
-dart_code_metrics:
-  metrics:
-    lines-of-code: 120
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options
