@@ -3,7 +3,7 @@ import "package:piano_fitness/models/midi_state.dart";
 import "package:provider/provider.dart";
 
 /// A visual indicator showing MIDI activity status.
-/// 
+///
 /// Displays a circular indicator that changes color based on recent MIDI activity.
 /// When tapped, it shows the most recent MIDI message in a snackbar for debugging.
 /// Green indicates recent activity, gray indicates no recent activity.
@@ -32,7 +32,9 @@ class MidiStatusIndicator extends StatelessWidget {
             height: 12,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: midiState.hasRecentActivity ? Colors.green : Colors.grey.shade400,
+              color: midiState.hasRecentActivity
+                  ? Colors.green
+                  : Colors.grey.shade400,
             ),
           ),
         );

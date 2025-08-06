@@ -113,7 +113,8 @@ void main() {
                 onPressed: () async {
                   await Navigator.of(context).push<int>(
                     MaterialPageRoute(
-                      builder: (context) => const MidiSettingsPage(initialChannel: 3),
+                      builder: (context) =>
+                          const MidiSettingsPage(initialChannel: 3),
                     ),
                   );
                 },

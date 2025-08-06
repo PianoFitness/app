@@ -560,11 +560,12 @@ void main() {
             expect(progression, hasLength(21)); // 7 chords × 3 inversions
 
             // Generate MIDI sequence and validate
-            final midiSequence = ChordDefinitions.getChordProgressionMidiSequence(
-              key,
-              scaleType,
-              4,
-            );
+            final midiSequence =
+                ChordDefinitions.getChordProgressionMidiSequence(
+                  key,
+                  scaleType,
+                  4,
+                );
             expect(midiSequence, hasLength(63)); // 21 chords × 3 notes each
 
             // All MIDI notes should be valid

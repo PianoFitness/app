@@ -28,11 +28,12 @@ void main() {
     });
 
     test("should generate MIDI sequence without large downward jumps", () {
-      final midiSequence = ChordDefinitions.getSmoothChordProgressionMidiSequence(
-        Key.c,
-        ScaleType.major,
-        4, // Start in 4th octave
-      );
+      final midiSequence =
+          ChordDefinitions.getSmoothChordProgressionMidiSequence(
+            Key.c,
+            ScaleType.major,
+            4, // Start in 4th octave
+          );
 
       expect(midiSequence.isNotEmpty, true);
 
@@ -56,11 +57,12 @@ void main() {
     });
 
     test("should handle high octaves without exceeding MIDI range", () {
-      final midiSequence = ChordDefinitions.getSmoothChordProgressionMidiSequence(
-        Key.c,
-        ScaleType.major,
-        6, // Start quite high
-      );
+      final midiSequence =
+          ChordDefinitions.getSmoothChordProgressionMidiSequence(
+            Key.c,
+            ScaleType.major,
+            6, // Start quite high
+          );
 
       expect(midiSequence.isNotEmpty, true);
 
@@ -72,17 +74,19 @@ void main() {
     });
 
     test("should allow progression up to higher octaves", () {
-      final regularProgression = ChordDefinitions.getChordProgressionMidiSequence(
-        Key.c,
-        ScaleType.major,
-        4,
-      );
+      final regularProgression =
+          ChordDefinitions.getChordProgressionMidiSequence(
+            Key.c,
+            ScaleType.major,
+            4,
+          );
 
-      final smoothProgression = ChordDefinitions.getSmoothChordProgressionMidiSequence(
-        Key.c,
-        ScaleType.major,
-        4,
-      );
+      final smoothProgression =
+          ChordDefinitions.getSmoothChordProgressionMidiSequence(
+            Key.c,
+            ScaleType.major,
+            4,
+          );
 
       // Smooth progression should potentially reach higher notes
       // (since it avoids downward jumps by moving up octaves)

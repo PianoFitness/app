@@ -175,24 +175,20 @@ void main() {
       expect(pianoFinder, findsOneWidget);
 
       // Verify initial state - no highlighted notes
-      // TODO(test): Fix this test - highlightedNotes property doesn't exist
-      // var piano = tester.widget(pianoFinder);
-      // expect(piano.highlightedNotes, isEmpty);
+      expect(midiState.highlightedNotePositions, isEmpty);
 
       // Add a note to MidiState (MIDI note 60 = C4)
       midiState.noteOn(60, 100, 1);
       await tester.pump(); // Rebuild after state change
 
-      // TODO(test): Fix this test - highlightedNotes property doesn't exist
-      // Verify piano highlights were updated
-      // piano = tester.widget(pianoFinder);
-      // expect(piano.highlightedNotes.isNotEmpty, true);
+      // Verify piano highlights were updated in MidiState
+      expect(midiState.highlightedNotePositions.isNotEmpty, true);
 
       // MIDI note 60 = C4: octave = 60/12 - 1 = 4, note = C
-      // final hasC4 = piano.highlightedNotes.any(
-      //   (notePos) => notePos.note == Note.C && notePos.octave == 4,
-      // );
-      // expect(hasC4, true);
+      final hasC4 = midiState.highlightedNotePositions.any(
+        (notePos) => notePos.note == Note.C && notePos.octave == 4,
+      );
+      expect(hasC4, true);
 
       // Clean up timers
       await tester.pump(const Duration(seconds: 2));
@@ -260,20 +256,18 @@ void main() {
       expect(indicatorFinder, findsOneWidget);
 
       // Initially should be grey (no activity)
-      // TODO(test): Fix this test - decoration property doesn't exist
-      // var indicator = tester.widget(indicatorFinder);
-      // var decoration = indicator.decoration! as BoxDecoration;
-      // expect(decoration.color, isNot(Colors.green));
+      var indicator = tester.widget<Container>(indicatorFinder);
+      var decoration = indicator.decoration! as BoxDecoration;
+      expect(decoration.color, isNot(Colors.green));
 
       // Add MIDI activity
       midiState.noteOn(60, 100, 1);
       await tester.pump();
 
       // Should now be green (has activity)
-      // TODO(test): Fix this test - decoration property doesn't exist
-      // indicator = tester.widget(indicatorFinder);
-      // decoration = indicator.decoration as BoxDecoration;
-      // expect(decoration.color, Colors.green);
+      indicator = tester.widget<Container>(indicatorFinder);
+      decoration = indicator.decoration! as BoxDecoration;
+      expect(decoration.color, Colors.green);
 
       // Clean up timers
       await tester.pump(const Duration(seconds: 2));

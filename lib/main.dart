@@ -4,14 +4,14 @@ import "package:piano_fitness/pages/play_page.dart";
 import "package:provider/provider.dart";
 
 /// Entry point for the Piano Fitness application.
-/// 
+///
 /// Initializes the app with the root widget and starts the Flutter engine.
 void main() {
   runApp(const MyApp());
 }
 
 /// The root widget of the Piano Fitness application.
-/// 
+///
 /// Sets up the app theme, provides global state management via Provider,
 /// and defines the initial navigation structure.
 class MyApp extends StatelessWidget {

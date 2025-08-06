@@ -3,6 +3,7 @@
 // Tests the individual MIDI device control page functionality.
 
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/pages/device_controller_page.dart";
@@ -18,6 +19,38 @@ class MockMidiDevice extends MidiDevice {
 }
 
 void main() {
+  setUpAll(() {
+    TestWidgetsFlutterBinding.ensureInitialized();
+
+    // Mock the flutter_midi_command method channel to prevent MissingPluginException
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel("flutter_midi_command"),
+          (MethodCall methodCall) async {
+            switch (methodCall.method) {
+              case "scanForDevices":
+                return <String, dynamic>{};
+              case "getDevices":
+                return <Map<String, dynamic>>[];
+              case "connectToDevice":
+                return true;
+              case "disconnectDevice":
+                return true;
+              case "sendData":
+                return true;
+              case "startScanning":
+                return true;
+              case "stopScanning":
+                return true;
+              case "teardown":
+                return true;
+              default:
+                return null;
+            }
+          },
+        );
+  });
+
   group("DeviceControllerPage Tests", () {
     // Create a mock MIDI device for testing
     final mockDevice = MockMidiDevice(

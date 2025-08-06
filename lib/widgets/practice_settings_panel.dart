@@ -4,28 +4,30 @@ import "package:piano_fitness/utils/note_utils.dart";
 import "package:piano_fitness/utils/scales.dart" as music;
 
 /// Practice modes available in the Piano Fitness app.
-/// 
+///
 /// Each mode focuses on different aspects of piano technique:
 /// - [scales]: Practice major, minor, and modal scales
-/// - [chords]: Practice chord progressions and triads 
+/// - [chords]: Practice chord progressions and triads
 /// - [arpeggios]: Practice broken chord patterns across octaves
 enum PracticeMode {
   /// Practice scales in various keys and modes
   scales,
+
   /// Practice chord progressions and triads
   chords,
+
   /// Practice arpeggio patterns across multiple octaves
-  arpeggios
+  arpeggios,
 }
 
 /// A comprehensive settings panel for configuring piano practice exercises.
-/// 
+///
 /// This widget provides controls for selecting practice modes (scales, chords, arpeggios),
 /// musical keys, scale types, and other exercise-specific parameters. It adapts its
 /// interface based on the selected practice mode to show relevant options.
 class PracticeSettingsPanel extends StatelessWidget {
   /// Creates a practice settings panel with all required configuration options.
-  /// 
+  ///
   /// All parameters are required to ensure the panel can properly display
   /// current settings and handle user interactions.
   const PracticeSettingsPanel({
@@ -46,34 +48,49 @@ class PracticeSettingsPanel extends StatelessWidget {
     required this.onArpeggioOctavesChanged,
     super.key,
   });
+
   /// The currently selected practice mode (scales, chords, or arpeggios).
   final PracticeMode practiceMode;
+
   /// The selected musical key for scale and chord exercises.
   final music.Key selectedKey;
+
   /// The selected scale type (major, minor, modal, etc.) for scale exercises.
   final music.ScaleType selectedScaleType;
+
   /// The selected root note for arpeggio exercises.
   final MusicalNote selectedRootNote;
+
   /// The selected arpeggio type (major, minor, diminished, etc.).
   final ArpeggioType selectedArpeggioType;
+
   /// The selected octave range for arpeggio exercises.
   final ArpeggioOctaves selectedArpeggioOctaves;
+
   /// Whether a practice session is currently active.
   final bool practiceActive;
+
   /// Callback fired when the user taps the Start button.
   final VoidCallback onStartPractice;
+
   /// Callback fired when the user taps the Reset button.
   final VoidCallback onResetPractice;
+
   /// Callback fired when the user changes the practice mode.
   final ValueChanged<PracticeMode> onPracticeModeChanged;
+
   /// Callback fired when the user changes the musical key.
   final ValueChanged<music.Key> onKeyChanged;
+
   /// Callback fired when the user changes the scale type.
   final ValueChanged<music.ScaleType> onScaleTypeChanged;
+
   /// Callback fired when the user changes the root note for arpeggios.
   final ValueChanged<MusicalNote> onRootNoteChanged;
+
   /// Callback fired when the user changes the arpeggio type.
   final ValueChanged<ArpeggioType> onArpeggioTypeChanged;
+
   /// Callback fired when the user changes the arpeggio octave range.
   final ValueChanged<ArpeggioOctaves> onArpeggioOctavesChanged;
 

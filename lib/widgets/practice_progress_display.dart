@@ -3,11 +3,11 @@ import "package:piano_fitness/utils/chords.dart";
 import "package:piano_fitness/widgets/practice_settings_panel.dart";
 
 /// A widget that displays progress information during active practice sessions.
-/// 
+///
 /// Shows different progress indicators based on the practice mode:
 /// - Scales/Arpeggios: Progress through note sequence with progress bar
 /// - Chords: Current chord in progression with chord name display
-/// 
+///
 /// Only visible when a practice session is active.
 class PracticeProgressDisplay extends StatelessWidget {
   /// Creates a practice progress display with all required state information.
@@ -20,22 +20,22 @@ class PracticeProgressDisplay extends StatelessWidget {
     required this.currentChordProgression,
     super.key,
   });
-  
+
   /// The current practice mode (determines display format).
   final PracticeMode practiceMode;
-  
+
   /// Whether a practice session is currently active.
   final bool practiceActive;
-  
+
   /// The current sequence of notes being practiced.
   final List<int> currentSequence;
-  
+
   /// The index of the next note to be played in the sequence.
   final int currentNoteIndex;
-  
+
   /// The index of the current chord in chord progression mode.
   final int currentChordIndex;
-  
+
   /// The current chord progression for chord practice mode.
   final List<ChordInfo> currentChordProgression;
 

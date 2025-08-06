@@ -7,13 +7,13 @@ import "package:piano_fitness/utils/scales.dart" as music;
 import "package:piano_fitness/widgets/practice_settings_panel.dart";
 
 /// Manages the state and logic for piano practice sessions.
-/// 
+///
 /// This class coordinates practice exercises across different modes (scales, chords, arpeggios),
 /// tracks progress through note sequences, and provides feedback through callbacks.
 /// It handles MIDI input processing and highlights the correct notes to play.
 class PracticeSession {
   /// Creates a new practice session with required callbacks for UI updates.
-  /// 
+  ///
   /// The [onExerciseCompleted] callback is fired when a practice exercise
   /// is successfully completed. The [onHighlightedNotesChanged] callback
   /// is fired whenever the set of notes to highlight on the piano changes.
@@ -21,12 +21,12 @@ class PracticeSession {
     required this.onExerciseCompleted,
     required this.onHighlightedNotesChanged,
   });
-  
+
   /// Callback fired when a practice exercise is completed successfully.
   final VoidCallback onExerciseCompleted;
-  
+
   /// Callback fired when the highlighted notes on the piano should change.
-  /// 
+  ///
   /// Receives a list of [NotePosition] objects representing the notes
   /// that should be highlighted on the piano keyboard.
   final void Function(List<NotePosition>) onHighlightedNotesChanged;
@@ -50,39 +50,39 @@ class PracticeSession {
 
   /// The currently selected practice mode (scales, chords, or arpeggios).
   PracticeMode get practiceMode => _practiceMode;
-  
+
   /// The currently selected musical key for scale and chord exercises.
   music.Key get selectedKey => _selectedKey;
-  
+
   /// The currently selected scale type for scale exercises.
   music.ScaleType get selectedScaleType => _selectedScaleType;
-  
+
   /// The currently selected root note for arpeggio exercises.
   MusicalNote get selectedRootNote => _selectedRootNote;
-  
+
   /// The currently selected arpeggio type.
   ArpeggioType get selectedArpeggioType => _selectedArpeggioType;
-  
+
   /// The currently selected octave range for arpeggio exercises.
   ArpeggioOctaves get selectedArpeggioOctaves => _selectedArpeggioOctaves;
-  
+
   /// The current sequence of MIDI note numbers for the active exercise.
   List<int> get currentSequence => _currentSequence;
-  
+
   /// The index of the next note to be played in the current sequence.
   int get currentNoteIndex => _currentNoteIndex;
-  
+
   /// Whether a practice session is currently active.
   bool get practiceActive => _practiceActive;
-  
+
   /// The current chord progression for chord practice mode.
   List<ChordInfo> get currentChordProgression => _currentChordProgression;
-  
+
   /// The index of the current chord in the chord progression.
   int get currentChordIndex => _currentChordIndex;
 
   /// Sets the practice mode and reinitializes the exercise sequence.
-  /// 
+  ///
   /// Automatically stops any active practice session and generates
   /// a new exercise sequence based on the selected mode.
   void setPracticeMode(PracticeMode mode) {
@@ -92,7 +92,7 @@ class PracticeSession {
   }
 
   /// Sets the musical key for scale and chord exercises.
-  /// 
+  ///
   /// Automatically stops any active practice session and regenerates
   /// the exercise sequence in the new key.
   void setSelectedKey(music.Key key) {
@@ -102,7 +102,7 @@ class PracticeSession {
   }
 
   /// Sets the scale type for scale exercises.
-  /// 
+  ///
   /// Automatically stops any active practice session and regenerates
   /// the scale sequence with the new type (major, minor, modal, etc.).
   void setSelectedScaleType(music.ScaleType type) {
@@ -112,7 +112,7 @@ class PracticeSession {
   }
 
   /// Sets the root note for arpeggio exercises.
-  /// 
+  ///
   /// Automatically stops any active practice session and regenerates
   /// the arpeggio sequence starting from the new root note.
   void setSelectedRootNote(MusicalNote rootNote) {
@@ -122,7 +122,7 @@ class PracticeSession {
   }
 
   /// Sets the arpeggio type (major, minor, diminished, etc.).
-  /// 
+  ///
   /// Automatically stops any active practice session and regenerates
   /// the arpeggio sequence with the new chord quality.
   void setSelectedArpeggioType(ArpeggioType type) {
@@ -132,7 +132,7 @@ class PracticeSession {
   }
 
   /// Sets the octave range for arpeggio exercises.
-  /// 
+  ///
   /// Automatically stops any active practice session and regenerates
   /// the arpeggio sequence to span the specified number of octaves.
   void setSelectedArpeggioOctaves(ArpeggioOctaves octaves) {
@@ -219,12 +219,12 @@ class PracticeSession {
   }
 
   /// Handles MIDI note press events during practice sessions.
-  /// 
+  ///
   /// Processes incoming MIDI note data and advances the exercise if the
   /// correct note is played. Behavior varies by practice mode:
   /// - Scales/Arpeggios: Expects sequential note playing
   /// - Chords: Expects simultaneous chord notes to be held
-  /// 
+  ///
   /// The [midiNote] parameter should be the MIDI note number (0-127).
   void handleNotePressed(int midiNote) {
     if (!_practiceActive || _currentSequence.isEmpty) return;
@@ -256,11 +256,11 @@ class PracticeSession {
   }
 
   /// Handles MIDI note release events during chord practice.
-  /// 
+  ///
   /// Removes the released note from the set of currently held chord notes.
   /// This is primarily used in chord mode to track which notes are being
   /// held simultaneously.
-  /// 
+  ///
   /// The [midiNote] parameter should be the MIDI note number (0-127).
   void handleNoteReleased(int midiNote) {
     if (_practiceMode == PracticeMode.chords && _practiceActive) {
@@ -295,7 +295,7 @@ class PracticeSession {
   }
 
   /// Starts a new practice session with the current exercise configuration.
-  /// 
+  ///
   /// Resets all progress indicators and begins highlighting the first note(s)
   /// in the sequence. The exercise will remain active until completed or reset.
   void startPractice() {
@@ -307,7 +307,7 @@ class PracticeSession {
   }
 
   /// Resets the current practice session to its initial state.
-  /// 
+  ///
   /// Stops the active session and resets all progress indicators.
   /// The exercise configuration (mode, key, type) remains unchanged.
   void resetPractice() {

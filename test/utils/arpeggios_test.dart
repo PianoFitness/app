@@ -246,7 +246,8 @@ void main() {
             expect(
               interval,
               lessThanOrEqualTo(12),
-              reason: "No interval should be larger than an octave between ${sequence[i - 1]} and ${sequence[i]}",
+              reason:
+                  "No interval should be larger than an octave between ${sequence[i - 1]} and ${sequence[i]}",
             );
           }
         },
@@ -303,7 +304,8 @@ void main() {
             expect(
               interval,
               lessThanOrEqualTo(12),
-              reason: "No interval should be larger than an octave between ${sequence[i - 1]} and ${sequence[i]}",
+              reason:
+                  "No interval should be larger than an octave between ${sequence[i - 1]} and ${sequence[i]}",
             );
           }
         },
@@ -570,7 +572,8 @@ void main() {
             expect(
               sequence.length,
               equals(7),
-              reason: "$name major arpeggio should have 7 notes (4 up + 3 down)",
+              reason:
+                  "$name major arpeggio should have 7 notes (4 up + 3 down)",
             );
           }
         },
@@ -702,7 +705,8 @@ void main() {
           expect(
             sequence.isNotEmpty,
             isTrue,
-            reason: "Two-octave ${root.name} ${type.name} should generate notes",
+            reason:
+                "Two-octave ${root.name} ${type.name} should generate notes",
           );
           expect(
             sequence.length,
@@ -716,7 +720,8 @@ void main() {
             expect(
               interval,
               lessThanOrEqualTo(12),
-              reason: "No interval should exceed an octave in ${root.name} ${type.name}",
+              reason:
+                  "No interval should exceed an octave in ${root.name} ${type.name}",
             );
           }
         }

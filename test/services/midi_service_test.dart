@@ -82,7 +82,11 @@ void main() {
 
       test("should treat note on with velocity 0 as note off", () {
         MidiEvent? receivedEvent;
-        final data = Uint8List.fromList([0x90, 60, 0]); // Note On with velocity 0
+        final data = Uint8List.fromList([
+          0x90,
+          60,
+          0,
+        ]); // Note On with velocity 0
 
         MidiService.handleMidiData(data, (event) {
           receivedEvent = event;
@@ -247,7 +251,8 @@ void main() {
           expect(
             receivedEvent!.channel,
             channel + 1,
-            reason: "Channel should be 1-based (status byte: 0x${statusByte.toRadixString(16)})",
+            reason:
+                "Channel should be 1-based (status byte: 0x${statusByte.toRadixString(16)})",
           );
         }
       });
@@ -355,7 +360,11 @@ void main() {
 
       test("should include pitch bend precision in display message", () {
         MidiEvent? receivedEvent;
-        final data = Uint8List.fromList([0xE0, 32, 80]); // Some pitch bend value
+        final data = Uint8List.fromList([
+          0xE0,
+          32,
+          80,
+        ]); // Some pitch bend value
 
         MidiService.handleMidiData(data, (event) {
           receivedEvent = event;

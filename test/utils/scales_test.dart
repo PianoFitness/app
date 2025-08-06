@@ -260,7 +260,8 @@ void main() {
             expect(
               notes,
               equals(expected),
-              reason: 'Scale ${testCase['key']} ${testCase['type']} should match expected notes',
+              reason:
+                  'Scale ${testCase['key']} ${testCase['type']} should match expected notes',
             );
           },
         );

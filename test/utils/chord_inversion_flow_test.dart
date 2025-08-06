@@ -148,7 +148,8 @@ void main() {
         expect(
           rootMidi.first <= firstMidi.first,
           isTrue,
-          reason: "${rootChord.name} root should not be higher than 1st inversion",
+          reason:
+              "${rootChord.name} root should not be higher than 1st inversion",
         );
         expect(
           firstMidi.first <= secondMidi.first,
@@ -161,12 +162,14 @@ void main() {
         expect(
           firstMidi.first - rootMidi.first,
           lessThanOrEqualTo(maxAllowedJump),
-          reason: "${rootChord.name} to 1st inversion jump should be reasonable",
+          reason:
+              "${rootChord.name} to 1st inversion jump should be reasonable",
         );
         expect(
           secondMidi.first - firstMidi.first,
           lessThanOrEqualTo(maxAllowedJump),
-          reason: "${firstChord.name} to 2nd inversion jump should be reasonable",
+          reason:
+              "${firstChord.name} to 2nd inversion jump should be reasonable",
         );
       }
     });
