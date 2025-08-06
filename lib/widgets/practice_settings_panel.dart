@@ -260,12 +260,7 @@ class PracticeSettingsPanel extends StatelessWidget {
                       labelText: 'Arpeggio Type',
                       border: OutlineInputBorder(),
                     ),
-                    items: [
-                      ArpeggioType.major,
-                      ArpeggioType.minor,
-                      ArpeggioType.diminished,
-                      ArpeggioType.augmented,
-                    ].map((type) {
+                    items: ArpeggioType.values.map((type) {
                       return DropdownMenuItem(
                         value: type,
                         child: Text(_getArpeggioTypeString(type)),

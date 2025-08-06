@@ -433,5 +433,118 @@ void main() {
         expect(highMidi.every((note) => note <= 127), isTrue);
       });
     });
+
+    group('All chromatic root notes functionality', () {
+      test('should generate correct arpeggios for all 12 chromatic root notes', () {
+        final testCases = [
+          {'note': MusicalNote.c, 'name': 'C'},
+          {'note': MusicalNote.cSharp, 'name': 'C#'},
+          {'note': MusicalNote.d, 'name': 'D'},
+          {'note': MusicalNote.dSharp, 'name': 'D#'},
+          {'note': MusicalNote.e, 'name': 'E'},
+          {'note': MusicalNote.f, 'name': 'F'},
+          {'note': MusicalNote.fSharp, 'name': 'F#'},
+          {'note': MusicalNote.g, 'name': 'G'},
+          {'note': MusicalNote.gSharp, 'name': 'G#'},
+          {'note': MusicalNote.a, 'name': 'A'},
+          {'note': MusicalNote.aSharp, 'name': 'A#'},
+          {'note': MusicalNote.b, 'name': 'B'},
+        ];
+
+        for (final testCase in testCases) {
+          final note = testCase['note'] as MusicalNote;
+          final name = testCase['name'] as String;
+          
+          final arpeggio = ArpeggioDefinitions.getArpeggio(
+            note,
+            ArpeggioType.major,
+            ArpeggioOctaves.one,
+          );
+
+          expect(arpeggio.rootNote, equals(note), reason: '$name major arpeggio should have correct root note');
+          expect(arpeggio.name, contains(name), reason: '$name major arpeggio should have correct name');
+          
+          final sequence = arpeggio.getFullArpeggioSequence(4);
+          expect(sequence.isNotEmpty, isTrue, reason: '$name major arpeggio should generate notes');
+          expect(sequence.length, equals(7), reason: '$name major arpeggio should have 7 notes (4 up + 3 down)');
+        }
+      });
+
+      test('should generate all 7th chord arpeggio types correctly', () {
+        final seventhChordTypes = [
+          ArpeggioType.dominant7,
+          ArpeggioType.minor7,
+          ArpeggioType.major7,
+        ];
+
+        for (final type in seventhChordTypes) {
+          final arpeggio = ArpeggioDefinitions.getArpeggio(
+            MusicalNote.c,
+            type,
+            ArpeggioOctaves.one,
+          );
+
+          expect(arpeggio.intervals.length, equals(5), reason: '7th chord should have 5 intervals (including octave)');
+          
+          final sequence = arpeggio.getFullArpeggioSequence(4);
+          expect(sequence.length, equals(9), reason: '7th chord arpeggio should have 9 notes (5 up + 4 down)');
+          
+          // All 7th chords should contain the 7th interval
+          expect(arpeggio.intervals, contains(anyOf(10, 11)), reason: '7th chord should contain a 7th interval');
+        }
+      });
+
+      test('should work with different root notes and arpeggio types combinations', () {
+        final combinations = [
+          {'root': MusicalNote.fSharp, 'type': ArpeggioType.minor, 'expected_name': 'F# Minor'},
+          {'root': MusicalNote.aSharp, 'type': ArpeggioType.diminished, 'expected_name': 'A# Diminished'},
+          {'root': MusicalNote.dSharp, 'type': ArpeggioType.augmented, 'expected_name': 'D# Augmented'},
+          {'root': MusicalNote.g, 'type': ArpeggioType.dominant7, 'expected_name': 'G Dominant 7th'},
+          {'root': MusicalNote.b, 'type': ArpeggioType.major7, 'expected_name': 'B Major 7th'},
+        ];
+
+        for (final combo in combinations) {
+          final root = combo['root'] as MusicalNote;
+          final type = combo['type'] as ArpeggioType;
+          final expectedName = combo['expected_name'] as String;
+          
+          final arpeggio = ArpeggioDefinitions.getArpeggio(root, type, ArpeggioOctaves.one);
+          
+          expect(arpeggio.name, contains(expectedName.split(' ')[0]), reason: 'Should contain root note name');
+          expect(arpeggio.rootNote, equals(root), reason: 'Should have correct root note');
+          expect(arpeggio.type, equals(type), reason: 'Should have correct arpeggio type');
+          
+          final sequence = arpeggio.getFullArpeggioSequence(4);
+          expect(sequence.isNotEmpty, isTrue, reason: 'Should generate valid sequence');
+        }
+      });
+
+      test('should handle all combinations with two octaves', () {
+        // Test a few key combinations with two octaves to ensure no errors
+        final testCombos = [
+          {'root': MusicalNote.fSharp, 'type': ArpeggioType.minor},
+          {'root': MusicalNote.gSharp, 'type': ArpeggioType.major7},
+          {'root': MusicalNote.dSharp, 'type': ArpeggioType.diminished},
+        ];
+
+        for (final combo in testCombos) {
+          final root = combo['root'] as MusicalNote;
+          final type = combo['type'] as ArpeggioType;
+          
+          final arpeggio = ArpeggioDefinitions.getArpeggio(root, type, ArpeggioOctaves.two);
+          final sequence = arpeggio.getFullArpeggioSequence(4);
+          
+          expect(sequence.isNotEmpty, isTrue, reason: 'Two-octave ${root.name} ${type.name} should generate notes');
+          expect(sequence.length, greaterThan(7), reason: 'Two-octave sequence should be longer than one octave');
+          
+          // Verify no large jumps
+          for (int i = 1; i < sequence.length; i++) {
+            final interval = (sequence[i] - sequence[i-1]).abs();
+            expect(interval, lessThanOrEqualTo(12), 
+              reason: 'No interval should exceed an octave in ${root.name} ${type.name}');
+          }
+        }
+      });
+    });
   });
 }
