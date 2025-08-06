@@ -24,6 +24,7 @@ class MyApp extends StatelessWidget {
       create: (context) => MidiState(),
       child: MaterialApp(
         title: "Piano Fitness",
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
