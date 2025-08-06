@@ -7,9 +7,7 @@
 
 # The following line activates a set of recommended lints for Flutter apps,
 # packages, and plugins designed to encourage good coding practices.
-include:
-  - package:flutter_lints/flutter.yaml
-  - package:very_good_analysis/analysis_options.yaml
+include: package:very_good_analysis/analysis_options.yaml
 
 linter:
   # The lint rules applied to this project can be customized in the
@@ -26,6 +24,7 @@ linter:
     lines_longer_than_80_chars: false # Disable 80-char limit (we'll use 120)
     prefer_single_quotes: false # Disable single quote preference - use double quotes
     prefer_double_quotes: true # Use double quotes for strings
+    unnecessary_breaks: false # Disable unnecessary breaks warning for switch statements
     # avoid_print: false  # Uncomment to disable the `avoid_print` rule
 
 # Custom analyzer rules
@@ -37,7 +36,7 @@ analyzer:
 
 # Set line length to 120 characters for dart format
 dart_code_metrics:
-  rules:
-    - lines_of_code: 120
+  metrics:
+    lines-of-code: 120
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

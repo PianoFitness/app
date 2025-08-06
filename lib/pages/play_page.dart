@@ -90,13 +90,16 @@ class _PlayPageState extends State<PlayPage> {
       switch (event.type) {
         case MidiEventType.noteOn:
           midiState.noteOn(event.data1, event.data2, event.channel);
+          break;
         case MidiEventType.noteOff:
           midiState.noteOff(event.data1, event.channel);
+          break;
         case MidiEventType.controlChange:
         case MidiEventType.programChange:
         case MidiEventType.pitchBend:
         case MidiEventType.other:
           midiState.setLastNote(event.displayMessage);
+          break;
       }
     });
   }
