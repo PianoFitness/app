@@ -1,12 +1,11 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:piano/piano.dart';
-import 'package:piano_fitness/utils/piano_range_utils.dart';
+import "package:flutter_test/flutter_test.dart";
+import "package:piano/piano.dart";
+import "package:piano_fitness/utils/piano_range_utils.dart";
 
 // Mock chord class for testing chord progression range calculation
 class MockChordInfo {
-  final List<int> _midiNotes;
-
   MockChordInfo(this._midiNotes);
+  final List<int> _midiNotes;
 
   List<int> getMidiNotes(int octave) {
     return _midiNotes;
@@ -14,21 +13,21 @@ class MockChordInfo {
 }
 
 void main() {
-  group('PianoRangeUtils Tests', () {
-    test('should return default range when no notes highlighted', () {
+  group("PianoRangeUtils Tests", () {
+    test("should return default range when no notes highlighted", () {
       final result = PianoRangeUtils.calculateOptimalRange([]);
       expect(result, isNotNull);
 
       // Should return a default range (we can't access properties directly,
       // but we can verify it's not the same instance when notes are provided)
       final resultWithNotes = PianoRangeUtils.calculateOptimalRange([
-        NotePosition(note: Note.C, octave: 4),
+        NotePosition(note: Note.C),
       ]);
       expect(result, isNot(equals(resultWithNotes)));
     });
 
-    test('should calculate range for single note', () {
-      final noteC4 = NotePosition(note: Note.C, octave: 4);
+    test("should calculate range for single note", () {
+      final noteC4 = NotePosition(note: Note.C);
       final result = PianoRangeUtils.calculateOptimalRange([noteC4]);
       expect(result, isNotNull);
 
@@ -41,11 +40,11 @@ void main() {
       expect(result.toString(), equals(result2.toString()));
     });
 
-    test('should calculate range for multiple notes in same octave', () {
+    test("should calculate range for multiple notes in same octave", () {
       final notes = [
-        NotePosition(note: Note.C, octave: 4), // MIDI 60
-        NotePosition(note: Note.E, octave: 4), // MIDI 64
-        NotePosition(note: Note.G, octave: 4), // MIDI 67
+        NotePosition(note: Note.C), // MIDI 60
+        NotePosition(note: Note.E), // MIDI 64
+        NotePosition(note: Note.G), // MIDI 67
       ];
       final result = PianoRangeUtils.calculateOptimalRange(notes);
       expect(result, isNotNull);
@@ -61,10 +60,10 @@ void main() {
       expect(result.toString(), equals(result2.toString()));
     });
 
-    test('should calculate range for notes spanning multiple octaves', () {
+    test("should calculate range for notes spanning multiple octaves", () {
       final notes = [
         NotePosition(note: Note.C, octave: 3),
-        NotePosition(note: Note.C, octave: 4),
+        NotePosition(note: Note.C),
         NotePosition(note: Note.C, octave: 5),
         NotePosition(note: Note.C, octave: 6),
       ];
@@ -73,9 +72,9 @@ void main() {
 
       // Range spanning multiple octaves should be different from single octave range
       final singleOctaveNotes = [
-        NotePosition(note: Note.C, octave: 4),
-        NotePosition(note: Note.E, octave: 4),
-        NotePosition(note: Note.G, octave: 4),
+        NotePosition(note: Note.C),
+        NotePosition(note: Note.E),
+        NotePosition(note: Note.G),
       ];
       final singleOctaveResult = PianoRangeUtils.calculateOptimalRange(
         singleOctaveNotes,
@@ -87,35 +86,35 @@ void main() {
       expect(result.toString(), equals(result2.toString()));
     });
 
-    test('should calculate range for exercise sequence', () {
+    test("should calculate range for exercise sequence", () {
       // C major scale MIDI notes
       final cMajorScale = [60, 62, 64, 65, 67, 69, 71, 72]; // C4 to C5
       final result = PianoRangeUtils.calculateRangeForExercise(cMajorScale);
       expect(result, isNotNull);
     });
 
-    test('should return fallback range for empty exercise sequence', () {
+    test("should return fallback range for empty exercise sequence", () {
       final result = PianoRangeUtils.calculateRangeForExercise([]);
       expect(result, isNotNull);
     });
 
-    test('should handle notes with accidentals', () {
+    test("should handle notes with accidentals", () {
       final notes = [
-        NotePosition(note: Note.C, octave: 4, accidental: Accidental.Sharp),
-        NotePosition(note: Note.F, octave: 4, accidental: Accidental.Sharp),
-        NotePosition(note: Note.B, octave: 4, accidental: Accidental.Flat),
+        NotePosition(note: Note.C, accidental: Accidental.Sharp),
+        NotePosition(note: Note.F, accidental: Accidental.Sharp),
+        NotePosition(note: Note.B, accidental: Accidental.Flat),
       ];
       final result = PianoRangeUtils.calculateOptimalRange(notes);
       expect(result, isNotNull);
     });
 
-    test('should handle extreme MIDI note ranges', () {
+    test("should handle extreme MIDI note ranges", () {
       final extremeNotes = [0, 127]; // Lowest and highest MIDI notes
       final result = PianoRangeUtils.calculateRangeForExercise(extremeNotes);
       expect(result, isNotNull);
     });
 
-    test('should use custom fallback range when provided', () {
+    test("should use custom fallback range when provided", () {
       final customFallback = NoteRange(
         from: NotePosition(note: Note.C, octave: 3),
         to: NotePosition(note: Note.C, octave: 5),
@@ -129,9 +128,9 @@ void main() {
     });
   });
 
-  group('Chord Progression Range Tests', () {
+  group("Chord Progression Range Tests", () {
     test(
-      'should calculate range for chord progression with all inversions',
+      "should calculate range for chord progression with all inversions",
       () {
         // Create a mock chord progression
         final mockChordProgression = [
@@ -149,7 +148,7 @@ void main() {
       },
     );
 
-    test('should return fallback range for empty chord progression', () {
+    test("should return fallback range for empty chord progression", () {
       final fallbackRange = NoteRange(
         from: NotePosition(note: Note.C, octave: 3),
         to: NotePosition(note: Note.C, octave: 5),
@@ -164,7 +163,7 @@ void main() {
       expect(range, isNotNull);
     });
 
-    test('should handle chord progression with wide range', () {
+    test("should handle chord progression with wide range", () {
       // Create mock chords spanning a very wide range
       final mockChordProgression = [
         MockChordInfo([36, 40, 43]), // Very low chord
@@ -179,9 +178,9 @@ void main() {
       expect(range, isNotNull);
     });
 
-    test('should handle invalid chord objects gracefully', () {
+    test("should handle invalid chord objects gracefully", () {
       // Create a mock object that doesn't have getMidiNotes method
-      final invalidChords = ['not a chord', 42, null];
+      final invalidChords = ["not a chord", 42, null];
 
       final range = PianoRangeUtils.calculateRangeForChordProgression(
         invalidChords,
@@ -192,11 +191,11 @@ void main() {
     });
   });
 
-  group('Key Width Calculation Tests', () {
-    test('should return appropriate key width for different ranges', () {
+  group("Key Width Calculation Tests", () {
+    test("should return appropriate key width for different ranges", () {
       // Create mock note ranges
       final smallRange = NoteRange(
-        from: NotePosition(note: Note.C, octave: 4),
+        from: NotePosition(note: Note.C),
         to: NotePosition(note: Note.C, octave: 5),
       );
 

@@ -2,14 +2,14 @@
 //
 // Tests the centralized MIDI message parsing functionality.
 
-import 'dart:typed_data';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:piano_fitness/services/midi_service.dart';
+import "dart:typed_data";
+import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/services/midi_service.dart";
 
 void main() {
-  group('MidiService Tests', () {
-    group('handleMidiData', () {
-      test('should skip empty data', () {
+  group("MidiService Tests", () {
+    group("handleMidiData", () {
+      test("should skip empty data", () {
         var eventReceived = false;
 
         MidiService.handleMidiData(Uint8List(0), (event) {
@@ -19,9 +19,9 @@ void main() {
         expect(eventReceived, false);
       });
 
-      test('should skip timing clock messages (0xF8)', () {
+      test("should skip timing clock messages (0xF8)", () {
         var eventReceived = false;
-        var data = Uint8List.fromList([0xF8]);
+        final data = Uint8List.fromList([0xF8]);
 
         MidiService.handleMidiData(data, (event) {
           eventReceived = true;
@@ -30,9 +30,9 @@ void main() {
         expect(eventReceived, false);
       });
 
-      test('should skip active sensing messages (0xFE)', () {
+      test("should skip active sensing messages (0xFE)", () {
         var eventReceived = false;
-        var data = Uint8List.fromList([0xFE]);
+        final data = Uint8List.fromList([0xFE]);
 
         MidiService.handleMidiData(data, (event) {
           eventReceived = true;
@@ -42,10 +42,10 @@ void main() {
       });
     });
 
-    group('Note On Messages (0x90)', () {
-      test('should parse note on message correctly', () {
+    group("Note On Messages (0x90)", () {
+      test("should parse note on message correctly", () {
         MidiEvent? receivedEvent;
-        var data = Uint8List.fromList([
+        final data = Uint8List.fromList([
           0x90,
           60,
           127,
@@ -60,12 +60,12 @@ void main() {
         expect(receivedEvent!.channel, 1);
         expect(receivedEvent!.data1, 60);
         expect(receivedEvent!.data2, 127);
-        expect(receivedEvent!.displayMessage, 'Note ON: 60 (Ch: 1, Vel: 127)');
+        expect(receivedEvent!.displayMessage, "Note ON: 60 (Ch: 1, Vel: 127)");
       });
 
-      test('should parse note on with different channel', () {
+      test("should parse note on with different channel", () {
         MidiEvent? receivedEvent;
-        var data = Uint8List.fromList([
+        final data = Uint8List.fromList([
           0x93,
           64,
           100,
@@ -80,23 +80,27 @@ void main() {
         expect(receivedEvent!.data2, 100);
       });
 
-      test('should treat note on with velocity 0 as note off', () {
+      test("should treat note on with velocity 0 as note off", () {
         MidiEvent? receivedEvent;
-        var data = Uint8List.fromList([0x90, 60, 0]); // Note On with velocity 0
+        final data = Uint8List.fromList([
+          0x90,
+          60,
+          0,
+        ]); // Note On with velocity 0
 
         MidiService.handleMidiData(data, (event) {
           receivedEvent = event;
         });
 
         expect(receivedEvent!.type, MidiEventType.noteOff);
-        expect(receivedEvent!.displayMessage, 'Note OFF: 60 (Ch: 1)');
+        expect(receivedEvent!.displayMessage, "Note OFF: 60 (Ch: 1)");
       });
     });
 
-    group('Note Off Messages (0x80)', () {
-      test('should parse note off message correctly', () {
+    group("Note Off Messages (0x80)", () {
+      test("should parse note off message correctly", () {
         MidiEvent? receivedEvent;
-        var data = Uint8List.fromList([
+        final data = Uint8List.fromList([
           0x80,
           60,
           64,
@@ -111,14 +115,14 @@ void main() {
         expect(receivedEvent!.channel, 1);
         expect(receivedEvent!.data1, 60);
         expect(receivedEvent!.data2, 64);
-        expect(receivedEvent!.displayMessage, 'Note OFF: 60 (Ch: 1)');
+        expect(receivedEvent!.displayMessage, "Note OFF: 60 (Ch: 1)");
       });
     });
 
-    group('Control Change Messages (0xB0)', () {
-      test('should parse control change message correctly', () {
+    group("Control Change Messages (0xB0)", () {
+      test("should parse control change message correctly", () {
         MidiEvent? receivedEvent;
-        var data = Uint8List.fromList([
+        final data = Uint8List.fromList([
           0xB0,
           7,
           100,
@@ -133,14 +137,14 @@ void main() {
         expect(receivedEvent!.channel, 1);
         expect(receivedEvent!.data1, 7);
         expect(receivedEvent!.data2, 100);
-        expect(receivedEvent!.displayMessage, 'CC: Controller 7 = 100 (Ch: 1)');
+        expect(receivedEvent!.displayMessage, "CC: Controller 7 = 100 (Ch: 1)");
       });
     });
 
-    group('Program Change Messages (0xC0)', () {
-      test('should parse 3-byte program change message', () {
+    group("Program Change Messages (0xC0)", () {
+      test("should parse 3-byte program change message", () {
         MidiEvent? receivedEvent;
-        var data = Uint8List.fromList([
+        final data = Uint8List.fromList([
           0xC0,
           42,
           0,
@@ -154,12 +158,12 @@ void main() {
         expect(receivedEvent!.type, MidiEventType.programChange);
         expect(receivedEvent!.channel, 1);
         expect(receivedEvent!.data1, 42);
-        expect(receivedEvent!.displayMessage, 'Program Change: 42 (Ch: 1)');
+        expect(receivedEvent!.displayMessage, "Program Change: 42 (Ch: 1)");
       });
 
-      test('should parse 2-byte program change message', () {
+      test("should parse 2-byte program change message", () {
         MidiEvent? receivedEvent;
-        var data = Uint8List.fromList([
+        final data = Uint8List.fromList([
           0xC0,
           42,
         ]); // Program Change to 42, channel 1
@@ -172,14 +176,14 @@ void main() {
         expect(receivedEvent!.type, MidiEventType.programChange);
         expect(receivedEvent!.channel, 1);
         expect(receivedEvent!.data1, 42);
-        expect(receivedEvent!.displayMessage, 'Program Change: 42 (Ch: 1)');
+        expect(receivedEvent!.displayMessage, "Program Change: 42 (Ch: 1)");
       });
     });
 
-    group('Pitch Bend Messages (0xE0)', () {
-      test('should parse pitch bend message correctly', () {
+    group("Pitch Bend Messages (0xE0)", () {
+      test("should parse pitch bend message correctly", () {
         MidiEvent? receivedEvent;
-        var data = Uint8List.fromList([
+        final data = Uint8List.fromList([
           0xE0,
           0,
           64,
@@ -194,29 +198,29 @@ void main() {
         expect(receivedEvent!.channel, 1);
         expect(receivedEvent!.data1, 0);
         expect(receivedEvent!.data2, 64);
-        expect(receivedEvent!.displayMessage, contains('Pitch Bend:'));
-        expect(receivedEvent!.displayMessage, contains('(Ch: 1)'));
+        expect(receivedEvent!.displayMessage, contains("Pitch Bend:"));
+        expect(receivedEvent!.displayMessage, contains("(Ch: 1)"));
       });
 
-      test('should calculate pitch bend value correctly', () {
+      test("should calculate pitch bend value correctly", () {
         // Test center position (should be close to 0)
-        var centerValue = MidiService.getPitchBendValue(0, 64);
+        final centerValue = MidiService.getPitchBendValue(0, 64);
         expect(centerValue, closeTo(0.0, 0.01));
 
         // Test minimum position (should be close to -1)
-        var minValue = MidiService.getPitchBendValue(0, 0);
+        final minValue = MidiService.getPitchBendValue(0, 0);
         expect(minValue, closeTo(-1.0, 0.01));
 
         // Test maximum position (should be close to 1)
-        var maxValue = MidiService.getPitchBendValue(127, 127);
+        final maxValue = MidiService.getPitchBendValue(127, 127);
         expect(maxValue, closeTo(1.0, 0.01));
       });
     });
 
-    group('Other MIDI Messages', () {
-      test('should handle unknown MIDI messages', () {
+    group("Other MIDI Messages", () {
+      test("should handle unknown MIDI messages", () {
         MidiEvent? receivedEvent;
-        var data = Uint8List.fromList([
+        final data = Uint8List.fromList([
           0xA0,
           60,
           64,
@@ -229,16 +233,16 @@ void main() {
         expect(receivedEvent, isNotNull);
         expect(receivedEvent!.type, MidiEventType.other);
         expect(receivedEvent!.channel, 1);
-        expect(receivedEvent!.displayMessage, contains('MIDI: Status 0xA0'));
+        expect(receivedEvent!.displayMessage, contains("MIDI: Status 0xA0"));
       });
     });
 
-    group('Channel Parsing', () {
-      test('should correctly parse different MIDI channels', () {
-        for (int channel = 0; channel < 16; channel++) {
+    group("Channel Parsing", () {
+      test("should correctly parse different MIDI channels", () {
+        for (var channel = 0; channel < 16; channel++) {
           MidiEvent? receivedEvent;
-          var statusByte = 0x90 + channel; // Note On + channel
-          var data = Uint8List.fromList([statusByte, 60, 127]);
+          final statusByte = 0x90 + channel; // Note On + channel
+          final data = Uint8List.fromList([statusByte, 60, 127]);
 
           MidiService.handleMidiData(data, (event) {
             receivedEvent = event;
@@ -248,19 +252,19 @@ void main() {
             receivedEvent!.channel,
             channel + 1,
             reason:
-                'Channel should be 1-based (status byte: 0x${statusByte.toRadixString(16)})',
+                "Channel should be 1-based (status byte: 0x${statusByte.toRadixString(16)})",
           );
         }
       });
     });
 
-    group('Edge Cases', () {
-      test('should handle minimum data length gracefully', () {
-        var data = Uint8List.fromList([0x90]); // Only status byte
+    group("Edge Cases", () {
+      test("should handle minimum data length gracefully", () {
+        final data = Uint8List.fromList([0x90]); // Only status byte
 
         MidiService.handleMidiData(data, (event) {
           // Should not be called with insufficient data
-          fail('Event callback should not be called with insufficient data');
+          fail("Event callback should not be called with insufficient data");
         });
 
         // Should not crash and not call the callback
@@ -268,9 +272,9 @@ void main() {
         expect(true, true); // Test passes if no exception is thrown
       });
 
-      test('should handle data with extra bytes', () {
+      test("should handle data with extra bytes", () {
         MidiEvent? receivedEvent;
-        var data = Uint8List.fromList([
+        final data = Uint8List.fromList([
           0x90,
           60,
           127,
@@ -289,10 +293,10 @@ void main() {
       });
     });
 
-    group('Security Validation', () {
-      test('should reject data with invalid MIDI data bytes (>127)', () {
+    group("Security Validation", () {
+      test("should reject data with invalid MIDI data bytes (>127)", () {
         MidiEvent? receivedEvent;
-        var data = Uint8List.fromList([
+        final data = Uint8List.fromList([
           0x90,
           60,
           0xFF, // Invalid data byte (>127)
@@ -305,9 +309,9 @@ void main() {
         expect(receivedEvent, isNull); // Should be rejected
       });
 
-      test('should reject oversized packets', () {
+      test("should reject oversized packets", () {
         MidiEvent? receivedEvent;
-        var data = Uint8List(300); // Oversized packet
+        final data = Uint8List(300); // Oversized packet
         data[0] = 0x90;
         data[1] = 60;
         data[2] = 127;
@@ -319,9 +323,9 @@ void main() {
         expect(receivedEvent, isNull); // Should be rejected
       });
 
-      test('should accept valid MIDI data bytes (0-127)', () {
+      test("should accept valid MIDI data bytes (0-127)", () {
         MidiEvent? receivedEvent;
-        var data = Uint8List.fromList([
+        final data = Uint8List.fromList([
           0x90,
           60,
           127, // Valid data byte (0-127)
@@ -336,10 +340,10 @@ void main() {
       });
     });
 
-    group('Message Display Formatting', () {
-      test('should format hex values correctly in other messages', () {
+    group("Message Display Formatting", () {
+      test("should format hex values correctly in other messages", () {
         MidiEvent? receivedEvent;
-        var data = Uint8List.fromList([
+        final data = Uint8List.fromList([
           0xA5,
           0x7F,
           0x00,
@@ -349,14 +353,18 @@ void main() {
           receivedEvent = event;
         });
 
-        expect(receivedEvent!.displayMessage, contains('0xA5'));
-        expect(receivedEvent!.displayMessage, contains('0x7F'));
-        expect(receivedEvent!.displayMessage, contains('0x00'));
+        expect(receivedEvent!.displayMessage, contains("0xA5"));
+        expect(receivedEvent!.displayMessage, contains("0x7F"));
+        expect(receivedEvent!.displayMessage, contains("0x00"));
       });
 
-      test('should include pitch bend precision in display message', () {
+      test("should include pitch bend precision in display message", () {
         MidiEvent? receivedEvent;
-        var data = Uint8List.fromList([0xE0, 32, 80]); // Some pitch bend value
+        final data = Uint8List.fromList([
+          0xE0,
+          32,
+          80,
+        ]); // Some pitch bend value
 
         MidiService.handleMidiData(data, (event) {
           receivedEvent = event;
@@ -364,7 +372,7 @@ void main() {
 
         expect(
           receivedEvent!.displayMessage,
-          matches(r'Pitch Bend: -?\d+\.\d{2}'),
+          matches(r"Pitch Bend: -?\d+\.\d{2}"),
         );
       });
     });

@@ -1,15 +1,22 @@
-import 'dart:async';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_midi_command/flutter_midi_command.dart';
-import 'package:flutter_midi_command/flutter_midi_command_messages.dart';
-import '../services/midi_service.dart';
+import "dart:async";
+import "package:flutter/foundation.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_midi_command/flutter_midi_command.dart";
+import "package:flutter_midi_command/flutter_midi_command_messages.dart";
+import "package:piano_fitness/services/midi_service.dart";
 
+/// A detailed controller interface for a specific MIDI device.
+///
+/// This page provides comprehensive controls for testing and interacting
+/// with a connected MIDI device, including sending test notes, monitoring
+/// MIDI messages, and device-specific operations.
 class DeviceControllerPage extends StatefulWidget {
-  final MidiDevice device;
+  /// Creates a device controller page for the specified MIDI device.
+  const DeviceControllerPage({required this.device, super.key});
 
-  const DeviceControllerPage({super.key, required this.device});
+  /// The MIDI device to control and monitor.
+  final MidiDevice device;
 
   @override
   State<DeviceControllerPage> createState() => _DeviceControllerPageState();
@@ -24,8 +31,8 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
   int _ccController = 1;
   int _ccValue = 0;
   int _programNumber = 0;
-  double _pitchBend = 0.0;
-  String _lastReceivedMessage = 'No MIDI data received yet';
+  double _pitchBend = 0;
+  String _lastReceivedMessage = "No MIDI data received yet";
 
   @override
   void initState() {
@@ -60,16 +67,13 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
               if (event.data1 == _ccController) {
                 _ccValue = event.data2;
               }
-              break;
             case MidiEventType.programChange:
               _programNumber = event.data1;
-              break;
             case MidiEventType.pitchBend:
               _pitchBend = MidiService.getPitchBendValue(
                 event.data1,
                 event.data2,
               );
-              break;
             case MidiEventType.noteOn:
             case MidiEventType.noteOff:
             case MidiEventType.other:
@@ -88,9 +92,9 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
         controller: _ccController,
         value: _ccValue,
       ).send();
-    } catch (e) {
+    } on Exception catch (e) {
       if (kDebugMode) {
-        print('Error sending CC: $e');
+        print("Error sending CC: $e");
       }
     }
   }
@@ -98,9 +102,9 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
   void _sendProgramChange() {
     try {
       PCMessage(channel: _selectedChannel, program: _programNumber).send();
-    } catch (e) {
+    } on Exception catch (e) {
       if (kDebugMode) {
-        print('Error sending PC: $e');
+        print("Error sending PC: $e");
       }
     }
   }
@@ -108,9 +112,9 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
   void _sendPitchBend() {
     try {
       PitchBendMessage(channel: _selectedChannel, bend: _pitchBend).send();
-    } catch (e) {
+    } on Exception catch (e) {
       if (kDebugMode) {
-        print('Error sending pitch bend: $e');
+        print("Error sending pitch bend: $e");
       }
     }
   }
@@ -119,7 +123,7 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.device.name} Controller'),
+        title: Text("${widget.device.name} Controller"),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       ),
       body: ListView(
@@ -132,16 +136,16 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Device Information',
+                    "Device Information",
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 8),
-                  Text('Name: ${widget.device.name}'),
-                  Text('Type: ${widget.device.type}'),
-                  Text('ID: ${widget.device.id}'),
+                  Text("Name: ${widget.device.name}"),
+                  Text("Type: ${widget.device.type}"),
+                  Text("ID: ${widget.device.id}"),
                   Text('Connected: ${widget.device.connected ? "Yes" : "No"}'),
-                  Text('Inputs: ${widget.device.inputPorts.length}'),
-                  Text('Outputs: ${widget.device.outputPorts.length}'),
+                  Text("Inputs: ${widget.device.inputPorts.length}"),
+                  Text("Outputs: ${widget.device.outputPorts.length}"),
                 ],
               ),
             ),
@@ -154,7 +158,7 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Last Received MIDI Message',
+                    "Last Received MIDI Message",
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 8),
@@ -170,7 +174,7 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'MIDI Channel',
+                    "MIDI Channel",
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 8),
@@ -184,7 +188,7 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                             : null,
                       ),
                       Text(
-                        '${_selectedChannel + 1}',
+                        "${_selectedChannel + 1}",
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
                       IconButton(
@@ -206,17 +210,16 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Control Change (CC)',
+                    "Control Change (CC)",
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 16),
                   Row(
                     children: [
-                      const Text('Controller: '),
+                      const Text("Controller: "),
                       Expanded(
                         child: Slider(
                           value: _ccController.toDouble(),
-                          min: 0,
                           max: 127,
                           divisions: 127,
                           label: _ccController.toString(),
@@ -229,11 +232,10 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                   ),
                   Row(
                     children: [
-                      const Text('Value: '),
+                      const Text("Value: "),
                       Expanded(
                         child: Slider(
                           value: _ccValue.toDouble(),
-                          min: 0,
                           max: 127,
                           divisions: 127,
                           label: _ccValue.toString(),
@@ -257,17 +259,16 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Program Change',
+                    "Program Change",
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 16),
                   Row(
                     children: [
-                      const Text('Program: '),
+                      const Text("Program: "),
                       Expanded(
                         child: Slider(
                           value: _programNumber.toDouble(),
-                          min: 0,
                           max: 127,
                           divisions: 127,
                           label: _programNumber.toString(),
@@ -291,14 +292,13 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Pitch Bend',
+                    "Pitch Bend",
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 16),
                   Slider(
                     value: _pitchBend,
-                    min: -1.0,
-                    max: 1.0,
+                    min: -1,
                     divisions: 100,
                     label: _pitchBend.toStringAsFixed(2),
                     onChanged: (value) {
@@ -322,7 +322,7 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Virtual Piano',
+                    "Virtual Piano",
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 16),
@@ -359,18 +359,18 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
 
   Widget _buildDevicePianoKey(int midiNote, Color color) {
     final noteNames = [
-      'C',
-      'C#',
-      'D',
-      'D#',
-      'E',
-      'F',
-      'F#',
-      'G',
-      'G#',
-      'A',
-      'A#',
-      'B',
+      "C",
+      "C#",
+      "D",
+      "D#",
+      "E",
+      "F",
+      "F#",
+      "G",
+      "G#",
+      "A",
+      "A#",
+      "B",
     ];
     final noteName = noteNames[midiNote % 12];
 
@@ -388,9 +388,9 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
               NoteOffMessage(channel: _selectedChannel, note: midiNote).send();
             }
           });
-        } catch (e) {
+        } on Exception catch (e) {
           if (kDebugMode) {
-            print('Error sending note: $e');
+            print("Error sending note: $e");
           }
         }
       },
@@ -399,7 +399,7 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
         height: 80,
         decoration: BoxDecoration(
           color: color,
-          border: Border.all(color: Colors.black),
+          border: Border.all(),
           borderRadius: BorderRadius.circular(4),
         ),
         child: Center(

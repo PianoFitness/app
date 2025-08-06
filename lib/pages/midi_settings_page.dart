@@ -1,17 +1,25 @@
-import 'dart:async';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_midi_command/flutter_midi_command.dart';
-import 'package:provider/provider.dart';
-import '../models/midi_state.dart';
-import '../services/midi_service.dart';
-import 'device_controller_page.dart';
+import "dart:async";
 
+import "package:flutter/foundation.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_midi_command/flutter_midi_command.dart";
+import "package:piano_fitness/models/midi_state.dart";
+import "package:piano_fitness/pages/device_controller_page.dart";
+import "package:piano_fitness/services/midi_service.dart";
+import "package:provider/provider.dart";
+
+/// The MIDI settings and device management page.
+///
+/// This page provides controls for discovering, connecting to, and configuring
+/// MIDI devices. Users can scan for available devices, manage connections,
+/// select MIDI channels, and access individual device controllers.
 class MidiSettingsPage extends StatefulWidget {
-  final int initialChannel;
-
+  /// Creates a new MIDI settings page with optional initial channel.
   const MidiSettingsPage({super.key, this.initialChannel = 0});
+
+  /// The initial MIDI channel to select (0-15).
+  final int initialChannel;
 
   @override
   State<MidiSettingsPage> createState() => _MidiSettingsPageState();
@@ -24,8 +32,8 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
   final MidiCommand _midiCommand = MidiCommand();
 
   List<MidiDevice> _devices = [];
-  String _midiStatus = 'Initializing MIDI...';
-  String _lastNote = '';
+  String _midiStatus = "Initializing MIDI...";
+  String _lastNote = "";
   bool _didAskForBluetoothPermissions = false;
   bool _isScanning = false;
   int _selectedChannel = 0;
@@ -57,14 +65,14 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Bluetooth Permissions Required'),
+          title: const Text("Bluetooth Permissions Required"),
           content: const Text(
-            'Piano Fitness needs Bluetooth permissions to discover and connect to MIDI devices like keyboards and controllers.\n\n'
-            'Please grant permissions in the next dialog to enable MIDI functionality.',
+            "Piano Fitness needs Bluetooth permissions to discover and connect to MIDI devices like keyboards and controllers.\n\n"
+            "Please grant permissions in the next dialog to enable MIDI functionality.",
           ),
           actions: <Widget>[
             TextButton(
-              child: const Text('Got it!'),
+              child: const Text("Got it!"),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -77,7 +85,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
     _didAskForBluetoothPermissions = true;
   }
 
-  void _setupMidi() async {
+  Future<void> _setupMidi() async {
     try {
       _setupSubscription = _midiCommand.onMidiSetupChanged?.listen(
         (data) async {
@@ -86,12 +94,12 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
           }
           try {
             await _updateDeviceList();
-          } catch (e) {
-            if (kDebugMode) print('Setup subscription error: $e');
+          } on Exception catch (e) {
+            if (kDebugMode) print("Setup subscription error: $e");
           }
         },
-        onError: (error) {
-          if (kDebugMode) print('Setup stream error: $error');
+        onError: (Object error) {
+          if (kDebugMode) print("Setup stream error: $error");
         },
       );
 
@@ -102,30 +110,30 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
           }
           try {
             setState(() {
-              _midiStatus = 'Bluetooth state: $state';
+              _midiStatus = "Bluetooth state: $state";
             });
-          } catch (e) {
-            if (kDebugMode) print('Bluetooth state subscription error: $e');
+          } on Exception catch (e) {
+            if (kDebugMode) print("Bluetooth state subscription error: $e");
           }
         },
-        onError: (error) {
-          if (kDebugMode) print('Bluetooth stream error: $error');
+        onError: (Object error) {
+          if (kDebugMode) print("Bluetooth stream error: $error");
         },
       );
 
       _midiDataSubscription = _midiCommand.onMidiDataReceived?.listen(
         (packet) {
           if (kDebugMode) {
-            print('Received MIDI data: ${packet.data}');
+            print("Received MIDI data: ${packet.data}");
           }
           try {
             _handleMidiData(packet.data);
-          } catch (e) {
-            if (kDebugMode) print('MIDI data subscription error: $e');
+          } on Exception catch (e) {
+            if (kDebugMode) print("MIDI data subscription error: $e");
           }
         },
-        onError: (error) {
-          if (kDebugMode) print('MIDI data stream error: $error');
+        onError: (Object error) {
+          if (kDebugMode) print("MIDI data stream error: $error");
         },
       );
 
@@ -133,29 +141,29 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
 
       setState(() {
         _midiStatus = _devices.isEmpty
-            ? 'Ready - No MIDI devices found\nTap the scan button to search for devices'
-            : 'Found ${_devices.length} MIDI device(s)';
+            ? "Ready - No MIDI devices found\nTap the scan button to search for devices"
+            : "Found ${_devices.length} MIDI device(s)";
       });
-    } catch (e) {
+    } on Exception catch (e) {
       setState(() {
         _midiStatus =
-            'Error initializing MIDI: $e\n\nNote: MIDI/Bluetooth may not work on simulators. Try a physical device.';
+            "Error initializing MIDI: $e\n\nNote: MIDI/Bluetooth may not work on simulators. Try a physical device.";
       });
       if (kDebugMode) {
-        print('MIDI setup error: $e');
+        print("MIDI setup error: $e");
       }
     }
   }
 
   Future<void> _updateDeviceList() async {
     try {
-      var devices = await _midiCommand.devices;
+      final devices = await _midiCommand.devices;
       setState(() {
         _devices = devices ?? [];
       });
-    } catch (e) {
+    } on Exception catch (e) {
       if (kDebugMode) {
-        print('Error updating device list: $e');
+        print("Error updating device list: $e");
       }
     }
   }
@@ -170,13 +178,11 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
           setState(() {
             _lastNote = event.displayMessage;
           });
-          break;
         case MidiEventType.noteOff:
           midiState.noteOff(event.data1, event.channel);
           setState(() {
             _lastNote = event.displayMessage;
           });
-          break;
         case MidiEventType.controlChange:
         case MidiEventType.programChange:
         case MidiEventType.pitchBend:
@@ -184,7 +190,6 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
           setState(() {
             _lastNote = event.displayMessage;
           });
-          break;
       }
     });
   }
@@ -194,7 +199,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
 
     setState(() {
       _isScanning = true;
-      _midiStatus = 'Preparing to scan...';
+      _midiStatus = "Preparing to scan...";
     });
 
     try {
@@ -206,16 +211,16 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
         print("Starting Bluetooth central");
       }
 
-      await _midiCommand.startBluetoothCentral().catchError((err) {
+      await _midiCommand.startBluetoothCentral().catchError((Object err) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Bluetooth error: $err'),
+              content: Text("Bluetooth error: $err"),
               backgroundColor: Colors.red,
             ),
           );
         }
-        throw err;
+        throw Exception(err);
       });
 
       if (kDebugMode) {
@@ -233,53 +238,55 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
 
       if (_midiCommand.bluetoothState == BluetoothState.poweredOn) {
         setState(() {
-          _midiStatus = 'Scanning for MIDI devices...';
+          _midiStatus = "Scanning for MIDI devices...";
         });
 
-        await _midiCommand.startScanningForBluetoothDevices().catchError((err) {
+        await _midiCommand.startScanningForBluetoothDevices().catchError((
+          Object err,
+        ) {
           if (kDebugMode) {
             print("Scanning error: $err");
           }
-          throw err;
+          throw Exception(err);
         });
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Scanning for Bluetooth MIDI devices...'),
+              content: Text("Scanning for Bluetooth MIDI devices..."),
               backgroundColor: Colors.blue,
             ),
           );
         }
 
-        await Future.delayed(const Duration(seconds: 3));
+        await Future<void>.delayed(const Duration(seconds: 3));
         await _updateDeviceList();
 
         setState(() {
           _midiStatus = _devices.isEmpty
-              ? 'No MIDI devices found\n\nTips:\n• Make sure your MIDI device is in pairing mode\n• Try using a physical device instead of simulator\n• Check if Bluetooth is enabled'
-              : 'Found ${_devices.length} MIDI device(s)\nTap a device to connect';
+              ? "No MIDI devices found\n\nTips:\n• Make sure your MIDI device is in pairing mode\n• Try using a physical device instead of simulator\n• Check if Bluetooth is enabled"
+              : "Found ${_devices.length} MIDI device(s)\nTap a device to connect";
         });
 
         _midiCommand.stopScanningForBluetoothDevices();
       } else {
         final messages = {
           BluetoothState.unsupported:
-              'Bluetooth is not supported on this device.',
+              "Bluetooth is not supported on this device.",
           BluetoothState.poweredOff:
-              'Please switch on Bluetooth and try again.',
+              "Please switch on Bluetooth and try again.",
           BluetoothState.resetting:
-              'Bluetooth is currently resetting. Try again later.',
+              "Bluetooth is currently resetting. Try again later.",
           BluetoothState.unauthorized:
-              'This app needs Bluetooth permissions. Please open Settings, find Piano Fitness and assign Bluetooth access rights.',
+              "This app needs Bluetooth permissions. Please open Settings, find Piano Fitness and assign Bluetooth access rights.",
           BluetoothState.unknown:
-              'Bluetooth is not ready yet. Try again later.',
-          BluetoothState.other: 'Unknown Bluetooth error occurred.',
+              "Bluetooth is not ready yet. Try again later.",
+          BluetoothState.other: "Unknown Bluetooth error occurred.",
         };
 
-        String errorMessage =
+        final errorMessage =
             messages[_midiCommand.bluetoothState] ??
-            'Unknown Bluetooth state: ${_midiCommand.bluetoothState}';
+            "Unknown Bluetooth state: ${_midiCommand.bluetoothState}";
 
         setState(() {
           _midiStatus =
@@ -292,10 +299,10 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
           );
         }
       }
-    } catch (e) {
-      String errorMessage = 'Error scanning for devices: $e';
+    } on Exception catch (e) {
+      var errorMessage = "Error scanning for devices: $e";
 
-      if (e.toString().contains('bluetoothNotAvailable')) {
+      if (e.toString().contains("bluetoothNotAvailable")) {
         errorMessage +=
             '\n\n🔧 Troubleshooting:\n• Simulators don\'t support Bluetooth\n• Try running on a physical device\n• Enable Bluetooth on your device\n• Check app permissions\n\nTap "Reset" to return to main screen or "Retry" to try again';
       } else {
@@ -308,7 +315,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
       });
 
       if (kDebugMode) {
-        print('Scan error: $e');
+        print("Scan error: $e");
       }
     } finally {
       setState(() {
@@ -317,32 +324,32 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
     }
   }
 
-  void _retrySetup() async {
+  Future<void> _retrySetup() async {
     setState(() {
-      _midiStatus = 'Retrying MIDI setup...';
+      _midiStatus = "Retrying MIDI setup...";
       _devices.clear();
-      _lastNote = '';
+      _lastNote = "";
       _isScanning = false;
       _didAskForBluetoothPermissions = false;
     });
-    _setupMidi();
+    await _setupMidi();
   }
 
   void _resetToMainScreen() {
     setState(() {
       _midiStatus =
-          'bluetoothNotAvailable - Reset to default mode\n\nUse the virtual piano below or tap the scan button to search for MIDI devices';
+          "bluetoothNotAvailable - Reset to default mode\n\nUse the virtual piano below or tap the scan button to search for MIDI devices";
       _devices.clear();
-      _lastNote = '';
+      _lastNote = "";
       _isScanning = false;
       _didAskForBluetoothPermissions = false;
     });
 
     try {
       _midiCommand.stopScanningForBluetoothDevices();
-    } catch (e) {
+    } on Exception catch (e) {
       if (kDebugMode) {
-        print('Error stopping scan: $e');
+        print("Error stopping scan: $e");
       }
     }
   }
@@ -356,7 +363,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
         _midiCommand.disconnectDevice(device);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Disconnected from ${device.name}')),
+            SnackBar(content: Text("Disconnected from ${device.name}")),
           );
         }
       } else {
@@ -367,19 +374,19 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Connected to ${device.name}'),
+              content: Text("Connected to ${device.name}"),
               backgroundColor: Colors.green,
             ),
           );
         }
       }
       await _updateDeviceList();
-    } catch (e) {
+    } on Exception catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Connection error: ${(e as PlatformException?)?.message ?? e.toString()}',
+              "Connection error: ${(e as PlatformException?)?.message ?? e.toString()}",
             ),
             backgroundColor: Colors.red,
           ),
@@ -389,31 +396,33 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
   }
 
   Future<void> _openDeviceController(MidiDevice device) async {
-    if (!device.connected) {
-      await _connectToDevice(device);
+    var currentDevice = device;
+
+    if (!currentDevice.connected) {
+      await _connectToDevice(currentDevice);
       await _updateDeviceList();
       final updatedDevice = _devices.firstWhere(
-        (d) => d.id == device.id,
-        orElse: () => device,
+        (d) => d.id == currentDevice.id,
+        orElse: () => currentDevice,
       );
       if (!updatedDevice.connected) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Failed to connect to device'),
+              content: Text("Failed to connect to device"),
               backgroundColor: Colors.red,
             ),
           );
         }
         return;
       }
-      device = updatedDevice;
+      currentDevice = updatedDevice;
     }
 
     if (mounted) {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => DeviceControllerPage(device: device),
+      await Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (context) => DeviceControllerPage(device: currentDevice),
         ),
       );
     }
@@ -437,7 +446,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('MIDI Settings'),
+        title: const Text("MIDI Settings"),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -447,7 +456,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -462,7 +471,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
               const SizedBox(height: 20),
               const Center(
                 child: Text(
-                  'MIDI Device Configuration',
+                  "MIDI Device Configuration",
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
               ),
@@ -477,7 +486,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                 child: Column(
                   children: [
                     const Text(
-                      'MIDI Output Channel',
+                      "MIDI Output Channel",
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -487,7 +496,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Text('Channel: '),
+                        const Text("Channel: "),
                         IconButton(
                           icon: const Icon(Icons.remove_circle),
                           onPressed: _selectedChannel > 0
@@ -499,7 +508,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                               : null,
                         ),
                         Text(
-                          '${_selectedChannel + 1}',
+                          "${_selectedChannel + 1}",
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -518,7 +527,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                       ],
                     ),
                     const Text(
-                      'Channel for virtual piano output (1-16)',
+                      "Channel for virtual piano output (1-16)",
                       style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ],
@@ -531,18 +540,18 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
-              if (_midiStatus.contains('Error') ||
-                  _midiStatus.contains('Cannot scan') ||
-                  _midiStatus.contains('bluetoothNotAvailable') ||
-                  _midiStatus.contains('Bluetooth not available') ||
-                  _midiStatus.contains('No MIDI devices found'))
+              if (_midiStatus.contains("Error") ||
+                  _midiStatus.contains("Cannot scan") ||
+                  _midiStatus.contains("bluetoothNotAvailable") ||
+                  _midiStatus.contains("Bluetooth not available") ||
+                  _midiStatus.contains("No MIDI devices found"))
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     ElevatedButton.icon(
                       onPressed: _retrySetup,
                       icon: const Icon(Icons.refresh),
-                      label: const Text('Retry'),
+                      label: const Text("Retry"),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
@@ -551,7 +560,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                     ElevatedButton.icon(
                       onPressed: _resetToMainScreen,
                       icon: const Icon(Icons.home),
-                      label: const Text('Reset'),
+                      label: const Text("Reset"),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.grey,
                         foregroundColor: Colors.white,
@@ -560,8 +569,8 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                   ],
                 ),
               const SizedBox(height: 16),
-              if (_midiStatus.contains('bluetoothNotAvailable') ||
-                  _midiStatus.contains('Bluetooth not available'))
+              if (_midiStatus.contains("bluetoothNotAvailable") ||
+                  _midiStatus.contains("Bluetooth not available"))
                 Container(
                   width: double.infinity,
                   margin: const EdgeInsets.symmetric(vertical: 8),
@@ -576,15 +585,15 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                       Icon(Icons.info, color: Colors.orange, size: 32),
                       SizedBox(height: 8),
                       Text(
-                        'Alternative Options:',
+                        "Alternative Options:",
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                       SizedBox(height: 8),
                       Text(
-                        '• Use a physical iPhone/iPad\n'
-                        '• Connect USB MIDI keyboard\n'
-                        '• Use virtual MIDI devices\n'
-                        '• Enable on-screen piano for testing',
+                        "• Use a physical iPhone/iPad\n"
+                        "• Connect USB MIDI keyboard\n"
+                        "• Use virtual MIDI devices\n"
+                        "• Enable on-screen piano for testing",
                         textAlign: TextAlign.left,
                       ),
                     ],
@@ -592,7 +601,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                 ),
               if (_devices.isNotEmpty) ...[
                 const Text(
-                  'MIDI Devices:',
+                  "MIDI Devices:",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   textAlign: TextAlign.center,
                 ),
@@ -612,9 +621,9 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       subtitle: Text(
-                        'Type: ${device.type}\n'
-                        'Inputs: ${device.inputPorts.length} | Outputs: ${device.outputPorts.length}\n'
-                        'ID: ${device.id}',
+                        "Type: ${device.type}\n"
+                        "Inputs: ${device.inputPorts.length} | Outputs: ${device.outputPorts.length}\n"
+                        "ID: ${device.id}",
                       ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -624,7 +633,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                             IconButton(
                               icon: const Icon(Icons.settings),
                               onPressed: () => _openDeviceController(device),
-                              tooltip: 'Open device controller',
+                              tooltip: "Open device controller",
                             ),
                         ],
                       ),
@@ -638,7 +647,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                 )),
                 const SizedBox(height: 8),
                 const Text(
-                  'Tap a device to connect/disconnect\nLong press or tap ⚙️ on connected devices for controller',
+                  "Tap a device to connect/disconnect\nLong press or tap ⚙️ on connected devices for controller",
                   style: TextStyle(color: Colors.grey, fontSize: 12),
                   textAlign: TextAlign.center,
                 ),
@@ -662,7 +671,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                         ),
                         const SizedBox(height: 8),
                         const Text(
-                          'MIDI Activity:',
+                          "MIDI Activity:",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -689,17 +698,17 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
       floatingActionButton: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (_midiStatus.contains('Error') ||
-              _midiStatus.contains('Cannot scan') ||
-              _midiStatus.contains('bluetoothNotAvailable') ||
-              _midiStatus.contains('Bluetooth not available'))
+          if (_midiStatus.contains("Error") ||
+              _midiStatus.contains("Cannot scan") ||
+              _midiStatus.contains("bluetoothNotAvailable") ||
+              _midiStatus.contains("Bluetooth not available"))
             Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
+              padding: const EdgeInsets.only(bottom: 8),
               child: FloatingActionButton(
                 heroTag: "reset",
                 mini: true,
                 onPressed: _resetToMainScreen,
-                tooltip: 'Reset to main screen',
+                tooltip: "Reset to main screen",
                 backgroundColor: Colors.grey,
                 child: const Icon(Icons.home),
               ),
@@ -708,20 +717,20 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
             heroTag: "main",
             onPressed: _isScanning
                 ? null
-                : (_midiStatus.contains('Error') ||
-                          _midiStatus.contains('Cannot scan') ||
-                          _midiStatus.contains('bluetoothNotAvailable') ||
-                          _midiStatus.contains('Bluetooth not available')
+                : (_midiStatus.contains("Error") ||
+                          _midiStatus.contains("Cannot scan") ||
+                          _midiStatus.contains("bluetoothNotAvailable") ||
+                          _midiStatus.contains("Bluetooth not available")
                       ? _retrySetup
                       : _scanForDevices),
             tooltip: _isScanning
-                ? 'Scanning...'
-                : (_midiStatus.contains('Error') ||
-                          _midiStatus.contains('Cannot scan') ||
-                          _midiStatus.contains('bluetoothNotAvailable') ||
-                          _midiStatus.contains('Bluetooth not available')
-                      ? 'Retry MIDI setup'
-                      : 'Scan for MIDI devices'),
+                ? "Scanning..."
+                : (_midiStatus.contains("Error") ||
+                          _midiStatus.contains("Cannot scan") ||
+                          _midiStatus.contains("bluetoothNotAvailable") ||
+                          _midiStatus.contains("Bluetooth not available")
+                      ? "Retry MIDI setup"
+                      : "Scan for MIDI devices"),
             backgroundColor: _isScanning ? Colors.grey : null,
             child: _isScanning
                 ? const CircularProgressIndicator(
@@ -729,10 +738,10 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                     strokeWidth: 2,
                   )
                 : Icon(
-                    _midiStatus.contains('Error') ||
-                            _midiStatus.contains('Cannot scan') ||
-                            _midiStatus.contains('bluetoothNotAvailable') ||
-                            _midiStatus.contains('Bluetooth not available')
+                    _midiStatus.contains("Error") ||
+                            _midiStatus.contains("Cannot scan") ||
+                            _midiStatus.contains("bluetoothNotAvailable") ||
+                            _midiStatus.contains("Bluetooth not available")
                         ? Icons.refresh
                         : Icons.bluetooth_searching,
                   ),

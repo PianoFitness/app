@@ -1,8 +1,14 @@
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../models/midi_state.dart';
+import "package:flutter/material.dart";
+import "package:piano_fitness/models/midi_state.dart";
+import "package:provider/provider.dart";
 
+/// A visual indicator showing MIDI activity status.
+///
+/// Displays a circular indicator that changes color based on recent MIDI activity.
+/// When tapped, it shows the most recent MIDI message in a snackbar for debugging.
+/// Green indicates recent activity, gray indicates no recent activity.
 class MidiStatusIndicator extends StatelessWidget {
+  /// Creates a new MIDI status indicator widget.
   const MidiStatusIndicator({super.key});
 
   @override
@@ -14,7 +20,7 @@ class MidiStatusIndicator extends StatelessWidget {
             if (midiState.lastNote.isNotEmpty) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('MIDI: ${midiState.lastNote}'),
+                  content: Text("MIDI: ${midiState.lastNote}"),
                   duration: const Duration(seconds: 2),
                 ),
               );

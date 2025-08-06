@@ -1,4 +1,4 @@
-import 'package:piano/piano.dart';
+import "package:piano/piano.dart";
 
 /// Utility class for calculating optimal piano keyboard ranges
 /// based on highlighted notes during exercises.
@@ -17,18 +17,24 @@ class PianoRangeUtils {
 
   /// 88-key keyboard range limits (A0 to C8)
   static const int min88KeyMidi = 21; // A0
+  /// Upper bound of standard 88-key piano range (C8).
   static const int max88KeyMidi = 108; // C8
 
   /// Buffer notes to add on each side of the highlighted range
   static const int bufferSemitones = 12; // One octave buffer
 
   /// Configuration for piano key width based on range size
-  static const double defaultKeyWidth = 45.0;
-  static const double narrowKeyWidth = 35.0;
-  static const double veryNarrowKeyWidth = 28.0;
+  static const double defaultKeyWidth = 45;
+
+  /// Key width for moderately wide ranges (35 pixels).
+  static const double narrowKeyWidth = 35;
+
+  /// Key width for very wide ranges (28 pixels).
+  static const double veryNarrowKeyWidth = 28;
 
   /// Thresholds for automatic key width adjustment (in semitones)
   static const int narrowKeyThreshold = 48; // 4 octaves
+  /// Range size threshold for very narrow keys (5 octaves in semitones).
   static const int veryNarrowKeyThreshold = 60; // 5 octaves
 
   /// Calculates an optimal note range that centers around the given highlighted notes.
@@ -49,9 +55,7 @@ class PianoRangeUtils {
     }
 
     // Convert note positions to MIDI numbers for easier calculation
-    final midiNotes = highlightedNotes
-        .map((pos) => _convertNotePositionToMidi(pos))
-        .toList();
+    final midiNotes = highlightedNotes.map(_convertNotePositionToMidi).toList();
 
     if (midiNotes.isEmpty) {
       return fallbackRange ?? defaultRange;
@@ -62,12 +66,12 @@ class PianoRangeUtils {
     final maxMidi = midiNotes.reduce((a, b) => a > b ? a : b);
 
     // Add buffer on both sides
-    int startMidi = minMidi - bufferSemitones;
-    int endMidi = maxMidi + bufferSemitones;
+    var startMidi = minMidi - bufferSemitones;
+    var endMidi = maxMidi + bufferSemitones;
 
     // Ensure minimum range
     final currentRange = endMidi - startMidi;
-    final minRangeSemitones = minOctaves * 12;
+    const minRangeSemitones = minOctaves * 12;
     if (currentRange < minRangeSemitones) {
       final expansion = (minRangeSemitones - currentRange) ~/ 2;
       startMidi -= expansion;
@@ -75,7 +79,7 @@ class PianoRangeUtils {
     }
 
     // Ensure maximum range
-    final maxRangeSemitones = maxOctaves * 12;
+    const maxRangeSemitones = maxOctaves * 12;
     if (currentRange > maxRangeSemitones) {
       final center = (startMidi + endMidi) ~/ 2;
       startMidi = center - maxRangeSemitones ~/ 2;
@@ -145,12 +149,17 @@ class PianoRangeUtils {
     // the actual progression with octave management to get the true range.
     // This mirrors the logic from getSmoothChordProgressionMidiSequence.
     final allMidiNotes = <int>[];
-    int currentOctave = startOctave;
+    var currentOctave = startOctave;
     int? lastHighestNote;
 
     for (final chord in chordProgression) {
       try {
-        List<int> chordMidi =
+        // Check if the object is not null
+        if (chord == null) {
+          continue;
+        }
+
+        final chordMidi =
             (chord as dynamic).getMidiNotes(currentOctave) as List<int>;
 
         // Apply the same octave management logic as the smooth progression
@@ -187,8 +196,10 @@ class PianoRangeUtils {
             lastHighestNote = chordMidi.last;
           }
         }
+        // ignore: avoid_catches_without_on_clauses - need to catch NoSuchMethodError for invalid chord objects
       } catch (e) {
-        // If we can't get MIDI notes from this chord, skip it
+        // If we can't get MIDI notes from this chord (invalid object, missing method, etc), skip it
+        // This catches NoSuchMethodError and other runtime errors for graceful handling
         continue;
       }
     }
@@ -204,8 +215,8 @@ class PianoRangeUtils {
     // Use a minimal buffer for chord progressions to show exactly what's needed
     const chordProgressionBuffer = 3; // Minimal buffer (3 semitones)
 
-    int startMidi = globalMin - chordProgressionBuffer;
-    int endMidi = globalMax + chordProgressionBuffer;
+    var startMidi = globalMin - chordProgressionBuffer;
+    var endMidi = globalMax + chordProgressionBuffer;
 
     // Ensure minimum range for chord progressions (at least 2.5 octaves)
     const minChordProgressionRange = 30; // 2.5 octaves
@@ -237,25 +248,18 @@ class PianoRangeUtils {
     switch (position.note) {
       case Note.C:
         noteOffset = 0;
-        break;
       case Note.D:
         noteOffset = 2;
-        break;
       case Note.E:
         noteOffset = 4;
-        break;
       case Note.F:
         noteOffset = 5;
-        break;
       case Note.G:
         noteOffset = 7;
-        break;
       case Note.A:
         noteOffset = 9;
-        break;
       case Note.B:
         noteOffset = 11;
-        break;
     }
 
     if (position.accidental == Accidental.Sharp) {
@@ -339,7 +343,7 @@ class PianoRangeUtils {
     // This is approximate but sufficient for key width calculation
 
     // For now, use a simple heuristic based on common ranges
-    // TODO: Implement proper NoteRange property access when available
+    // TODO(implementation): Implement proper NoteRange property access when available
 
     // Estimate based on typical chord progression ranges
     // Most chord progressions span 3-5 octaves

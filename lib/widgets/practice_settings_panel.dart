@@ -1,90 +1,189 @@
-import 'package:flutter/material.dart';
-import '../utils/scales.dart' as music;
+import "package:flutter/material.dart";
+import "package:piano_fitness/utils/arpeggios.dart";
+import "package:piano_fitness/utils/note_utils.dart";
+import "package:piano_fitness/utils/scales.dart" as music;
 
-enum PracticeMode { scales, chords, arpeggios }
+/// Practice modes available in the Piano Fitness app.
+///
+/// Each mode focuses on different aspects of piano technique:
+/// - [scales]: Practice major, minor, and modal scales
+/// - [chords]: Practice chord progressions and triads
+/// - [arpeggios]: Practice broken chord patterns across octaves
+enum PracticeMode {
+  /// Practice scales in various keys and modes
+  scales,
 
+  /// Practice chord progressions and triads
+  chords,
+
+  /// Practice arpeggio patterns across multiple octaves
+  arpeggios,
+}
+
+/// A comprehensive settings panel for configuring piano practice exercises.
+///
+/// This widget provides controls for selecting practice modes (scales, chords, arpeggios),
+/// musical keys, scale types, and other exercise-specific parameters. It adapts its
+/// interface based on the selected practice mode to show relevant options.
 class PracticeSettingsPanel extends StatelessWidget {
-  final PracticeMode practiceMode;
-  final music.Key selectedKey;
-  final music.ScaleType selectedScaleType;
-  final bool practiceActive;
-  final VoidCallback onStartPractice;
-  final VoidCallback onResetPractice;
-  final ValueChanged<PracticeMode> onPracticeModeChanged;
-  final ValueChanged<music.Key> onKeyChanged;
-  final ValueChanged<music.ScaleType> onScaleTypeChanged;
-
+  /// Creates a practice settings panel with all required configuration options.
+  ///
+  /// All parameters are required to ensure the panel can properly display
+  /// current settings and handle user interactions.
   const PracticeSettingsPanel({
-    super.key,
     required this.practiceMode,
     required this.selectedKey,
     required this.selectedScaleType,
+    required this.selectedRootNote,
+    required this.selectedArpeggioType,
+    required this.selectedArpeggioOctaves,
     required this.practiceActive,
     required this.onStartPractice,
     required this.onResetPractice,
     required this.onPracticeModeChanged,
     required this.onKeyChanged,
     required this.onScaleTypeChanged,
+    required this.onRootNoteChanged,
+    required this.onArpeggioTypeChanged,
+    required this.onArpeggioOctavesChanged,
+    super.key,
   });
+
+  /// The currently selected practice mode (scales, chords, or arpeggios).
+  final PracticeMode practiceMode;
+
+  /// The selected musical key for scale and chord exercises.
+  final music.Key selectedKey;
+
+  /// The selected scale type (major, minor, modal, etc.) for scale exercises.
+  final music.ScaleType selectedScaleType;
+
+  /// The selected root note for arpeggio exercises.
+  final MusicalNote selectedRootNote;
+
+  /// The selected arpeggio type (major, minor, diminished, etc.).
+  final ArpeggioType selectedArpeggioType;
+
+  /// The selected octave range for arpeggio exercises.
+  final ArpeggioOctaves selectedArpeggioOctaves;
+
+  /// Whether a practice session is currently active.
+  final bool practiceActive;
+
+  /// Callback fired when the user taps the Start button.
+  final VoidCallback onStartPractice;
+
+  /// Callback fired when the user taps the Reset button.
+  final VoidCallback onResetPractice;
+
+  /// Callback fired when the user changes the practice mode.
+  final ValueChanged<PracticeMode> onPracticeModeChanged;
+
+  /// Callback fired when the user changes the musical key.
+  final ValueChanged<music.Key> onKeyChanged;
+
+  /// Callback fired when the user changes the scale type.
+  final ValueChanged<music.ScaleType> onScaleTypeChanged;
+
+  /// Callback fired when the user changes the root note for arpeggios.
+  final ValueChanged<MusicalNote> onRootNoteChanged;
+
+  /// Callback fired when the user changes the arpeggio type.
+  final ValueChanged<ArpeggioType> onArpeggioTypeChanged;
+
+  /// Callback fired when the user changes the arpeggio octave range.
+  final ValueChanged<ArpeggioOctaves> onArpeggioOctavesChanged;
 
   String _getPracticeModeString(PracticeMode mode) {
     switch (mode) {
       case PracticeMode.scales:
-        return 'Scales';
+        return "Scales";
       case PracticeMode.chords:
-        return 'Chords';
+        return "Chords";
       case PracticeMode.arpeggios:
-        return 'Arpeggios';
+        return "Arpeggios";
     }
   }
 
   String _getKeyString(music.Key key) {
     switch (key) {
       case music.Key.c:
-        return 'C';
+        return "C";
       case music.Key.cSharp:
-        return 'C#';
+        return "C#";
       case music.Key.d:
-        return 'D';
+        return "D";
       case music.Key.dSharp:
-        return 'D#';
+        return "D#";
       case music.Key.e:
-        return 'E';
+        return "E";
       case music.Key.f:
-        return 'F';
+        return "F";
       case music.Key.fSharp:
-        return 'F#';
+        return "F#";
       case music.Key.g:
-        return 'G';
+        return "G";
       case music.Key.gSharp:
-        return 'G#';
+        return "G#";
       case music.Key.a:
-        return 'A';
+        return "A";
       case music.Key.aSharp:
-        return 'A#';
+        return "A#";
       case music.Key.b:
-        return 'B';
+        return "B";
     }
   }
 
   String _getScaleTypeString(music.ScaleType type) {
     switch (type) {
       case music.ScaleType.major:
-        return 'Major (Ionian)';
+        return "Major (Ionian)";
       case music.ScaleType.minor:
-        return 'Natural Minor';
+        return "Natural Minor";
       case music.ScaleType.dorian:
-        return 'Dorian';
+        return "Dorian";
       case music.ScaleType.phrygian:
-        return 'Phrygian';
+        return "Phrygian";
       case music.ScaleType.lydian:
-        return 'Lydian';
+        return "Lydian";
       case music.ScaleType.mixolydian:
-        return 'Mixolydian';
+        return "Mixolydian";
       case music.ScaleType.aeolian:
-        return 'Aeolian';
+        return "Aeolian";
       case music.ScaleType.locrian:
-        return 'Locrian';
+        return "Locrian";
+    }
+  }
+
+  String _getRootNoteString(MusicalNote note) {
+    return NoteUtils.noteDisplayName(note, 0).replaceAll("0", "");
+  }
+
+  String _getArpeggioTypeString(ArpeggioType type) {
+    switch (type) {
+      case ArpeggioType.major:
+        return "Major";
+      case ArpeggioType.minor:
+        return "Minor";
+      case ArpeggioType.diminished:
+        return "Diminished";
+      case ArpeggioType.augmented:
+        return "Augmented";
+      case ArpeggioType.dominant7:
+        return "Dominant 7th";
+      case ArpeggioType.minor7:
+        return "Minor 7th";
+      case ArpeggioType.major7:
+        return "Major 7th";
+    }
+  }
+
+  String _getArpeggioOctavesString(ArpeggioOctaves octaves) {
+    switch (octaves) {
+      case ArpeggioOctaves.one:
+        return "1 Octave";
+      case ArpeggioOctaves.two:
+        return "2 Octaves";
     }
   }
 
@@ -108,7 +207,7 @@ class PracticeSettingsPanel extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'Practice Settings',
+                "Practice Settings",
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -124,7 +223,7 @@ class PracticeSettingsPanel extends StatelessWidget {
                 child: DropdownButtonFormField<PracticeMode>(
                   value: practiceMode,
                   decoration: const InputDecoration(
-                    labelText: 'Practice Mode',
+                    labelText: "Practice Mode",
                     border: OutlineInputBorder(),
                   ),
                   items: PracticeMode.values.map((mode) {
@@ -142,24 +241,43 @@ class PracticeSettingsPanel extends StatelessWidget {
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: DropdownButtonFormField<music.Key>(
-                  value: selectedKey,
-                  decoration: const InputDecoration(
-                    labelText: 'Key',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: music.Key.values.map((key) {
-                    return DropdownMenuItem(
-                      value: key,
-                      child: Text(_getKeyString(key)),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value != null) {
-                      onKeyChanged(value);
-                    }
-                  },
-                ),
+                child: practiceMode == PracticeMode.arpeggios
+                    ? DropdownButtonFormField<MusicalNote>(
+                        value: selectedRootNote,
+                        decoration: const InputDecoration(
+                          labelText: "Root Note",
+                          border: OutlineInputBorder(),
+                        ),
+                        items: MusicalNote.values.map((note) {
+                          return DropdownMenuItem(
+                            value: note,
+                            child: Text(_getRootNoteString(note)),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            onRootNoteChanged(value);
+                          }
+                        },
+                      )
+                    : DropdownButtonFormField<music.Key>(
+                        value: selectedKey,
+                        decoration: const InputDecoration(
+                          labelText: "Key",
+                          border: OutlineInputBorder(),
+                        ),
+                        items: music.Key.values.map((key) {
+                          return DropdownMenuItem(
+                            value: key,
+                            child: Text(_getKeyString(key)),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            onKeyChanged(value);
+                          }
+                        },
+                      ),
               ),
             ],
           ),
@@ -168,7 +286,7 @@ class PracticeSettingsPanel extends StatelessWidget {
             DropdownButtonFormField<music.ScaleType>(
               value: selectedScaleType,
               decoration: const InputDecoration(
-                labelText: 'Scale Type',
+                labelText: "Scale Type",
                 border: OutlineInputBorder(),
               ),
               items: music.ScaleType.values.map((type) {
@@ -184,6 +302,54 @@ class PracticeSettingsPanel extends StatelessWidget {
               },
             ),
           ],
+          if (practiceMode == PracticeMode.arpeggios) ...[
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<ArpeggioType>(
+                    value: selectedArpeggioType,
+                    decoration: const InputDecoration(
+                      labelText: "Arpeggio Type",
+                      border: OutlineInputBorder(),
+                    ),
+                    items: ArpeggioType.values.map((type) {
+                      return DropdownMenuItem(
+                        value: type,
+                        child: Text(_getArpeggioTypeString(type)),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        onArpeggioTypeChanged(value);
+                      }
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: DropdownButtonFormField<ArpeggioOctaves>(
+                    value: selectedArpeggioOctaves,
+                    decoration: const InputDecoration(
+                      labelText: "Octaves",
+                      border: OutlineInputBorder(),
+                    ),
+                    items: ArpeggioOctaves.values.map((octaves) {
+                      return DropdownMenuItem(
+                        value: octaves,
+                        child: Text(_getArpeggioOctavesString(octaves)),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        onArpeggioOctavesChanged(value);
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -191,7 +357,7 @@ class PracticeSettingsPanel extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: practiceActive ? null : onStartPractice,
                 icon: const Icon(Icons.play_arrow),
-                label: const Text('Start'),
+                label: const Text("Start"),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   foregroundColor: Colors.white,
@@ -200,7 +366,7 @@ class PracticeSettingsPanel extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: onResetPractice,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Reset'),
+                label: const Text("Reset"),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,

@@ -2,34 +2,33 @@
 //
 // Tests the MIDI device configuration page functionality.
 
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:provider/provider.dart';
-
-import 'package:piano_fitness/models/midi_state.dart';
-import 'package:piano_fitness/pages/midi_settings_page.dart';
+import "package:flutter/material.dart";
+import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/models/midi_state.dart";
+import "package:piano_fitness/pages/midi_settings_page.dart";
+import "package:provider/provider.dart";
 
 void main() {
-  group('MidiSettingsPage Tests', () {
-    testWidgets('should create MidiSettingsPage without errors', (
+  group("MidiSettingsPage Tests", () {
+    testWidgets("should create MidiSettingsPage without errors", (
       tester,
     ) async {
       // Create a test widget with necessary providers
-      Widget testWidget = ChangeNotifierProvider(
+      final Widget testWidget = ChangeNotifierProvider(
         create: (context) => MidiState(),
-        child: const MaterialApp(home: MidiSettingsPage(initialChannel: 0)),
+        child: const MaterialApp(home: MidiSettingsPage()),
       );
 
       await tester.pumpWidget(testWidget);
 
       // Verify MidiSettingsPage is rendered
       expect(find.byType(MidiSettingsPage), findsOneWidget);
-      expect(find.text('MIDI Settings'), findsOneWidget);
+      expect(find.text("MIDI Settings"), findsOneWidget);
       expect(find.byIcon(Icons.bluetooth_audio), findsOneWidget);
     });
 
-    testWidgets('should initialize with provided channel', (tester) async {
-      Widget testWidget = ChangeNotifierProvider(
+    testWidgets("should initialize with provided channel", (tester) async {
+      final Widget testWidget = ChangeNotifierProvider(
         create: (context) => MidiState(),
         child: const MaterialApp(home: MidiSettingsPage(initialChannel: 5)),
       );
@@ -41,8 +40,8 @@ void main() {
       expect(find.byType(MidiSettingsPage), findsOneWidget);
     });
 
-    testWidgets('should display MIDI status and controls', (tester) async {
-      Widget testWidget = ChangeNotifierProvider(
+    testWidgets("should display MIDI status and controls", (tester) async {
+      final Widget testWidget = ChangeNotifierProvider(
         create: (context) => MidiState(),
         child: const MaterialApp(home: MidiSettingsPage()),
       );
@@ -51,19 +50,19 @@ void main() {
       await tester.pump(); // Allow UI to settle
 
       // Verify MIDI configuration section exists
-      expect(find.text('MIDI Device Configuration'), findsOneWidget);
+      expect(find.text("MIDI Device Configuration"), findsOneWidget);
 
       // Verify control elements exist
-      expect(find.text('MIDI Output Channel'), findsOneWidget);
-      expect(find.text('Channel: '), findsOneWidget);
+      expect(find.text("MIDI Output Channel"), findsOneWidget);
+      expect(find.text("Channel: "), findsOneWidget);
       expect(find.byIcon(Icons.add_circle), findsWidgets);
       expect(find.byIcon(Icons.remove_circle), findsWidgets);
     });
 
-    testWidgets('should handle channel selection changes', (tester) async {
-      Widget testWidget = ChangeNotifierProvider(
+    testWidgets("should handle channel selection changes", (tester) async {
+      final Widget testWidget = ChangeNotifierProvider(
         create: (context) => MidiState(),
-        child: const MaterialApp(home: MidiSettingsPage(initialChannel: 0)),
+        child: const MaterialApp(home: MidiSettingsPage()),
       );
 
       await tester.pumpWidget(testWidget);
@@ -80,10 +79,10 @@ void main() {
       }
     });
 
-    testWidgets('should display device scan button and handle taps', (
+    testWidgets("should display device scan button and handle taps", (
       tester,
     ) async {
-      Widget testWidget = ChangeNotifierProvider(
+      final Widget testWidget = ChangeNotifierProvider(
         create: (context) => MidiState(),
         child: const MaterialApp(home: MidiSettingsPage()),
       );
@@ -102,10 +101,10 @@ void main() {
       }
     });
 
-    testWidgets('should handle navigation back with channel result', (
+    testWidgets("should handle navigation back with channel result", (
       tester,
     ) async {
-      Widget testWidget = ChangeNotifierProvider(
+      final Widget testWidget = ChangeNotifierProvider(
         create: (context) => MidiState(),
         child: MaterialApp(
           home: Builder(
@@ -119,7 +118,7 @@ void main() {
                     ),
                   );
                 },
-                child: const Text('Open MIDI Settings'),
+                child: const Text("Open MIDI Settings"),
               ),
             ),
           ),
@@ -129,7 +128,7 @@ void main() {
       await tester.pumpWidget(testWidget);
 
       // Open MIDI settings
-      await tester.tap(find.text('Open MIDI Settings'));
+      await tester.tap(find.text("Open MIDI Settings"));
       await tester.pumpAndSettle();
 
       // Verify we're on the MIDI settings page
@@ -143,11 +142,11 @@ void main() {
       }
 
       // Should be back to original page or handle gracefully
-      expect(find.text('Open MIDI Settings'), findsOneWidget);
+      expect(find.text("Open MIDI Settings"), findsOneWidget);
     });
 
-    testWidgets('should display error states appropriately', (tester) async {
-      Widget testWidget = ChangeNotifierProvider(
+    testWidgets("should display error states appropriately", (tester) async {
+      final Widget testWidget = ChangeNotifierProvider(
         create: (context) => MidiState(),
         child: const MaterialApp(home: MidiSettingsPage()),
       );
@@ -159,13 +158,13 @@ void main() {
       expect(find.byType(MidiSettingsPage), findsOneWidget);
 
       // Status text should be present (could be initializing, error, or ready)
-      expect(find.textContaining('MIDI'), findsWidgets);
+      expect(find.textContaining("MIDI"), findsWidgets);
     });
 
-    testWidgets('should integrate with MidiState provider', (tester) async {
+    testWidgets("should integrate with MidiState provider", (tester) async {
       final midiState = MidiState();
 
-      Widget testWidget = ChangeNotifierProvider.value(
+      final Widget testWidget = ChangeNotifierProvider.value(
         value: midiState,
         child: const MaterialApp(home: MidiSettingsPage()),
       );
@@ -180,7 +179,7 @@ void main() {
       // when accessing Provider.of<MidiState>
     });
 
-    test('should handle MidiService integration for event parsing', () {
+    test("should handle MidiService integration for event parsing", () {
       // Test that demonstrates MidiService integration expectations
       // This is a unit test since we can't easily mock MIDI hardware in widget tests
 

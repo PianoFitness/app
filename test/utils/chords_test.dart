@@ -1,12 +1,12 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:piano_fitness/utils/chords.dart';
-import 'package:piano_fitness/utils/note_utils.dart';
-import 'package:piano_fitness/utils/scales.dart';
+import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/utils/chords.dart";
+import "package:piano_fitness/utils/note_utils.dart";
+import "package:piano_fitness/utils/scales.dart";
 
 void main() {
-  group('ChordDefinitions', () {
-    group('Basic chord generation', () {
-      test('should create C Major chord correctly', () {
+  group("ChordDefinitions", () {
+    group("Basic chord generation", () {
+      test("should create C Major chord correctly", () {
         final chord = ChordDefinitions.getChord(
           MusicalNote.c,
           ChordType.major,
@@ -16,14 +16,14 @@ void main() {
         expect(chord.rootNote, equals(MusicalNote.c));
         expect(chord.type, equals(ChordType.major));
         expect(chord.inversion, equals(ChordInversion.root));
-        expect(chord.name, equals('C'));
+        expect(chord.name, equals("C"));
         expect(
           chord.notes,
           equals([MusicalNote.c, MusicalNote.e, MusicalNote.g]),
         );
       });
 
-      test('should create D minor chord correctly', () {
+      test("should create D minor chord correctly", () {
         final chord = ChordDefinitions.getChord(
           MusicalNote.d,
           ChordType.minor,
@@ -33,14 +33,14 @@ void main() {
         expect(chord.rootNote, equals(MusicalNote.d));
         expect(chord.type, equals(ChordType.minor));
         expect(chord.inversion, equals(ChordInversion.root));
-        expect(chord.name, equals('Dm'));
+        expect(chord.name, equals("Dm"));
         expect(
           chord.notes,
           equals([MusicalNote.d, MusicalNote.f, MusicalNote.a]),
         );
       });
 
-      test('should create B diminished chord correctly', () {
+      test("should create B diminished chord correctly", () {
         final chord = ChordDefinitions.getChord(
           MusicalNote.b,
           ChordType.diminished,
@@ -50,14 +50,14 @@ void main() {
         expect(chord.rootNote, equals(MusicalNote.b));
         expect(chord.type, equals(ChordType.diminished));
         expect(chord.inversion, equals(ChordInversion.root));
-        expect(chord.name, equals('B°'));
+        expect(chord.name, equals("B°"));
         expect(
           chord.notes,
           equals([MusicalNote.b, MusicalNote.d, MusicalNote.f]),
         );
       });
 
-      test('should create C augmented chord correctly', () {
+      test("should create C augmented chord correctly", () {
         final chord = ChordDefinitions.getChord(
           MusicalNote.c,
           ChordType.augmented,
@@ -67,7 +67,7 @@ void main() {
         expect(chord.rootNote, equals(MusicalNote.c));
         expect(chord.type, equals(ChordType.augmented));
         expect(chord.inversion, equals(ChordInversion.root));
-        expect(chord.name, equals('C+'));
+        expect(chord.name, equals("C+"));
         expect(
           chord.notes,
           equals([MusicalNote.c, MusicalNote.e, MusicalNote.gSharp]),
@@ -75,8 +75,8 @@ void main() {
       });
     });
 
-    group('Chord inversions', () {
-      test('should create C Major 1st inversion correctly', () {
+    group("Chord inversions", () {
+      test("should create C Major 1st inversion correctly", () {
         final chord = ChordDefinitions.getChord(
           MusicalNote.c,
           ChordType.major,
@@ -84,14 +84,14 @@ void main() {
         );
 
         expect(chord.inversion, equals(ChordInversion.first));
-        expect(chord.name, equals('C (1st inv)'));
+        expect(chord.name, equals("C (1st inv)"));
         expect(
           chord.notes,
           equals([MusicalNote.e, MusicalNote.g, MusicalNote.c]),
         );
       });
 
-      test('should create C Major 2nd inversion correctly', () {
+      test("should create C Major 2nd inversion correctly", () {
         final chord = ChordDefinitions.getChord(
           MusicalNote.c,
           ChordType.major,
@@ -99,14 +99,14 @@ void main() {
         );
 
         expect(chord.inversion, equals(ChordInversion.second));
-        expect(chord.name, equals('C (2nd inv)'));
+        expect(chord.name, equals("C (2nd inv)"));
         expect(
           chord.notes,
           equals([MusicalNote.g, MusicalNote.c, MusicalNote.e]),
         );
       });
 
-      test('should create D minor inversions correctly', () {
+      test("should create D minor inversions correctly", () {
         final root = ChordDefinitions.getChord(
           MusicalNote.d,
           ChordType.minor,
@@ -136,14 +136,14 @@ void main() {
           equals([MusicalNote.a, MusicalNote.d, MusicalNote.f]),
         );
 
-        expect(root.name, equals('Dm'));
-        expect(first.name, equals('Dm (1st inv)'));
-        expect(second.name, equals('Dm (2nd inv)'));
+        expect(root.name, equals("Dm"));
+        expect(first.name, equals("Dm (1st inv)"));
+        expect(second.name, equals("Dm (2nd inv)"));
       });
     });
 
-    group('MIDI note generation', () {
-      test('should generate correct MIDI notes for C Major root position', () {
+    group("MIDI note generation", () {
+      test("should generate correct MIDI notes for C Major root position", () {
         final chord = ChordDefinitions.getChord(
           MusicalNote.c,
           ChordType.major,
@@ -154,7 +154,7 @@ void main() {
         expect(midiNotes, equals([60, 64, 67])); // C4, E4, G4
       });
 
-      test('should generate correct MIDI notes for C Major 1st inversion', () {
+      test("should generate correct MIDI notes for C Major 1st inversion", () {
         final chord = ChordDefinitions.getChord(
           MusicalNote.c,
           ChordType.major,
@@ -165,7 +165,7 @@ void main() {
         expect(midiNotes, equals([64, 67, 72])); // E4, G4, C5
       });
 
-      test('should generate correct MIDI notes for C Major 2nd inversion', () {
+      test("should generate correct MIDI notes for C Major 2nd inversion", () {
         final chord = ChordDefinitions.getChord(
           MusicalNote.c,
           ChordType.major,
@@ -176,7 +176,7 @@ void main() {
         expect(midiNotes, equals([67, 72, 76])); // G4, C5, E5
       });
 
-      test('should handle different octaves correctly', () {
+      test("should handle different octaves correctly", () {
         final chord = ChordDefinitions.getChord(
           MusicalNote.c,
           ChordType.major,
@@ -193,8 +193,8 @@ void main() {
       });
     });
 
-    group('Chord types for scales', () {
-      test('should determine correct chord types for C Major scale', () {
+    group("Chord types for scales", () {
+      test("should determine correct chord types for C Major scale", () {
         final chordTypes = ChordDefinitions.getChordsInKey(
           Key.c,
           ScaleType.major,
@@ -213,7 +213,7 @@ void main() {
         ); // vii° - B diminished
       });
 
-      test('should determine correct chord types for G Major scale', () {
+      test("should determine correct chord types for G Major scale", () {
         final chordTypes = ChordDefinitions.getChordsInKey(
           Key.g,
           ScaleType.major,
@@ -232,7 +232,7 @@ void main() {
         ); // vii° - F# diminished
       });
 
-      test('should determine correct chord types for A minor scale', () {
+      test("should determine correct chord types for A minor scale", () {
         final chordTypes = ChordDefinitions.getChordsInKey(
           Key.a,
           ScaleType.minor,
@@ -252,8 +252,8 @@ void main() {
       });
     });
 
-    group('Key triad progressions', () {
-      test('should generate correct triad progression for C Major', () {
+    group("Key triad progressions", () {
+      test("should generate correct triad progression for C Major", () {
         final progression = ChordDefinitions.getKeyTriadProgression(
           Key.c,
           ScaleType.major,
@@ -262,34 +262,34 @@ void main() {
         expect(progression.length, equals(21)); // 7 chords × 3 inversions each
 
         // First chord (C Major) in all inversions
-        expect(progression[0].name, equals('C'));
-        expect(progression[1].name, equals('C (1st inv)'));
-        expect(progression[2].name, equals('C (2nd inv)'));
+        expect(progression[0].name, equals("C"));
+        expect(progression[1].name, equals("C (1st inv)"));
+        expect(progression[2].name, equals("C (2nd inv)"));
 
         // Second chord (D minor) in all inversions
-        expect(progression[3].name, equals('Dm'));
-        expect(progression[4].name, equals('Dm (1st inv)'));
-        expect(progression[5].name, equals('Dm (2nd inv)'));
+        expect(progression[3].name, equals("Dm"));
+        expect(progression[4].name, equals("Dm (1st inv)"));
+        expect(progression[5].name, equals("Dm (2nd inv)"));
 
         // Third chord (E minor) in all inversions
-        expect(progression[6].name, equals('Em'));
-        expect(progression[7].name, equals('Em (1st inv)'));
-        expect(progression[8].name, equals('Em (2nd inv)'));
+        expect(progression[6].name, equals("Em"));
+        expect(progression[7].name, equals("Em (1st inv)"));
+        expect(progression[8].name, equals("Em (2nd inv)"));
 
         // Last chord (B diminished) in all inversions
-        expect(progression[18].name, equals('B°'));
-        expect(progression[19].name, equals('B° (1st inv)'));
-        expect(progression[20].name, equals('B° (2nd inv)'));
+        expect(progression[18].name, equals("B°"));
+        expect(progression[19].name, equals("B° (1st inv)"));
+        expect(progression[20].name, equals("B° (2nd inv)"));
       });
 
-      test('should generate progression with correct chord types', () {
+      test("should generate progression with correct chord types", () {
         final progression = ChordDefinitions.getKeyTriadProgression(
           Key.c,
           ScaleType.major,
         );
 
         // Check that chord types are preserved across inversions
-        for (int i = 0; i < 7; i++) {
+        for (var i = 0; i < 7; i++) {
           final baseIndex = i * 3;
           final root = progression[baseIndex];
           final first = progression[baseIndex + 1];
@@ -303,8 +303,8 @@ void main() {
       });
     });
 
-    group('Chord progression MIDI sequence', () {
-      test('should generate correct MIDI sequence for C Major progression', () {
+    group("Chord progression MIDI sequence", () {
+      test("should generate correct MIDI sequence for C Major progression", () {
         final midiSequence = ChordDefinitions.getChordProgressionMidiSequence(
           Key.c,
           ScaleType.major,
@@ -323,13 +323,13 @@ void main() {
         expect(midiSequence.sublist(0, 9), equals(expectedStart));
       });
 
-      test('should maintain correct octave relationships in inversions', () {
+      test("should maintain correct octave relationships in inversions", () {
         final progression = ChordDefinitions.getKeyTriadProgression(
           Key.c,
           ScaleType.major,
         );
 
-        for (int i = 0; i < progression.length; i += 3) {
+        for (var i = 0; i < progression.length; i += 3) {
           final root = progression[i];
           final first = progression[i + 1];
           final second = progression[i + 2];
@@ -355,8 +355,8 @@ void main() {
       });
     });
 
-    group('All chord types in all keys', () {
-      test('should generate chords for all chord types and keys', () {
+    group("All chord types in all keys", () {
+      test("should generate chords for all chord types and keys", () {
         for (final note in MusicalNote.values) {
           for (final type in ChordType.values) {
             for (final inversion in ChordInversion.values) {
@@ -381,16 +381,16 @@ void main() {
       });
     });
 
-    group('Chord naming', () {
+    group("Chord naming", () {
       final expectedNames = {
-        ChordType.major: '',
-        ChordType.minor: 'm',
-        ChordType.diminished: '°',
-        ChordType.augmented: '+',
+        ChordType.major: "",
+        ChordType.minor: "m",
+        ChordType.diminished: "°",
+        ChordType.augmented: "+",
       };
 
       for (final entry in expectedNames.entries) {
-        test('should name ${entry.key} chords correctly', () {
+        test("should name ${entry.key} chords correctly", () {
           final root = ChordDefinitions.getChord(
             MusicalNote.c,
             entry.key,
@@ -407,15 +407,15 @@ void main() {
             ChordInversion.second,
           );
 
-          expect(root.name, equals('C${entry.value}'));
-          expect(first.name, equals('C${entry.value} (1st inv)'));
-          expect(second.name, equals('C${entry.value} (2nd inv)'));
+          expect(root.name, equals("C${entry.value}"));
+          expect(first.name, equals("C${entry.value} (1st inv)"));
+          expect(second.name, equals("C${entry.value} (2nd inv)"));
         });
       }
     });
 
-    group('Chord interval validation', () {
-      test('should have correct intervals for each chord type', () {
+    group("Chord interval validation", () {
+      test("should have correct intervals for each chord type", () {
         final chord = ChordDefinitions.getChord(
           MusicalNote.c,
           ChordType.major,
@@ -431,7 +431,7 @@ void main() {
         expect(secondInterval, equals(3)); // Minor third
       });
 
-      test('should have correct intervals for minor chords', () {
+      test("should have correct intervals for minor chords", () {
         final chord = ChordDefinitions.getChord(
           MusicalNote.c,
           ChordType.minor,
@@ -446,7 +446,7 @@ void main() {
         expect(secondInterval, equals(4)); // Major third
       });
 
-      test('should have correct intervals for diminished chords', () {
+      test("should have correct intervals for diminished chords", () {
         final chord = ChordDefinitions.getChord(
           MusicalNote.c,
           ChordType.diminished,
@@ -461,7 +461,7 @@ void main() {
         expect(secondInterval, equals(3)); // Minor third
       });
 
-      test('should have correct intervals for augmented chords', () {
+      test("should have correct intervals for augmented chords", () {
         final chord = ChordDefinitions.getChord(
           MusicalNote.c,
           ChordType.augmented,
@@ -477,11 +477,11 @@ void main() {
       });
     });
 
-    group('Additional comprehensive coverage', () {
+    group("Additional comprehensive coverage", () {
       test(
-        'should handle all combinations of notes, types, and inversions',
+        "should handle all combinations of notes, types, and inversions",
         () {
-          int totalCombinations = 0;
+          var totalCombinations = 0;
 
           for (final note in MusicalNote.values) {
             for (final type in ChordType.values) {
@@ -520,14 +520,14 @@ void main() {
         },
       );
 
-      test('should generate correct MIDI notes across different octaves', () {
+      test("should generate correct MIDI notes across different octaves", () {
         final chord = ChordDefinitions.getChord(
           MusicalNote.c,
           ChordType.major,
           ChordInversion.root,
         );
 
-        for (int octave = 0; octave <= 8; octave++) {
+        for (var octave = 0; octave <= 8; octave++) {
           final midiNotes = chord.getMidiNotes(octave);
           expect(midiNotes, hasLength(3));
 
@@ -540,7 +540,7 @@ void main() {
         }
       });
 
-      test('should handle edge case scales and chord progressions', () {
+      test("should handle edge case scales and chord progressions", () {
         // Test all key/scale combinations to ensure getChordsInKey doesn't break
         for (final key in Key.values) {
           for (final scaleType in ScaleType.values) {
@@ -578,7 +578,7 @@ void main() {
       });
 
       test(
-        'should handle chord inversions with proper MIDI voicing across all octaves',
+        "should handle chord inversions with proper MIDI voicing across all octaves",
         () {
           for (final note in MusicalNote.values) {
             for (final type in ChordType.values) {
@@ -598,7 +598,7 @@ void main() {
                 ChordInversion.second,
               );
 
-              for (int octave = 1; octave <= 7; octave++) {
+              for (var octave = 1; octave <= 7; octave++) {
                 final rootMidi = root.getMidiNotes(octave);
                 final firstMidi = first.getMidiNotes(octave);
                 final secondMidi = second.getMidiNotes(octave);

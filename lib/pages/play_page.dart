@@ -1,22 +1,32 @@
-import 'dart:async';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_midi_command/flutter_midi_command.dart';
-import 'package:flutter_midi_command/flutter_midi_command_messages.dart';
-import 'package:piano/piano.dart';
-import 'package:provider/provider.dart';
-import '../models/midi_state.dart';
-import '../services/midi_service.dart';
-import '../utils/piano_range_utils.dart';
-import '../widgets/practice_settings_panel.dart';
-import 'midi_settings_page.dart';
-import 'practice_page.dart';
+import "dart:async";
 
+import "package:flutter/foundation.dart";
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_midi_command/flutter_midi_command.dart";
+import "package:flutter_midi_command/flutter_midi_command_messages.dart";
+import "package:piano/piano.dart";
+import "package:piano_fitness/models/midi_state.dart";
+import "package:piano_fitness/pages/midi_settings_page.dart";
+import "package:piano_fitness/pages/practice_page.dart";
+import "package:piano_fitness/services/midi_service.dart";
+import "package:piano_fitness/utils/piano_range_utils.dart";
+import "package:piano_fitness/widgets/practice_settings_panel.dart";
+import "package:provider/provider.dart";
+
+/// The main page of the Piano Fitness application.
+///
+/// This page serves as the home screen and primary interface for piano interaction.
+/// It provides access to practice modes, MIDI settings, and displays an interactive
+/// piano keyboard for both MIDI input and virtual note playing.
 class PlayPage extends StatefulWidget {
-  final int midiChannel;
-
+  /// Creates the main play page with optional MIDI channel configuration.
+  ///
+  /// The [midiChannel] parameter sets the default MIDI channel for input/output.
   const PlayPage({super.key, this.midiChannel = 0});
+
+  /// The MIDI channel to use for input and output operations (0-15).
+  final int midiChannel;
 
   @override
   State<PlayPage> createState() => _PlayPageState();
@@ -34,8 +44,10 @@ class _PlayPageState extends State<PlayPage> {
 
     // Initialize the MIDI channel in the provider
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final midiState = Provider.of<MidiState>(context, listen: false);
-      midiState.setSelectedChannel(widget.midiChannel);
+      Provider.of<MidiState>(
+        context,
+        listen: false,
+      ).setSelectedChannel(widget.midiChannel);
     });
   }
 
@@ -52,21 +64,21 @@ class _PlayPageState extends State<PlayPage> {
       _midiDataSubscription = midiDataStream.listen(
         (packet) {
           if (kDebugMode) {
-            print('Received MIDI data: ${packet.data}');
+            print("Received MIDI data: ${packet.data}");
           }
           try {
             _handleMidiData(packet.data);
-          } catch (e) {
-            if (kDebugMode) print('MIDI data handler error: $e');
+          } on Exception catch (e) {
+            if (kDebugMode) print("MIDI data handler error: $e");
           }
         },
-        onError: (error) {
-          if (kDebugMode) print('MIDI data stream error: $error');
+        onError: (Object error) {
+          if (kDebugMode) print("MIDI data stream error: $error");
         },
       );
     } else {
       if (kDebugMode) {
-        print('Warning: MIDI data stream is not available');
+        print("Warning: MIDI data stream is not available");
       }
     }
   }
@@ -92,7 +104,7 @@ class _PlayPageState extends State<PlayPage> {
     });
   }
 
-  void _playVirtualNote(int note) async {
+  Future<void> _playVirtualNote(int note) async {
     final midiState = Provider.of<MidiState>(context, listen: false);
     final selectedChannel = midiState.selectedChannel;
 
@@ -106,11 +118,11 @@ class _PlayPageState extends State<PlayPage> {
       });
 
       midiState.setLastNote(
-        'Virtual Note ON: $note (Ch: ${selectedChannel + 1}, Vel: 64)',
+        "Virtual Note ON: $note (Ch: ${selectedChannel + 1}, Vel: 64)",
       );
 
       if (kDebugMode) {
-        print('Sent virtual note on: $note on channel ${selectedChannel + 1}');
+        print("Sent virtual note on: $note on channel ${selectedChannel + 1}");
       }
 
       _noteOffTimer?.cancel();
@@ -122,23 +134,23 @@ class _PlayPageState extends State<PlayPage> {
             });
             if (kDebugMode) {
               print(
-                'Sent virtual note off: $note on channel ${selectedChannel + 1}',
+                "Sent virtual note off: $note on channel ${selectedChannel + 1}",
               );
             }
-          } catch (e) {
+          } on Exception catch (e) {
             if (kDebugMode) {
-              print('Error sending note off: $e');
+              print("Error sending note off: $e");
             }
           }
         }
       });
-    } catch (e) {
+    } on Exception catch (e) {
       if (kDebugMode) {
-        print('Error playing virtual note: $e');
+        print("Error playing virtual note: $e");
       }
       try {
         await Future.microtask(() {
-          var noteOnData = Uint8List.fromList([
+          final noteOnData = Uint8List.fromList([
             0x90 | selectedChannel,
             note,
             64,
@@ -147,14 +159,14 @@ class _PlayPageState extends State<PlayPage> {
         });
 
         midiState.setLastNote(
-          'Virtual Note ON: $note (Ch: ${selectedChannel + 1}, Vel: 64) [fallback]',
+          "Virtual Note ON: $note (Ch: ${selectedChannel + 1}, Vel: 64) [fallback]",
         );
 
         _noteOffTimer?.cancel();
         _noteOffTimer = Timer(const Duration(milliseconds: 500), () async {
           if (mounted) {
             await Future.microtask(() {
-              var noteOffData = Uint8List.fromList([
+              final noteOffData = Uint8List.fromList([
                 0x80 | selectedChannel,
                 note,
                 0,
@@ -163,9 +175,9 @@ class _PlayPageState extends State<PlayPage> {
             });
           }
         });
-      } catch (fallbackError) {
+      } on Exception catch (fallbackError) {
         if (kDebugMode) {
-          print('Fallback MIDI send also failed: $fallbackError');
+          print("Fallback MIDI send also failed: $fallbackError");
         }
       }
     }
@@ -176,25 +188,18 @@ class _PlayPageState extends State<PlayPage> {
     switch (position.note) {
       case Note.C:
         noteOffset = 0;
-        break;
       case Note.D:
         noteOffset = 2;
-        break;
       case Note.E:
         noteOffset = 4;
-        break;
       case Note.F:
         noteOffset = 5;
-        break;
       case Note.G:
         noteOffset = 7;
-        break;
       case Note.A:
         noteOffset = 9;
-        break;
       case Note.B:
         noteOffset = 11;
-        break;
     }
 
     if (position.accidental == Accidental.Sharp) {
@@ -216,7 +221,7 @@ class _PlayPageState extends State<PlayPage> {
           children: [
             Icon(Icons.piano, color: Colors.deepPurple),
             SizedBox(width: 8),
-            Text('Piano Fitness'),
+            Text("Piano Fitness"),
           ],
         ),
         actions: [
@@ -228,7 +233,7 @@ class _PlayPageState extends State<PlayPage> {
                   if (midiState.lastNote.isNotEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('MIDI: ${midiState.lastNote}'),
+                        content: Text("MIDI: ${midiState.lastNote}"),
                         duration: const Duration(seconds: 2),
                       ),
                     );
@@ -264,18 +269,17 @@ class _PlayPageState extends State<PlayPage> {
                 midiState.setSelectedChannel(result);
               }
             },
-            tooltip: 'MIDI Settings',
+            tooltip: "MIDI Settings",
           ),
         ],
       ),
       body: Column(
         children: [
           Expanded(
-            flex: 1,
             child: SafeArea(
               bottom: false,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -297,7 +301,7 @@ class _PlayPageState extends State<PlayPage> {
                           ),
                           const SizedBox(height: 12),
                           const Text(
-                            'Piano Practice',
+                            "Piano Practice",
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -306,8 +310,8 @@ class _PlayPageState extends State<PlayPage> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Practice scales, chords, and melodies using the interactive piano below. '
-                            'Connect a MIDI keyboard for enhanced learning or use the virtual keys.',
+                            "Practice scales, chords, and melodies using the interactive piano below. "
+                            "Connect a MIDI keyboard for enhanced learning or use the virtual keys.",
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.deepPurple.shade700,
@@ -322,15 +326,14 @@ class _PlayPageState extends State<PlayPage> {
                               InkWell(
                                 onTap: () {
                                   Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => const PracticePage(
-                                        initialMode: PracticeMode.scales,
-                                      ),
+                                    MaterialPageRoute<void>(
+                                      builder: (context) =>
+                                          const PracticePage(),
                                     ),
                                   );
                                 },
                                 child: Chip(
-                                  label: const Text('Scales'),
+                                  label: const Text("Scales"),
                                   backgroundColor: Colors.deepPurple.shade100,
                                   labelStyle: const TextStyle(fontSize: 12),
                                 ),
@@ -338,7 +341,7 @@ class _PlayPageState extends State<PlayPage> {
                               InkWell(
                                 onTap: () {
                                   Navigator.of(context).push(
-                                    MaterialPageRoute(
+                                    MaterialPageRoute<void>(
                                       builder: (context) => const PracticePage(
                                         initialMode: PracticeMode.chords,
                                       ),
@@ -346,7 +349,7 @@ class _PlayPageState extends State<PlayPage> {
                                   );
                                 },
                                 child: Chip(
-                                  label: const Text('Chords'),
+                                  label: const Text("Chords"),
                                   backgroundColor: Colors.deepPurple.shade100,
                                   labelStyle: const TextStyle(fontSize: 12),
                                 ),
@@ -354,7 +357,7 @@ class _PlayPageState extends State<PlayPage> {
                               InkWell(
                                 onTap: () {
                                   Navigator.of(context).push(
-                                    MaterialPageRoute(
+                                    MaterialPageRoute<void>(
                                       builder: (context) => const PracticePage(
                                         initialMode: PracticeMode.arpeggios,
                                       ),
@@ -362,7 +365,7 @@ class _PlayPageState extends State<PlayPage> {
                                   );
                                 },
                                 child: Chip(
-                                  label: const Text('Arpeggios'),
+                                  label: const Text("Arpeggios"),
                                   backgroundColor: Colors.deepPurple.shade100,
                                   labelStyle: const TextStyle(fontSize: 12),
                                 ),
@@ -378,7 +381,6 @@ class _PlayPageState extends State<PlayPage> {
             ),
           ),
           Expanded(
-            flex: 1,
             child: Consumer<MidiState>(
               builder: (context, midiState, child) {
                 // Calculate optimal range based on highlighted notes
@@ -388,12 +390,10 @@ class _PlayPageState extends State<PlayPage> {
 
                 return InteractivePiano(
                   highlightedNotes: midiState.highlightedNotePositions,
-                  naturalColor: Colors.white,
-                  accidentalColor: Colors.black,
                   keyWidth: 45,
                   noteRange: optimalRange,
                   onNotePositionTapped: (position) {
-                    int midiNote = _convertNotePositionToMidi(position);
+                    final midiNote = _convertNotePositionToMidi(position);
                     _playVirtualNote(midiNote);
                   },
                 );

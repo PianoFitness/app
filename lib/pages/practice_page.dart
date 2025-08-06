@@ -1,28 +1,41 @@
-import 'dart:async';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_midi_command/flutter_midi_command.dart';
-import 'package:piano/piano.dart';
-import 'package:provider/provider.dart';
-import '../models/midi_state.dart';
-import '../models/practice_session.dart';
-import '../services/midi_service.dart';
-import '../utils/note_utils.dart';
-import '../utils/piano_range_utils.dart';
-import '../utils/virtual_piano_utils.dart';
-import '../widgets/midi_status_indicator.dart';
-import '../widgets/practice_progress_display.dart';
-import '../widgets/practice_settings_panel.dart';
+import "dart:async";
 
+import "package:flutter/foundation.dart";
+import "package:flutter/material.dart";
+import "package:flutter_midi_command/flutter_midi_command.dart";
+import "package:piano/piano.dart";
+import "package:piano_fitness/models/midi_state.dart";
+import "package:piano_fitness/models/practice_session.dart";
+import "package:piano_fitness/services/midi_service.dart";
+import "package:piano_fitness/utils/note_utils.dart";
+import "package:piano_fitness/utils/piano_range_utils.dart";
+import "package:piano_fitness/utils/virtual_piano_utils.dart";
+import "package:piano_fitness/widgets/midi_status_indicator.dart";
+import "package:piano_fitness/widgets/practice_progress_display.dart";
+import "package:piano_fitness/widgets/practice_settings_panel.dart";
+import "package:provider/provider.dart";
+
+/// A comprehensive piano practice page with guided exercises and real-time feedback.
+///
+/// This page provides structured practice sessions for scales, chords, and arpeggios
+/// with MIDI input support, visual feedback, and progress tracking. It integrates
+/// with the PracticeSession model to manage exercise state and user progress.
 class PracticePage extends StatefulWidget {
-  final PracticeMode initialMode;
-  final int midiChannel;
-
+  /// Creates a new practice page with optional initial configuration.
+  ///
+  /// The [initialMode] determines which type of practice to start with.
+  /// The [midiChannel] sets the MIDI channel for input/output operations.
   const PracticePage({
     super.key,
     this.initialMode = PracticeMode.scales,
     this.midiChannel = 0,
   });
+
+  /// The initial practice mode to display when the page loads.
+  final PracticeMode initialMode;
+
+  /// The MIDI channel to use for input and output (0-15).
+  final int midiChannel;
 
   @override
   State<PracticePage> createState() => _PracticePageState();
@@ -44,13 +57,14 @@ class _PracticePageState extends State<PracticePage> {
           _highlightedNotes = notes;
         });
       },
-    );
-    _practiceSession.setPracticeMode(widget.initialMode);
+    )..setPracticeMode(widget.initialMode);
     _setupMidiListener();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final midiState = Provider.of<MidiState>(context, listen: false);
-      midiState.setSelectedChannel(widget.midiChannel);
+      Provider.of<MidiState>(
+        context,
+        listen: false,
+      ).setSelectedChannel(widget.midiChannel);
     });
   }
 
@@ -67,21 +81,21 @@ class _PracticePageState extends State<PracticePage> {
       _midiDataSubscription = midiDataStream.listen(
         (packet) {
           if (kDebugMode) {
-            print('Received MIDI data: ${packet.data}');
+            print("Received MIDI data: ${packet.data}");
           }
           try {
             _handleMidiData(packet.data);
-          } catch (e) {
-            if (kDebugMode) print('MIDI data handler error: $e');
+          } on Exception catch (e) {
+            if (kDebugMode) print("MIDI data handler error: $e");
           }
         },
-        onError: (error) {
-          if (kDebugMode) print('MIDI data stream error: $error');
+        onError: (Object error) {
+          if (kDebugMode) print("MIDI data stream error: $error");
         },
       );
     } else {
       if (kDebugMode) {
-        print('Warning: MIDI data stream is not available');
+        print("Warning: MIDI data stream is not available");
       }
     }
   }
@@ -94,17 +108,14 @@ class _PracticePageState extends State<PracticePage> {
         case MidiEventType.noteOn:
           midiState.noteOn(event.data1, event.data2, event.channel);
           _practiceSession.handleNotePressed(event.data1);
-          break;
         case MidiEventType.noteOff:
           midiState.noteOff(event.data1, event.channel);
           _practiceSession.handleNoteReleased(event.data1);
-          break;
         case MidiEventType.controlChange:
         case MidiEventType.programChange:
         case MidiEventType.pitchBend:
         case MidiEventType.other:
           midiState.setLastNote(event.displayMessage);
-          break;
       }
     });
   }
@@ -112,7 +123,7 @@ class _PracticePageState extends State<PracticePage> {
   void _completeExercise() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Exercise completed! Well done!'),
+        content: Text("Exercise completed! Well done!"),
         backgroundColor: Colors.green,
         duration: Duration(seconds: 3),
       ),
@@ -147,7 +158,7 @@ class _PracticePageState extends State<PracticePage> {
           children: [
             Icon(Icons.fitness_center, color: Colors.deepPurple),
             SizedBox(width: 8),
-            Text('Piano Practice'),
+            Text("Piano Practice"),
           ],
         ),
         actions: const [MidiStatusIndicator()],
@@ -155,11 +166,10 @@ class _PracticePageState extends State<PracticePage> {
       body: Column(
         children: [
           Expanded(
-            flex: 1,
             child: SafeArea(
               bottom: false,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -168,6 +178,11 @@ class _PracticePageState extends State<PracticePage> {
                       practiceMode: _practiceSession.practiceMode,
                       selectedKey: _practiceSession.selectedKey,
                       selectedScaleType: _practiceSession.selectedScaleType,
+                      selectedRootNote: _practiceSession.selectedRootNote,
+                      selectedArpeggioType:
+                          _practiceSession.selectedArpeggioType,
+                      selectedArpeggioOctaves:
+                          _practiceSession.selectedArpeggioOctaves,
                       practiceActive: _practiceSession.practiceActive,
                       onStartPractice: _startPractice,
                       onResetPractice: _resetPractice,
@@ -184,6 +199,21 @@ class _PracticePageState extends State<PracticePage> {
                       onScaleTypeChanged: (type) {
                         setState(() {
                           _practiceSession.setSelectedScaleType(type);
+                        });
+                      },
+                      onRootNoteChanged: (rootNote) {
+                        setState(() {
+                          _practiceSession.setSelectedRootNote(rootNote);
+                        });
+                      },
+                      onArpeggioTypeChanged: (type) {
+                        setState(() {
+                          _practiceSession.setSelectedArpeggioType(type);
+                        });
+                      },
+                      onArpeggioOctavesChanged: (octaves) {
+                        setState(() {
+                          _practiceSession.setSelectedArpeggioOctaves(octaves);
                         });
                       },
                     ),
@@ -203,7 +233,6 @@ class _PracticePageState extends State<PracticePage> {
             ),
           ),
           Expanded(
-            flex: 1,
             child: Consumer<MidiState>(
               builder: (context, midiState, child) {
                 // Calculate optimal range based on highlighted notes and exercise context
@@ -237,14 +266,12 @@ class _PracticePageState extends State<PracticePage> {
 
                 return InteractivePiano(
                   highlightedNotes: highlightedNotes,
-                  naturalColor: Colors.white,
-                  accidentalColor: Colors.black,
                   keyWidth: PianoRangeUtils.calculateOptimalKeyWidth(
                     optimalRange,
                   ),
                   noteRange: optimalRange,
                   onNotePositionTapped: (position) {
-                    int midiNote = NoteUtils.convertNotePositionToMidi(
+                    final midiNote = NoteUtils.convertNotePositionToMidi(
                       position,
                     );
                     _playVirtualNote(midiNote);

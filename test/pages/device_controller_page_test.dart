@@ -2,11 +2,11 @@
 //
 // Tests the individual MIDI device control page functionality.
 
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_midi_command/flutter_midi_command.dart';
-
-import 'package:piano_fitness/pages/device_controller_page.dart';
+import "package:flutter/material.dart";
+import "package:flutter/services.dart";
+import "package:flutter_midi_command/flutter_midi_command.dart";
+import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/pages/device_controller_page.dart";
 
 // Mock MIDI device class for testing
 class MockMidiDevice extends MidiDevice {
@@ -19,19 +19,51 @@ class MockMidiDevice extends MidiDevice {
 }
 
 void main() {
-  group('DeviceControllerPage Tests', () {
+  setUpAll(() {
+    TestWidgetsFlutterBinding.ensureInitialized();
+
+    // Mock the flutter_midi_command method channel to prevent MissingPluginException
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel("flutter_midi_command"),
+          (MethodCall methodCall) async {
+            switch (methodCall.method) {
+              case "scanForDevices":
+                return <String, dynamic>{};
+              case "getDevices":
+                return <Map<String, dynamic>>[];
+              case "connectToDevice":
+                return true;
+              case "disconnectDevice":
+                return true;
+              case "sendData":
+                return true;
+              case "startScanning":
+                return true;
+              case "stopScanning":
+                return true;
+              case "teardown":
+                return true;
+              default:
+                return null;
+            }
+          },
+        );
+  });
+
+  group("DeviceControllerPage Tests", () {
     // Create a mock MIDI device for testing
     final mockDevice = MockMidiDevice(
-      id: 'test-device-1',
-      name: 'Test MIDI Device',
-      type: 'BLE',
+      id: "test-device-1",
+      name: "Test MIDI Device",
+      type: "BLE",
       connected: false,
     );
 
-    testWidgets('should create DeviceControllerPage without errors', (
+    testWidgets("should create DeviceControllerPage without errors", (
       tester,
     ) async {
-      Widget testWidget = MaterialApp(
+      final Widget testWidget = MaterialApp(
         home: DeviceControllerPage(device: mockDevice),
       );
 
@@ -39,26 +71,26 @@ void main() {
 
       // Verify DeviceControllerPage is rendered
       expect(find.byType(DeviceControllerPage), findsOneWidget);
-      expect(find.text('Test MIDI Device Controller'), findsOneWidget);
-      expect(find.text('Device Information'), findsOneWidget);
+      expect(find.text("Test MIDI Device Controller"), findsOneWidget);
+      expect(find.text("Device Information"), findsOneWidget);
     });
 
-    testWidgets('should display device information', (tester) async {
-      Widget testWidget = MaterialApp(
+    testWidgets("should display device information", (tester) async {
+      final Widget testWidget = MaterialApp(
         home: DeviceControllerPage(device: mockDevice),
       );
 
       await tester.pumpWidget(testWidget);
 
       // Verify device information is displayed
-      expect(find.text('Device Information'), findsOneWidget);
-      expect(find.textContaining('Name: Test MIDI Device'), findsOneWidget);
-      expect(find.textContaining('Type: BLE'), findsOneWidget);
-      expect(find.textContaining('ID: test-device-1'), findsOneWidget);
+      expect(find.text("Device Information"), findsOneWidget);
+      expect(find.textContaining("Name: Test MIDI Device"), findsOneWidget);
+      expect(find.textContaining("Type: BLE"), findsOneWidget);
+      expect(find.textContaining("ID: test-device-1"), findsOneWidget);
     });
 
-    testWidgets('should display MIDI controls', (tester) async {
-      Widget testWidget = MaterialApp(
+    testWidgets("should display MIDI controls", (tester) async {
+      final Widget testWidget = MaterialApp(
         home: DeviceControllerPage(device: mockDevice),
       );
 
@@ -66,8 +98,8 @@ void main() {
       await tester.pump();
 
       // Verify basic MIDI control elements are present
-      expect(find.text('MIDI Channel'), findsOneWidget);
-      expect(find.text('Control Change (CC)'), findsOneWidget);
+      expect(find.text("MIDI Channel"), findsOneWidget);
+      expect(find.text("Control Change (CC)"), findsOneWidget);
 
       // Verify control buttons are present
       expect(find.byIcon(Icons.add_circle), findsWidgets);
@@ -77,8 +109,8 @@ void main() {
       expect(find.byType(Slider), findsWidgets);
     });
 
-    testWidgets('should handle channel selection changes', (tester) async {
-      Widget testWidget = MaterialApp(
+    testWidgets("should handle channel selection changes", (tester) async {
+      final Widget testWidget = MaterialApp(
         home: DeviceControllerPage(device: mockDevice),
       );
 
@@ -96,8 +128,8 @@ void main() {
       }
     });
 
-    testWidgets('should handle control change sliders', (tester) async {
-      Widget testWidget = MaterialApp(
+    testWidgets("should handle control change sliders", (tester) async {
+      final Widget testWidget = MaterialApp(
         home: DeviceControllerPage(device: mockDevice),
       );
 
@@ -119,8 +151,8 @@ void main() {
       }
     });
 
-    testWidgets('should display MIDI message status', (tester) async {
-      Widget testWidget = MaterialApp(
+    testWidgets("should display MIDI message status", (tester) async {
+      final Widget testWidget = MaterialApp(
         home: DeviceControllerPage(device: mockDevice),
       );
 
@@ -128,14 +160,14 @@ void main() {
       await tester.pump();
 
       // Verify MIDI status area exists
-      expect(find.text('Last Received MIDI Message'), findsOneWidget);
+      expect(find.text("Last Received MIDI Message"), findsOneWidget);
 
       // Should show initial "no data" message or similar
-      expect(find.textContaining('MIDI'), findsWidgets);
+      expect(find.textContaining("MIDI"), findsWidgets);
     });
 
-    testWidgets('should handle send buttons without crashing', (tester) async {
-      Widget testWidget = MaterialApp(
+    testWidgets("should handle send buttons without crashing", (tester) async {
+      final Widget testWidget = MaterialApp(
         home: DeviceControllerPage(device: mockDevice),
       );
 
@@ -154,8 +186,8 @@ void main() {
       }
     });
 
-    testWidgets('should display pitch bend control', (tester) async {
-      Widget testWidget = MaterialApp(
+    testWidgets("should display pitch bend control", (tester) async {
+      final Widget testWidget = MaterialApp(
         home: DeviceControllerPage(device: mockDevice),
       );
 
@@ -167,25 +199,25 @@ void main() {
       await tester.pump();
 
       // Verify pitch bend section or related controls
-      if (find.text('Pitch Bend').evaluate().isNotEmpty) {
-        expect(find.text('Pitch Bend'), findsOneWidget);
+      if (find.text("Pitch Bend").evaluate().isNotEmpty) {
+        expect(find.text("Pitch Bend"), findsOneWidget);
       } else {
         // If not visible, just verify sliders exist (pitch bend uses sliders)
         expect(find.byType(Slider), findsWidgets);
       }
     });
 
-    testWidgets('should handle device disconnection gracefully', (
+    testWidgets("should handle device disconnection gracefully", (
       tester,
     ) async {
       final disconnectedDevice = MockMidiDevice(
-        id: 'test-device-2',
-        name: 'Disconnected Device',
-        type: 'BLE',
+        id: "test-device-2",
+        name: "Disconnected Device",
+        type: "BLE",
         connected: false,
       );
 
-      Widget testWidget = MaterialApp(
+      final Widget testWidget = MaterialApp(
         home: DeviceControllerPage(device: disconnectedDevice),
       );
 
@@ -194,12 +226,12 @@ void main() {
 
       // Should render without errors even for disconnected device
       expect(find.byType(DeviceControllerPage), findsOneWidget);
-      expect(find.textContaining('Disconnected Device').first, findsOneWidget);
-      expect(find.textContaining('Connected: No'), findsOneWidget);
+      expect(find.textContaining("Disconnected Device").first, findsOneWidget);
+      expect(find.textContaining("Connected: No"), findsOneWidget);
     });
 
-    testWidgets('should handle program change controls', (tester) async {
-      Widget testWidget = MaterialApp(
+    testWidgets("should handle program change controls", (tester) async {
+      final Widget testWidget = MaterialApp(
         home: DeviceControllerPage(device: mockDevice),
       );
 
@@ -211,8 +243,8 @@ void main() {
       await tester.pump();
 
       // Verify program change section or related controls
-      if (find.text('Program Change').evaluate().isNotEmpty) {
-        expect(find.text('Program Change'), findsOneWidget);
+      if (find.text("Program Change").evaluate().isNotEmpty) {
+        expect(find.text("Program Change"), findsOneWidget);
       } else {
         // If not visible, just verify the page renders correctly
         expect(find.byType(DeviceControllerPage), findsOneWidget);
@@ -220,7 +252,7 @@ void main() {
       }
     });
 
-    test('should handle MidiService integration for event processing', () {
+    test("should handle MidiService integration for event processing", () {
       // Test that demonstrates MidiService integration expectations
       // This verifies the expected data format and processing
 
@@ -237,7 +269,7 @@ void main() {
       expect(controlChangeData[2], equals(100)); // Controller value
     });
 
-    test('should handle pitch bend value calculations', () {
+    test("should handle pitch bend value calculations", () {
       // Test pitch bend data format
       const pitchBendData = [
         0xE0,
