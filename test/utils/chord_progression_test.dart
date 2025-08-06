@@ -1,11 +1,11 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:piano_fitness/utils/chords.dart';
-import 'package:piano_fitness/utils/scales.dart';
-import 'package:piano_fitness/utils/note_utils.dart';
+import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/utils/chords.dart";
+import "package:piano_fitness/utils/note_utils.dart";
+import "package:piano_fitness/utils/scales.dart";
 
 void main() {
-  group('Smooth Chord Progression Tests', () {
-    test('should generate smooth progression with 4 positions per chord', () {
+  group("Smooth Chord Progression Tests", () {
+    test("should generate smooth progression with 4 positions per chord", () {
       final smoothProgression = ChordDefinitions.getSmoothKeyTriadProgression(
         Key.c,
         ScaleType.major,
@@ -21,26 +21,25 @@ void main() {
       expect(smoothProgression[3].inversion, equals(ChordInversion.first));
 
       // All first 4 chords should be C major
-      for (int i = 0; i < 4; i++) {
+      for (var i = 0; i < 4; i++) {
         expect(smoothProgression[i].rootNote, equals(MusicalNote.c));
         expect(smoothProgression[i].type, equals(ChordType.major));
       }
     });
 
-    test('should generate MIDI sequence without large downward jumps', () {
-      final midiSequence =
-          ChordDefinitions.getSmoothChordProgressionMidiSequence(
-            Key.c,
-            ScaleType.major,
-            4, // Start in 4th octave
-          );
+    test("should generate MIDI sequence without large downward jumps", () {
+      final midiSequence = ChordDefinitions.getSmoothChordProgressionMidiSequence(
+        Key.c,
+        ScaleType.major,
+        4, // Start in 4th octave
+      );
 
       expect(midiSequence.isNotEmpty, true);
 
       // Check for large downward jumps (more than an octave)
-      bool hasLargeDownwardJump = false;
-      for (int i = 1; i < midiSequence.length; i++) {
-        int jump = midiSequence[i] - midiSequence[i - 1];
+      var hasLargeDownwardJump = false;
+      for (var i = 1; i < midiSequence.length; i++) {
+        final jump = midiSequence[i] - midiSequence[i - 1];
         if (jump < -12) {
           // More than an octave down
           hasLargeDownwardJump = true;
@@ -52,41 +51,38 @@ void main() {
       expect(
         hasLargeDownwardJump,
         false,
-        reason: 'Smooth progression should avoid large downward jumps',
+        reason: "Smooth progression should avoid large downward jumps",
       );
     });
 
-    test('should handle high octaves without exceeding MIDI range', () {
-      final midiSequence =
-          ChordDefinitions.getSmoothChordProgressionMidiSequence(
-            Key.c,
-            ScaleType.major,
-            6, // Start quite high
-          );
+    test("should handle high octaves without exceeding MIDI range", () {
+      final midiSequence = ChordDefinitions.getSmoothChordProgressionMidiSequence(
+        Key.c,
+        ScaleType.major,
+        6, // Start quite high
+      );
 
       expect(midiSequence.isNotEmpty, true);
 
       // All notes should be within valid MIDI range
-      for (int note in midiSequence) {
+      for (final note in midiSequence) {
         expect(note, greaterThanOrEqualTo(0));
         expect(note, lessThanOrEqualTo(127));
       }
     });
 
-    test('should allow progression up to higher octaves', () {
-      final regularProgression =
-          ChordDefinitions.getChordProgressionMidiSequence(
-            Key.c,
-            ScaleType.major,
-            4,
-          );
+    test("should allow progression up to higher octaves", () {
+      final regularProgression = ChordDefinitions.getChordProgressionMidiSequence(
+        Key.c,
+        ScaleType.major,
+        4,
+      );
 
-      final smoothProgression =
-          ChordDefinitions.getSmoothChordProgressionMidiSequence(
-            Key.c,
-            ScaleType.major,
-            4,
-          );
+      final smoothProgression = ChordDefinitions.getSmoothChordProgressionMidiSequence(
+        Key.c,
+        ScaleType.major,
+        4,
+      );
 
       // Smooth progression should potentially reach higher notes
       // (since it avoids downward jumps by moving up octaves)

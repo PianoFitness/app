@@ -1,19 +1,19 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:piano_fitness/utils/note_utils.dart';
-import 'package:piano_fitness/utils/scales.dart';
+import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/utils/note_utils.dart";
+import "package:piano_fitness/utils/scales.dart";
 
 void main() {
-  group('ScaleDefinitions', () {
-    group('Scale generation', () {
-      test('should create C Major scale correctly', () {
+  group("ScaleDefinitions", () {
+    group("Scale generation", () {
+      test("should create C Major scale correctly", () {
         final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
         expect(scale.key, equals(Key.c));
         expect(scale.type, equals(ScaleType.major));
-        expect(scale.name, equals('C Major (Ionian)'));
+        expect(scale.name, equals("C Major (Ionian)"));
         expect(scale.intervals, equals([2, 2, 1, 2, 2, 2, 1]));
       });
 
-      test('should create scales for all keys', () {
+      test("should create scales for all keys", () {
         for (final key in Key.values) {
           final scale = ScaleDefinitions.getScale(key, ScaleType.major);
           expect(scale.key, equals(key));
@@ -22,7 +22,7 @@ void main() {
         }
       });
 
-      test('should create scales for all types', () {
+      test("should create scales for all types", () {
         for (final type in ScaleType.values) {
           final scale = ScaleDefinitions.getScale(Key.c, type);
           expect(scale.key, equals(Key.c));
@@ -32,7 +32,7 @@ void main() {
       });
     });
 
-    group('Scale intervals', () {
+    group("Scale intervals", () {
       final expectedIntervals = {
         ScaleType.major: [2, 2, 1, 2, 2, 2, 1],
         ScaleType.minor: [2, 1, 2, 2, 1, 2, 2],
@@ -45,15 +45,15 @@ void main() {
       };
 
       for (final entry in expectedIntervals.entries) {
-        test('should have correct intervals for ${entry.key}', () {
+        test("should have correct intervals for ${entry.key}", () {
           final scale = ScaleDefinitions.getScale(Key.c, entry.key);
           expect(scale.intervals, equals(entry.value));
         });
       }
     });
 
-    group('C Major scale notes', () {
-      test('should generate correct note sequence', () {
+    group("C Major scale notes", () {
+      test("should generate correct note sequence", () {
         final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
         final notes = scale.getNotes();
 
@@ -68,14 +68,14 @@ void main() {
         expect(notes[7], equals(MusicalNote.c)); // C (octave)
       });
 
-      test('should generate correct MIDI sequence for C Major', () {
+      test("should generate correct MIDI sequence for C Major", () {
         final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
         final midiNotes = scale.getMidiNotes(4);
 
         expect(midiNotes, equals([60, 62, 64, 65, 67, 69, 71, 72])); // C4-C5
       });
 
-      test('should generate correct full scale sequence', () {
+      test("should generate correct full scale sequence", () {
         final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
         final fullSequence = scale.getFullScaleSequence(4);
 
@@ -102,12 +102,12 @@ void main() {
       });
     });
 
-    group('Church modes in different keys', () {
+    group("Church modes in different keys", () {
       final testCases = [
         {
-          'key': Key.c,
-          'type': ScaleType.major,
-          'expectedNotes': [
+          "key": Key.c,
+          "type": ScaleType.major,
+          "expectedNotes": [
             MusicalNote.c,
             MusicalNote.d,
             MusicalNote.e,
@@ -119,9 +119,9 @@ void main() {
           ],
         },
         {
-          'key': Key.c,
-          'type': ScaleType.dorian,
-          'expectedNotes': [
+          "key": Key.c,
+          "type": ScaleType.dorian,
+          "expectedNotes": [
             MusicalNote.c,
             MusicalNote.d,
             MusicalNote.dSharp,
@@ -133,9 +133,9 @@ void main() {
           ],
         },
         {
-          'key': Key.c,
-          'type': ScaleType.phrygian,
-          'expectedNotes': [
+          "key": Key.c,
+          "type": ScaleType.phrygian,
+          "expectedNotes": [
             MusicalNote.c,
             MusicalNote.cSharp,
             MusicalNote.dSharp,
@@ -147,9 +147,9 @@ void main() {
           ],
         },
         {
-          'key': Key.c,
-          'type': ScaleType.lydian,
-          'expectedNotes': [
+          "key": Key.c,
+          "type": ScaleType.lydian,
+          "expectedNotes": [
             MusicalNote.c,
             MusicalNote.d,
             MusicalNote.e,
@@ -161,9 +161,9 @@ void main() {
           ],
         },
         {
-          'key': Key.c,
-          'type': ScaleType.mixolydian,
-          'expectedNotes': [
+          "key": Key.c,
+          "type": ScaleType.mixolydian,
+          "expectedNotes": [
             MusicalNote.c,
             MusicalNote.d,
             MusicalNote.e,
@@ -175,9 +175,9 @@ void main() {
           ],
         },
         {
-          'key': Key.c,
-          'type': ScaleType.aeolian,
-          'expectedNotes': [
+          "key": Key.c,
+          "type": ScaleType.aeolian,
+          "expectedNotes": [
             MusicalNote.c,
             MusicalNote.d,
             MusicalNote.dSharp,
@@ -189,9 +189,9 @@ void main() {
           ],
         },
         {
-          'key': Key.c,
-          'type': ScaleType.locrian,
-          'expectedNotes': [
+          "key": Key.c,
+          "type": ScaleType.locrian,
+          "expectedNotes": [
             MusicalNote.c,
             MusicalNote.cSharp,
             MusicalNote.dSharp,
@@ -203,9 +203,9 @@ void main() {
           ],
         },
         {
-          'key': Key.g,
-          'type': ScaleType.major,
-          'expectedNotes': [
+          "key": Key.g,
+          "type": ScaleType.major,
+          "expectedNotes": [
             MusicalNote.g,
             MusicalNote.a,
             MusicalNote.b,
@@ -217,9 +217,9 @@ void main() {
           ],
         },
         {
-          'key': Key.d,
-          'type': ScaleType.major,
-          'expectedNotes': [
+          "key": Key.d,
+          "type": ScaleType.major,
+          "expectedNotes": [
             MusicalNote.d,
             MusicalNote.e,
             MusicalNote.fSharp,
@@ -231,9 +231,9 @@ void main() {
           ],
         },
         {
-          'key': Key.f,
-          'type': ScaleType.major,
-          'expectedNotes': [
+          "key": Key.f,
+          "type": ScaleType.major,
+          "expectedNotes": [
             MusicalNote.f,
             MusicalNote.g,
             MusicalNote.a,
@@ -251,25 +251,24 @@ void main() {
           'should generate correct notes for ${testCase['key']} ${testCase['type']}',
           () {
             final scale = ScaleDefinitions.getScale(
-              testCase['key'] as Key,
-              testCase['type'] as ScaleType,
+              testCase["key"]! as Key,
+              testCase["type"]! as ScaleType,
             );
             final notes = scale.getNotes();
-            final expected = testCase['expectedNotes'] as List<MusicalNote>;
+            final expected = testCase["expectedNotes"]! as List<MusicalNote>;
 
             expect(
               notes,
               equals(expected),
-              reason:
-                  'Scale ${testCase['key']} ${testCase['type']} should match expected notes',
+              reason: 'Scale ${testCase['key']} ${testCase['type']} should match expected notes',
             );
           },
         );
       }
     });
 
-    group('Scale properties', () {
-      test('all scales should have 8 notes (including octave)', () {
+    group("Scale properties", () {
+      test("all scales should have 8 notes (including octave)", () {
         for (final key in Key.values) {
           for (final type in ScaleType.values) {
             final scale = ScaleDefinitions.getScale(key, type);
@@ -277,13 +276,13 @@ void main() {
             expect(
               notes.length,
               equals(8),
-              reason: 'Scale $key $type should have 8 notes',
+              reason: "Scale $key $type should have 8 notes",
             );
           }
         }
       });
 
-      test('all scales should start and end with the same note', () {
+      test("all scales should start and end with the same note", () {
         for (final key in Key.values) {
           for (final type in ScaleType.values) {
             final scale = ScaleDefinitions.getScale(key, type);
@@ -291,47 +290,47 @@ void main() {
             expect(
               notes.first,
               equals(notes.last),
-              reason: 'Scale $key $type should start and end with same note',
+              reason: "Scale $key $type should start and end with same note",
             );
           }
         }
       });
 
-      test('all scales should have 7 unique intervals', () {
+      test("all scales should have 7 unique intervals", () {
         for (final type in ScaleType.values) {
           final scale = ScaleDefinitions.getScale(Key.c, type);
           expect(
             scale.intervals.length,
             equals(7),
-            reason: 'Scale $type should have 7 intervals',
+            reason: "Scale $type should have 7 intervals",
           );
 
           final sum = scale.intervals.reduce((a, b) => a + b);
           expect(
             sum,
             equals(12),
-            reason: 'Scale $type intervals should sum to 12 semitones',
+            reason: "Scale $type intervals should sum to 12 semitones",
           );
         }
       });
     });
 
-    group('MIDI note generation', () {
-      test('should generate ascending MIDI notes correctly', () {
+    group("MIDI note generation", () {
+      test("should generate ascending MIDI notes correctly", () {
         final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
         final midiNotes = scale.getMidiNotes(4);
 
         // Should be ascending
-        for (int i = 1; i < midiNotes.length; i++) {
+        for (var i = 1; i < midiNotes.length; i++) {
           expect(
             midiNotes[i],
             greaterThan(midiNotes[i - 1]),
-            reason: 'MIDI notes should be ascending',
+            reason: "MIDI notes should be ascending",
           );
         }
       });
 
-      test('should handle octave wrapping correctly', () {
+      test("should handle octave wrapping correctly", () {
         // Test with scales that cross octave boundaries
         final scale = ScaleDefinitions.getScale(Key.fSharp, ScaleType.major);
         final midiNotes = scale.getMidiNotes(4);
@@ -341,32 +340,32 @@ void main() {
         expect(midiNotes.last, equals(78)); // F#5
       });
 
-      test('should generate different octaves correctly', () {
+      test("should generate different octaves correctly", () {
         final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
 
         final octave3 = scale.getMidiNotes(3);
         final octave4 = scale.getMidiNotes(4);
         final octave5 = scale.getMidiNotes(5);
 
-        for (int i = 0; i < octave3.length; i++) {
+        for (var i = 0; i < octave3.length; i++) {
           expect(octave4[i] - octave3[i], equals(12));
           expect(octave5[i] - octave4[i], equals(12));
         }
       });
     });
 
-    group('cMajor convenience method', () {
-      test('should return C Major scale', () {
+    group("cMajor convenience method", () {
+      test("should return C Major scale", () {
         final scale = ScaleDefinitions.cMajor;
         expect(scale.key, equals(Key.c));
         expect(scale.type, equals(ScaleType.major));
-        expect(scale.name, equals('C Major (Ionian)'));
+        expect(scale.name, equals("C Major (Ionian)"));
       });
     });
 
-    group('Additional comprehensive coverage', () {
-      test('should handle all scale-key combinations correctly', () {
-        int totalCombinations = 0;
+    group("Additional comprehensive coverage", () {
+      test("should handle all scale-key combinations correctly", () {
+        var totalCombinations = 0;
 
         for (final key in Key.values) {
           for (final scaleType in ScaleType.values) {
@@ -395,7 +394,7 @@ void main() {
             expect(midiNotes, hasLength(8));
 
             // Should be ascending
-            for (int i = 1; i < midiNotes.length; i++) {
+            for (var i = 1; i < midiNotes.length; i++) {
               expect(midiNotes[i], greaterThan(midiNotes[i - 1]));
             }
 
@@ -415,15 +414,15 @@ void main() {
         ); // 12 keys × 8 scale types = 96
       });
 
-      test('should generate correct MIDI notes across all octaves', () {
+      test("should generate correct MIDI notes across all octaves", () {
         final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
 
-        for (int octave = 0; octave <= 8; octave++) {
+        for (var octave = 0; octave <= 8; octave++) {
           final midiNotes = scale.getMidiNotes(octave);
           expect(midiNotes, hasLength(8));
 
           // Should be ascending
-          for (int i = 1; i < midiNotes.length; i++) {
+          for (var i = 1; i < midiNotes.length; i++) {
             expect(midiNotes[i], greaterThan(midiNotes[i - 1]));
           }
 
@@ -444,19 +443,19 @@ void main() {
         }
       });
 
-      test('should handle enharmonic equivalents correctly', () {
+      test("should handle enharmonic equivalents correctly", () {
         // Test scales that involve complex note relationships
         final testCases = [
-          {'key': Key.fSharp, 'type': ScaleType.major},
-          {'key': Key.cSharp, 'type': ScaleType.major},
-          {'key': Key.gSharp, 'type': ScaleType.minor},
-          {'key': Key.aSharp, 'type': ScaleType.minor},
+          {"key": Key.fSharp, "type": ScaleType.major},
+          {"key": Key.cSharp, "type": ScaleType.major},
+          {"key": Key.gSharp, "type": ScaleType.minor},
+          {"key": Key.aSharp, "type": ScaleType.minor},
         ];
 
         for (final testCase in testCases) {
           final scale = ScaleDefinitions.getScale(
-            testCase['key'] as Key,
-            testCase['type'] as ScaleType,
+            testCase["key"]! as Key,
+            testCase["type"]! as ScaleType,
           );
 
           expect(scale.intervals, hasLength(7));
@@ -470,13 +469,13 @@ void main() {
           expect(midiNotes, hasLength(8));
 
           // Should maintain ascending order
-          for (int i = 1; i < midiNotes.length; i++) {
+          for (var i = 1; i < midiNotes.length; i++) {
             expect(midiNotes[i], greaterThan(midiNotes[i - 1]));
           }
         }
       });
 
-      test('should validate all mode relationships', () {
+      test("should validate all mode relationships", () {
         // Each mode should have the correct interval pattern
         final modeIntervals = {
           ScaleType.major: [2, 2, 1, 2, 2, 2, 1], // Ionian
@@ -502,12 +501,12 @@ void main() {
           expect(
             scale.intervals,
             equals(entry.value),
-            reason: 'Scale ${entry.key} should have intervals ${entry.value}',
+            reason: "Scale ${entry.key} should have intervals ${entry.value}",
           );
         }
       });
 
-      test('should generate consistent results across multiple calls', () {
+      test("should generate consistent results across multiple calls", () {
         // Ensure that multiple calls return identical results (no random behavior)
         for (final key in Key.values) {
           for (final scaleType in ScaleType.values) {
@@ -528,7 +527,7 @@ void main() {
         }
       });
 
-      test('should handle extreme octave ranges', () {
+      test("should handle extreme octave ranges", () {
         final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
 
         // Test very low octave

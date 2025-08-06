@@ -1,21 +1,71 @@
-import 'package:piano/piano.dart';
+import "package:piano/piano.dart";
 
-enum MusicalNote { c, cSharp, d, dSharp, e, f, fSharp, g, gSharp, a, aSharp, b }
+/// The twelve chromatic musical notes in Western music.
+/// 
+/// This enum represents all semitones in an octave using sharp notation
+/// for accidentals. Each note corresponds to a specific semitone offset
+/// from C (0 semitones).
+enum MusicalNote {
+  /// C natural (0 semitones from C)
+  c,
+  /// C sharp / D flat (1 semitone from C)
+  cSharp,
+  /// D natural (2 semitones from C)
+  d,
+  /// D sharp / E flat (3 semitones from C)
+  dSharp,
+  /// E natural (4 semitones from C)
+  e,
+  /// F natural (5 semitones from C)
+  f,
+  /// F sharp / G flat (6 semitones from C)
+  fSharp,
+  /// G natural (7 semitones from C)
+  g,
+  /// G sharp / A flat (8 semitones from C)
+  gSharp,
+  /// A natural (9 semitones from C)
+  a,
+  /// A sharp / B flat (10 semitones from C)
+  aSharp,
+  /// B natural (11 semitones from C)
+  b
+}
 
+/// Contains comprehensive information about a musical note.
+/// 
+/// This class packages together all the different representations of a musical note:
+/// the note name, octave, MIDI number, and display string. It's typically used
+/// when converting between different note representations.
 class NoteInfo {
-  final MusicalNote note;
-  final int octave;
-  final int midiNumber;
-  final String displayName;
-
+  /// Creates a NoteInfo with all note representations.
+  /// 
+  /// All parameters are required to ensure complete note information.
   const NoteInfo({
     required this.note,
     required this.octave,
     required this.midiNumber,
     required this.displayName,
   });
+  
+  /// The musical note as a MusicalNote enum value.
+  final MusicalNote note;
+  
+  /// The octave number (typically -1 to 9 for MIDI range).
+  final int octave;
+  
+  /// The MIDI note number (0-127).
+  final int midiNumber;
+  
+  /// The human-readable display name (e.g., "C4", "F#3").
+  final String displayName;
 }
 
+/// Utility class for converting between different musical note representations.
+/// 
+/// This class provides static methods to convert between MusicalNote enums,
+/// MIDI numbers, NotePosition objects (from the piano package), and display strings.
+/// It handles the complex mapping between these different systems.
 class NoteUtils {
   static const Map<MusicalNote, int> _noteToSemitone = {
     MusicalNote.c: 0,
@@ -33,30 +83,46 @@ class NoteUtils {
   };
 
   static const Map<MusicalNote, String> _noteToString = {
-    MusicalNote.c: 'C',
-    MusicalNote.cSharp: 'C#',
-    MusicalNote.d: 'D',
-    MusicalNote.dSharp: 'D#',
-    MusicalNote.e: 'E',
-    MusicalNote.f: 'F',
-    MusicalNote.fSharp: 'F#',
-    MusicalNote.g: 'G',
-    MusicalNote.gSharp: 'G#',
-    MusicalNote.a: 'A',
-    MusicalNote.aSharp: 'A#',
-    MusicalNote.b: 'B',
+    MusicalNote.c: "C",
+    MusicalNote.cSharp: "C#",
+    MusicalNote.d: "D",
+    MusicalNote.dSharp: "D#",
+    MusicalNote.e: "E",
+    MusicalNote.f: "F",
+    MusicalNote.fSharp: "F#",
+    MusicalNote.g: "G",
+    MusicalNote.gSharp: "G#",
+    MusicalNote.a: "A",
+    MusicalNote.aSharp: "A#",
+    MusicalNote.b: "B",
   };
 
+  /// Converts a MusicalNote and octave to a MIDI note number.
+  /// 
+  /// The [note] parameter specifies which note to convert.
+  /// The [octave] parameter follows the standard convention where middle C is C4.
+  /// Returns a MIDI note number in the range 0-127.
+  /// 
+  /// Example: `noteToMidiNumber(MusicalNote.c, 4)` returns 60 (middle C).
   static int noteToMidiNumber(MusicalNote note, int octave) {
     final semitone = _noteToSemitone[note]!;
     return (octave + 1) * 12 + semitone;
   }
 
+  /// Converts a MIDI note number to comprehensive note information.
+  /// 
+  /// The [midiNumber] must be in the valid MIDI range (0-127).
+  /// Returns a [NoteInfo] object containing the note, octave, MIDI number,
+  /// and display name.
+  /// 
+  /// Throws [ArgumentError] if the MIDI number is outside the valid range.
+  /// 
+  /// Example: `midiNumberToNote(60)` returns info for middle C (C4).
   static NoteInfo midiNumberToNote(int midiNumber) {
     // Validate MIDI number is within valid range
     if (midiNumber < 0 || midiNumber > 127) {
       throw ArgumentError(
-        'MIDI number must be between 0 and 127, got: $midiNumber',
+        "MIDI number must be between 0 and 127, got: $midiNumber",
       );
     }
 
@@ -64,18 +130,16 @@ class NoteUtils {
     final semitone = midiNumber % 12;
 
     // Find the note for this semitone, with fallback for safety
-    final noteEntry = _noteToSemitone.entries
-        .where((entry) => entry.value == semitone)
-        .firstOrNull;
+    final noteEntry = _noteToSemitone.entries.where((entry) => entry.value == semitone).firstOrNull;
 
     if (noteEntry == null) {
       throw StateError(
-        'No note found for semitone $semitone (MIDI: $midiNumber). This should not happen.',
+        "No note found for semitone $semitone (MIDI: $midiNumber). This should not happen.",
       );
     }
 
     final note = noteEntry.key;
-    final displayName = '${_noteToString[note]}$octave';
+    final displayName = "${_noteToString[note]}$octave";
 
     return NoteInfo(
       note: note,
@@ -85,6 +149,13 @@ class NoteUtils {
     );
   }
 
+  /// Converts a MusicalNote and octave to a NotePosition for the piano widget.
+  /// 
+  /// This method bridges between the app's internal note representation and
+  /// the piano package's NotePosition system. The [note] and [octave] parameters
+  /// specify which note to convert.
+  /// 
+  /// Returns a [NotePosition] that can be used with the InteractivePiano widget.
   static NotePosition noteToNotePosition(MusicalNote note, int octave) {
     switch (note) {
       case MusicalNote.c:
@@ -134,30 +205,31 @@ class NoteUtils {
     }
   }
 
+  /// Converts a NotePosition from the piano widget to a MIDI note number.
+  /// 
+  /// This method converts from the piano package's NotePosition system back
+  /// to MIDI note numbers for processing. The [position] parameter contains
+  /// the note, octave, and any accidental information.
+  /// 
+  /// Returns a MIDI note number in the range 0-127.
+  /// Throws [ArgumentError] if the calculated MIDI number is outside the valid range.
   static int convertNotePositionToMidi(NotePosition position) {
     int noteOffset;
     switch (position.note) {
       case Note.C:
         noteOffset = 0;
-        break;
       case Note.D:
         noteOffset = 2;
-        break;
       case Note.E:
         noteOffset = 4;
-        break;
       case Note.F:
         noteOffset = 5;
-        break;
       case Note.G:
         noteOffset = 7;
-        break;
       case Note.A:
         noteOffset = 9;
-        break;
       case Note.B:
         noteOffset = 11;
-        break;
     }
 
     if (position.accidental == Accidental.Sharp) {
@@ -171,16 +243,22 @@ class NoteUtils {
     // Validate the calculated MIDI number is within valid range
     if (midiNumber < 0 || midiNumber > 127) {
       throw ArgumentError(
-        'Calculated MIDI number $midiNumber is outside valid range (0-127). '
-        'Note: ${position.note}, Octave: ${position.octave}, '
-        'Accidental: ${position.accidental}',
+        "Calculated MIDI number $midiNumber is outside valid range (0-127). "
+        "Note: ${position.note}, Octave: ${position.octave}, "
+        "Accidental: ${position.accidental}",
       );
     }
 
     return midiNumber;
   }
 
+  /// Generates a human-readable display name for a musical note.
+  /// 
+  /// The [note] and [octave] parameters specify which note to format.
+  /// Returns a string like "C4", "F#3", "Bb2", etc.
+  /// 
+  /// This is commonly used in UI elements to show note names to users.
   static String noteDisplayName(MusicalNote note, int octave) {
-    return '${_noteToString[note]}$octave';
+    return "${_noteToString[note]}$octave";
   }
 }

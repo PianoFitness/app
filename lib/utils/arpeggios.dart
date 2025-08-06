@@ -1,27 +1,47 @@
-import 'note_utils.dart';
+import "package:piano_fitness/utils/note_utils.dart";
 
+/// The different types of arpeggio chord qualities supported by Piano Fitness.
+/// 
+/// Each type represents a different chord structure that creates unique
+/// harmonic sounds when played as broken chords (arpeggios).
 enum ArpeggioType {
+  /// Major arpeggio (1-3-5-8) - bright, happy sound
   major,
+  /// Minor arpeggio (1-♭3-5-8) - darker, more melancholic sound
   minor,
+  /// Diminished arpeggio (1-♭3-♭5-8) - tense, unstable sound
   diminished,
+  /// Augmented arpeggio (1-3-#5-8) - mysterious, dreamy sound
   augmented,
+  /// Dominant 7th arpeggio (1-3-5-♭7-8) - jazzy, bluesy sound
   dominant7,
+  /// Minor 7th arpeggio (1-♭3-5-♭7-8) - smooth, jazzy minor sound
   minor7,
+  /// Major 7th arpeggio (1-3-5-7-8) - sophisticated, jazzy major sound
   major7,
 }
 
+/// The octave range options for arpeggio exercises.
+/// 
+/// Determines how many octaves the arpeggio pattern spans,
+/// affecting both difficulty and musical range.
 enum ArpeggioOctaves {
+  /// Single octave arpeggio - easier, more focused
   one,
+  /// Two octave arpeggio - more challenging, greater range
   two,
 }
 
+/// Represents an arpeggio (broken chord) pattern for piano practice.
+/// 
+/// An arpeggio is a sequence of notes from a chord played one after another
+/// rather than simultaneously. This class defines the pattern and provides
+/// methods to generate practice sequences.
 class Arpeggio {
-  final MusicalNote rootNote;
-  final ArpeggioType type;
-  final ArpeggioOctaves octaves;
-  final List<int> intervals;
-  final String name;
-
+  /// Creates a new Arpeggio with the specified parameters.
+  /// 
+  /// The [intervals] list defines the semitone distances from the root note
+  /// to each chord tone in the arpeggio pattern.
   const Arpeggio({
     required this.rootNote,
     required this.type,
@@ -29,40 +49,68 @@ class Arpeggio {
     required this.intervals,
     required this.name,
   });
+  
+  /// The root note of the arpeggio (starting pitch).
+  final MusicalNote rootNote;
+  
+  /// The chord quality/type of the arpeggio.
+  final ArpeggioType type;
+  
+  /// The octave range the arpeggio spans.
+  final ArpeggioOctaves octaves;
+  
+  /// The interval pattern as semitone distances from the root.
+  final List<int> intervals;
+  
+  /// The human-readable name of the arpeggio (e.g., "C Major (1 Octave)").
+  final String name;
 
+  /// Returns the sequence of musical notes in this arpeggio.
+  /// 
+  /// Generates the arpeggio by applying the interval pattern starting from
+  /// the root note. Returns a list of [MusicalNote] enum values.
   List<MusicalNote> getNotes() {
     final notes = <MusicalNote>[];
-    
+
     for (final interval in intervals) {
       final noteIndex = (rootNote.index + interval) % 12;
       notes.add(MusicalNote.values[noteIndex]);
     }
-    
+
     return notes;
   }
 
+  /// Returns the MIDI note numbers for this arpeggio starting at the specified octave.
+  /// 
+  /// The [startOctave] parameter determines which octave to start the arpeggio in.
+  /// Returns a list of MIDI note numbers (0-127) representing the chord tones.
   List<int> getMidiNotes(int startOctave) {
     final arpeggioNotes = getNotes();
     final midiNotes = <int>[];
-    
-    int currentOctave = startOctave;
+
+    var currentOctave = startOctave;
     MusicalNote? previousNote;
-    
+
     for (final note in arpeggioNotes) {
       if (previousNote != null && note.index < previousNote.index) {
         currentOctave++;
       }
-      
+
       midiNotes.add(NoteUtils.noteToMidiNumber(note, currentOctave));
       previousNote = note;
     }
-    
+
     return midiNotes;
   }
 
+  /// Returns a complete arpeggio practice sequence going up and back down.
+  /// 
+  /// Creates a practice sequence that ascends the arpeggio pattern and then
+  /// descends, spanning the specified number of octaves. The [startOctave]
+  /// determines the starting octave for the sequence.
   List<int> getFullArpeggioSequence(int startOctave) {
     final baseNotes = getMidiNotes(startOctave);
-    
+
     if (octaves == ArpeggioOctaves.one) {
       // One octave: up and down
       final descendingNotes = baseNotes.reversed.skip(1).toList();
@@ -70,15 +118,15 @@ class Arpeggio {
     } else {
       // Two octaves: up two octaves, then down
       final secondOctaveNotes = <int>[];
-      
+
       // Add the second octave (skip the first note to avoid duplication)
       // Each note should be in the next octave relative to its position in the first octave
-      for (int i = 1; i < baseNotes.length; i++) {
+      for (var i = 1; i < baseNotes.length; i++) {
         final originalMidi = baseNotes[i];
         // Add 12 semitones to get the same note one octave higher
         secondOctaveNotes.add(originalMidi + 12);
       }
-      
+
       final allAscendingNotes = [...baseNotes, ...secondOctaveNotes];
       final descendingNotes = allAscendingNotes.reversed.skip(1).toList();
       return [...allAscendingNotes, ...descendingNotes];
@@ -86,7 +134,15 @@ class Arpeggio {
   }
 }
 
+/// Provides static definitions and factory methods for creating arpeggios.
+/// 
+/// This class contains the interval patterns for all supported arpeggio types
+/// and provides methods to create Arpeggio objects with proper configurations.
 class ArpeggioDefinitions {
+  /// Maps arpeggio types to their interval patterns in semitones from the root.
+  /// 
+  /// Each list represents the semitone distances from the root note to each
+  /// chord tone. For example, major arpeggio: [0, 4, 7, 12] (root, 3rd, 5th, octave).
   static const Map<ArpeggioType, List<int>> _arpeggioIntervals = {
     ArpeggioType.major: [0, 4, 7, 12],
     ArpeggioType.minor: [0, 3, 7, 12],
@@ -98,15 +154,19 @@ class ArpeggioDefinitions {
   };
 
   static const Map<ArpeggioType, String> _arpeggioTypeNames = {
-    ArpeggioType.major: 'Major',
-    ArpeggioType.minor: 'Minor',
-    ArpeggioType.diminished: 'Diminished',
-    ArpeggioType.augmented: 'Augmented',
-    ArpeggioType.dominant7: 'Dominant 7th',
-    ArpeggioType.minor7: 'Minor 7th',
-    ArpeggioType.major7: 'Major 7th',
+    ArpeggioType.major: "Major",
+    ArpeggioType.minor: "Minor",
+    ArpeggioType.diminished: "Diminished",
+    ArpeggioType.augmented: "Augmented",
+    ArpeggioType.dominant7: "Dominant 7th",
+    ArpeggioType.minor7: "Minor 7th",
+    ArpeggioType.major7: "Major 7th",
   };
 
+  /// Creates an Arpeggio object for the specified root note, type, and octave range.
+  /// 
+  /// This is the main factory method for creating arpeggios. It looks up the
+  /// appropriate interval pattern and generates a proper arpeggio name.
   static Arpeggio getArpeggio(
     MusicalNote rootNote,
     ArpeggioType type,
@@ -114,19 +174,22 @@ class ArpeggioDefinitions {
   ) {
     final intervals = _arpeggioIntervals[type]!;
     final typeName = _arpeggioTypeNames[type]!;
-    final rootName = NoteUtils.noteDisplayName(rootNote, 0).replaceAll('0', '');
-    final octaveName = octaves == ArpeggioOctaves.one ? '1 Octave' : '2 Octaves';
-    
+    final rootName = NoteUtils.noteDisplayName(rootNote, 0).replaceAll("0", "");
+    final octaveName = octaves == ArpeggioOctaves.one ? "1 Octave" : "2 Octaves";
+
     return Arpeggio(
       rootNote: rootNote,
       type: type,
       octaves: octaves,
       intervals: intervals,
-      name: '$rootName $typeName ($octaveName)',
+      name: "$rootName $typeName ($octaveName)",
     );
   }
 
-  // Common arpeggios for a given root note
+  /// Returns a list of common arpeggio types for the specified root note.
+  /// 
+  /// Includes major, minor, diminished, and augmented arpeggios - the most
+  /// fundamental arpeggio types that form the basis of piano technique.
   static List<Arpeggio> getCommonArpeggios(
     MusicalNote rootNote,
     ArpeggioOctaves octaves,
@@ -139,7 +202,10 @@ class ArpeggioDefinitions {
     ];
   }
 
-  // Extended arpeggios including 7th chords
+  /// Returns an extended list of arpeggios including 7th chord types.
+  /// 
+  /// Includes all common arpeggios plus dominant 7th, minor 7th, and major 7th
+  /// arpeggios for more advanced harmonic study and jazz applications.
   static List<Arpeggio> getExtendedArpeggios(
     MusicalNote rootNote,
     ArpeggioOctaves octaves,
@@ -152,7 +218,10 @@ class ArpeggioDefinitions {
     ];
   }
 
-  // For initial implementation - just C major in both octave options
+  /// Convenience method that returns C major arpeggios in both octave ranges.
+  /// 
+  /// This is commonly used as a starting point for arpeggio practice and
+  /// provides a simple reference implementation.
   static List<Arpeggio> getCMajorArpeggios() {
     return [
       getArpeggio(MusicalNote.c, ArpeggioType.major, ArpeggioOctaves.one),

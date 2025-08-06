@@ -6,13 +6,13 @@
 // - test/pages/ for page-specific widget tests
 // - test/widget_integration_test.dart for integration tests
 
-import 'package:flutter_test/flutter_test.dart';
+import "package:flutter_test/flutter_test.dart";
 
-import 'package:piano_fitness/main.dart';
+import "package:piano_fitness/main.dart";
 
 void main() {
-  group('Piano Fitness App Tests', () {
-    testWidgets('should create MyApp without errors', (
+  group("Piano Fitness App Tests", () {
+    testWidgets("should create MyApp without errors", (
       WidgetTester tester,
     ) async {
       // Test that MyApp can be instantiated
@@ -21,7 +21,7 @@ void main() {
       expect(app.runtimeType, MyApp);
     });
 
-    test('should have correct app configuration', () {
+    test("should have correct app configuration", () {
       // Test basic app properties without rendering
       const app = MyApp();
       expect(app.key, null); // Default key should be null
