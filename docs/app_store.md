@@ -134,16 +134,16 @@ piano, MIDI, keyboard, practice app, scales, chords, arpeggios, visual feedback,
 ## 📞 App Store Connect Metadata
 
 ### Support URL
-https://pianofitness.app/support
+<https://piano.fitness/support>
 
 ### Marketing URL
-https://pianofitness.app
+<https://piano.fitness>
 
 ### Privacy Policy URL
-https://pianofitness.app/privacy
+<https://piano.fitness/privacy>
 
 ### Developer Website
-https://pianofitness.app
+<https://piano.fitness>
 
 ### Copyright
 © 2025 Piano Fitness. All rights reserved.
@@ -215,5 +215,5 @@ https://pianofitness.app
 
 ---
 
-*Last Updated: August 6, 2025*
-*Document Version: 1.0*
+*Last Updated: August 7, 2025*
+*Document Version: 1.1*
