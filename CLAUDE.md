@@ -126,20 +126,127 @@ Uses Flutter's built-in StatefulWidget pattern:
 
 ### Code Organization
 
+Piano Fitness follows a modular architecture with clear separation of concerns. Understanding the file organization is crucial for maintaining clean code and placing new logic in appropriate locations.
+
 ```
 lib/
-├── main.dart              # App entry point, routes to PlayPage
-├── pages/                 # Full-page components
-│   ├── play_page.dart     # Main piano interface
-│   ├── midi_settings_page.dart  # MIDI configuration
-│   └── device_controller_page.dart  # Device controls
+├── main.dart                    # App entry point and global configuration
+├── models/                      # Data models and state management
+│   ├── midi_state.dart         # Global MIDI input state (Provider pattern)
+│   └── practice_session.dart   # Practice exercise orchestration
+├── pages/                       # Full-page UI components
+│   ├── play_page.dart          # Main piano interface (home screen)
+│   ├── practice_page.dart      # Guided practice exercises
+│   ├── midi_settings_page.dart # MIDI device configuration
+│   └── device_controller_page.dart # Individual device control
+├── services/                    # Business logic and external integrations
+│   └── midi_service.dart       # Centralized MIDI message parsing
+├── utils/                       # Helper functions and music theory
+│   ├── note_utils.dart         # Note conversion utilities
+│   ├── scales.dart             # Scale definitions and generation
+│   ├── chords.dart             # Chord theory and progressions
+│   ├── arpeggios.dart          # Arpeggio pattern generation
+│   ├── piano_range_utils.dart  # Dynamic keyboard range calculation
+│   └── virtual_piano_utils.dart # Virtual piano playback utilities
+└── widgets/                     # Reusable UI components
+    ├── midi_status_indicator.dart    # MIDI activity indicator
+    ├── practice_progress_display.dart # Practice progress visualization
+    └── practice_settings_panel.dart  # Practice configuration panel
 ```
 
-**Import Conventions** (from copilot-instructions.md):
-1. Dart core libraries first
-2. Flutter framework libraries  
-3. Third-party packages
-4. Local imports last
+#### **File Purpose and Logic Placement Guide**
+
+**main.dart** - Application Bootstrap
+- App initialization, theme configuration, Provider setup
+- Routes to PlayPage as home screen
+- Global state management configuration
+
+**models/** - Data and State Management
+- **midi_state.dart**: Global MIDI state using ChangeNotifier pattern
+  - Real-time MIDI input tracking, channel selection, activity indicators
+  - Used by all pages requiring MIDI functionality
+- **practice_session.dart**: Practice exercise coordination
+  - Exercise state, progress tracking, mode-specific logic
+  - Bridges MIDI input with music theory utilities
+
+**pages/** - User Interface Screens
+- **play_page.dart**: Main piano interface with 49-key layout
+  - Educational content, virtual piano interaction, MIDI activity display
+  - 20% screen height for piano (4:1 flex ratio with content)
+- **practice_page.dart**: Structured practice with real-time feedback
+  - Dynamic piano range centered on exercises, progress tracking
+  - Integration with PracticeSession model
+- **midi_settings_page.dart**: Device discovery and configuration
+  - Bluetooth scanning, connection management, error handling
+- **device_controller_page.dart**: Advanced device testing and control
+  - MIDI message monitoring, interactive controls, device diagnostics
+
+**services/** - Business Logic Layer
+- **midi_service.dart**: MIDI message parsing and event handling
+  - Converts raw MIDI bytes to structured MidiEvent objects
+  - Handles all MIDI message types with validation and filtering
+  - Use this for any MIDI protocol-level functionality
+
+**utils/** - Music Theory and Helper Functions
+- **note_utils.dart**: Core note conversion utilities
+  - MIDI ↔ Note name ↔ Piano position conversions
+  - Use for any note-related transformations
+- **scales.dart**: Musical scale definitions and sequence generation
+  - 8 scale types, all 12 keys, MIDI sequence generation
+  - Add new scale types here, not in pages
+- **chords.dart**: Chord theory implementation and progressions
+  - Chord types, inversions, smooth voice leading
+  - Extend for new chord functionality
+- **arpeggios.dart**: Arpeggio pattern definitions
+  - Major/minor/7th arpeggios, octave range support
+  - Add new arpeggio types here
+- **piano_range_utils.dart**: Dynamic keyboard range calculation
+  - 49-key layout optimization, exercise-centered ranges
+  - Modify for new keyboard layout algorithms
+- **virtual_piano_utils.dart**: Virtual piano note playback
+  - MIDI output for virtual piano interaction
+  - Timing management, resource cleanup
+
+**widgets/** - Reusable UI Components
+- **midi_status_indicator.dart**: MIDI activity status display
+  - Color-coded indicators, recent message display
+- **practice_progress_display.dart**: Practice session visualization
+  - Mode-specific progress bars and information
+- **practice_settings_panel.dart**: Practice configuration interface
+  - Mode selection, parameter controls, validation
+
+#### **Architecture Principles for New Code**
+
+1. **Page Logic**: Keep pages focused on UI and user interaction
+   - Move complex calculations to utils/
+   - Move data processing to services/
+   - Move reusable components to widgets/
+
+2. **Music Theory**: Always extend existing utils/ classes
+   - Don't duplicate note conversion logic
+   - Use existing scale/chord/arpeggio definitions
+   - Add new music theory to appropriate util files
+
+3. **MIDI Handling**: Centralize through services/midi_service.dart
+   - Don't parse MIDI messages directly in pages
+   - Use existing MidiEvent structures
+   - Add new message types to the service layer
+
+4. **State Management**: Use Provider pattern consistently
+   - Global MIDI state in models/midi_state.dart
+   - Local UI state in page StatefulWidgets
+   - Exercise state in models/practice_session.dart
+
+5. **Testing**: Mirror lib/ structure in test/
+   - Unit tests for utils/ and services/
+   - Widget tests for pages/ and widgets/
+   - Integration tests for cross-component functionality
+
+**Import Conventions**:
+1. Dart core libraries first (`dart:async`, `dart:math`)
+2. Flutter framework libraries (`package:flutter/material.dart`)
+3. Third-party packages (`package:piano/piano.dart`)
+4. Local imports last (`package:piano_fitness/...`)
 
 ### Testing Strategy
 
@@ -175,25 +282,50 @@ The codebase follows Flutter testing patterns with **mandatory test coverage req
    - User interaction flows
 
 #### **Test Organization**
-Tests follow the same folder structure as source code for easy navigation:
+Tests mirror the lib/ structure exactly for easy navigation and maintenance:
 
 ```
 test/
-├── models/
-│   └── midi_state_test.dart         # Tests lib/models/midi_state.dart
-├── pages/
-│   ├── play_page_test.dart          # Tests lib/pages/play_page.dart
-│   ├── midi_settings_page_test.dart # Tests lib/pages/midi_settings_page.dart  
-│   └── device_controller_page_test.dart # Tests lib/pages/device_controller_page.dart
-├── widget_integration_test.dart     # Cross-component integration tests
-└── widget_test.dart                 # Main app structure tests
+├── models/                          # Data model unit tests
+│   └── midi_state_test.dart        # MIDI state management (79% coverage)
+├── pages/                           # Page widget tests  
+│   ├── play_page_test.dart         # Main piano interface (370+ lines)
+│   ├── practice_page_test.dart     # Practice exercises (340+ lines)
+│   ├── midi_settings_page_test.dart # MIDI device configuration
+│   └── device_controller_page_test.dart # Individual device control
+├── services/                        # Service layer unit tests
+│   └── midi_service_test.dart      # MIDI message parsing and validation
+├── utils/                          # Music theory and utility tests
+│   ├── note_utils_test.dart        # Note conversion functions
+│   ├── scales_test.dart            # Scale theory (550+ lines)
+│   ├── chords_test.dart            # Chord theory (625+ lines)
+│   ├── arpeggios_test.dart         # Arpeggio generation
+│   ├── chord_progression_test.dart  # Chord progression logic
+│   ├── chord_inversion_flow_test.dart # Chord inversion patterns
+│   └── piano_range_utils_test.dart  # Piano range calculations
+├── widget_integration_test.dart     # Cross-component integration
+└── widget_test.dart                # Main app structure
 ```
 
-**Test Categories**:
-- **Unit Tests** (`test/models/`): Business logic in isolation
-- **Widget Tests** (`test/pages/`): UI components and page functionality
-- **Integration Tests** (`test/widget_integration_test.dart`): Component interactions
-- **Mock Dependencies**: MIDI devices, Bluetooth, external services
+**Test Categories and Coverage**:
+
+**Unit Tests** - Business Logic Verification
+- **models/**: State management (MidiState: 79% coverage target: 80%+)
+- **services/**: MIDI protocol handling with security validation
+- **utils/**: Comprehensive music theory testing
+  - 144 chord combinations (12 notes × 4 types × 3 inversions)
+  - 96 scale combinations (12 keys × 8 modes)
+  - Mathematical precision validation for music theory
+
+**Widget Tests** - UI Component Integration
+- **pages/**: Complete page functionality with MIDI integration
+- Navigation, state management, user interaction testing
+- Mock strategies for hardware dependencies
+
+**Integration Tests** - System Workflow Validation
+- Cross-component communication
+- Real-time MIDI data flow
+- Provider pattern integration
 
 **Common Test Commands**:
 ```bash
@@ -222,9 +354,86 @@ flutter test --coverage      # Check coverage meets 80% requirement
 **Permission Handling**: Proactive Bluetooth permission requests with explanatory dialogs
 **Cross-platform**: Supports iOS, Android, desktop platforms with flutter_midi_command
 
+### Piano Keyboard Layout Implementation
+
+The app features optimized 49-key piano layouts across both PlayPage and PracticePage with consistent 20% screen height allocation for better key proportions on iPad.
+
+#### **Current Layout Specifications**
+
+**Screen Height Distribution**:
+- Content Area: 80% (flex: 4) - Settings, educational content, practice controls
+- Piano Keyboard: 20% (flex: 1) - Interactive 49-key piano with proper aspect ratio
+
+**Key Width Calculation**:
+```dart
+// Dynamic width based on screen size
+final screenWidth = MediaQuery.of(context).size.width;
+final availableWidth = screenWidth - 32; // Account for padding
+final dynamicKeyWidth = availableWidth / 29; // 28 white keys + buffer
+keyWidth: dynamicKeyWidth.clamp(20.0, 60.0) // Reasonable limits
+```
+
+**49-Key Range Implementation**:
+
+**PlayPage** - Fixed Range:
+- **Range**: C2 to C6 (exactly 49 keys spanning 4 octaves)
+- **Purpose**: Consistent layout for general piano interaction
+- **Code Location**: `lib/pages/play_page.dart` lines 387-391
+
+**PracticePage** - Dynamic Centering:
+- **Range**: Calculated to center around current exercise
+- **Algorithm**: 
+  1. Find min/max notes in exercise sequence
+  2. Calculate center point of exercise range
+  3. Create 49-key range centered on exercise
+  4. Shift range if needed to include all exercise notes
+  5. Clamp to reasonable piano range (A0 to C8)
+- **Purpose**: Eliminates horizontal scrolling for all practice exercises
+- **Code Location**: `lib/pages/practice_page.dart` lines 246-297
+
+#### **Piano Range Calculation Logic**
+
+**Exercise-Centered Algorithm** (PracticePage):
+```dart
+// Find exercise range
+final minNote = exerciseNotes.reduce((a, b) => a < b ? a : b);
+final maxNote = exerciseNotes.reduce((a, b) => a > b ? a : b);
+final centerNote = (minNote + maxNote) ~/ 2;
+
+// Create 49-key range (24 semitones on each side)
+const rangeHalfWidth = 24;
+var startNote = centerNote - rangeHalfWidth;
+var endNote = centerNote + rangeHalfWidth;
+
+// Ensure all exercise notes are visible
+if (minNote < startNote) {
+  final shift = startNote - minNote;
+  startNote -= shift;
+  endNote -= shift;
+}
+```
+
+**Benefits**:
+- No horizontal scrolling required for any practice exercise
+- Optimal key proportions with 20% screen height
+- Responsive design adapts to all screen sizes
+- Consistent user experience across pages
+
+#### **Integration with Music Theory**
+
+The piano layouts integrate seamlessly with music theory utilities:
+
+- **Scales**: Typically span 1-2 octaves starting from octave 4 (middle C)
+- **Chords**: Use octave 4 with smart progression logic to avoid excessive range
+- **Arpeggios**: Support 1-2 octave patterns based on user selection
+
+All practice exercises are designed to fit within the 49-key constraint while maintaining musical integrity and proper voice leading.
+
 ### Development Notes
 
 - MIDI operations can block UI - handle asynchronously
 - Resource cleanup critical for MIDI streams and connections
 - Use const constructors for performance optimization
 - Debug mode logging essential for MIDI troubleshooting
+- Piano layout changes should maintain 49-key constraint for consistency
+- Exercise sequences should be validated to fit within 4-octave ranges
