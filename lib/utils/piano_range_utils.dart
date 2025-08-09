@@ -32,6 +32,12 @@ class PianoRangeUtils {
   /// Key width for very wide ranges (28 pixels).
   static const double veryNarrowKeyWidth = 28;
 
+  /// Minimum allowed key width for screen-based calculations (20 pixels).
+  static const double minKeyWidth = 20;
+
+  /// Maximum allowed key width for screen-based calculations (60 pixels).
+  static const double maxKeyWidth = 60;
+
   /// Thresholds for automatic key width adjustment (in semitones)
   static const int narrowKeyThreshold = 48; // 4 octaves
   /// Range size threshold for very narrow keys (5 octaves in semitones).
@@ -344,7 +350,8 @@ class PianoRangeUtils {
     NoteRange? fallbackRange,
   }) {
     // Default 49-key range (C2 to C6) when no exercise is active
-    final defaultFallback = fallbackRange ??
+    final defaultFallback =
+        fallbackRange ??
         NoteRange(
           from: NotePosition(note: Note.C, octave: 2),
           to: NotePosition(note: Note.C, octave: 6),
@@ -402,16 +409,16 @@ class PianoRangeUtils {
   /// [screenWidth] - Available screen width in pixels
   /// [padding] - Total horizontal padding to account for (default: 32)
   /// [keyCount] - Number of white keys to fit (default: 28 for 49-key range)
-  /// [minWidth] - Minimum key width in pixels (default: 20)
-  /// [maxWidth] - Maximum key width in pixels (default: 60)
+  /// [minWidth] - Minimum key width in pixels (default: minKeyWidth = 20)
+  /// [maxWidth] - Maximum key width in pixels (default: maxKeyWidth = 60)
   ///
   /// Returns the optimal key width in pixels.
   static double calculateScreenBasedKeyWidth(
     double screenWidth, {
     double padding = 32.0,
     int keyCount = 28, // 28 white keys in 49-key range
-    double minWidth = 20.0,
-    double maxWidth = 60.0,
+    double minWidth = minKeyWidth,
+    double maxWidth = maxKeyWidth,
   }) {
     final availableWidth = screenWidth - padding;
     final calculatedWidth = availableWidth / (keyCount + 1); // +1 for buffer

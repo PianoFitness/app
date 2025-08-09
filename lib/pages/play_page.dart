@@ -10,6 +10,7 @@ import "package:piano_fitness/models/midi_state.dart";
 import "package:piano_fitness/pages/midi_settings_page.dart";
 import "package:piano_fitness/pages/practice_page.dart";
 import "package:piano_fitness/services/midi_service.dart";
+import "package:piano_fitness/utils/piano_range_utils.dart";
 import "package:piano_fitness/widgets/practice_settings_panel.dart";
 import "package:provider/provider.dart";
 
@@ -390,19 +391,18 @@ class _PlayPageState extends State<PlayPage> {
                 );
 
                 // Calculate dynamic key width based on screen width
-                // 49 keys = 28 white keys + 21 black keys
-                // White keys take ~70% of the width, black keys are narrower
                 final screenWidth = MediaQuery.of(context).size.width;
-                final availableWidth = screenWidth - 32; // Account for padding
                 final dynamicKeyWidth =
-                    availableWidth / 29; // 28 white keys + buffer
+                    PianoRangeUtils.calculateScreenBasedKeyWidth(
+                      screenWidth,
+                    );
 
                 return InteractivePiano(
                   highlightedNotes: midiState.highlightedNotePositions,
                   keyWidth: dynamicKeyWidth.clamp(
-                    20.0,
-                    60.0,
-                  ), // Reasonable limits
+                    PianoRangeUtils.minKeyWidth,
+                    PianoRangeUtils.maxKeyWidth,
+                  ),
                   noteRange: fixed49KeyRange,
                   onNotePositionTapped: (position) {
                     final midiNote = _convertNotePositionToMidi(position);
