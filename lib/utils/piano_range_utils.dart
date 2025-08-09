@@ -1,5 +1,7 @@
 import "package:piano/piano.dart";
 
+import "package:piano_fitness/utils/note_utils.dart";
+
 /// Utility class for calculating optimal piano keyboard ranges
 /// based on highlighted notes during exercises.
 class PianoRangeUtils {
@@ -44,18 +46,19 @@ class PianoRangeUtils {
   static const int veryNarrowKeyThreshold = 60; // 5 octaves
 
   /// Fixed 49-key range constants for focused practice view
-  
+
   /// Total number of keys in the fixed practice range (4 octaves + 1 note).
   static const int fixed49KeyCount = 49; // 4 octaves + 1 note
   /// Number of semitones in the 49-key range (4 octaves).
   static const int fixed49KeySemitones = 48; // 4 octaves in semitones
   /// Half-width of the 49-key range in semitones (2 octaves on each side of center).
   static const int fixed49KeyHalfWidth = 24; // 2 octaves on each side
-  
+
   /// Octave conversion constants
-  
+
   /// Number of semitones in one octave.
   static const int semitonesPerOctave = 12;
+
   /// Number of semitones in two octaves.
   static const int twoOctavesSemitones = 24; // 2 * semitonesPerOctave
   /// Number of semitones in four octaves.
@@ -79,7 +82,7 @@ class PianoRangeUtils {
     }
 
     // Convert note positions to MIDI numbers for easier calculation
-    final midiNotes = highlightedNotes.map(_convertNotePositionToMidi).toList();
+    final midiNotes = highlightedNotes.map(NoteUtils.convertNotePositionToMidi).toList();
 
     if (midiNotes.isEmpty) {
       return fallbackRange ?? defaultRange;
@@ -114,9 +117,9 @@ class PianoRangeUtils {
     startMidi = startMidi.clamp(min88KeyMidi, max88KeyMidi);
     endMidi = endMidi.clamp(min88KeyMidi, max88KeyMidi);
 
-    // Convert back to note positions
-    final startPosition = _convertMidiToNotePosition(startMidi);
-    final endPosition = _convertMidiToNotePosition(endMidi);
+    // Convert back to note positions using NoteUtils
+    final startPosition = _midiToNotePosition(startMidi);
+    final endPosition = _midiToNotePosition(endMidi);
 
     if (startPosition == null || endPosition == null) {
       return fallbackRange ?? defaultRange;
@@ -141,7 +144,7 @@ class PianoRangeUtils {
 
     // Convert MIDI numbers to note positions
     final notePositions = midiSequence
-        .map(_convertMidiToNotePosition)
+        .map(_midiToNotePosition)
         .where((pos) => pos != null)
         .cast<NotePosition>()
         .toList();
@@ -255,9 +258,9 @@ class PianoRangeUtils {
     startMidi = startMidi.clamp(min88KeyMidi, max88KeyMidi);
     endMidi = endMidi.clamp(min88KeyMidi, max88KeyMidi);
 
-    // Convert back to note positions
-    final startPosition = _convertMidiToNotePosition(startMidi);
-    final endPosition = _convertMidiToNotePosition(endMidi);
+    // Convert back to note positions using NoteUtils
+    final startPosition = _midiToNotePosition(startMidi);
+    final endPosition = _midiToNotePosition(endMidi);
 
     if (startPosition == null || endPosition == null) {
       return fallbackRange ?? defaultRange;
@@ -266,91 +269,17 @@ class PianoRangeUtils {
     return NoteRange(from: startPosition, to: endPosition);
   }
 
-  /// Converts a NotePosition to MIDI number
-  static int _convertNotePositionToMidi(NotePosition position) {
-    int noteOffset;
-    switch (position.note) {
-      case Note.C:
-        noteOffset = 0;
-      case Note.D:
-        noteOffset = 2;
-      case Note.E:
-        noteOffset = 4;
-      case Note.F:
-        noteOffset = 5;
-      case Note.G:
-        noteOffset = 7;
-      case Note.A:
-        noteOffset = 9;
-      case Note.B:
-        noteOffset = 11;
+  /// Helper method to convert MIDI number to NotePosition using NoteUtils.
+  /// 
+  /// Returns null if the MIDI number is invalid.
+  static NotePosition? _midiToNotePosition(int midiNote) {
+    // Pre-validate MIDI number to avoid exceptions
+    if (midiNote < 0 || midiNote > 127) {
+      return null;
     }
-
-    if (position.accidental == Accidental.Sharp) {
-      noteOffset += 1;
-    } else if (position.accidental == Accidental.Flat) {
-      noteOffset -= 1;
-    }
-
-    return (position.octave + 1) * semitonesPerOctave + noteOffset;
-  }
-
-  /// Converts a MIDI number to NotePosition
-  static NotePosition? _convertMidiToNotePosition(int midiNote) {
-    if (midiNote < 0 || midiNote > 127) return null;
-
-    final octave = (midiNote ~/ semitonesPerOctave) - 1;
-    final noteIndex = midiNote % semitonesPerOctave;
-
-    // Map to Note enum and handle accidentals
-    switch (noteIndex) {
-      case 0:
-        return NotePosition(note: Note.C, octave: octave);
-      case 1:
-        return NotePosition(
-          note: Note.C,
-          octave: octave,
-          accidental: Accidental.Sharp,
-        );
-      case 2:
-        return NotePosition(note: Note.D, octave: octave);
-      case 3:
-        return NotePosition(
-          note: Note.D,
-          octave: octave,
-          accidental: Accidental.Sharp,
-        );
-      case 4:
-        return NotePosition(note: Note.E, octave: octave);
-      case 5:
-        return NotePosition(note: Note.F, octave: octave);
-      case 6:
-        return NotePosition(
-          note: Note.F,
-          octave: octave,
-          accidental: Accidental.Sharp,
-        );
-      case 7:
-        return NotePosition(note: Note.G, octave: octave);
-      case 8:
-        return NotePosition(
-          note: Note.G,
-          octave: octave,
-          accidental: Accidental.Sharp,
-        );
-      case 9:
-        return NotePosition(note: Note.A, octave: octave);
-      case 10:
-        return NotePosition(
-          note: Note.A,
-          octave: octave,
-          accidental: Accidental.Sharp,
-        );
-      case 11:
-        return NotePosition(note: Note.B, octave: octave);
-      default:
-        return null;
-    }
+    
+    final noteInfo = NoteUtils.midiNumberToNote(midiNote);
+    return NoteUtils.noteToNotePosition(noteInfo.note, noteInfo.octave);
   }
 
   /// Calculates a fixed 49-key range centered around practice exercise notes.
@@ -406,18 +335,24 @@ class PianoRangeUtils {
 
     // Clamp to reasonable piano range (A0 to C8) using two-step approach
     // Step 1: Ensure startNote is within valid bounds
-    startNote = startNote.clamp(min88KeyMidi, max88KeyMidi - fixed49KeySemitones);
+    startNote = startNote.clamp(
+      min88KeyMidi,
+      max88KeyMidi - fixed49KeySemitones,
+    );
     endNote = startNote + fixed49KeySemitones; // Exactly 49 keys (4 octaves)
-    
+
     // Step 2: If this doesn't cover all exercise notes, adjust the range
     // to ensure all notes are visible within the 49-key "zoom" window
     if (minNote < startNote) {
       // Shift range down to include the lowest exercise note
       final shift = startNote - minNote;
-      startNote = (startNote - shift).clamp(min88KeyMidi, max88KeyMidi - fixed49KeySemitones);
+      startNote = (startNote - shift).clamp(
+        min88KeyMidi,
+        max88KeyMidi - fixed49KeySemitones,
+      );
       endNote = startNote + fixed49KeySemitones;
     }
-    
+
     if (maxNote > endNote) {
       // Shift range up to include the highest exercise note
       // But ensure endNote never exceeds the maximum valid MIDI note
@@ -425,9 +360,9 @@ class PianoRangeUtils {
       startNote = endNote - fixed49KeySemitones;
     }
 
-    // Convert MIDI notes to NotePosition
-    final startPosition = _convertMidiToNotePosition(startNote);
-    final endPosition = _convertMidiToNotePosition(endNote);
+    // Convert MIDI notes to NotePosition using NoteUtils
+    final startPosition = _midiToNotePosition(startNote);
+    final endPosition = _midiToNotePosition(endNote);
 
     if (startPosition == null || endPosition == null) {
       return defaultFallback;
