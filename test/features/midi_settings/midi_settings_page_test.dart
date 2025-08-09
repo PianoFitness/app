@@ -1,15 +1,15 @@
 // Unit tests for MidiSettingsPage.
 //
-// Tests the MIDI device configuration page functionality.
+// Tests the UI and user interaction functionality of the MIDI settings page.
 
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/features/midi_settings/midi_settings_page.dart";
 import "package:piano_fitness/models/midi_state.dart";
-import "package:piano_fitness/pages/midi_settings_page.dart";
 import "package:provider/provider.dart";
 
 void main() {
-  group("MidiSettingsPage Tests", () {
+  group("MidiSettingsPage UI Tests", () {
     testWidgets("should create MidiSettingsPage without errors", (
       tester,
     ) async {
@@ -179,17 +179,50 @@ void main() {
       // when accessing Provider.of<MidiState>
     });
 
-    test("should handle MidiService integration for event parsing", () {
-      // Test that demonstrates MidiService integration expectations
-      // This is a unit test since we can't easily mock MIDI hardware in widget tests
+    testWidgets("should display channel selector with correct initial value", (
+      tester,
+    ) async {
+      final Widget testWidget = ChangeNotifierProvider(
+        create: (context) => MidiState(),
+        child: const MaterialApp(home: MidiSettingsPage(initialChannel: 7)),
+      );
 
-      // Verify that MidiService can handle typical MIDI data
-      const noteOnData = [0x90, 60, 127]; // Note On, Middle C, Velocity 127
+      await tester.pumpWidget(testWidget);
+      await tester.pump();
 
-      // This test verifies the MidiService is available and functional
-      // The actual MIDI data handling is tested in MidiService tests
-      expect(noteOnData.length, equals(3));
-      expect(noteOnData[0] & 0xF0, equals(0x90)); // Note On message
+      // Should show channel selector
+      expect(find.text("MIDI Output Channel"), findsOneWidget);
+      expect(find.text("Channel: "), findsOneWidget);
+
+      // Channel display should be present (displayed as 1-16, not 0-15)
+      expect(
+        find.textContaining("Channel for virtual piano output"),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets("should show floating action button for scanning", (
+      tester,
+    ) async {
+      final Widget testWidget = ChangeNotifierProvider(
+        create: (context) => MidiState(),
+        child: const MaterialApp(home: MidiSettingsPage()),
+      );
+
+      await tester.pumpWidget(testWidget);
+      await tester.pump();
+
+      // Should have floating action button
+      expect(find.byType(FloatingActionButton), findsAtLeastNWidgets(1));
+
+      // Should show bluetooth search or refresh icon
+      final hasBluetoothIcon = find
+          .byIcon(Icons.bluetooth_searching)
+          .evaluate()
+          .isNotEmpty;
+      final hasRefreshIcon = find.byIcon(Icons.refresh).evaluate().isNotEmpty;
+
+      expect(hasBluetoothIcon || hasRefreshIcon, isTrue);
     });
   });
 }

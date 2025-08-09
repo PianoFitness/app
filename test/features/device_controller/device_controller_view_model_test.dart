@@ -104,26 +104,30 @@ void main() {
       });
 
       test("should increment channel correctly", () {
-        viewModel.setSelectedChannel(5);
-        viewModel.incrementChannel();
+        viewModel
+          ..setSelectedChannel(5)
+          ..incrementChannel();
         expect(viewModel.selectedChannel, equals(6));
       });
 
       test("should not increment channel beyond maximum", () {
-        viewModel.setSelectedChannel(15);
-        viewModel.incrementChannel();
+        viewModel
+          ..setSelectedChannel(15)
+          ..incrementChannel();
         expect(viewModel.selectedChannel, equals(15)); // Should remain at max
       });
 
       test("should decrement channel correctly", () {
-        viewModel.setSelectedChannel(5);
-        viewModel.decrementChannel();
+        viewModel
+          ..setSelectedChannel(5)
+          ..decrementChannel();
         expect(viewModel.selectedChannel, equals(4));
       });
 
       test("should not decrement channel below minimum", () {
-        viewModel.setSelectedChannel(0);
-        viewModel.decrementChannel();
+        viewModel
+          ..setSelectedChannel(0)
+          ..decrementChannel();
         expect(viewModel.selectedChannel, equals(0)); // Should remain at min
       });
     });
