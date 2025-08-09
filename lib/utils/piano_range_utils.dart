@@ -82,7 +82,9 @@ class PianoRangeUtils {
     }
 
     // Convert note positions to MIDI numbers for easier calculation
-    final midiNotes = highlightedNotes.map(NoteUtils.convertNotePositionToMidi).toList();
+    final midiNotes = highlightedNotes
+        .map(NoteUtils.convertNotePositionToMidi)
+        .toList();
 
     if (midiNotes.isEmpty) {
       return fallbackRange ?? defaultRange;
@@ -118,8 +120,8 @@ class PianoRangeUtils {
     endMidi = endMidi.clamp(min88KeyMidi, max88KeyMidi);
 
     // Convert back to note positions using NoteUtils
-    final startPosition = _midiToNotePosition(startMidi);
-    final endPosition = _midiToNotePosition(endMidi);
+    final startPosition = NoteUtils.midiNumberToNotePosition(startMidi);
+    final endPosition = NoteUtils.midiNumberToNotePosition(endMidi);
 
     if (startPosition == null || endPosition == null) {
       return fallbackRange ?? defaultRange;
@@ -144,7 +146,7 @@ class PianoRangeUtils {
 
     // Convert MIDI numbers to note positions
     final notePositions = midiSequence
-        .map(_midiToNotePosition)
+        .map(NoteUtils.midiNumberToNotePosition)
         .where((pos) => pos != null)
         .cast<NotePosition>()
         .toList();
@@ -259,27 +261,14 @@ class PianoRangeUtils {
     endMidi = endMidi.clamp(min88KeyMidi, max88KeyMidi);
 
     // Convert back to note positions using NoteUtils
-    final startPosition = _midiToNotePosition(startMidi);
-    final endPosition = _midiToNotePosition(endMidi);
+    final startPosition = NoteUtils.midiNumberToNotePosition(startMidi);
+    final endPosition = NoteUtils.midiNumberToNotePosition(endMidi);
 
     if (startPosition == null || endPosition == null) {
       return fallbackRange ?? defaultRange;
     }
 
     return NoteRange(from: startPosition, to: endPosition);
-  }
-
-  /// Helper method to convert MIDI number to NotePosition using NoteUtils.
-  /// 
-  /// Returns null if the MIDI number is invalid.
-  static NotePosition? _midiToNotePosition(int midiNote) {
-    // Pre-validate MIDI number to avoid exceptions
-    if (midiNote < 0 || midiNote > 127) {
-      return null;
-    }
-    
-    final noteInfo = NoteUtils.midiNumberToNote(midiNote);
-    return NoteUtils.noteToNotePosition(noteInfo.note, noteInfo.octave);
   }
 
   /// Calculates a fixed 49-key range centered around practice exercise notes.
@@ -361,8 +350,8 @@ class PianoRangeUtils {
     }
 
     // Convert MIDI notes to NotePosition using NoteUtils
-    final startPosition = _midiToNotePosition(startNote);
-    final endPosition = _midiToNotePosition(endNote);
+    final startPosition = NoteUtils.midiNumberToNotePosition(startNote);
+    final endPosition = NoteUtils.midiNumberToNotePosition(endNote);
 
     if (startPosition == null || endPosition == null) {
       return defaultFallback;
