@@ -1,12 +1,12 @@
 // Unit tests for DeviceControllerPage.
 //
-// Tests the individual MIDI device control page functionality.
+// Tests the UI and user interaction functionality of the device controller page.
 
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:piano_fitness/pages/device_controller_page.dart";
+import "package:piano_fitness/features/device_controller/device_controller_page.dart";
 
 // Mock MIDI device class for testing
 class MockMidiDevice extends MidiDevice {
@@ -51,7 +51,7 @@ void main() {
         );
   });
 
-  group("DeviceControllerPage Tests", () {
+  group("DeviceControllerPage UI Tests", () {
     // Create a mock MIDI device for testing
     final mockDevice = MockMidiDevice(
       id: "test-device-1",
@@ -166,26 +166,6 @@ void main() {
       expect(find.textContaining("MIDI"), findsWidgets);
     });
 
-    testWidgets("should handle send buttons without crashing", (tester) async {
-      final Widget testWidget = MaterialApp(
-        home: DeviceControllerPage(device: mockDevice),
-      );
-
-      await tester.pumpWidget(testWidget);
-      await tester.pump();
-
-      // Find and test send buttons
-      final sendButtons = find.byType(ElevatedButton);
-      if (sendButtons.evaluate().isNotEmpty) {
-        // Test tapping the first send button
-        await tester.tap(sendButtons.first);
-        await tester.pump();
-
-        // Should not crash when sending MIDI messages
-        expect(find.byType(DeviceControllerPage), findsOneWidget);
-      }
-    });
-
     testWidgets("should display pitch bend control", (tester) async {
       final Widget testWidget = MaterialApp(
         home: DeviceControllerPage(device: mockDevice),
@@ -252,36 +232,28 @@ void main() {
       }
     });
 
-    test("should handle MidiService integration for event processing", () {
-      // Test that demonstrates MidiService integration expectations
-      // This verifies the expected data format and processing
+    testWidgets("should handle virtual piano key taps", (tester) async {
+      final Widget testWidget = MaterialApp(
+        home: DeviceControllerPage(device: mockDevice),
+      );
 
-      // Typical MIDI control change data
-      const controlChangeData = [0xB0, 7, 100]; // CC#7 (Volume), Value 100
+      await tester.pumpWidget(testWidget);
+      await tester.pump();
 
-      // Verify data structure is correct for MidiService processing
-      expect(controlChangeData.length, equals(3));
-      expect(
-        controlChangeData[0] & 0xF0,
-        equals(0xB0),
-      ); // Control Change message
-      expect(controlChangeData[1], equals(7)); // Controller number
-      expect(controlChangeData[2], equals(100)); // Controller value
-    });
+      // Scroll down to find virtual piano
+      await tester.drag(find.byType(ListView), const Offset(0, -800));
+      await tester.pump();
 
-    test("should handle pitch bend value calculations", () {
-      // Test pitch bend data format
-      const pitchBendData = [
-        0xE0,
-        0x00,
-        0x40,
-      ]; // Pitch bend, LSB=0, MSB=64 (center)
+      // Look for piano keys (GestureDetector widgets)
+      final gestureDetectors = find.byType(GestureDetector);
+      if (gestureDetectors.evaluate().isNotEmpty) {
+        // Tap a piano key
+        await tester.tap(gestureDetectors.first);
+        await tester.pump();
 
-      expect(pitchBendData.length, equals(3));
-      expect(pitchBendData[0] & 0xF0, equals(0xE0)); // Pitch bend message
-
-      // Center position should be MSB=64 (0x40)
-      expect(pitchBendData[2], equals(0x40));
+        // Should not crash when tapping piano keys
+        expect(find.byType(DeviceControllerPage), findsOneWidget);
+      }
     });
   });
 }
