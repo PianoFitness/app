@@ -21,7 +21,7 @@ class PianoRangeUtils {
   static const int max88KeyMidi = 108; // C8
 
   /// Buffer notes to add on each side of the highlighted range
-  static const int bufferSemitones = 12; // One octave buffer
+  static const int bufferSemitones = semitonesPerOctave; // One octave buffer
 
   /// Configuration for piano key width based on range size
   static const double defaultKeyWidth = 45;
@@ -42,6 +42,24 @@ class PianoRangeUtils {
   static const int narrowKeyThreshold = 48; // 4 octaves
   /// Range size threshold for very narrow keys (5 octaves in semitones).
   static const int veryNarrowKeyThreshold = 60; // 5 octaves
+
+  /// Fixed 49-key range constants for focused practice view
+  
+  /// Total number of keys in the fixed practice range (4 octaves + 1 note).
+  static const int fixed49KeyCount = 49; // 4 octaves + 1 note
+  /// Number of semitones in the 49-key range (4 octaves).
+  static const int fixed49KeySemitones = 48; // 4 octaves in semitones
+  /// Half-width of the 49-key range in semitones (2 octaves on each side of center).
+  static const int fixed49KeyHalfWidth = 24; // 2 octaves on each side
+  
+  /// Octave conversion constants
+  
+  /// Number of semitones in one octave.
+  static const int semitonesPerOctave = 12;
+  /// Number of semitones in two octaves.
+  static const int twoOctavesSemitones = 24; // 2 * semitonesPerOctave
+  /// Number of semitones in four octaves.
+  static const int fourOctavesSemitones = 48; // 4 * semitonesPerOctave
 
   /// Calculates an optimal note range that centers around the given highlighted notes.
   ///
@@ -77,7 +95,7 @@ class PianoRangeUtils {
 
     // Ensure minimum range
     final currentRange = endMidi - startMidi;
-    const minRangeSemitones = minOctaves * 12;
+    const minRangeSemitones = minOctaves * semitonesPerOctave;
     if (currentRange < minRangeSemitones) {
       final expansion = (minRangeSemitones - currentRange) ~/ 2;
       startMidi -= expansion;
@@ -85,7 +103,7 @@ class PianoRangeUtils {
     }
 
     // Ensure maximum range
-    const maxRangeSemitones = maxOctaves * 12;
+    const maxRangeSemitones = maxOctaves * semitonesPerOctave;
     if (currentRange > maxRangeSemitones) {
       final center = (startMidi + endMidi) ~/ 2;
       startMidi = center - maxRangeSemitones ~/ 2;
@@ -274,15 +292,15 @@ class PianoRangeUtils {
       noteOffset -= 1;
     }
 
-    return (position.octave + 1) * 12 + noteOffset;
+    return (position.octave + 1) * semitonesPerOctave + noteOffset;
   }
 
   /// Converts a MIDI number to NotePosition
   static NotePosition? _convertMidiToNotePosition(int midiNote) {
     if (midiNote < 0 || midiNote > 127) return null;
 
-    final octave = (midiNote ~/ 12) - 1;
-    final noteIndex = midiNote % 12;
+    final octave = (midiNote ~/ semitonesPerOctave) - 1;
+    final noteIndex = midiNote % semitonesPerOctave;
 
     // Map to Note enum and handle accidentals
     switch (noteIndex) {
@@ -369,8 +387,8 @@ class PianoRangeUtils {
     final centerNote = (minNote + maxNote) ~/ 2;
 
     // Create a 49-key range centered around the exercise
-    // 49 keys = exactly 4 octaves (48 semitones) + 1 note
-    const rangeHalfWidth = 24; // 2 octaves on each side
+    // Use well-documented constants instead of magic numbers
+    const rangeHalfWidth = fixed49KeyHalfWidth; // 2 octaves on each side
     var startNote = centerNote - rangeHalfWidth;
     var endNote = centerNote + rangeHalfWidth;
 
@@ -386,9 +404,26 @@ class PianoRangeUtils {
       endNote += shift;
     }
 
-    // Clamp to reasonable piano range (A0 to C8)
-    startNote = startNote.clamp(min88KeyMidi, max88KeyMidi - 48);
-    endNote = startNote + 48; // Exactly 49 keys (4 octaves)
+    // Clamp to reasonable piano range (A0 to C8) using two-step approach
+    // Step 1: Ensure startNote is within valid bounds
+    startNote = startNote.clamp(min88KeyMidi, max88KeyMidi - fixed49KeySemitones);
+    endNote = startNote + fixed49KeySemitones; // Exactly 49 keys (4 octaves)
+    
+    // Step 2: If this doesn't cover all exercise notes, adjust the range
+    // to ensure all notes are visible within the 49-key "zoom" window
+    if (minNote < startNote) {
+      // Shift range down to include the lowest exercise note
+      final shift = startNote - minNote;
+      startNote = (startNote - shift).clamp(min88KeyMidi, max88KeyMidi - fixed49KeySemitones);
+      endNote = startNote + fixed49KeySemitones;
+    }
+    
+    if (maxNote > endNote) {
+      // Shift range up to include the highest exercise note
+      // But ensure endNote never exceeds the maximum valid MIDI note
+      endNote = maxNote.clamp(min88KeyMidi + fixed49KeySemitones, max88KeyMidi);
+      startNote = endNote - fixed49KeySemitones;
+    }
 
     // Convert MIDI notes to NotePosition
     final startPosition = _convertMidiToNotePosition(startNote);
