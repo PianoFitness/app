@@ -6,7 +6,7 @@ import "package:piano_fitness/models/midi_state.dart";
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  
+
   group("PlayPageViewModel Tests", () {
     late PlayPageViewModel viewModel;
     late MidiState mockMidiState;
