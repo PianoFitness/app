@@ -329,6 +329,95 @@ class PianoRangeUtils {
     }
   }
 
+  /// Calculates a fixed 49-key range centered around practice exercise notes.
+  ///
+  /// This function creates a consistent 49-key piano layout (4 octaves)
+  /// centered on the exercise sequence to eliminate scrolling during practice.
+  /// Falls back to C2-C6 range when no exercise is active.
+  ///
+  /// [exerciseSequence] - List of MIDI notes in the current exercise
+  /// [fallbackRange] - Range to use when sequence is empty (defaults to C2-C6)
+  ///
+  /// Returns a NoteRange covering exactly 49 keys centered on the exercise.
+  static NoteRange calculateFixed49KeyRange(
+    List<int> exerciseSequence, {
+    NoteRange? fallbackRange,
+  }) {
+    // Default 49-key range (C2 to C6) when no exercise is active
+    final defaultFallback = fallbackRange ??
+        NoteRange(
+          from: NotePosition(note: Note.C, octave: 2),
+          to: NotePosition(note: Note.C, octave: 6),
+        );
+
+    if (exerciseSequence.isEmpty) {
+      return defaultFallback;
+    }
+
+    // Find the min and max MIDI notes in the exercise sequence
+    final minNote = exerciseSequence.reduce((a, b) => a < b ? a : b);
+    final maxNote = exerciseSequence.reduce((a, b) => a > b ? a : b);
+
+    // Calculate the center point of the exercise range
+    final centerNote = (minNote + maxNote) ~/ 2;
+
+    // Create a 49-key range centered around the exercise
+    // 49 keys = exactly 4 octaves (48 semitones) + 1 note
+    const rangeHalfWidth = 24; // 2 octaves on each side
+    var startNote = centerNote - rangeHalfWidth;
+    var endNote = centerNote + rangeHalfWidth;
+
+    // Ensure all exercise notes are within the 49-key range
+    if (minNote < startNote) {
+      final shift = startNote - minNote;
+      startNote -= shift;
+      endNote -= shift;
+    }
+    if (maxNote > endNote) {
+      final shift = maxNote - endNote;
+      startNote += shift;
+      endNote += shift;
+    }
+
+    // Clamp to reasonable piano range (A0 to C8)
+    startNote = startNote.clamp(min88KeyMidi, max88KeyMidi - 48);
+    endNote = startNote + 48; // Exactly 49 keys (4 octaves)
+
+    // Convert MIDI notes to NotePosition
+    final startPosition = _convertMidiToNotePosition(startNote);
+    final endPosition = _convertMidiToNotePosition(endNote);
+
+    if (startPosition == null || endPosition == null) {
+      return defaultFallback;
+    }
+
+    return NoteRange(from: startPosition, to: endPosition);
+  }
+
+  /// Calculates dynamic key width based on available screen width.
+  ///
+  /// Uses screen dimensions to determine optimal key width for 49-key layout
+  /// with reasonable minimum and maximum bounds for usability.
+  ///
+  /// [screenWidth] - Available screen width in pixels
+  /// [padding] - Total horizontal padding to account for (default: 32)
+  /// [keyCount] - Number of white keys to fit (default: 28 for 49-key range)
+  /// [minWidth] - Minimum key width in pixels (default: 20)
+  /// [maxWidth] - Maximum key width in pixels (default: 60)
+  ///
+  /// Returns the optimal key width in pixels.
+  static double calculateScreenBasedKeyWidth(
+    double screenWidth, {
+    double padding = 32.0,
+    int keyCount = 28, // 28 white keys in 49-key range
+    double minWidth = 20.0,
+    double maxWidth = 60.0,
+  }) {
+    final availableWidth = screenWidth - padding;
+    final calculatedWidth = availableWidth / (keyCount + 1); // +1 for buffer
+    return calculatedWidth.clamp(minWidth, maxWidth);
+  }
+
   /// Calculates the optimal key width based on the range size.
   ///
   /// Automatically narrows keys when displaying larger ranges to ensure
