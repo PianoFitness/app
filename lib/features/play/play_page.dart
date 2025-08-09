@@ -1,15 +1,9 @@
-import "dart:async";
-
-import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
-import "package:flutter/services.dart";
-import "package:flutter_midi_command/flutter_midi_command.dart";
-import "package:flutter_midi_command/flutter_midi_command_messages.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/midi_settings/midi_settings_page.dart";
+import "package:piano_fitness/features/play/play_page_view_model.dart";
 import "package:piano_fitness/models/midi_state.dart";
 import "package:piano_fitness/pages/practice_page.dart";
-import "package:piano_fitness/services/midi_service.dart";
 import "package:piano_fitness/utils/piano_range_utils.dart";
 import "package:piano_fitness/widgets/practice_settings_panel.dart";
 import "package:provider/provider.dart";
@@ -33,182 +27,24 @@ class PlayPage extends StatefulWidget {
 }
 
 class _PlayPageState extends State<PlayPage> {
-  StreamSubscription<MidiPacket>? _midiDataSubscription;
-  final MidiCommand _midiCommand = MidiCommand();
-  Timer? _noteOffTimer;
+  late final PlayPageViewModel _viewModel;
 
   @override
   void initState() {
     super.initState();
-    _setupMidiListener();
+    _viewModel = PlayPageViewModel(initialChannel: widget.midiChannel);
 
     // Initialize the MIDI channel in the provider
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<MidiState>(
-        context,
-        listen: false,
-      ).setSelectedChannel(widget.midiChannel);
+      final midiState = Provider.of<MidiState>(context, listen: false);
+      _viewModel.setMidiState(midiState);
     });
   }
 
   @override
   void dispose() {
-    _midiDataSubscription?.cancel();
-    _noteOffTimer?.cancel();
+    _viewModel.dispose();
     super.dispose();
-  }
-
-  void _setupMidiListener() {
-    final midiDataStream = _midiCommand.onMidiDataReceived;
-    if (midiDataStream != null) {
-      _midiDataSubscription = midiDataStream.listen(
-        (packet) {
-          if (kDebugMode) {
-            print("Received MIDI data: ${packet.data}");
-          }
-          try {
-            _handleMidiData(packet.data);
-          } on Exception catch (e) {
-            if (kDebugMode) print("MIDI data handler error: $e");
-          }
-        },
-        onError: (Object error) {
-          if (kDebugMode) print("MIDI data stream error: $error");
-        },
-      );
-    } else {
-      if (kDebugMode) {
-        print("Warning: MIDI data stream is not available");
-      }
-    }
-  }
-
-  void _handleMidiData(Uint8List data) {
-    final midiState = Provider.of<MidiState>(context, listen: false);
-
-    MidiService.handleMidiData(data, (MidiEvent event) {
-      switch (event.type) {
-        case MidiEventType.noteOn:
-          midiState.noteOn(event.data1, event.data2, event.channel);
-          break;
-        case MidiEventType.noteOff:
-          midiState.noteOff(event.data1, event.channel);
-          break;
-        case MidiEventType.controlChange:
-        case MidiEventType.programChange:
-        case MidiEventType.pitchBend:
-        case MidiEventType.other:
-          midiState.setLastNote(event.displayMessage);
-          break;
-      }
-    });
-  }
-
-  Future<void> _playVirtualNote(int note) async {
-    final midiState = Provider.of<MidiState>(context, listen: false);
-    final selectedChannel = midiState.selectedChannel;
-
-    try {
-      await Future.microtask(() {
-        NoteOnMessage(
-          channel: selectedChannel,
-          note: note,
-          velocity: 64,
-        ).send();
-      });
-
-      midiState.setLastNote(
-        "Virtual Note ON: $note (Ch: ${selectedChannel + 1}, Vel: 64)",
-      );
-
-      if (kDebugMode) {
-        print("Sent virtual note on: $note on channel ${selectedChannel + 1}");
-      }
-
-      _noteOffTimer?.cancel();
-      _noteOffTimer = Timer(const Duration(milliseconds: 500), () async {
-        if (mounted) {
-          try {
-            await Future.microtask(() {
-              NoteOffMessage(channel: selectedChannel, note: note).send();
-            });
-            if (kDebugMode) {
-              print(
-                "Sent virtual note off: $note on channel ${selectedChannel + 1}",
-              );
-            }
-          } on Exception catch (e) {
-            if (kDebugMode) {
-              print("Error sending note off: $e");
-            }
-          }
-        }
-      });
-    } on Exception catch (e) {
-      if (kDebugMode) {
-        print("Error playing virtual note: $e");
-      }
-      try {
-        await Future.microtask(() {
-          final noteOnData = Uint8List.fromList([
-            0x90 | selectedChannel,
-            note,
-            64,
-          ]);
-          _midiCommand.sendData(noteOnData);
-        });
-
-        midiState.setLastNote(
-          "Virtual Note ON: $note (Ch: ${selectedChannel + 1}, Vel: 64) [fallback]",
-        );
-
-        _noteOffTimer?.cancel();
-        _noteOffTimer = Timer(const Duration(milliseconds: 500), () async {
-          if (mounted) {
-            await Future.microtask(() {
-              final noteOffData = Uint8List.fromList([
-                0x80 | selectedChannel,
-                note,
-                0,
-              ]);
-              _midiCommand.sendData(noteOffData);
-            });
-          }
-        });
-      } on Exception catch (fallbackError) {
-        if (kDebugMode) {
-          print("Fallback MIDI send also failed: $fallbackError");
-        }
-      }
-    }
-  }
-
-  int _convertNotePositionToMidi(NotePosition position) {
-    int noteOffset;
-    switch (position.note) {
-      case Note.C:
-        noteOffset = 0;
-      case Note.D:
-        noteOffset = 2;
-      case Note.E:
-        noteOffset = 4;
-      case Note.F:
-        noteOffset = 5;
-      case Note.G:
-        noteOffset = 7;
-      case Note.A:
-        noteOffset = 9;
-      case Note.B:
-        noteOffset = 11;
-    }
-
-    if (position.accidental == Accidental.Sharp) {
-      noteOffset += 1;
-    } else if (position.accidental == Accidental.Flat) {
-      noteOffset -= 1;
-    }
-
-    return (position.octave + 1) * 12 + noteOffset;
   }
 
   @override
@@ -384,11 +220,8 @@ class _PlayPageState extends State<PlayPage> {
           Expanded(
             child: Consumer<MidiState>(
               builder: (context, midiState, child) {
-                // Define a fixed 49-key range (C2 to C6) for consistent layout
-                final fixed49KeyRange = NoteRange(
-                  from: NotePosition(note: Note.C, octave: 2),
-                  to: NotePosition(note: Note.C, octave: 6),
-                );
+                // Define a fixed 49-key range using ViewModel
+                final fixed49KeyRange = _viewModel.getFixed49KeyRange();
 
                 // Calculate dynamic key width based on screen width
                 final screenWidth = MediaQuery.of(context).size.width;
@@ -405,8 +238,10 @@ class _PlayPageState extends State<PlayPage> {
                   ),
                   noteRange: fixed49KeyRange,
                   onNotePositionTapped: (position) {
-                    final midiNote = _convertNotePositionToMidi(position);
-                    _playVirtualNote(midiNote);
+                    final midiNote = _viewModel.convertNotePositionToMidi(
+                      position,
+                    );
+                    _viewModel.playVirtualNote(midiNote);
                   },
                 );
               },

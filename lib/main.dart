@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
+import "package:piano_fitness/features/play/play_page.dart";
 import "package:piano_fitness/models/midi_state.dart";
-import "package:piano_fitness/pages/play_page.dart";
 import "package:provider/provider.dart";
 
 /// Entry point for the Piano Fitness application.

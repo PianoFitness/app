@@ -248,9 +248,10 @@ class _PracticePageState extends State<PracticePage> {
 
                 // Calculate dynamic key width based on screen width
                 final screenWidth = MediaQuery.of(context).size.width;
-                final dynamicKeyWidth = PianoRangeUtils.calculateScreenBasedKeyWidth(
-                  screenWidth,
-                );
+                final dynamicKeyWidth =
+                    PianoRangeUtils.calculateScreenBasedKeyWidth(
+                      screenWidth,
+                    );
 
                 return InteractivePiano(
                   highlightedNotes: highlightedNotes,

@@ -64,7 +64,6 @@ void main() {
       viewModel = DeviceControllerViewModel(device: mockDevice);
     });
 
-
     group("Initialization", () {
       test("should initialize with correct default values", () {
         expect(viewModel.device, equals(mockDevice));
@@ -162,7 +161,7 @@ void main() {
         final initialController = viewModel.ccController;
         viewModel.setCCController(5);
         expect(viewModel.ccController, equals(5));
-        
+
         // Reset to avoid MIDI sending side effects
         viewModel.setCCController(initialController);
       });
@@ -238,7 +237,6 @@ void main() {
       });
     });
 
-
     group("MIDI Data Processing", () {
       test("should handle MidiService integration for event processing", () {
         // Test that demonstrates MidiService integration expectations
@@ -296,6 +294,5 @@ void main() {
         expect(notificationCount, equals(1));
       });
     });
-
   });
 }
