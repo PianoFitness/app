@@ -7,7 +7,7 @@ import "package:flutter/services.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/features/midi_settings/midi_settings_view_model.dart";
-import "package:piano_fitness/models/midi_state.dart";
+import "package:piano_fitness/shared/models/midi_state.dart";
 
 void main() {
   setUpAll(() {

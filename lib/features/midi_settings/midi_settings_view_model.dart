@@ -3,8 +3,8 @@ import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
-import "package:piano_fitness/models/midi_state.dart";
-import "package:piano_fitness/services/midi_service.dart";
+import "package:piano_fitness/shared/models/midi_state.dart";
+import "package:piano_fitness/shared/services/midi_service.dart";
 
 /// ViewModel for managing MIDI settings state and operations.
 ///

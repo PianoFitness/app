@@ -1,4 +1,4 @@
-import "package:piano_fitness/utils/note_utils.dart";
+import "package:piano_fitness/shared/utils/note_utils.dart";
 
 /// The different types of arpeggio chord qualities supported by Piano Fitness.
 ///

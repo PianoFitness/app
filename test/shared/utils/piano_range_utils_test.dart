@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:piano/piano.dart";
-import "package:piano_fitness/utils/piano_range_utils.dart";
+import "package:piano_fitness/shared/utils/piano_range_utils.dart";
 
 // Mock chord class for testing chord progression range calculation
 class MockChordInfo {

@@ -4,7 +4,7 @@ import "package:piano/piano.dart";
 import "package:piano_fitness/features/midi_settings/midi_settings_page.dart";
 import "package:piano_fitness/features/play/play_page.dart";
 import "package:piano_fitness/features/practice/practice_page.dart";
-import "package:piano_fitness/models/midi_state.dart";
+import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:provider/provider.dart";
 
 void main() {

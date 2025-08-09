@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "package:piano_fitness/models/midi_state.dart";
+import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:provider/provider.dart";
 
 /// A visual indicator showing MIDI activity status.

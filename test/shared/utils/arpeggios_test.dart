@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:piano_fitness/utils/arpeggios.dart";
-import "package:piano_fitness/utils/note_utils.dart";
+import "package:piano_fitness/shared/utils/arpeggios.dart";
+import "package:piano_fitness/shared/utils/note_utils.dart";
 
 void main() {
   group("ArpeggioDefinitions", () {

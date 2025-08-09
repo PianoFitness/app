@@ -2,7 +2,7 @@ import "dart:typed_data";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/play/play_page_view_model.dart";
-import "package:piano_fitness/models/midi_state.dart";
+import "package:piano_fitness/shared/models/midi_state.dart";
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

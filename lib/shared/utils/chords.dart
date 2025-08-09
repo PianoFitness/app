@@ -1,5 +1,5 @@
-import "package:piano_fitness/utils/note_utils.dart";
-import "package:piano_fitness/utils/scales.dart";
+import "package:piano_fitness/shared/utils/note_utils.dart";
+import "package:piano_fitness/shared/utils/scales.dart";
 
 /// The different chord qualities supported for chord practice.
 ///

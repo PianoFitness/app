@@ -3,8 +3,8 @@ import "package:flutter/foundation.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_midi_command/flutter_midi_command_messages.dart";
 import "package:piano/piano.dart";
-import "package:piano_fitness/models/midi_state.dart";
-import "package:piano_fitness/services/midi_service.dart";
+import "package:piano_fitness/shared/models/midi_state.dart";
+import "package:piano_fitness/shared/services/midi_service.dart";
 
 /// ViewModel for managing play page state and MIDI operations.
 ///

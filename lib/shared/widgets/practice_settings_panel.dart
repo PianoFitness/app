@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
-import "package:piano_fitness/utils/arpeggios.dart";
-import "package:piano_fitness/utils/note_utils.dart";
-import "package:piano_fitness/utils/scales.dart" as music;
+import "package:piano_fitness/shared/utils/arpeggios.dart";
+import "package:piano_fitness/shared/utils/note_utils.dart";
+import "package:piano_fitness/shared/utils/scales.dart" as music;
 
 /// Practice modes available in the Piano Fitness app.
 ///

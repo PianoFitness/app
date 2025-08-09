@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:piano_fitness/utils/chords.dart";
-import "package:piano_fitness/utils/note_utils.dart";
-import "package:piano_fitness/utils/scales.dart";
+import "package:piano_fitness/shared/utils/chords.dart";
+import "package:piano_fitness/shared/utils/note_utils.dart";
+import "package:piano_fitness/shared/utils/scales.dart";
 
 void main() {
   group("ChordDefinitions", () {

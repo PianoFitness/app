@@ -2,7 +2,7 @@ import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_midi_command/flutter_midi_command_messages.dart";
-import "package:piano_fitness/services/midi_service.dart";
+import "package:piano_fitness/shared/services/midi_service.dart";
 
 /// ViewModel for managing device controller state and MIDI operations.
 ///
