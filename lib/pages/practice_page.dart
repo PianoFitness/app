@@ -166,6 +166,7 @@ class _PracticePageState extends State<PracticePage> {
       body: Column(
         children: [
           Expanded(
+            flex: 4,
             child: SafeArea(
               bottom: false,
               child: SingleChildScrollView(
@@ -235,41 +236,26 @@ class _PracticePageState extends State<PracticePage> {
           Expanded(
             child: Consumer<MidiState>(
               builder: (context, midiState, child) {
-                // Calculate optimal range based on highlighted notes and exercise context
+                // Calculate highlighted notes for display
                 final highlightedNotes = _highlightedNotes.isNotEmpty
                     ? _highlightedNotes
                     : midiState.highlightedNotePositions;
 
-                NoteRange optimalRange;
+                // Calculate 49-key range centered around practice exercise
+                final practiceRange = PianoRangeUtils.calculateFixed49KeyRange(
+                  _practiceSession.currentSequence,
+                );
 
-                // For chord progression practice, use specialized range calculation
-                if (_practiceSession.practiceMode == PracticeMode.chords &&
-                    _practiceSession.currentChordProgression.isNotEmpty &&
-                    _practiceSession.practiceActive) {
-                  optimalRange =
-                      PianoRangeUtils.calculateRangeForChordProgression(
-                        _practiceSession.currentChordProgression,
-                        4, // Same octave used for chord progression generation
-                      );
-                } else if (_practiceSession.currentSequence.isNotEmpty &&
-                    _practiceSession.practiceActive) {
-                  // For other exercises, optimize for the entire sequence
-                  optimalRange = PianoRangeUtils.calculateRangeForExercise(
-                    _practiceSession.currentSequence,
-                  );
-                } else {
-                  // Otherwise, optimize for currently highlighted notes
-                  optimalRange = PianoRangeUtils.calculateOptimalRange(
-                    highlightedNotes,
-                  );
-                }
+                // Calculate dynamic key width based on screen width
+                final screenWidth = MediaQuery.of(context).size.width;
+                final dynamicKeyWidth = PianoRangeUtils.calculateScreenBasedKeyWidth(
+                  screenWidth,
+                );
 
                 return InteractivePiano(
                   highlightedNotes: highlightedNotes,
-                  keyWidth: PianoRangeUtils.calculateOptimalKeyWidth(
-                    optimalRange,
-                  ),
-                  noteRange: optimalRange,
+                  keyWidth: dynamicKeyWidth,
+                  noteRange: practiceRange,
                   onNotePositionTapped: (position) {
                     final midiNote = NoteUtils.convertNotePositionToMidi(
                       position,

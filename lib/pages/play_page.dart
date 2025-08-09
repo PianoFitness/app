@@ -276,6 +276,7 @@ class _PlayPageState extends State<PlayPage> {
       body: Column(
         children: [
           Expanded(
+            flex: 4,
             child: SafeArea(
               bottom: false,
               child: SingleChildScrollView(
@@ -383,15 +384,26 @@ class _PlayPageState extends State<PlayPage> {
           Expanded(
             child: Consumer<MidiState>(
               builder: (context, midiState, child) {
-                // Calculate optimal range based on highlighted notes
-                final optimalRange = PianoRangeUtils.calculateOptimalRange(
-                  midiState.highlightedNotePositions,
+                // Define a fixed 49-key range (C2 to C6) for consistent layout
+                final fixed49KeyRange = NoteRange(
+                  from: NotePosition(note: Note.C, octave: 2),
+                  to: NotePosition(note: Note.C, octave: 6),
                 );
+
+                // Calculate dynamic key width based on screen width
+                final screenWidth = MediaQuery.of(context).size.width;
+                final dynamicKeyWidth =
+                    PianoRangeUtils.calculateScreenBasedKeyWidth(
+                      screenWidth,
+                    );
 
                 return InteractivePiano(
                   highlightedNotes: midiState.highlightedNotePositions,
-                  keyWidth: 45,
-                  noteRange: optimalRange,
+                  keyWidth: dynamicKeyWidth.clamp(
+                    PianoRangeUtils.minKeyWidth,
+                    PianoRangeUtils.maxKeyWidth,
+                  ),
+                  noteRange: fixed49KeyRange,
                   onNotePositionTapped: (position) {
                     final midiNote = _convertNotePositionToMidi(position);
                     _playVirtualNote(midiNote);

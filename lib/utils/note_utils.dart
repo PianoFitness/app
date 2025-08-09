@@ -265,6 +265,26 @@ class NoteUtils {
     return midiNumber;
   }
 
+  /// Converts a MIDI note number to a NotePosition for the piano widget.
+  ///
+  /// This method provides a direct conversion from MIDI numbers to NotePosition
+  /// objects that can be used with the InteractivePiano widget. It combines
+  /// [midiNumberToNote] and [noteToNotePosition] into a single operation.
+  ///
+  /// The [midiNumber] must be in the valid MIDI range (0-127).
+  /// Returns null if the MIDI number is outside the valid range.
+  ///
+  /// Example: `midiNumberToNotePosition(60)` returns NotePosition for middle C.
+  static NotePosition? midiNumberToNotePosition(int midiNumber) {
+    // Pre-validate MIDI number to avoid exceptions
+    if (midiNumber < 0 || midiNumber > 127) {
+      return null;
+    }
+
+    final noteInfo = midiNumberToNote(midiNumber);
+    return noteToNotePosition(noteInfo.note, noteInfo.octave);
+  }
+
   /// Generates a human-readable display name for a musical note.
   ///
   /// The [note] and [octave] parameters specify which note to format.
