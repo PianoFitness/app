@@ -1,4 +1,4 @@
-w# CLAUDE.md
+# CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -35,13 +35,15 @@ dart format .       # format code
 dart fix --apply    # auto-fix issues
 
 # Testing (MANDATORY for all changes)
-flutter test                    # all tests
-flutter test test/models/       # all model tests
-flutter test test/pages/        # all page tests
-flutter test test/models/midi_state_test.dart # specific model test
-flutter test test/pages/play_page_test.dart   # specific page test
+flutter test                           # all tests
+flutter test test/shared/models/       # shared model tests  
+flutter test test/features/play/       # play feature tests
+flutter test test/features/practice/   # practice feature tests
+flutter test test/shared/models/midi_state_test.dart              # specific model test
+flutter test test/features/play/play_page_test.dart               # specific page test
+flutter test test/features/practice/practice_page_view_model_test.dart # specific ViewModel test
 flutter test test/widget_integration_test.dart # integration tests
-flutter test --coverage        # with coverage
+flutter test --coverage               # with coverage
 
 # Coverage Analysis (REQUIRED)
 flutter test --coverage && genhtml coverage/lcov.info -o coverage/html
@@ -62,20 +64,27 @@ flutter build macos  # macOS
 
 ## Architecture Overview
 
-Piano Fitness is a Flutter app focused on piano practice with MIDI integration. The app has been refactored into a modular structure separating piano interaction from MIDI configuration.
+Piano Fitness is a Flutter app focused on piano practice with MIDI integration. The app follows **MVVM (Model-View-ViewModel) architecture** with feature-based organization and a shared code layer for common functionality.
 
 ### Core Architecture Pattern
 
-**Separation of Concerns**: The app uses a page-based architecture where each major function is isolated:
+**MVVM with Clean Architecture**: The app uses a modern feature-based MVVM architecture where each major function is organized into self-contained modules:
 
-- **PlayPage** (`lib/pages/play_page.dart`) - Main interface focused on piano interaction
-- **MidiSettingsPage** (`lib/pages/midi_settings_page.dart`) - Dedicated MIDI device configuration  
-- **DeviceControllerPage** (`lib/pages/device_controller_page.dart`) - Individual MIDI device control
+- **PlayPage** (`lib/features/play/`) - Main interface focused on piano interaction
+- **PracticePage** (`lib/features/practice/`) - Guided practice exercises with real-time feedback
+- **MidiSettingsPage** (`lib/features/midi_settings/`) - MIDI device configuration and connection management
+- **DeviceControllerPage** (`lib/features/device_controller/`) - Individual MIDI device testing and control
+
+Each feature follows the MVVM pattern:
+- **View** (Page): Pure UI layer, handles user interactions and displays data
+- **ViewModel**: Business logic layer, manages state and coordinates between View and shared services
+- **Model**: Data structures and business rules (in shared layer)
 
 ### Navigation Flow
-1. App opens to PlayPage (piano-focused interface)
+1. App opens to PlayPage (piano-focused interface)  
 2. Settings gear icon → MidiSettingsPage (MIDI configuration)
 3. Connected device → DeviceControllerPage (device-specific controls)
+4. Practice mode buttons → PracticePage (guided exercises)
 
 ### Key Dependencies
 - **flutter_midi_command** (^0.5.1) - MIDI device communication and Bluetooth handling
@@ -105,11 +114,13 @@ The app handles complex MIDI workflows across multiple pages:
 
 ### State Management Strategy
 
-Uses Flutter's built-in StatefulWidget pattern:
-- Local state for UI interactions and MIDI data
-- StreamSubscriptions for real-time MIDI events
-- setState() for UI updates from MIDI callbacks
-- Proper subscription cleanup in dispose() methods
+Uses **MVVM with ChangeNotifier and Provider pattern**:
+- **ViewModels**: Extend ChangeNotifier for business logic and state management
+- **Provider**: Dependency injection for ViewModels and shared services
+- **MidiState**: Global shared state for real-time MIDI data using ChangeNotifier
+- **Local UI State**: StatefulWidget for view-specific UI state
+- **StreamSubscriptions**: Real-time MIDI events handled in ViewModels
+- **Resource Management**: Proper subscription cleanup in ViewModel dispose() methods
 
 ### Error Handling Patterns
 
@@ -126,74 +137,110 @@ Uses Flutter's built-in StatefulWidget pattern:
 
 ### Code Organization
 
-Piano Fitness follows a modular architecture with clear separation of concerns. Understanding the file organization is crucial for maintaining clean code and placing new logic in appropriate locations.
+Piano Fitness follows a **feature-based MVVM architecture** with a shared layer for common functionality. This organization provides clear separation of concerns, excellent testability, and maintainable code structure.
 
 ```
 lib/
-├── main.dart                    # App entry point and global configuration
-├── models/                      # Data models and state management
-│   ├── midi_state.dart         # Global MIDI input state (Provider pattern)
-│   └── practice_session.dart   # Practice exercise orchestration
-├── pages/                       # Full-page UI components
-│   ├── play_page.dart          # Main piano interface (home screen)
-│   ├── practice_page.dart      # Guided practice exercises
-│   ├── midi_settings_page.dart # MIDI device configuration
-│   └── device_controller_page.dart # Individual device control
-├── services/                    # Business logic and external integrations
-│   └── midi_service.dart       # Centralized MIDI message parsing
-├── utils/                       # Helper functions and music theory
-│   ├── note_utils.dart         # Note conversion utilities
-│   ├── scales.dart             # Scale definitions and generation
-│   ├── chords.dart             # Chord theory and progressions
-│   ├── arpeggios.dart          # Arpeggio pattern generation
-│   ├── piano_range_utils.dart  # Dynamic keyboard range calculation
-│   └── virtual_piano_utils.dart # Virtual piano playback utilities
-└── widgets/                     # Reusable UI components
-    ├── midi_status_indicator.dart    # MIDI activity indicator
-    ├── practice_progress_display.dart # Practice progress visualization
-    └── practice_settings_panel.dart  # Practice configuration panel
+├── main.dart                       # App entry point and Provider configuration
+├── features/                       # Feature-based MVVM modules
+│   ├── device_controller/          # MIDI device testing and control
+│   │   ├── device_controller_page.dart      # UI layer (View)
+│   │   └── device_controller_view_model.dart # Business logic (ViewModel)
+│   ├── midi_settings/              # MIDI device configuration
+│   │   ├── midi_settings_page.dart          # UI layer (View)
+│   │   └── midi_settings_view_model.dart    # Business logic (ViewModel)
+│   ├── play/                       # Main piano interface
+│   │   ├── play_page.dart                   # UI layer (View)
+│   │   └── play_page_view_model.dart        # Business logic (ViewModel)
+│   └── practice/                   # Guided practice exercises
+│       ├── practice_page.dart               # UI layer (View)
+│       └── practice_page_view_model.dart    # Business logic (ViewModel)
+└── shared/                         # Common code shared across features
+    ├── models/                     # Data models and business entities
+    │   ├── midi_state.dart         # Global MIDI state (ChangeNotifier)
+    │   └── practice_session.dart   # Practice exercise coordination
+    ├── services/                   # Business logic and external integrations
+    │   └── midi_service.dart       # Centralized MIDI message parsing
+    ├── utils/                      # Helper functions and music theory
+    │   ├── note_utils.dart         # Note conversion utilities
+    │   ├── scales.dart             # Scale definitions and generation
+    │   ├── chords.dart             # Chord theory and progressions
+    │   ├── arpeggios.dart          # Arpeggio pattern generation
+    │   ├── piano_range_utils.dart  # Dynamic keyboard range calculation
+    │   └── virtual_piano_utils.dart # Virtual piano playback utilities
+    └── widgets/                    # Reusable UI components
+        ├── midi_status_indicator.dart    # MIDI activity indicator
+        ├── practice_progress_display.dart # Practice progress visualization
+        └── practice_settings_panel.dart  # Practice configuration panel
 ```
 
 #### **File Purpose and Logic Placement Guide**
 
 **main.dart** - Application Bootstrap
 - App initialization, theme configuration, Provider setup
-- Routes to PlayPage as home screen
-- Global state management configuration
+- Routes to PlayPage as home screen  
+- Global ChangeNotifier providers (MidiState)
 
-**models/** - Data and State Management
+**features/** - Feature-Based MVVM Modules
+Each feature follows the same MVVM pattern with clear separation:
+
+**features/play/** - Main Piano Interface
+- **play_page.dart**: UI layer for piano interaction
+  - Educational content, navigation to other features
+  - Interactive piano with virtual note playing
+  - 20% screen height for piano (4:1 flex ratio with content)
+- **play_page_view_model.dart**: Business logic for play functionality
+  - MIDI data processing, virtual piano playback
+  - Note conversion and piano range calculations
+
+**features/practice/** - Guided Practice Exercises  
+- **practice_page.dart**: UI layer for practice sessions
+  - Practice settings panel, progress display, dynamic piano range
+  - Exercise completion feedback and real-time highlighting
+- **practice_page_view_model.dart**: Business logic for practice functionality
+  - Practice session management, MIDI integration
+  - Dynamic piano range calculation centered on exercises
+
+**features/midi_settings/** - MIDI Device Configuration
+- **midi_settings_page.dart**: UI layer for MIDI setup
+  - Device scanning, connection management, error handling
+  - Bluetooth permission handling with user dialogs
+- **midi_settings_view_model.dart**: Business logic for MIDI operations
+  - Device discovery, connection state management
+  - MIDI channel selection and device communication
+
+**features/device_controller/** - MIDI Device Testing
+- **device_controller_page.dart**: UI layer for device control
+  - MIDI message monitoring, interactive controls
+  - Real-time message display and device diagnostics
+- **device_controller_view_model.dart**: Business logic for device control
+  - MIDI message sending/receiving, device state management
+  - Advanced MIDI operations and diagnostics
+
+**shared/** - Common Code Layer
+All code shared across features, organized by responsibility:
+
+**shared/models/** - Data Models and Business Entities
 - **midi_state.dart**: Global MIDI state using ChangeNotifier pattern
   - Real-time MIDI input tracking, channel selection, activity indicators
-  - Used by all pages requiring MIDI functionality
+  - Used by all ViewModels requiring MIDI functionality
 - **practice_session.dart**: Practice exercise coordination
   - Exercise state, progress tracking, mode-specific logic
   - Bridges MIDI input with music theory utilities
 
-**pages/** - User Interface Screens
-- **play_page.dart**: Main piano interface with 49-key layout
-  - Educational content, virtual piano interaction, MIDI activity display
-  - 20% screen height for piano (4:1 flex ratio with content)
-- **practice_page.dart**: Structured practice with real-time feedback
-  - Dynamic piano range centered on exercises, progress tracking
-  - Integration with PracticeSession model
-- **midi_settings_page.dart**: Device discovery and configuration
-  - Bluetooth scanning, connection management, error handling
-- **device_controller_page.dart**: Advanced device testing and control
-  - MIDI message monitoring, interactive controls, device diagnostics
-
-**services/** - Business Logic Layer
+**shared/services/** - Business Logic and External Integrations
 - **midi_service.dart**: MIDI message parsing and event handling
   - Converts raw MIDI bytes to structured MidiEvent objects
   - Handles all MIDI message types with validation and filtering
   - Use this for any MIDI protocol-level functionality
 
-**utils/** - Music Theory and Helper Functions
+**shared/utils/** - Music Theory and Helper Functions
 - **note_utils.dart**: Core note conversion utilities
   - MIDI ↔ Note name ↔ Piano position conversions
   - Use for any note-related transformations
 - **scales.dart**: Musical scale definitions and sequence generation
   - 8 scale types, all 12 keys, MIDI sequence generation
-  - Add new scale types here, not in pages
+  - Add new scale types here, not in features
 - **chords.dart**: Chord theory implementation and progressions
   - Chord types, inversions, smooth voice leading
   - Extend for new chord functionality
@@ -207,7 +254,7 @@ lib/
   - MIDI output for virtual piano interaction
   - Timing management, resource cleanup
 
-**widgets/** - Reusable UI Components
+**shared/widgets/** - Reusable UI Components
 - **midi_status_indicator.dart**: MIDI activity status display
   - Color-coded indicators, recent message display
 - **practice_progress_display.dart**: Practice session visualization
@@ -217,36 +264,67 @@ lib/
 
 #### **Architecture Principles for New Code**
 
-1. **Page Logic**: Keep pages focused on UI and user interaction
-   - Move complex calculations to utils/
-   - Move data processing to services/
-   - Move reusable components to widgets/
+**MVVM Pattern Compliance**:
+1. **View (Page)**: Keep pages focused purely on UI and user interaction
+   - Handle user inputs and delegate to ViewModel
+   - Use AnimatedBuilder/Consumer to react to ViewModel changes
+   - No business logic in pages - only UI state management
+   - Move complex calculations to ViewModel or shared utilities
 
-2. **Music Theory**: Always extend existing utils/ classes
+2. **ViewModel**: Business logic layer extending ChangeNotifier
+   - Handle all feature-specific business logic
+   - Coordinate between View and shared services/models
+   - Manage feature-specific state and notify View of changes
+   - Process MIDI data, manage practice sessions, device operations
+   - Proper resource cleanup in dispose() method
+
+3. **Shared Layer**: Common functionality across features
+   - **Models**: Data structures and global state (MidiState, PracticeSession)
+   - **Services**: External integrations and protocol handling (MIDI)
+   - **Utils**: Pure functions and music theory (no state)
+   - **Widgets**: Reusable UI components
+
+**Development Guidelines**:
+4. **Music Theory**: Always extend existing shared/utils/ classes
    - Don't duplicate note conversion logic
-   - Use existing scale/chord/arpeggio definitions
-   - Add new music theory to appropriate util files
+   - Use existing scale/chord/arpeggio definitions  
+   - Add new music theory to shared utilities, not features
 
-3. **MIDI Handling**: Centralize through services/midi_service.dart
-   - Don't parse MIDI messages directly in pages
+5. **MIDI Handling**: Centralize through shared/services/midi_service.dart
+   - Don't parse MIDI messages directly in ViewModels
    - Use existing MidiEvent structures
-   - Add new message types to the service layer
+   - Add new message types to the shared service layer
 
-4. **State Management**: Use Provider pattern consistently
-   - Global MIDI state in models/midi_state.dart
-   - Local UI state in page StatefulWidgets
-   - Exercise state in models/practice_session.dart
+6. **State Management**: Use MVVM with Provider pattern
+   - **Global State**: shared/models/midi_state.dart (ChangeNotifier)
+   - **Feature State**: ViewModel extends ChangeNotifier
+   - **UI State**: StatefulWidget for view-specific UI state only
+   - **Business State**: Models like PracticeSession in shared layer
 
-5. **Testing**: Mirror lib/ structure in test/
-   - Unit tests for utils/ and services/
-   - Widget tests for pages/ and widgets/
-   - Integration tests for cross-component functionality
+7. **Testing**: Mirror lib/ structure in test/
+   - Unit tests for shared/utils/, shared/services/, and ViewModels  
+   - Widget tests for feature pages and shared/widgets/
+   - Integration tests for cross-feature functionality
 
 **Import Conventions**:
 1. Dart core libraries first (`dart:async`, `dart:math`)
 2. Flutter framework libraries (`package:flutter/material.dart`)
 3. Third-party packages (`package:piano/piano.dart`)
-4. Local imports last (`package:piano_fitness/...`)
+4. Local imports in order:
+   - Feature imports: `package:piano_fitness/features/...`
+   - Shared imports: `package:piano_fitness/shared/...`
+
+**Import Examples**:
+```dart
+// ViewModel importing shared utilities
+import "package:piano_fitness/shared/models/midi_state.dart";
+import "package:piano_fitness/shared/services/midi_service.dart";
+import "package:piano_fitness/shared/utils/note_utils.dart";
+
+// Page importing its ViewModel and shared widgets
+import "package:piano_fitness/features/practice/practice_page_view_model.dart";
+import "package:piano_fitness/shared/widgets/practice_settings_panel.dart";
+```
 
 ### Testing Strategy
 
@@ -286,67 +364,89 @@ Tests mirror the lib/ structure exactly for easy navigation and maintenance:
 
 ```
 test/
-├── models/                          # Data model unit tests
-│   └── midi_state_test.dart        # MIDI state management (79% coverage)
-├── pages/                           # Page widget tests  
-│   ├── play_page_test.dart         # Main piano interface (370+ lines)
-│   ├── practice_page_test.dart     # Practice exercises (340+ lines)
-│   ├── midi_settings_page_test.dart # MIDI device configuration
-│   └── device_controller_page_test.dart # Individual device control
-├── services/                        # Service layer unit tests
-│   └── midi_service_test.dart      # MIDI message parsing and validation
-├── utils/                          # Music theory and utility tests
-│   ├── note_utils_test.dart        # Note conversion functions
-│   ├── scales_test.dart            # Scale theory (550+ lines)
-│   ├── chords_test.dart            # Chord theory (625+ lines)
-│   ├── arpeggios_test.dart         # Arpeggio generation
-│   ├── chord_progression_test.dart  # Chord progression logic
-│   ├── chord_inversion_flow_test.dart # Chord inversion patterns
-│   └── piano_range_utils_test.dart  # Piano range calculations
-├── widget_integration_test.dart     # Cross-component integration
+├── features/                        # Feature-based MVVM tests
+│   ├── device_controller/           # Device controller feature tests
+│   │   ├── device_controller_page_test.dart      # UI tests
+│   │   └── device_controller_view_model_test.dart # Business logic tests
+│   ├── midi_settings/               # MIDI settings feature tests
+│   │   ├── midi_settings_page_test.dart          # UI tests
+│   │   └── midi_settings_view_model_test.dart    # Business logic tests
+│   ├── play/                        # Play feature tests
+│   │   ├── play_page_test.dart                   # UI tests (370+ lines)
+│   │   └── play_page_view_model_test.dart        # Business logic tests
+│   └── practice/                    # Practice feature tests
+│       ├── practice_page_test.dart               # UI tests (275+ lines)
+│       └── practice_page_view_model_test.dart    # Business logic tests (321+ lines)
+├── shared/                          # Shared code tests
+│   ├── models/                      # Data model unit tests
+│   │   └── midi_state_test.dart    # MIDI state management (79% coverage)
+│   ├── services/                    # Service layer unit tests
+│   │   └── midi_service_test.dart  # MIDI message parsing and validation
+│   ├── utils/                       # Music theory and utility tests
+│   │   ├── note_utils_test.dart    # Note conversion functions
+│   │   ├── scales_test.dart        # Scale theory (550+ lines)
+│   │   ├── chords_test.dart        # Chord theory (625+ lines)
+│   │   ├── arpeggios_test.dart     # Arpeggio generation
+│   │   ├── chord_progression_test.dart      # Chord progression logic
+│   │   ├── chord_inversion_flow_test.dart   # Chord inversion patterns
+│   │   └── piano_range_utils_test.dart      # Piano range calculations
+│   └── widgets/                     # Shared widget tests
+│       └── practice_settings_panel_test.dart
+├── widget_integration_test.dart     # Cross-feature integration
 └── widget_test.dart                # Main app structure
 ```
 
 **Test Categories and Coverage**:
 
 **Unit Tests** - Business Logic Verification
-- **models/**: State management (MidiState: 79% coverage target: 80%+)
-- **services/**: MIDI protocol handling with security validation
-- **utils/**: Comprehensive music theory testing
+- **ViewModel Tests**: Business logic for each feature
+  - Practice: 321+ lines of comprehensive ViewModel tests
+  - Play: MIDI processing and piano interaction tests  
+  - MIDI Settings: Device management and connection tests
+  - Device Controller: MIDI device control and diagnostics tests
+- **Shared Models**: State management (MidiState: 79% coverage, target: 80%+)
+- **Shared Services**: MIDI protocol handling with security validation
+- **Shared Utils**: Comprehensive music theory testing
   - 144 chord combinations (12 notes × 4 types × 3 inversions)
   - 96 scale combinations (12 keys × 8 modes)
   - Mathematical precision validation for music theory
 
-**Widget Tests** - UI Component Integration
-- **pages/**: Complete page functionality with MIDI integration
-- Navigation, state management, user interaction testing
-- Mock strategies for hardware dependencies
+**Widget Tests** - UI Component Integration  
+- **Feature Pages**: Complete page functionality with MVVM integration
+  - UI rendering, user interaction, ViewModel integration
+  - Navigation, state management, reactive UI updates
+- **Shared Widgets**: Reusable components across features
+- Mock strategies for hardware dependencies and ViewModels
 
 **Integration Tests** - System Workflow Validation
-- Cross-component communication
+- Cross-feature communication
 - Real-time MIDI data flow
-- Provider pattern integration
+- Provider pattern and MVVM integration
 
 **Common Test Commands**:
 ```bash
-# Development workflow
-flutter test test/models/midi_state_test.dart  # Work on MidiState
-flutter test test/pages/play_page_test.dart    # Work on PlayPage
+# Development workflow - MVVM features
+flutter test test/features/practice/practice_page_view_model_test.dart  # ViewModel logic
+flutter test test/features/practice/practice_page_test.dart             # UI tests
+flutter test test/shared/models/midi_state_test.dart                    # Shared state
 
-# Category testing
-flutter test test/models/     # All business logic tests
-flutter test test/pages/      # All UI component tests
+# Feature testing
+flutter test test/features/play/       # All play feature tests
+flutter test test/features/practice/   # All practice feature tests
+flutter test test/shared/             # All shared code tests
 
 # Coverage verification
-flutter test --coverage      # Check coverage meets 80% requirement
+flutter test --coverage              # Check coverage meets 80% requirement
 ```
 - Test error scenarios and edge cases
 - Integration tests for complete workflows
 
 #### **Current Test Coverage**
 - **MidiState**: 79% coverage (45/57 lines) ✅
+- **Practice Feature**: 100% ViewModel coverage with 321+ test lines
+- **Play Feature**: Complete MVVM test coverage
 - **Target**: 80%+ for all new/modified code
-- **Critical Areas**: MIDI message handling, state management, UI integration
+- **Critical Areas**: MIDI message handling, ViewModel business logic, UI integration
 
 ### MIDI Platform Considerations
 
@@ -375,12 +475,14 @@ keyWidth: dynamicKeyWidth.clamp(20.0, 60.0) // Reasonable limits
 
 **49-Key Range Implementation**:
 
-**PlayPage** - Fixed Range:
+**PlayPage** - Fixed Range (MVVM):
 - **Range**: C2 to C6 (exactly 49 keys spanning 4 octaves)
 - **Purpose**: Consistent layout for general piano interaction
-- **Code Location**: `lib/pages/play_page.dart` lines 387-391
+- **Implementation**: 
+  - **ViewModel**: `lib/features/play/play_page_view_model.dart` - `getFixed49KeyRange()`
+  - **View**: `lib/features/play/play_page.dart` - Uses ViewModel for range calculation
 
-**PracticePage** - Dynamic Centering:
+**PracticePage** - Dynamic Centering (MVVM):
 - **Range**: Calculated to center around current exercise
 - **Algorithm**: 
   1. Find min/max notes in exercise sequence
@@ -389,7 +491,10 @@ keyWidth: dynamicKeyWidth.clamp(20.0, 60.0) // Reasonable limits
   4. Shift range if needed to include all exercise notes
   5. Clamp to reasonable piano range (A0 to C8)
 - **Purpose**: Eliminates horizontal scrolling for all practice exercises
-- **Code Location**: `lib/pages/practice_page.dart` lines 246-297
+- **Implementation**:
+  - **ViewModel**: `lib/features/practice/practice_page_view_model.dart` - `calculatePracticeRange()`
+  - **View**: `lib/features/practice/practice_page.dart` - Uses ViewModel for dynamic range
+  - **Shared Utility**: `lib/shared/utils/piano_range_utils.dart` - Range calculation logic
 
 #### **Piano Range Calculation Logic**
 
