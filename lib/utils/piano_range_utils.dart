@@ -22,6 +22,16 @@ class PianoRangeUtils {
   /// Upper bound of standard 88-key piano range (C8).
   static const int max88KeyMidi = 108; // C8
 
+  /// Octave conversion constants
+
+  /// Number of semitones in one octave.
+  static const int semitonesPerOctave = 12;
+
+  /// Number of semitones in two octaves.
+  static const int twoOctavesSemitones = 24; // 2 * semitonesPerOctave
+  /// Number of semitones in four octaves.
+  static const int fourOctavesSemitones = 48; // 4 * semitonesPerOctave
+
   /// Buffer notes to add on each side of the highlighted range
   static const int bufferSemitones = semitonesPerOctave; // One octave buffer
 
@@ -50,19 +60,10 @@ class PianoRangeUtils {
   /// Total number of keys in the fixed practice range (4 octaves + 1 note).
   static const int fixed49KeyCount = 49; // 4 octaves + 1 note
   /// Number of semitones in the 49-key range (4 octaves).
-  static const int fixed49KeySemitones = 48; // 4 octaves in semitones
+  static const int fixed49KeySemitones =
+      fourOctavesSemitones; // 4 octaves in semitones
   /// Half-width of the 49-key range in semitones (2 octaves on each side of center).
   static const int fixed49KeyHalfWidth = 24; // 2 octaves on each side
-
-  /// Octave conversion constants
-
-  /// Number of semitones in one octave.
-  static const int semitonesPerOctave = 12;
-
-  /// Number of semitones in two octaves.
-  static const int twoOctavesSemitones = 24; // 2 * semitonesPerOctave
-  /// Number of semitones in four octaves.
-  static const int fourOctavesSemitones = 48; // 4 * semitonesPerOctave
 
   /// Calculates an optimal note range that centers around the given highlighted notes.
   ///
