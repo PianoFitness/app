@@ -191,6 +191,183 @@ void main() {
     });
   });
 
+  group("Fixed 49-Key Range Tests", () {
+    test("should return default C2-C6 range for empty exercise sequence", () {
+      final result = PianoRangeUtils.calculateFixed49KeyRange([]);
+      expect(result, isNotNull);
+      
+      // Should match the default C2-C6 range
+      final defaultRange = NoteRange(
+        from: NotePosition(note: Note.C, octave: 2),
+        to: NotePosition(note: Note.C, octave: 6),
+      );
+      expect(result.toString(), equals(defaultRange.toString()));
+    });
+
+    test("should center 49-key range around single note exercise", () {
+      final exerciseSequence = [60]; // C4
+      final result = PianoRangeUtils.calculateFixed49KeyRange(exerciseSequence);
+      expect(result, isNotNull);
+      
+      // Should be different from default range since it's centered on C4
+      final defaultResult = PianoRangeUtils.calculateFixed49KeyRange([]);
+      expect(result, isNot(same(defaultResult)));
+    });
+
+    test("should center 49-key range around scale exercise", () {
+      // C major scale from C4 to C5
+      final cMajorScale = [60, 62, 64, 65, 67, 69, 71, 72];
+      final result = PianoRangeUtils.calculateFixed49KeyRange(cMajorScale);
+      expect(result, isNotNull);
+      
+      // Result should be consistent with same input
+      final result2 = PianoRangeUtils.calculateFixed49KeyRange(cMajorScale);
+      expect(result.toString(), equals(result2.toString()));
+    });
+
+    test("should adjust range when exercise extends beyond initial centering", () {
+      // Exercise with very high notes that would exceed centered range
+      final highExercise = [84, 85, 86, 87, 88, 89, 90]; // High C6 and above
+      final result = PianoRangeUtils.calculateFixed49KeyRange(highExercise);
+      expect(result, isNotNull);
+      
+      // Should be different from default range
+      final defaultResult = PianoRangeUtils.calculateFixed49KeyRange([]);
+      expect(result, isNot(same(defaultResult)));
+    });
+
+    test("should adjust range when exercise has very low notes", () {
+      // Exercise with very low notes
+      final lowExercise = [36, 37, 38, 39, 40]; // C2 and nearby
+      final result = PianoRangeUtils.calculateFixed49KeyRange(lowExercise);
+      expect(result, isNotNull);
+      
+      // Should be different from default range
+      final defaultResult = PianoRangeUtils.calculateFixed49KeyRange([]);
+      expect(result, isNot(same(defaultResult)));
+    });
+
+    test("should handle exercise spanning wide range", () {
+      // Exercise spanning from low C2 to high C6
+      final wideExercise = [36, 48, 60, 72, 84];
+      final result = PianoRangeUtils.calculateFixed49KeyRange(wideExercise);
+      expect(result, isNotNull);
+    });
+
+    test("should clamp to piano range boundaries", () {
+      // Exercise with extreme notes beyond piano range
+      final extremeExercise = [21, 108]; // A0 and C8 (88-key limits)
+      final result = PianoRangeUtils.calculateFixed49KeyRange(extremeExercise);
+      expect(result, isNotNull);
+    });
+
+    test("should use custom fallback range when provided", () {
+      final customFallback = NoteRange(
+        from: NotePosition(note: Note.C, octave: 3),
+        to: NotePosition(note: Note.C, octave: 7),
+      );
+      
+      final result = PianoRangeUtils.calculateFixed49KeyRange(
+        [], // Empty sequence should trigger fallback
+        fallbackRange: customFallback,
+      );
+      
+      expect(result, isNotNull);
+      expect(result.toString(), equals(customFallback.toString()));
+    });
+  });
+
+  group("Screen-Based Key Width Tests", () {
+    test("should calculate key width for standard screen widths", () {
+      // Test with common screen widths
+      final ipadWidth = PianoRangeUtils.calculateScreenBasedKeyWidth(1024);
+      final phoneWidth = PianoRangeUtils.calculateScreenBasedKeyWidth(375);
+      final desktopWidth = PianoRangeUtils.calculateScreenBasedKeyWidth(1440);
+      
+      expect(ipadWidth, greaterThan(0));
+      expect(phoneWidth, greaterThan(0));
+      expect(desktopWidth, greaterThan(0));
+      
+      // Larger screens should allow wider keys
+      expect(desktopWidth, greaterThan(ipadWidth));
+      expect(ipadWidth, greaterThan(phoneWidth));
+    });
+
+    test("should respect minimum width constraints", () {
+      // Very narrow screen should still return minimum width
+      const minWidth = 15.0;
+      final result = PianoRangeUtils.calculateScreenBasedKeyWidth(
+        200, // Very narrow screen
+        minWidth: minWidth,
+      );
+      
+      expect(result, greaterThanOrEqualTo(minWidth));
+    });
+
+    test("should respect maximum width constraints", () {
+      // Very wide screen should not exceed maximum width
+      const maxWidth = 50.0;
+      final result = PianoRangeUtils.calculateScreenBasedKeyWidth(
+        3000, // Very wide screen
+        maxWidth: maxWidth,
+      );
+      
+      expect(result, lessThanOrEqualTo(maxWidth));
+    });
+
+    test("should handle custom padding", () {
+      const screenWidth = 1000.0;
+      const largePadding = 100.0;
+      
+      final standardResult = PianoRangeUtils.calculateScreenBasedKeyWidth(
+        screenWidth,
+      );
+      
+      final paddedResult = PianoRangeUtils.calculateScreenBasedKeyWidth(
+        screenWidth,
+        padding: largePadding,
+      );
+      
+      // More padding should result in narrower keys
+      expect(paddedResult, lessThan(standardResult));
+    });
+
+    test("should handle custom key count", () {
+      const screenWidth = 1000.0;
+      
+      final keys28 = PianoRangeUtils.calculateScreenBasedKeyWidth(
+        screenWidth,
+      );
+      
+      final keys35 = PianoRangeUtils.calculateScreenBasedKeyWidth(
+        screenWidth,
+        keyCount: 35,
+      );
+      
+      // More keys should result in narrower individual keys
+      expect(keys35, lessThan(keys28));
+    });
+
+    test("should return consistent results for same input", () {
+      const screenWidth = 800.0;
+      
+      final result1 = PianoRangeUtils.calculateScreenBasedKeyWidth(screenWidth);
+      final result2 = PianoRangeUtils.calculateScreenBasedKeyWidth(screenWidth);
+      
+      expect(result1, equals(result2));
+    });
+
+    test("should handle edge cases gracefully", () {
+      // Zero screen width
+      final zeroWidth = PianoRangeUtils.calculateScreenBasedKeyWidth(0);
+      expect(zeroWidth, greaterThanOrEqualTo(20.0)); // Should return minimum
+      
+      // Negative screen width
+      final negativeWidth = PianoRangeUtils.calculateScreenBasedKeyWidth(-100);
+      expect(negativeWidth, greaterThanOrEqualTo(20.0)); // Should return minimum
+    });
+  });
+
   group("Key Width Calculation Tests", () {
     test("should return appropriate key width for different ranges", () {
       // Create mock note ranges
