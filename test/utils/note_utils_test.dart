@@ -145,12 +145,14 @@ void main() {
       test("should convert basic MIDI numbers to NotePosition", () {
         // Test middle C
         final c4 = NoteUtils.midiNumberToNotePosition(60);
+        expect(c4, isNotNull);
         expect(c4?.note, equals(Note.C));
         expect(c4?.octave, equals(4));
         expect(c4?.accidental, equals(Accidental.None));
 
         // Test A4
         final a4 = NoteUtils.midiNumberToNotePosition(69);
+        expect(a4, isNotNull);
         expect(a4?.note, equals(Note.A));
         expect(a4?.octave, equals(4));
         expect(a4?.accidental, equals(Accidental.None));
