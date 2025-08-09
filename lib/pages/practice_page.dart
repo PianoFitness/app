@@ -8,7 +8,6 @@ import "package:piano_fitness/models/midi_state.dart";
 import "package:piano_fitness/models/practice_session.dart";
 import "package:piano_fitness/services/midi_service.dart";
 import "package:piano_fitness/utils/note_utils.dart";
-import "package:piano_fitness/utils/piano_range_utils.dart";
 import "package:piano_fitness/utils/virtual_piano_utils.dart";
 import "package:piano_fitness/widgets/midi_status_indicator.dart";
 import "package:piano_fitness/widgets/practice_progress_display.dart";
@@ -166,6 +165,7 @@ class _PracticePageState extends State<PracticePage> {
       body: Column(
         children: [
           Expanded(
+            flex: 4,
             child: SafeArea(
               bottom: false,
               child: SingleChildScrollView(
@@ -235,41 +235,82 @@ class _PracticePageState extends State<PracticePage> {
           Expanded(
             child: Consumer<MidiState>(
               builder: (context, midiState, child) {
-                // Calculate optimal range based on highlighted notes and exercise context
+                // Calculate highlighted notes for display
                 final highlightedNotes = _highlightedNotes.isNotEmpty
                     ? _highlightedNotes
                     : midiState.highlightedNotePositions;
 
-                NoteRange optimalRange;
+                // Calculate 49-key range centered around practice exercise
+                NoteRange practiceRange;
 
-                // For chord progression practice, use specialized range calculation
-                if (_practiceSession.practiceMode == PracticeMode.chords &&
-                    _practiceSession.currentChordProgression.isNotEmpty &&
-                    _practiceSession.practiceActive) {
-                  optimalRange =
-                      PianoRangeUtils.calculateRangeForChordProgression(
-                        _practiceSession.currentChordProgression,
-                        4, // Same octave used for chord progression generation
-                      );
-                } else if (_practiceSession.currentSequence.isNotEmpty &&
-                    _practiceSession.practiceActive) {
-                  // For other exercises, optimize for the entire sequence
-                  optimalRange = PianoRangeUtils.calculateRangeForExercise(
-                    _practiceSession.currentSequence,
+                if (_practiceSession.currentSequence.isNotEmpty) {
+                  // Find the min and max MIDI notes in the current exercise sequence
+                  final exerciseNotes = _practiceSession.currentSequence;
+                  final minNote = exerciseNotes.reduce((a, b) => a < b ? a : b);
+                  final maxNote = exerciseNotes.reduce((a, b) => a > b ? a : b);
+
+                  // Calculate the center point of the exercise range
+                  final centerNote = (minNote + maxNote) ~/ 2;
+
+                  // Create a 49-key range centered around the exercise
+                  // 49 keys = approximately 4 octaves (48 semitones) + 1 note
+                  const rangeHalfWidth = 24; // 2 octaves on each side
+                  var startNote = centerNote - rangeHalfWidth;
+                  var endNote = centerNote + rangeHalfWidth;
+
+                  // Ensure all exercise notes are within the 49-key range
+                  if (minNote < startNote) {
+                    final shift = startNote - minNote;
+                    startNote -= shift;
+                    endNote -= shift;
+                  }
+                  if (maxNote > endNote) {
+                    final shift = maxNote - endNote;
+                    startNote += shift;
+                    endNote += shift;
+                  }
+
+                  // Clamp to reasonable piano range (A0 to C8)
+                  startNote = startNote.clamp(
+                    21,
+                    108 - 48,
+                  ); // Ensure 49 keys fit
+                  endNote = startNote + 48; // Exactly 49 keys (4 octaves)
+
+                  // Convert MIDI notes to NotePosition using existing utils
+                  final startNoteInfo = NoteUtils.midiNumberToNote(startNote);
+                  final endNoteInfo = NoteUtils.midiNumberToNote(endNote);
+                  final startPos = NoteUtils.noteToNotePosition(
+                    startNoteInfo.note,
+                    startNoteInfo.octave,
                   );
+                  final endPos = NoteUtils.noteToNotePosition(
+                    endNoteInfo.note,
+                    endNoteInfo.octave,
+                  );
+
+                  practiceRange = NoteRange(from: startPos, to: endPos);
                 } else {
-                  // Otherwise, optimize for currently highlighted notes
-                  optimalRange = PianoRangeUtils.calculateOptimalRange(
-                    highlightedNotes,
+                  // Default 49-key range (C2 to C6) when no exercise is active
+                  practiceRange = NoteRange(
+                    from: NotePosition(note: Note.C, octave: 2),
+                    to: NotePosition(note: Note.C, octave: 6),
                   );
                 }
 
+                // Calculate dynamic key width based on screen width
+                final screenWidth = MediaQuery.of(context).size.width;
+                final availableWidth = screenWidth - 32; // Account for padding
+                final dynamicKeyWidth =
+                    availableWidth / 29; // 28 white keys + buffer
+
                 return InteractivePiano(
                   highlightedNotes: highlightedNotes,
-                  keyWidth: PianoRangeUtils.calculateOptimalKeyWidth(
-                    optimalRange,
-                  ),
-                  noteRange: optimalRange,
+                  keyWidth: dynamicKeyWidth.clamp(
+                    20.0,
+                    60.0,
+                  ), // Reasonable limits
+                  noteRange: practiceRange,
                   onNotePositionTapped: (position) {
                     final midiNote = NoteUtils.convertNotePositionToMidi(
                       position,
