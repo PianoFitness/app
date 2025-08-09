@@ -10,7 +10,6 @@ import "package:piano_fitness/models/midi_state.dart";
 import "package:piano_fitness/pages/midi_settings_page.dart";
 import "package:piano_fitness/pages/practice_page.dart";
 import "package:piano_fitness/services/midi_service.dart";
-import "package:piano_fitness/utils/piano_range_utils.dart";
 import "package:piano_fitness/widgets/practice_settings_panel.dart";
 import "package:provider/provider.dart";
 
@@ -384,15 +383,27 @@ class _PlayPageState extends State<PlayPage> {
           Expanded(
             child: Consumer<MidiState>(
               builder: (context, midiState, child) {
-                // Calculate optimal range based on highlighted notes
-                final optimalRange = PianoRangeUtils.calculateOptimalRange(
-                  midiState.highlightedNotePositions,
+                // Define a fixed 49-key range (C2 to C6) for consistent layout
+                final fixed49KeyRange = NoteRange(
+                  from: NotePosition(note: Note.C, octave: 2),
+                  to: NotePosition(note: Note.C, octave: 6),
                 );
+
+                // Calculate dynamic key width based on screen width
+                // 49 keys = 28 white keys + 21 black keys
+                // White keys take ~70% of the width, black keys are narrower
+                final screenWidth = MediaQuery.of(context).size.width;
+                final availableWidth = screenWidth - 32; // Account for padding
+                final dynamicKeyWidth =
+                    availableWidth / 29; // 28 white keys + buffer
 
                 return InteractivePiano(
                   highlightedNotes: midiState.highlightedNotePositions,
-                  keyWidth: 45,
-                  noteRange: optimalRange,
+                  keyWidth: dynamicKeyWidth.clamp(
+                    20.0,
+                    60.0,
+                  ), // Reasonable limits
+                  noteRange: fixed49KeyRange,
                   onNotePositionTapped: (position) {
                     final midiNote = _convertNotePositionToMidi(position);
                     _playVirtualNote(midiNote);
