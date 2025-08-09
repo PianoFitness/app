@@ -276,6 +276,7 @@ class _PlayPageState extends State<PlayPage> {
       body: Column(
         children: [
           Expanded(
+            flex: 4,
             child: SafeArea(
               bottom: false,
               child: SingleChildScrollView(
