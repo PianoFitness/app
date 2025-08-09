@@ -4,7 +4,7 @@
 
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:piano_fitness/models/midi_state.dart";
+import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:provider/provider.dart";
 
 void main() {
