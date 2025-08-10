@@ -147,17 +147,14 @@ void main() {
       // The highlighted notes should be managed by the ViewModel
       expect(piano.highlightedNotes, isNotNull);
 
-      // Use runAsync to properly handle the timer from _triggerActivity
-      await tester.runAsync(() async {
-        // Add a note to verify the connection works
-        midiState.noteOn(60, 100, 1);
-        await tester.pump();
+      // Add a note to verify the connection works
+      midiState.noteOn(60, 100, 1);
+      await tester.pump();
 
-        expect(midiState.highlightedNotePositions.isNotEmpty, isTrue);
+      expect(midiState.highlightedNotePositions.isNotEmpty, isTrue);
 
-        // Wait for the activity timer to complete or let it be handled by runAsync
-        await Future<void>.delayed(const Duration(milliseconds: 1100));
-      });
+      // Simulate the activity timer elapsing deterministically
+      await tester.pump(const Duration(milliseconds: 1100));
 
       // Properly dispose to clean up any remaining timers
       midiState.dispose();
