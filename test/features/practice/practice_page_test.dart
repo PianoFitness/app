@@ -215,7 +215,7 @@ void main() {
       expect(find.byType(PracticePage), findsNothing);
     });
 
-    testWidgets("should show exercise completion snackbar", (tester) async {      
+    testWidgets("should show exercise completion snackbar", (tester) async {
       final testWidget = ChangeNotifierProvider(
         create: (context) => MidiState(),
         child: MaterialApp(
@@ -232,14 +232,14 @@ void main() {
 
       // Verify the practice page is loaded
       expect(find.byType(PracticePage), findsOneWidget);
-      
+
       // Find and tap the Start button to begin practice
       final startButton = find.text("Start");
       expect(startButton, findsOneWidget);
-      
+
       await tester.tap(startButton);
       await tester.pump();
-      
+
       // Find the practice session through the MidiState callback mechanism
       // This is a bit of a hack, but we'll create a practice session directly
       // and trigger its completion for testing
@@ -258,15 +258,15 @@ void main() {
         },
         onHighlightedNotesChanged: (notes) {},
       );
-      
+
       // Start the practice session and trigger completion
       testPracticeSession
         ..startPractice()
         ..triggerCompletionForTesting();
-      
+
       // Allow UI to update and show the snackbar
       await tester.pumpAndSettle();
-      
+
       // Verify the snackbar is displayed
       expect(find.byType(SnackBar), findsOneWidget);
       expect(find.text("Exercise completed! Well done!"), findsOneWidget);
