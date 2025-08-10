@@ -7,7 +7,7 @@
 
 # The following line activates a set of recommended lints for Flutter apps,
 # packages, and plugins designed to encourage good coding practices.
-include: package:very_good_analysis/analysis_options.yaml
+include: package:flutter_lints/flutter.yaml
 
 linter:
   # The lint rules applied to this project can be customized in the
@@ -25,7 +25,7 @@ linter:
     prefer_single_quotes: false # Disable single quote preference - use double quotes
     prefer_double_quotes: true # Use double quotes for strings
     unnecessary_breaks: false # Disable unnecessary breaks warning for switch statements
-    cascade_invocations: false # Disable cascade invocations rule - cascades are idiomatic Dart
+    cascade_invocations: true # Allow cascade notation for method calls
     # Code quality rules to enforce best practices
     avoid_function_literals_in_foreach_calls: true
     avoid_redundant_argument_values: true
