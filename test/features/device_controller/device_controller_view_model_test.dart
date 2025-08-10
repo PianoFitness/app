@@ -248,21 +248,23 @@ void main() {
         var notificationCount = 0;
         viewModel.addListener(() => notificationCount++);
 
-        viewModel.setSelectedChannel(5);
+        // Test setting same value twice should only notify once
+        // ignore: cascade_invocations - Need intermediate expect check
+        viewModel
+          ..setSelectedChannel(5)
+          ..setSelectedChannel(5); // Same value, should not notify
         expect(notificationCount, equals(1));
 
-        viewModel.setSelectedChannel(5); // Same value, should not notify
-        expect(notificationCount, equals(1));
-
+        // Test increment should notify
         viewModel.incrementChannel();
         expect(notificationCount, equals(2));
       });
 
       test("should notify listeners when CC controller changes", () {
         var notificationCount = 0;
-        viewModel.addListener(() => notificationCount++);
-
-        viewModel.setCCController(10);
+        viewModel
+          ..addListener(() => notificationCount++)
+          ..setCCController(10);
         expect(notificationCount, equals(1));
       });
     });

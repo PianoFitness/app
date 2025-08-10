@@ -309,10 +309,38 @@ class MidiSettingsViewModel extends ChangeNotifier {
     _midiStatus = "Retrying MIDI setup...";
     _devices.clear();
     _lastNote = "";
-    _isScanning = false;
     _didAskForBluetoothPermissions = false;
     notifyListeners();
+
+    // Clean up existing resources before retrying setup
+    await _cleanupResources();
+
     await _setupMidi();
+  }
+
+  /// Cleans up stream subscriptions and stops ongoing scans.
+  Future<void> _cleanupResources() async {
+    // Cancel existing stream subscriptions
+    await _setupSubscription?.cancel();
+    _setupSubscription = null;
+
+    await _bluetoothStateSubscription?.cancel();
+    _bluetoothStateSubscription = null;
+
+    await _midiDataSubscription?.cancel();
+    _midiDataSubscription = null;
+
+    // Stop any ongoing Bluetooth scanning
+    if (_isScanning) {
+      try {
+        _midiCommand.stopScanningForBluetoothDevices();
+      } on Exception catch (e) {
+        if (kDebugMode) {
+          print("Error stopping Bluetooth scan: $e");
+        }
+      }
+      _isScanning = false;
+    }
   }
 
   /// Connects or disconnects from a MIDI device.
@@ -427,9 +455,12 @@ class MidiSettingsViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _setupSubscription?.cancel();
-    _bluetoothStateSubscription?.cancel();
-    _midiDataSubscription?.cancel();
+    // Use the cleanup helper method to ensure consistent resource cleanup
+    _cleanupResources().catchError((Object e) {
+      if (kDebugMode) {
+        print("Error during disposal cleanup: $e");
+      }
+    });
     super.dispose();
   }
 }

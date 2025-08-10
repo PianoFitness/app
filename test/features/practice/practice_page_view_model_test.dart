@@ -29,15 +29,16 @@ void main() {
       exerciseCompletedCalled = false;
       receivedHighlightedNotes = [];
 
-      viewModel.setMidiState(mockMidiState);
-      viewModel.initializePracticeSession(
-        onExerciseCompleted: () {
-          exerciseCompletedCalled = true;
-        },
-        onHighlightedNotesChanged: (notes) {
-          receivedHighlightedNotes = notes;
-        },
-      );
+      viewModel
+        ..setMidiState(mockMidiState)
+        ..initializePracticeSession(
+          onExerciseCompleted: () {
+            exerciseCompletedCalled = true;
+          },
+          onHighlightedNotesChanged: (notes) {
+            receivedHighlightedNotes = notes;
+          },
+        );
     });
 
     tearDown(() {
@@ -94,11 +95,11 @@ void main() {
 
     test("should change practice mode and notify listeners", () {
       var notificationReceived = false;
-      viewModel.addListener(() {
-        notificationReceived = true;
-      });
-
-      viewModel.setPracticeMode(PracticeMode.chords);
+      viewModel
+        ..addListener(() {
+          notificationReceived = true;
+        })
+        ..setPracticeMode(PracticeMode.chords);
 
       expect(
         viewModel.practiceSession!.practiceMode,
@@ -109,11 +110,11 @@ void main() {
 
     test("should change selected key and notify listeners", () {
       var notificationReceived = false;
-      viewModel.addListener(() {
-        notificationReceived = true;
-      });
-
-      viewModel.setSelectedKey(music.Key.d);
+      viewModel
+        ..addListener(() {
+          notificationReceived = true;
+        })
+        ..setSelectedKey(music.Key.d);
 
       expect(viewModel.practiceSession!.selectedKey, equals(music.Key.d));
       expect(notificationReceived, isTrue);
@@ -121,11 +122,11 @@ void main() {
 
     test("should change selected scale type and notify listeners", () {
       var notificationReceived = false;
-      viewModel.addListener(() {
-        notificationReceived = true;
-      });
-
-      viewModel.setSelectedScaleType(music.ScaleType.minor);
+      viewModel
+        ..addListener(() {
+          notificationReceived = true;
+        })
+        ..setSelectedScaleType(music.ScaleType.minor);
 
       expect(
         viewModel.practiceSession!.selectedScaleType,
@@ -136,11 +137,11 @@ void main() {
 
     test("should change selected arpeggio type and notify listeners", () {
       var notificationReceived = false;
-      viewModel.addListener(() {
-        notificationReceived = true;
-      });
-
-      viewModel.setSelectedArpeggioType(ArpeggioType.minor);
+      viewModel
+        ..addListener(() {
+          notificationReceived = true;
+        })
+        ..setSelectedArpeggioType(ArpeggioType.minor);
 
       expect(
         viewModel.practiceSession!.selectedArpeggioType,
