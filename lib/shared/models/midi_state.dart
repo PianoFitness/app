@@ -1,6 +1,7 @@
 import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:piano/piano.dart";
+import "package:piano_fitness/shared/services/chord_detection_service.dart";
 
 /// Manages MIDI input state and provides real-time updates to the UI.
 ///
@@ -13,6 +14,7 @@ class MidiState extends ChangeNotifier {
   int _selectedChannel = 0;
   bool _hasRecentActivity = false;
   Timer? _activityTimer;
+  ChordDetectionResult? _currentChord;
 
   /// The set of currently active MIDI note numbers.
   ///
@@ -32,6 +34,11 @@ class MidiState extends ChangeNotifier {
   ///
   /// This is used to show visual indicators of MIDI communication.
   bool get hasRecentActivity => _hasRecentActivity;
+
+  /// The currently detected chord based on active notes.
+  ///
+  /// Returns null if no chord is detected or less than 3 notes are active.
+  ChordDetectionResult? get currentChord => _currentChord;
 
   /// Converts active MIDI notes to piano keyboard positions for highlighting.
   ///
@@ -64,6 +71,7 @@ class MidiState extends ChangeNotifier {
   void noteOn(int midiNote, int velocity, int channel) {
     _activeNotes.add(midiNote);
     _lastNote = "Note ON: $midiNote (Ch: $channel, Vel: $velocity)";
+    _updateChordDetection();
     _triggerActivity();
     notifyListeners(); // Always notify for note changes
   }
@@ -76,6 +84,7 @@ class MidiState extends ChangeNotifier {
   void noteOff(int midiNote, int channel) {
     _activeNotes.remove(midiNote);
     _lastNote = "Note OFF: $midiNote (Ch: $channel)";
+    _updateChordDetection();
     _triggerActivity();
     notifyListeners(); // Always notify for note changes
   }
@@ -110,8 +119,14 @@ class MidiState extends ChangeNotifier {
   void clearActiveNotes() {
     if (_activeNotes.isNotEmpty) {
       _activeNotes.clear();
+      _currentChord = null;
       notifyListeners();
     }
+  }
+
+  /// Updates the chord detection based on current active notes.
+  void _updateChordDetection() {
+    _currentChord = ChordDetectionService.detectChord(_activeNotes);
   }
 
   @override
