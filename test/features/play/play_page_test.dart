@@ -9,22 +9,28 @@ import "package:provider/provider.dart";
 import "../../shared/midi_mocks.dart";
 
 void main() {
-  setUpAll(() {
-    MidiMocks.setUp();
-  });
+  setUpAll(MidiMocks.setUp);
 
-  tearDownAll(() {
-    MidiMocks.tearDown();
-  });
+  tearDownAll(MidiMocks.tearDown);
   group("PlayPage MVVM Tests", () {
+    late MidiState midiState;
+    late Widget testWidget;
+
+    setUp(() {
+      midiState = MidiState();
+      testWidget = ChangeNotifierProvider.value(
+        value: midiState,
+        child: const MaterialApp(home: PlayPage()),
+      );
+    });
+
+    tearDown(() {
+      midiState.dispose();
+    });
+
     testWidgets("should create PlayPage with ViewModel without errors", (
       tester,
     ) async {
-      final Widget testWidget = ChangeNotifierProvider(
-        create: (context) => MidiState(),
-        child: const MaterialApp(home: PlayPage()),
-      );
-
       await tester.pumpWidget(testWidget);
 
       // Verify PlayPage is rendered
@@ -36,27 +42,26 @@ void main() {
     testWidgets("should initialize ViewModel with correct MIDI channel", (
       tester,
     ) async {
-      final midiState = MidiState();
-      final Widget testWidget = ChangeNotifierProvider.value(
-        value: midiState,
+      // This test needs a specific channel, so create its own widget
+      final specificMidiState = MidiState();
+      final Widget specificTestWidget = ChangeNotifierProvider.value(
+        value: specificMidiState,
         child: const MaterialApp(home: PlayPage(midiChannel: 7)),
       );
 
-      await tester.pumpWidget(testWidget);
+      await tester.pumpWidget(specificTestWidget);
       await tester.pump(); // Allow post-frame callback to execute
 
       // Verify the MIDI channel is set correctly through ViewModel
-      expect(midiState.selectedChannel, equals(7));
+      expect(specificMidiState.selectedChannel, equals(7));
+
+      // Clean up
+      specificMidiState.dispose();
     });
 
     testWidgets("should display educational content and navigation chips", (
       tester,
     ) async {
-      final Widget testWidget = ChangeNotifierProvider(
-        create: (context) => MidiState(),
-        child: const MaterialApp(home: PlayPage()),
-      );
-
       await tester.pumpWidget(testWidget);
 
       // Verify educational content is present
@@ -70,11 +75,6 @@ void main() {
     testWidgets("should use ViewModel for piano range calculation", (
       tester,
     ) async {
-      final Widget testWidget = ChangeNotifierProvider(
-        create: (context) => MidiState(),
-        child: const MaterialApp(home: PlayPage()),
-      );
-
       await tester.pumpWidget(testWidget);
 
       // Find the InteractivePiano widget
@@ -90,12 +90,6 @@ void main() {
     testWidgets("should handle virtual note playing through ViewModel", (
       tester,
     ) async {
-      final midiState = MidiState();
-      final Widget testWidget = ChangeNotifierProvider.value(
-        value: midiState,
-        child: const MaterialApp(home: PlayPage()),
-      );
-
       await tester.pumpWidget(testWidget);
       await tester.pump();
 
@@ -114,12 +108,6 @@ void main() {
     testWidgets("should integrate with MidiState through ViewModel", (
       tester,
     ) async {
-      final midiState = MidiState();
-      final Widget testWidget = ChangeNotifierProvider.value(
-        value: midiState,
-        child: const MaterialApp(home: PlayPage()),
-      );
-
       await tester.pumpWidget(testWidget);
       await tester.pump();
 
@@ -144,16 +132,10 @@ void main() {
         await Future<void>.delayed(const Duration(milliseconds: 1100));
       });
 
-      // Properly dispose to clean up any remaining timers
-      midiState.dispose();
+      // Note: midiState disposal is handled in tearDown
     });
 
     testWidgets("should navigate to practice pages correctly", (tester) async {
-      final Widget testWidget = ChangeNotifierProvider(
-        create: (context) => MidiState(),
-        child: const MaterialApp(home: PlayPage()),
-      );
-
       await tester.pumpWidget(testWidget);
 
       // Test Scales navigation
@@ -167,12 +149,6 @@ void main() {
     });
 
     testWidgets("should handle MIDI settings navigation", (tester) async {
-      final midiState = MidiState();
-      final Widget testWidget = ChangeNotifierProvider.value(
-        value: midiState,
-        child: const MaterialApp(home: PlayPage()),
-      );
-
       await tester.pumpWidget(testWidget);
 
       // Find and tap settings button
@@ -187,12 +163,6 @@ void main() {
     });
 
     testWidgets("should show MIDI activity indicator", (tester) async {
-      final midiState = MidiState();
-      final Widget testWidget = ChangeNotifierProvider.value(
-        value: midiState,
-        child: const MaterialApp(home: PlayPage()),
-      );
-
       await tester.pumpWidget(testWidget);
 
       // Find the MIDI activity indicator
@@ -225,49 +195,46 @@ void main() {
         await Future<void>.delayed(const Duration(milliseconds: 1100));
       });
 
-      midiState.dispose();
+      // Note: midiState disposal is handled in tearDown
     });
 
     testWidgets("should handle MIDI activity indicator tap with snackbar", (
       tester,
     ) async {
-      final midiState = MidiState()..setLastNote("Test MIDI from ViewModel");
-
-      final Widget testWidget = ChangeNotifierProvider.value(
-        value: midiState,
-        child: const MaterialApp(home: PlayPage()),
-      );
-
       await tester.pumpWidget(testWidget);
 
-      // Find and tap the MIDI activity indicator
-      final indicatorTapArea = find.byWidgetPredicate(
-        (widget) =>
-            widget is GestureDetector &&
-            widget.child is Container &&
-            (widget.child! as Container).decoration is BoxDecoration &&
-            ((widget.child! as Container).decoration! as BoxDecoration).shape ==
-                BoxShape.circle,
-      );
-      expect(indicatorTapArea, findsOneWidget);
+      // Use runAsync to properly handle the timer from setLastNote
+      await tester.runAsync(() async {
+        midiState.setLastNote("Test MIDI from ViewModel");
+        await tester.pump();
 
-      await tester.tap(indicatorTapArea);
-      await tester.pump();
+        // Find and tap the MIDI activity indicator
+        final indicatorTapArea = find.byWidgetPredicate(
+          (widget) =>
+              widget is GestureDetector &&
+              widget.child is Container &&
+              (widget.child! as Container).decoration is BoxDecoration &&
+              ((widget.child! as Container).decoration! as BoxDecoration)
+                      .shape ==
+                  BoxShape.circle,
+        );
+        expect(indicatorTapArea, findsOneWidget);
 
-      // Verify snackbar is shown with MIDI message
-      expect(find.byType(SnackBar), findsOneWidget);
-      expect(find.text("MIDI: Test MIDI from ViewModel"), findsOneWidget);
+        await tester.tap(indicatorTapArea);
+        await tester.pump();
 
-      // Ensure proper disposal to prevent timer leaks
-      midiState.dispose();
+        // Verify snackbar is shown with MIDI message
+        expect(find.byType(SnackBar), findsOneWidget);
+        expect(find.text("MIDI: Test MIDI from ViewModel"), findsOneWidget);
+
+        // Wait for timer cleanup
+        await Future<void>.delayed(const Duration(milliseconds: 1100));
+      });
+
+      // Note: midiState disposal is handled in tearDown
     });
 
     testWidgets("should properly dispose ViewModel resources", (tester) async {
-      final Widget testWidget = ChangeNotifierProvider(
-        create: (context) => MidiState(),
-        child: const MaterialApp(home: PlayPage()),
-      );
-
       await tester.pumpWidget(testWidget);
 
       // Navigate away to trigger disposal
@@ -278,11 +245,6 @@ void main() {
     });
 
     testWidgets("should handle dynamic key width calculation", (tester) async {
-      final Widget testWidget = ChangeNotifierProvider(
-        create: (context) => MidiState(),
-        child: const MaterialApp(home: PlayPage()),
-      );
-
       await tester.pumpWidget(testWidget);
 
       // Find the InteractivePiano and verify key width is calculated
@@ -298,11 +260,6 @@ void main() {
 
     group("Chords Navigation Tests", () {
       testWidgets("should navigate to chords practice page", (tester) async {
-        final Widget testWidget = ChangeNotifierProvider(
-          create: (context) => MidiState(),
-          child: const MaterialApp(home: PlayPage()),
-        );
-
         await tester.pumpWidget(testWidget);
 
         // Find and tap the Chords chip
@@ -317,11 +274,6 @@ void main() {
       });
 
       testWidgets("should navigate to arpeggios practice page", (tester) async {
-        final Widget testWidget = ChangeNotifierProvider(
-          create: (context) => MidiState(),
-          child: const MaterialApp(home: PlayPage()),
-        );
-
         await tester.pumpWidget(testWidget);
 
         // Find and tap the Arpeggios chip
