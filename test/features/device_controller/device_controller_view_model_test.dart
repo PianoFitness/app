@@ -2,10 +2,10 @@
 //
 // Tests the business logic, state management, and MIDI operations of the ViewModel.
 
-import "package:flutter/services.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/features/device_controller/device_controller_view_model.dart";
+import "../../shared/midi_mocks.dart";
 
 // Mock MIDI device class for testing
 class MockMidiDevice extends MidiDevice {
@@ -19,35 +19,11 @@ class MockMidiDevice extends MidiDevice {
 
 void main() {
   setUpAll(() {
-    TestWidgetsFlutterBinding.ensureInitialized();
+    MidiMocks.setUp();
+  });
 
-    // Mock the flutter_midi_command method channel to prevent MissingPluginException
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-          const MethodChannel("flutter_midi_command"),
-          (MethodCall methodCall) async {
-            switch (methodCall.method) {
-              case "scanForDevices":
-                return <String, dynamic>{};
-              case "getDevices":
-                return <Map<String, dynamic>>[];
-              case "connectToDevice":
-                return true;
-              case "disconnectDevice":
-                return true;
-              case "sendData":
-                return true;
-              case "startScanning":
-                return true;
-              case "stopScanning":
-                return true;
-              case "teardown":
-                return true;
-              default:
-                return null;
-            }
-          },
-        );
+  tearDownAll(() {
+    MidiMocks.tearDown();
   });
 
   group("DeviceControllerViewModel Tests", () {

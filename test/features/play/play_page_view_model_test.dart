@@ -1,45 +1,16 @@
 import "dart:typed_data";
-import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/features/play/play_page_view_model.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
+import "../../shared/midi_mocks.dart";
 
 void main() {
   setUpAll(() {
-    TestWidgetsFlutterBinding.ensureInitialized();
+    MidiMocks.setUp();
+  });
 
-    // Mock the flutter_midi_command method channel to prevent MissingPluginException
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-          const MethodChannel(
-            "plugins.invisiblewrench.com/flutter_midi_command",
-          ),
-          (MethodCall methodCall) async {
-            switch (methodCall.method) {
-              case "sendData":
-                // Mock successful MIDI data sending
-                return true;
-              case "getDevices":
-                return <Map<String, dynamic>>[];
-              case "devices":
-                return <Map<String, dynamic>>[];
-              case "connectToDevice":
-                return true;
-              case "disconnectDevice":
-                return true;
-              case "startScanning":
-                return true;
-              case "stopScanning":
-                return true;
-              case "startScanningForBluetoothDevices":
-                return true;
-              case "stopScanningForBluetoothDevices":
-                return true;
-              default:
-                return null;
-            }
-          },
-        );
+  tearDownAll(() {
+    MidiMocks.tearDown();
   });
 
   group("PlayPageViewModel Tests", () {

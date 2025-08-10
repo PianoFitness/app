@@ -2,80 +2,20 @@
 //
 // Tests the business logic, state management, and MIDI operations of the ViewModel.
 
-import "dart:async";
 import "package:flutter/material.dart";
-import "package:flutter/services.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/features/midi_settings/midi_settings_view_model.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
+import "../../shared/midi_mocks.dart";
 
 void main() {
-  late StreamController<String> midiSetupController;
-  late StreamController<BluetoothState> bluetoothStateController;
-  late StreamController<MidiPacket> midiDataController;
-
   setUpAll(() {
-    TestWidgetsFlutterBinding.ensureInitialized();
-
-    // Initialize stream controllers
-    midiSetupController = StreamController<String>.broadcast();
-    bluetoothStateController = StreamController<BluetoothState>.broadcast();
-    midiDataController = StreamController<MidiPacket>.broadcast();
-
-    // Mock the flutter_midi_command method channel to prevent MissingPluginException
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-          const MethodChannel(
-            "plugins.invisiblewrench.com/flutter_midi_command",
-          ),
-          (MethodCall methodCall) async {
-            switch (methodCall.method) {
-              case "scanForDevices":
-                return <String, dynamic>{};
-              case "getDevices":
-                return <Map<String, dynamic>>[];
-              case "devices":
-                return <Map<String, dynamic>>[];
-              case "connectToDevice":
-                return true;
-              case "disconnectDevice":
-                return true;
-              case "sendData":
-                return true;
-              case "startScanning":
-                return true;
-              case "stopScanning":
-                return true;
-              case "stopScanForDevices":
-                return true;
-              case "teardown":
-                return true;
-              case "startBluetoothCentral":
-                return true;
-              case "waitUntilBluetoothIsInitialized":
-                return true;
-              case "startScanningForBluetoothDevices":
-                return true;
-              case "stopScanningForBluetoothDevices":
-                return true;
-              case "onMidiSetupChanged":
-                return midiSetupController.stream;
-              case "onBluetoothStateChanged":
-                return bluetoothStateController.stream;
-              case "onMidiDataReceived":
-                return midiDataController.stream;
-              default:
-                return null;
-            }
-          },
-        );
+    MidiMocks.setUp();
   });
 
   tearDownAll(() {
-    midiSetupController.close();
-    bluetoothStateController.close();
-    midiDataController.close();
+    MidiMocks.tearDown();
   });
 
   group("MidiSettingsViewModel Tests", () {

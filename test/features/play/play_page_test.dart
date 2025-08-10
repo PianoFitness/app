@@ -1,6 +1,4 @@
-import "dart:async";
 import "package:flutter/material.dart";
-import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/midi_settings/midi_settings_page.dart";
@@ -8,70 +6,15 @@ import "package:piano_fitness/features/play/play_page.dart";
 import "package:piano_fitness/features/practice/practice_page.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:provider/provider.dart";
+import "../../shared/midi_mocks.dart";
 
 void main() {
-  late StreamController<String> midiSetupController;
-  late StreamController<dynamic> bluetoothStateController;
-  late StreamController<dynamic> midiDataController;
-
   setUpAll(() {
-    TestWidgetsFlutterBinding.ensureInitialized();
-
-    // Initialize stream controllers
-    midiSetupController = StreamController<String>.broadcast();
-    bluetoothStateController = StreamController<dynamic>.broadcast();
-    midiDataController = StreamController<dynamic>.broadcast();
-
-    // Mock the flutter_midi_command method channel and event channels
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-          const MethodChannel(
-            "plugins.invisiblewrench.com/flutter_midi_command",
-          ),
-          (MethodCall methodCall) async {
-            switch (methodCall.method) {
-              case "sendData":
-                return true;
-              case "getDevices":
-              case "devices":
-                return <Map<String, dynamic>>[];
-              case "connectToDevice":
-              case "disconnectDevice":
-                return true;
-              case "startScanning":
-              case "stopScanning":
-              case "startScanningForBluetoothDevices":
-              case "stopScanningForBluetoothDevices":
-                return true;
-              default:
-                return null;
-            }
-          },
-        );
-
-    // Mock event channels for MIDI streams
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(
-          const MethodChannel(
-            "plugins.invisiblewrench.com/flutter_midi_command/rx_channel",
-          ),
-          (MethodCall methodCall) async {
-            switch (methodCall.method) {
-              case "listen":
-                return null;
-              case "cancel":
-                return null;
-              default:
-                return null;
-            }
-          },
-        );
+    MidiMocks.setUp();
   });
 
   tearDownAll(() {
-    midiSetupController.close();
-    bluetoothStateController.close();
-    midiDataController.close();
+    MidiMocks.tearDown();
   });
   group("PlayPage MVVM Tests", () {
     testWidgets("should create PlayPage with ViewModel without errors", (
