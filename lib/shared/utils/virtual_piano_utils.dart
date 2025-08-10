@@ -53,29 +53,32 @@ class VirtualPianoUtils {
 
       // Create a unique key for this note and channel combination
       final noteKey = "${note}_$selectedChannel";
-      
+
       // Cancel any existing timer for this specific note
       _noteOffTimers[noteKey]?.cancel();
-      _noteOffTimers[noteKey] = Timer(const Duration(milliseconds: 500), () async {
-        if (mounted) {
-          try {
-            await Future.microtask(() {
-              NoteOffMessage(channel: selectedChannel, note: note).send();
-            });
-            if (kDebugMode) {
-              print(
-                "Sent virtual note off: $note on channel ${selectedChannel + 1}",
-              );
+      _noteOffTimers[noteKey] = Timer(
+        const Duration(milliseconds: 500),
+        () async {
+          if (mounted) {
+            try {
+              await Future.microtask(() {
+                NoteOffMessage(channel: selectedChannel, note: note).send();
+              });
+              if (kDebugMode) {
+                print(
+                  "Sent virtual note off: $note on channel ${selectedChannel + 1}",
+                );
+              }
+            } on Exception catch (e) {
+              if (kDebugMode) {
+                print("Error sending note off: $e");
+              }
             }
-          } on Exception catch (e) {
-            if (kDebugMode) {
-              print("Error sending note off: $e");
-            }
+            // Remove the timer from the map once it's completed
+            _noteOffTimers.remove(noteKey);
           }
-          // Remove the timer from the map once it's completed
-          _noteOffTimers.remove(noteKey);
-        }
-      });
+        },
+      );
     } on Exception catch (e) {
       if (kDebugMode) {
         print("Error playing virtual note: $e");

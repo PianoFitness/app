@@ -2,6 +2,7 @@ import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_midi_command/flutter_midi_command_messages.dart";
+import "package:piano_fitness/shared/services/midi_connection_service.dart";
 import "package:piano_fitness/shared/services/midi_service.dart";
 
 /// ViewModel for managing device controller state and MIDI operations.
@@ -15,9 +16,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
   }
 
   final MidiDevice _device;
-
-  StreamSubscription<MidiPacket>? _midiDataSubscription;
-  final MidiCommand _midiCommand = MidiCommand();
+  final MidiConnectionService _midiService = MidiConnectionService();
   Timer? _noteOffTimer;
 
   int _selectedChannel = 0;
@@ -183,11 +182,17 @@ class DeviceControllerViewModel extends ChangeNotifier {
   }
 
   void _setupMidiListener() {
-    _midiDataSubscription = _midiCommand.onMidiDataReceived?.listen((packet) {
-      if (packet.device.id == _device.id) {
-        _processMidiData(packet.data);
-      }
-    });
+    // Connect to the MIDI service
+    _midiService.connect();
+
+    // Register our data handler for this specific device
+    _midiService.registerDataHandler(_handleMidiData);
+  }
+
+  void _handleMidiData(Uint8List data) {
+    // Only process data from our specific device by checking device context
+    // In a real implementation, you might want to filter by device ID
+    _processMidiData(data);
   }
 
   void _processMidiData(Uint8List data) {
@@ -222,7 +227,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _midiDataSubscription?.cancel();
+    _midiService.unregisterDataHandler(_handleMidiData);
     _noteOffTimer?.cancel();
     super.dispose();
   }

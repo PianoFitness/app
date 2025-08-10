@@ -4,6 +4,7 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
+import "package:piano_fitness/shared/services/midi_connection_service.dart";
 import "package:piano_fitness/shared/services/midi_service.dart";
 
 /// ViewModel for managing MIDI settings state and operations.
@@ -19,7 +20,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
 
   StreamSubscription<String>? _setupSubscription;
   StreamSubscription<BluetoothState>? _bluetoothStateSubscription;
-  StreamSubscription<MidiPacket>? _midiDataSubscription;
+  final MidiConnectionService _midiConnectionService = MidiConnectionService();
   final MidiCommand _midiCommand = MidiCommand();
 
   List<MidiDevice> _devices = [];
@@ -143,21 +144,8 @@ class MidiSettingsViewModel extends ChangeNotifier {
         },
       );
 
-      _midiDataSubscription = _midiCommand.onMidiDataReceived?.listen(
-        (packet) {
-          if (kDebugMode) {
-            print("Received MIDI data: ${packet.data}");
-          }
-          try {
-            handleMidiData(packet.data);
-          } on Exception catch (e) {
-            if (kDebugMode) print("MIDI data subscription error: $e");
-          }
-        },
-        onError: (Object error) {
-          if (kDebugMode) print("MIDI data stream error: $error");
-        },
-      );
+      await _midiConnectionService.connect();
+      _midiConnectionService.registerDataHandler(_handleMidiDataBytes);
 
       await updateDeviceList();
 
@@ -185,6 +173,18 @@ class MidiSettingsViewModel extends ChangeNotifier {
       if (kDebugMode) {
         print("Error updating device list: $e");
       }
+    }
+  }
+
+  /// Handles incoming MIDI data bytes from the connection service.
+  void _handleMidiDataBytes(Uint8List data) {
+    if (kDebugMode) {
+      print("Received MIDI data: $data");
+    }
+    try {
+      handleMidiData(data.toList());
+    } on Exception catch (e) {
+      if (kDebugMode) print("MIDI data handler error: $e");
     }
   }
 
@@ -327,8 +327,8 @@ class MidiSettingsViewModel extends ChangeNotifier {
     await _bluetoothStateSubscription?.cancel();
     _bluetoothStateSubscription = null;
 
-    await _midiDataSubscription?.cancel();
-    _midiDataSubscription = null;
+    // Unregister from MIDI connection service
+    _midiConnectionService.unregisterDataHandler(_handleMidiDataBytes);
 
     // Stop any ongoing Bluetooth scanning
     if (_isScanning) {
