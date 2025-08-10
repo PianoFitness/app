@@ -155,33 +155,255 @@ void main() {
     });
 
     group("MIDI Data Handling", () {
-      test("should handle MIDI data correctly", () {
+      test("should handle MIDI note on events correctly", () {
         final midiState = MidiState();
+        var notificationCount = 0;
+        viewModel.addListener(() => notificationCount++);
 
         // Test note on data
         const noteOnData = [0x90, 60, 127]; // Note On, Middle C, Velocity 127
         viewModel.handleMidiData(noteOnData, midiState: midiState);
 
-        // Should update last note
-        expect(viewModel.lastNote, isNotEmpty);
+        // Should update last note and notify listeners
+        expect(viewModel.lastNote, contains("Note ON: 60"));
+        expect(viewModel.lastNote, contains("Ch: 1"));
+        expect(viewModel.lastNote, contains("Vel: 127"));
+        expect(notificationCount, equals(1));
+
+        // Verify midiState.noteOn was called (note should be active)
+        expect(midiState.activeNotes.contains(60), isTrue);
+        expect(midiState.lastNote, contains("Note ON: 60"));
       });
 
-      test("should handle different MIDI message types", () {
+      test("should handle MIDI note off events correctly", () {
         final midiState = MidiState();
+        var notificationCount = 0;
+        viewModel.addListener(() => notificationCount++);
 
-        // Test different MIDI messages
-        const controlChangeData = [0xB0, 7, 100]; // CC Volume
-        const programChangeData = [0xC0, 1]; // Program Change
-        const pitchBendData = [0xE0, 0x00, 0x40]; // Pitch Bend Center
+        // First add a note
+        const noteOnData = [0x90, 60, 127]; // Note On, Middle C, Velocity 127
+        viewModel.handleMidiData(noteOnData, midiState: midiState);
+        expect(midiState.activeNotes.contains(60), isTrue);
 
+        // Reset notification count
+        notificationCount = 0;
+
+        // Test note off data
+        const noteOffData = [0x80, 60, 0]; // Note Off, Middle C
+        viewModel.handleMidiData(noteOffData, midiState: midiState);
+
+        // Should update last note and notify listeners
+        expect(viewModel.lastNote, contains("Note OFF: 60"));
+        expect(viewModel.lastNote, contains("Ch: 1"));
+        expect(notificationCount, equals(1));
+
+        // Verify midiState.noteOff was called (note should be inactive)
+        expect(midiState.activeNotes.contains(60), isFalse);
+        expect(midiState.lastNote, contains("Note OFF: 60"));
+      });
+
+      test("should handle note on with velocity 0 as note off", () {
+        final midiState = MidiState();
+        var notificationCount = 0;
+        viewModel.addListener(() => notificationCount++);
+
+        // First add a note
+        const noteOnData = [0x90, 60, 127]; // Note On, Middle C, Velocity 127
+        viewModel.handleMidiData(noteOnData, midiState: midiState);
+        expect(midiState.activeNotes.contains(60), isTrue);
+
+        // Reset notification count
+        notificationCount = 0;
+
+        // Test note on with velocity 0 (equivalent to note off)
+        const noteOnVel0Data = [0x90, 60, 0]; // Note On with velocity 0
+        viewModel.handleMidiData(noteOnVel0Data, midiState: midiState);
+
+        // Should update last note and notify listeners
+        expect(viewModel.lastNote, contains("Note OFF: 60"));
+        expect(viewModel.lastNote, contains("Ch: 1"));
+        expect(notificationCount, equals(1));
+
+        // Verify midiState.noteOff was called (note should be inactive)
+        expect(midiState.activeNotes.contains(60), isFalse);
+        expect(midiState.lastNote, contains("Note OFF: 60"));
+      });
+
+      test("should handle control change events correctly", () {
+        final midiState = MidiState();
+        var notificationCount = 0;
+        viewModel.addListener(() => notificationCount++);
+
+        // Test control change data
+        const controlChangeData = [0xB0, 7, 100]; // CC Volume on channel 1
         viewModel.handleMidiData(controlChangeData, midiState: midiState);
-        expect(viewModel.lastNote, isNotEmpty);
 
+        // Should update last note and notify listeners
+        final lastNote = viewModel.lastNote;
+        expect(lastNote, contains("CC: Controller 7 = 100"));
+        expect(lastNote, contains("Ch: 1"));
+        expect(notificationCount, equals(1));
+      });
+
+      test("should handle program change events correctly", () {
+        final midiState = MidiState();
+        var notificationCount = 0;
+        viewModel.addListener(() => notificationCount++);
+
+        // Test program change data (3-byte)
+        const programChangeData = [0xC0, 1, 0]; // Program Change to patch 1
         viewModel.handleMidiData(programChangeData, midiState: midiState);
-        expect(viewModel.lastNote, isNotEmpty);
 
+        // Should update last note and notify listeners
+        final lastNote = viewModel.lastNote;
+        expect(lastNote, contains("Program Change: 1"));
+        expect(lastNote, contains("Ch: 1"));
+        expect(notificationCount, equals(1));
+      });
+
+      test("should handle program change events correctly (2-byte)", () {
+        final midiState = MidiState();
+        var notificationCount = 0;
+        viewModel.addListener(() => notificationCount++);
+
+        // Test program change data (2-byte format)
+        const programChangeData = [0xC0, 5]; // Program Change to patch 5
+        viewModel.handleMidiData(programChangeData, midiState: midiState);
+
+        // Should update last note and notify listeners
+        final lastNote = viewModel.lastNote;
+        expect(lastNote, contains("Program Change: 5"));
+        expect(lastNote, contains("Ch: 1"));
+        expect(notificationCount, equals(1));
+      });
+
+      test("should handle pitch bend events correctly", () {
+        final midiState = MidiState();
+        var notificationCount = 0;
+        viewModel.addListener(() => notificationCount++);
+
+        // Test pitch bend data
+        const pitchBendData = [0xE0, 0x00, 0x40]; // Pitch Bend Center
         viewModel.handleMidiData(pitchBendData, midiState: midiState);
-        expect(viewModel.lastNote, isNotEmpty);
+
+        // Should update last note and notify listeners
+        final lastNote = viewModel.lastNote;
+        expect(lastNote, contains("Pitch Bend:"));
+        expect(lastNote, contains("Ch: 1"));
+        expect(notificationCount, equals(1));
+      });
+
+      test("should handle other/unknown MIDI events correctly", () {
+        final midiState = MidiState();
+        var notificationCount = 0;
+        viewModel.addListener(() => notificationCount++);
+
+        // Test unknown MIDI message
+        const unknownData = [0xF0, 0x43, 0x12]; // System Exclusive start
+        viewModel.handleMidiData(unknownData, midiState: midiState);
+
+        // Should update last note and notify listeners
+        final lastNote = viewModel.lastNote;
+        expect(lastNote, contains("MIDI: Status 0xF0"));
+        expect(lastNote, contains("Data: 0xF0 0x43 0x12"));
+        expect(notificationCount, equals(1));
+      });
+
+      test("should handle MIDI events on different channels", () {
+        final midiState = MidiState();
+        var notificationCount = 0;
+        viewModel.addListener(() => notificationCount++);
+
+        // Test note on different channels
+        const channel5NoteOn = [
+          0x94,
+          60,
+          127,
+        ]; // Note On on channel 5 (0x90 + 4)
+        const channel16NoteOff = [
+          0x8F,
+          60,
+          0,
+        ]; // Note Off on channel 16 (0x80 + 15)
+
+        viewModel.handleMidiData(channel5NoteOn, midiState: midiState);
+        final firstLastNote = viewModel.lastNote;
+        expect(firstLastNote, contains("Ch: 5"));
+        expect(notificationCount, equals(1));
+
+        viewModel.handleMidiData(channel16NoteOff, midiState: midiState);
+        final secondLastNote = viewModel.lastNote;
+        expect(secondLastNote, contains("Ch: 16"));
+        expect(notificationCount, equals(2));
+      });
+
+      test("should handle invalid MIDI data gracefully", () {
+        final midiState = MidiState();
+        var notificationCount = 0;
+        viewModel.addListener(() => notificationCount++);
+
+        // Test empty data
+        viewModel.handleMidiData([], midiState: midiState);
+        expect(notificationCount, equals(0));
+
+        // Test oversized data
+        final oversizedData = List.filled(300, 0x90);
+        viewModel.handleMidiData(oversizedData, midiState: midiState);
+        expect(notificationCount, equals(0));
+
+        // Test invalid MIDI data (values > 127)
+        const invalidData = [0x90, 200, 127]; // data1 > 127 is invalid
+        viewModel.handleMidiData(invalidData, midiState: midiState);
+        expect(notificationCount, equals(0));
+      });
+
+      test("should handle MIDI data without midiState parameter", () {
+        var notificationCount = 0;
+        viewModel.addListener(() => notificationCount++);
+
+        // Test that it doesn't crash when midiState is null
+        const noteOnData = [0x90, 60, 127];
+        viewModel.handleMidiData(noteOnData); // No midiState provided
+
+        // Should still update last note and notify listeners
+        final lastNote = viewModel.lastNote;
+        expect(lastNote, contains("Note ON: 60"));
+        expect(notificationCount, equals(1));
+      });
+
+      test("should handle multiple rapid MIDI events", () {
+        final midiState = MidiState();
+        var notificationCount = 0;
+        viewModel.addListener(() => notificationCount++);
+
+        // Send multiple events rapidly
+        const events = [
+          [0x90, 60, 127], // Note On C4
+          [0x90, 64, 127], // Note On E4
+          [0x90, 67, 127], // Note On G4
+          [0x80, 60, 0], // Note Off C4
+          [0xB0, 7, 100], // CC Volume
+          [0xC0, 5], // Program Change
+        ];
+
+        for (final eventData in events) {
+          viewModel.handleMidiData(eventData, midiState: midiState);
+        }
+
+        // Should have notified for each event
+        expect(notificationCount, equals(events.length));
+
+        // Final state should show the last event (Program Change)
+        final finalLastNote = viewModel.lastNote;
+        expect(finalLastNote, contains("Program Change: 5"));
+
+        // MIDI state should show the two remaining active notes
+        expect(midiState.activeNotes.contains(64), isTrue); // E4 still active
+        expect(midiState.activeNotes.contains(67), isTrue); // G4 still active
+        expect(
+          midiState.activeNotes.contains(60),
+          isFalse,
+        ); // C4 was turned off
       });
     });
 
