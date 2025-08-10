@@ -3,6 +3,7 @@ import "package:piano/piano.dart";
 import "package:piano_fitness/features/practice/practice_page_view_model.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
+import "package:piano_fitness/shared/utils/piano_range_utils.dart";
 import "package:piano_fitness/shared/widgets/midi_status_indicator.dart";
 import "package:piano_fitness/shared/widgets/practice_progress_display.dart";
 import "package:piano_fitness/shared/widgets/practice_settings_panel.dart";
@@ -183,7 +184,7 @@ class _PracticePageState extends State<PracticePage> {
                 return AnimatedBuilder(
                   animation: _viewModel,
                   builder: (context, child) {
-                    // Calculate highlighted notes for display using ViewModel
+                    // Calculate highlighted notes for display
                     final highlightedNotes = _viewModel
                         .getDisplayHighlightedNotes(midiState);
 
@@ -192,9 +193,10 @@ class _PracticePageState extends State<PracticePage> {
 
                     // Calculate dynamic key width based on screen width
                     final screenWidth = MediaQuery.of(context).size.width;
-                    final dynamicKeyWidth = _viewModel.calculateKeyWidth(
-                      screenWidth,
-                    );
+                    final dynamicKeyWidth =
+                        PianoRangeUtils.calculateScreenBasedKeyWidth(
+                          screenWidth,
+                        );
 
                     return InteractivePiano(
                       highlightedNotes: highlightedNotes,

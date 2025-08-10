@@ -11,6 +11,12 @@ class PianoRangeUtils {
     Clef.Bass,
   ]);
 
+  /// Standard 49-key range for consistent layout (C2 to C6)
+  static final NoteRange standard49KeyRange = NoteRange(
+    from: NotePosition(note: Note.C, octave: 2),
+    to: NotePosition(note: Note.C, octave: 6),
+  );
+
   /// Minimum number of octaves to display
   static const int minOctaves = 2;
 

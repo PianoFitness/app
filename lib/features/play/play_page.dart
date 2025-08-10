@@ -221,8 +221,8 @@ class _PlayPageState extends State<PlayPage> {
           Expanded(
             child: Consumer<MidiState>(
               builder: (context, midiState, child) {
-                // Define a fixed 49-key range using ViewModel
-                final fixed49KeyRange = _viewModel.getFixed49KeyRange();
+                // Define a fixed 49-key range for consistent layout
+                final fixed49KeyRange = PianoRangeUtils.standard49KeyRange;
 
                 // Calculate dynamic key width based on screen width
                 final screenWidth = MediaQuery.of(context).size.width;

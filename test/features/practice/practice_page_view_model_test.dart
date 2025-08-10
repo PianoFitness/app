@@ -174,15 +174,6 @@ void main() {
       expect(range, isA<NoteRange>());
     });
 
-    test("should calculate key width correctly", () {
-      const testScreenWidth = 800.0;
-
-      final keyWidth = viewModel.calculateKeyWidth(testScreenWidth);
-
-      expect(keyWidth, greaterThan(0));
-      expect(keyWidth, isA<double>());
-    });
-
     test("should handle virtual note playing", () async {
       const testNote = 60;
 

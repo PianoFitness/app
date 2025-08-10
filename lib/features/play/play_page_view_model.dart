@@ -2,7 +2,6 @@ import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_midi_command/flutter_midi_command_messages.dart";
-import "package:piano/piano.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/services/midi_service.dart";
 
@@ -163,14 +162,6 @@ class PlayPageViewModel extends ChangeNotifier {
         _midiCommand.sendData(noteOffData);
       });
     });
-  }
-
-  /// Gets the fixed 49-key range for consistent layout.
-  NoteRange getFixed49KeyRange() {
-    return NoteRange(
-      from: NotePosition(note: Note.C, octave: 2),
-      to: NotePosition(note: Note.C, octave: 6),
-    );
   }
 
   @override

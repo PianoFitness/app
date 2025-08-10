@@ -191,11 +191,6 @@ class PracticePageViewModel extends ChangeNotifier {
     );
   }
 
-  /// Calculates dynamic key width based on screen dimensions.
-  double calculateKeyWidth(double screenWidth) {
-    return PianoRangeUtils.calculateScreenBasedKeyWidth(screenWidth);
-  }
-
   @override
   void dispose() {
     _midiDataSubscription?.cancel();
