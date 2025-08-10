@@ -1,4 +1,5 @@
 import "dart:async";
+import "dart:typed_data";
 import "package:flutter/foundation.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_midi_command/flutter_midi_command_messages.dart";
@@ -124,8 +125,32 @@ class VirtualPianoUtils {
   ///
   /// This method should be called when the virtual piano is no longer
   /// needed to prevent memory leaks and ensure all MIDI notes are properly
-  /// turned off. It cancels all pending note-off timers.
+  /// turned off. It sends "All Notes Off" messages on all MIDI channels
+  /// to prevent stuck notes before canceling pending note-off timers.
   static void dispose() {
+    // Send "All Notes Off" (CC 123) on all MIDI channels to prevent stuck notes
+    // This is more comprehensive than individual NoteOff messages since we don't
+    // track which channel each note was sent on
+    for (int channel = 0; channel < 16; channel++) {
+      try {
+        // Send "All Notes Off" control change message (CC 123, value 0)
+        final allNotesOffData = Uint8List.fromList([
+          0xB0 | channel, // Control Change message on channel
+          123, // "All Notes Off" control change number
+          0, // Value (0 for All Notes Off)
+        ]);
+        _midiCommand.sendData(allNotesOffData);
+
+        if (kDebugMode) {
+          print("Sent All Notes Off on channel ${channel + 1}");
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print("Error sending All Notes Off on channel ${channel + 1}: $e");
+        }
+      }
+    }
+
     // Cancel all active note timers
     for (final timer in _noteOffTimers.values) {
       timer.cancel();

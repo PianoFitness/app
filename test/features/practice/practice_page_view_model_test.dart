@@ -6,9 +6,20 @@ import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as music;
 import "package:piano_fitness/shared/widgets/practice_settings_panel.dart";
+import "../../shared/midi_mocks.dart";
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() {
+    // Set up MIDI plugin mocks to prevent MissingPluginException
+    MidiMocks.setUp();
+  });
+
+  tearDownAll(() {
+    // Clean up MIDI mock resources
+    MidiMocks.tearDown();
+  });
 
   group("PracticePageViewModel Tests", () {
     late PracticePageViewModel viewModel;
