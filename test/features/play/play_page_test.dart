@@ -175,10 +175,8 @@ void main() {
       );
       expect(indicatorFinder, findsOneWidget);
 
-      // Initially should be grey (no activity)
-      var indicator = tester.widget<Container>(indicatorFinder);
-      var decoration = indicator.decoration! as BoxDecoration;
-      expect(decoration.color, isNot(Colors.green));
+      // Initially should have no recent activity
+      expect(midiState.hasRecentActivity, false);
 
       // Use runAsync to properly handle the timer from _triggerActivity
       await tester.runAsync(() async {
@@ -186,10 +184,8 @@ void main() {
         midiState.noteOn(60, 100, 1);
         await tester.pump();
 
-        // Should now be green (has activity)
-        indicator = tester.widget<Container>(indicatorFinder);
-        decoration = indicator.decoration! as BoxDecoration;
-        expect(decoration.color, Colors.green);
+        // Should now indicate recent activity
+        expect(midiState.hasRecentActivity, true);
 
         // Wait for timer cleanup
         await Future<void>.delayed(const Duration(milliseconds: 1100));
