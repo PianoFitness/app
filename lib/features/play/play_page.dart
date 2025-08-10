@@ -156,37 +156,7 @@ class _PlayPageState extends State<PlayPage> {
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 12),
-                          // Chord Detection Display
-                          Consumer<MidiState>(
-                            builder: (context, midiState, child) {
-                              final chord = midiState.currentChord;
-                              if (chord != null) {
-                                return Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 6,
-                                  ),
-                                  margin: const EdgeInsets.only(bottom: 8),
-                                  decoration: BoxDecoration(
-                                    color: Colors.green.shade100,
-                                    borderRadius: BorderRadius.circular(20),
-                                    border: Border.all(color: Colors.green.shade300),
-                                  ),
-                                  child: Text(
-                                    "♪ ${chord.chordName}",
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.green.shade800,
-                                    ),
-                                  ),
-                                );
-                              }
-                              return const SizedBox.shrink();
-                            },
-                          ),
-                          const SizedBox(height: 4),
+                          const SizedBox(height: 16),
                           Wrap(
                             alignment: WrapAlignment.center,
                             spacing: 8,
@@ -243,6 +213,62 @@ class _PlayPageState extends State<PlayPage> {
                         ],
                       ),
                     ),
+                    // Standalone Chord Detection Display - Bottom positioned near piano
+                    Consumer<MidiState>(
+                      builder: (context, midiState, child) {
+                        final chord = midiState.currentChord;
+                        if (chord != null) {
+                          return Container(
+                            margin: const EdgeInsets.only(top: 16),
+                            child: Center(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.shade50,
+                                  borderRadius: BorderRadius.circular(25),
+                                  border: Border.all(
+                                    color: Colors.green.shade200,
+                                    width: 2,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.green.shade200.withOpacity(
+                                        0.3,
+                                      ),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.music_note,
+                                      color: Colors.green.shade700,
+                                      size: 20,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      chord.chordName,
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.green.shade800,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -257,9 +283,7 @@ class _PlayPageState extends State<PlayPage> {
                 // Calculate dynamic key width based on screen width
                 final screenWidth = MediaQuery.of(context).size.width;
                 final dynamicKeyWidth =
-                    PianoRangeUtils.calculateScreenBasedKeyWidth(
-                      screenWidth,
-                    );
+                    PianoRangeUtils.calculateScreenBasedKeyWidth(screenWidth);
 
                 return InteractivePiano(
                   highlightedNotes: midiState.highlightedNotePositions,
