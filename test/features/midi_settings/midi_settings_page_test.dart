@@ -184,7 +184,7 @@ void main() {
     ) async {
       final Widget testWidget = ChangeNotifierProvider(
         create: (context) => MidiState(),
-        child: const MaterialApp(home: MidiSettingsPage(initialChannel: 0)),
+        child: const MaterialApp(home: MidiSettingsPage()),
       );
 
       await tester.pumpWidget(testWidget);

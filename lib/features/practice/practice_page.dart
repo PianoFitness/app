@@ -89,28 +89,28 @@ class _PracticePageState extends State<PracticePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: const Key('practice_page_scaffold'),
+      key: const Key("practice_page_scaffold"),
       appBar: AppBar(
-        key: const Key('practice_page_app_bar'),
+        key: const Key("practice_page_app_bar"),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Row(
-          key: const Key('practice_page_title'),
+          key: const Key("practice_page_title"),
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
+            const Icon(
               Icons.fitness_center,
-              key: const Key('practice_page_icon'),
+              key: Key("practice_page_icon"),
               color: Colors.deepPurple,
-              semanticLabel: 'Piano fitness icon',
+              semanticLabel: "Piano fitness icon",
             ),
             const SizedBox(width: 8),
             Semantics(
-              label: 'Piano Practice page title',
+              label: "Piano Practice page title",
               child: const Text("Piano Practice"),
             ),
           ],
         ),
-        actions: const [MidiStatusIndicator(key: Key('midi_status_indicator'))],
+        actions: const [MidiStatusIndicator(key: Key("midi_status_indicator"))],
       ),
       body: Column(
         children: [
@@ -133,7 +133,7 @@ class _PracticePageState extends State<PracticePage> {
                         }
 
                         return PracticeSettingsPanel(
-                          key: const Key('practice_settings_panel'),
+                          key: const Key("practice_settings_panel"),
                           practiceMode: session.practiceMode,
                           selectedKey: session.selectedKey,
                           selectedScaleType: session.selectedScaleType,
@@ -211,7 +211,7 @@ class _PracticePageState extends State<PracticePage> {
                         );
 
                     return InteractivePiano(
-                      key: const Key('practice_interactive_piano'),
+                      key: const Key("practice_interactive_piano"),
                       highlightedNotes: highlightedNotes,
                       keyWidth: dynamicKeyWidth,
                       noteRange: practiceRange,

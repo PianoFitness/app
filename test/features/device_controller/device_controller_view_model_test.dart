@@ -18,13 +18,9 @@ class MockMidiDevice extends MidiDevice {
 }
 
 void main() {
-  setUpAll(() {
-    MidiMocks.setUp();
-  });
+  setUpAll(MidiMocks.setUp);
 
-  tearDownAll(() {
-    MidiMocks.tearDown();
-  });
+  tearDownAll(MidiMocks.tearDown);
 
   group("DeviceControllerViewModel Tests", () {
     late MockMidiDevice mockDevice;

@@ -11,21 +11,15 @@ import "../../shared/midi_mocks.dart";
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  setUpAll(() {
-    // Set up MIDI plugin mocks to prevent MissingPluginException
-    MidiMocks.setUp();
-  });
+  setUpAll(MidiMocks.setUp);
 
-  tearDownAll(() {
-    // Clean up MIDI mock resources
-    MidiMocks.tearDown();
-  });
+  tearDownAll(MidiMocks.tearDown);
 
   group("PracticePageViewModel Tests", () {
     late PracticePageViewModel viewModel;
     late MidiState mockMidiState;
-    bool exerciseCompletedCalled = false;
-    List<NotePosition> receivedHighlightedNotes = [];
+    var exerciseCompletedCalled = false;
+    var receivedHighlightedNotes = <NotePosition>[];
 
     setUp(() {
       viewModel = PracticePageViewModel(
@@ -43,7 +37,6 @@ void main() {
         onHighlightedNotesChanged: (notes) {
           receivedHighlightedNotes = notes;
         },
-        initialMode: PracticeMode.scales,
       );
     });
 
@@ -159,8 +152,8 @@ void main() {
     test("should calculate appropriate highlighted notes for display", () {
       // Test when ViewModel has highlighted notes
       final testNotes = [
-        NotePosition(note: Note.C, octave: 4),
-        NotePosition(note: Note.E, octave: 4),
+        NotePosition(note: Note.C),
+        NotePosition(note: Note.E),
       ];
       receivedHighlightedNotes = testNotes;
       viewModel.practiceSession!.onHighlightedNotesChanged(testNotes);
@@ -193,7 +186,7 @@ void main() {
 
       // Should not crash when no MIDI state is set
       expect(
-        () async => await uninitializedViewModel.playVirtualNote(testNote),
+        () async => uninitializedViewModel.playVirtualNote(testNote),
         returnsNormally,
       );
 
@@ -234,9 +227,9 @@ void main() {
         receivedHighlightedNotes.clear();
 
         final testNotes = [
-          NotePosition(note: Note.C, octave: 4),
-          NotePosition(note: Note.E, octave: 4),
-          NotePosition(note: Note.G, octave: 4),
+          NotePosition(note: Note.C),
+          NotePosition(note: Note.E),
+          NotePosition(note: Note.G),
         ];
 
         // Ensure we start with empty state

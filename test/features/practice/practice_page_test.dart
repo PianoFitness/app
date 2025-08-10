@@ -16,13 +16,9 @@ import "../../shared/midi_mocks.dart";
 /// - Uses semantic identifiers for better accessibility testing
 /// - Allows UI text changes without breaking tests
 void main() {
-  setUpAll(() {
-    MidiMocks.setUp();
-  });
+  setUpAll(MidiMocks.setUp);
 
-  tearDownAll(() {
-    MidiMocks.tearDown();
-  });
+  tearDownAll(MidiMocks.tearDown);
   group("PracticePage MVVM Tests", () {
     testWidgets("should create PracticePage with ViewModel without errors", (
       tester,
@@ -37,11 +33,11 @@ void main() {
 
       // Verify PracticePage is rendered with essential components
       expect(find.byType(PracticePage), findsOneWidget);
-      expect(find.byKey(const Key('practice_page_title')), findsOneWidget);
+      expect(find.byKey(const Key("practice_page_title")), findsOneWidget);
       // Focus on functionality, not specific UI implementation details
-      expect(find.byKey(const Key('practice_settings_panel')), findsOneWidget);
+      expect(find.byKey(const Key("practice_settings_panel")), findsOneWidget);
       expect(
-        find.byKey(const Key('practice_interactive_piano')),
+        find.byKey(const Key("practice_interactive_piano")),
         findsOneWidget,
       );
     });
@@ -74,7 +70,7 @@ void main() {
       await tester.pump(); // Allow initialization
 
       // Verify practice mode initialization by checking if settings panel exists
-      expect(find.byKey(const Key('practice_settings_panel')), findsOneWidget);
+      expect(find.byKey(const Key("practice_settings_panel")), findsOneWidget);
     });
 
     testWidgets("should display practice settings panel", (tester) async {
@@ -87,7 +83,7 @@ void main() {
       await tester.pump();
 
       // Verify practice settings panel is present
-      expect(find.byKey(const Key('practice_settings_panel')), findsOneWidget);
+      expect(find.byKey(const Key("practice_settings_panel")), findsOneWidget);
     });
 
     testWidgets("should use ViewModel for piano range calculation", (
@@ -102,7 +98,7 @@ void main() {
       await tester.pump();
 
       // Find the InteractivePiano widget
-      final pianoFinder = find.byKey(const Key('practice_interactive_piano'));
+      final pianoFinder = find.byKey(const Key("practice_interactive_piano"));
       expect(pianoFinder, findsOneWidget);
 
       // Verify the piano uses the range from ViewModel
@@ -124,7 +120,7 @@ void main() {
       await tester.pump();
 
       // Find the InteractivePiano and verify callback is set
-      final pianoFinder = find.byKey(const Key('practice_interactive_piano'));
+      final pianoFinder = find.byKey(const Key("practice_interactive_piano"));
       expect(pianoFinder, findsOneWidget);
 
       final piano = tester.widget<InteractivePiano>(pianoFinder);
@@ -144,7 +140,7 @@ void main() {
       await tester.pump();
 
       // Verify piano keyboard highlights are connected to MidiState
-      final pianoFinder = find.byKey(const Key('practice_interactive_piano'));
+      final pianoFinder = find.byKey(const Key("practice_interactive_piano"));
       final piano = tester.widget<InteractivePiano>(pianoFinder);
 
       // The highlighted notes should be managed by the ViewModel
@@ -176,7 +172,7 @@ void main() {
       await tester.pump();
 
       // Find the InteractivePiano and verify key width is calculated
-      final pianoFinder = find.byKey(const Key('practice_interactive_piano'));
+      final pianoFinder = find.byKey(const Key("practice_interactive_piano"));
       expect(pianoFinder, findsOneWidget);
 
       final piano = tester.widget<InteractivePiano>(pianoFinder);
@@ -246,7 +242,7 @@ void main() {
 
         // Verify default mode is handled correctly
         expect(
-          find.byKey(const Key('practice_settings_panel')),
+          find.byKey(const Key("practice_settings_panel")),
           findsOneWidget,
         );
       });
@@ -266,7 +262,7 @@ void main() {
 
         // Verify chords mode initialization
         expect(
-          find.byKey(const Key('practice_settings_panel')),
+          find.byKey(const Key("practice_settings_panel")),
           findsOneWidget,
         );
       });
@@ -286,7 +282,7 @@ void main() {
 
         // Verify arpeggios mode initialization
         expect(
-          find.byKey(const Key('practice_settings_panel')),
+          find.byKey(const Key("practice_settings_panel")),
           findsOneWidget,
         );
       });
@@ -307,11 +303,11 @@ void main() {
         // Verify page renders successfully - this is the meaningful test
         expect(find.byType(PracticePage), findsOneWidget);
         expect(
-          find.byKey(const Key('practice_interactive_piano')),
+          find.byKey(const Key("practice_interactive_piano")),
           findsOneWidget,
         );
         expect(
-          find.byKey(const Key('practice_settings_panel')),
+          find.byKey(const Key("practice_settings_panel")),
           findsOneWidget,
         );
       });
@@ -325,7 +321,7 @@ void main() {
         await tester.pumpWidget(testWidget);
 
         // Verify MIDI status indicator is present using key instead of searching app bar internals
-        expect(find.byKey(const Key('midi_status_indicator')), findsOneWidget);
+        expect(find.byKey(const Key("midi_status_indicator")), findsOneWidget);
       });
     });
   });

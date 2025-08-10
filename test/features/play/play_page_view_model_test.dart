@@ -5,13 +5,9 @@ import "package:piano_fitness/shared/models/midi_state.dart";
 import "../../shared/midi_mocks.dart";
 
 void main() {
-  setUpAll(() {
-    MidiMocks.setUp();
-  });
+  setUpAll(MidiMocks.setUp);
 
-  tearDownAll(() {
-    MidiMocks.tearDown();
-  });
+  tearDownAll(MidiMocks.tearDown);
 
   group("PlayPageViewModel Tests", () {
     late PlayPageViewModel viewModel;

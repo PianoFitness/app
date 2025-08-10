@@ -89,7 +89,6 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                 floatingActionButton: _buildFloatingActionButtons(
                   context,
                   viewModel,
-                  midiState,
                 ),
               );
             },
@@ -335,7 +334,6 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
   Widget _buildFloatingActionButtons(
     BuildContext context,
     MidiSettingsViewModel viewModel,
-    MidiState midiState,
   ) {
     return FloatingActionButton(
       heroTag: "main",

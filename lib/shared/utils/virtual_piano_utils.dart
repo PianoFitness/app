@@ -1,5 +1,4 @@
 import "dart:async";
-import "dart:typed_data";
 import "package:flutter/foundation.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_midi_command/flutter_midi_command_messages.dart";
@@ -131,7 +130,7 @@ class VirtualPianoUtils {
     // Send "All Notes Off" (CC 123) on all MIDI channels to prevent stuck notes
     // This is more comprehensive than individual NoteOff messages since we don't
     // track which channel each note was sent on
-    for (int channel = 0; channel < 16; channel++) {
+    for (var channel = 0; channel < 16; channel++) {
       try {
         // Send "All Notes Off" control change message (CC 123, value 0)
         final allNotesOffData = Uint8List.fromList([
@@ -144,7 +143,7 @@ class VirtualPianoUtils {
         if (kDebugMode) {
           print("Sent All Notes Off on channel ${channel + 1}");
         }
-      } catch (e) {
+      } on Exception catch (e) {
         if (kDebugMode) {
           print("Error sending All Notes Off on channel ${channel + 1}: $e");
         }

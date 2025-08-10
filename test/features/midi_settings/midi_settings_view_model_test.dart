@@ -221,7 +221,7 @@ void main() {
         await Future<void>.delayed(const Duration(milliseconds: 50));
 
         // Dispose should not throw
-        expect(() => disposalViewModel.dispose(), returnsNormally);
+        expect(disposalViewModel.dispose, returnsNormally);
 
         // Wait for cleanup to complete
         await Future<void>.delayed(const Duration(milliseconds: 10));
