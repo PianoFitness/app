@@ -245,6 +245,24 @@ void main() {
           find.byKey(const Key("practice_settings_panel")),
           findsOneWidget,
         );
+
+        // Assert that the practice mode dropdown shows scales mode
+        final practiceModeDropdown = find.byType(
+          DropdownButtonFormField<PracticeMode>,
+        );
+        expect(practiceModeDropdown, findsOneWidget);
+
+        // Access the DropdownButton inside the FormField to check its value
+        final dropdownButton = find.descendant(
+          of: practiceModeDropdown,
+          matching: find.byType(DropdownButton<PracticeMode>),
+        );
+        expect(dropdownButton, findsOneWidget);
+
+        final button = tester.widget<DropdownButton<PracticeMode>>(
+          dropdownButton,
+        );
+        expect(button.value, PracticeMode.scales);
       });
 
       testWidgets("should initialize with chords mode when specified", (
@@ -265,6 +283,24 @@ void main() {
           find.byKey(const Key("practice_settings_panel")),
           findsOneWidget,
         );
+
+        // Assert that the practice mode dropdown shows chords mode
+        final practiceModeDropdown = find.byType(
+          DropdownButtonFormField<PracticeMode>,
+        );
+        expect(practiceModeDropdown, findsOneWidget);
+
+        // Access the DropdownButton inside the FormField to check its value
+        final dropdownButton = find.descendant(
+          of: practiceModeDropdown,
+          matching: find.byType(DropdownButton<PracticeMode>),
+        );
+        expect(dropdownButton, findsOneWidget);
+
+        final button = tester.widget<DropdownButton<PracticeMode>>(
+          dropdownButton,
+        );
+        expect(button.value, PracticeMode.chords);
       });
 
       testWidgets("should initialize with arpeggios mode when specified", (
@@ -285,6 +321,24 @@ void main() {
           find.byKey(const Key("practice_settings_panel")),
           findsOneWidget,
         );
+
+        // Assert that the practice mode dropdown shows arpeggios mode
+        final practiceModeDropdown = find.byType(
+          DropdownButtonFormField<PracticeMode>,
+        );
+        expect(practiceModeDropdown, findsOneWidget);
+
+        // Access the DropdownButton inside the FormField to check its value
+        final dropdownButton = find.descendant(
+          of: practiceModeDropdown,
+          matching: find.byType(DropdownButton<PracticeMode>),
+        );
+        expect(dropdownButton, findsOneWidget);
+
+        final button = tester.widget<DropdownButton<PracticeMode>>(
+          dropdownButton,
+        );
+        expect(button.value, PracticeMode.arpeggios);
       });
     });
 
