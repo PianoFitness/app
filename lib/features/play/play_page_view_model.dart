@@ -29,11 +29,10 @@ class PlayPageViewModel extends ChangeNotifier {
 
   /// Initializes the MIDI connection and sets up data handling.
   void _initializeMidiConnection() {
-    // Register this ViewModel's MIDI data handler
-    _midiConnectionService.registerDataHandler(_handleMidiData);
-
-    // Start the MIDI connection if not already connected
-    _midiConnectionService.connect();
+    // Register this ViewModel's MIDI data handler and start connection
+    _midiConnectionService
+      ..registerDataHandler(_handleMidiData)
+      ..connect();
   }
 
   /// Handles incoming MIDI data and updates state.

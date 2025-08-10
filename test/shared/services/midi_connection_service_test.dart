@@ -1,7 +1,7 @@
 import "dart:typed_data";
 
-import "package:flutter_test/flutter_test.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
+import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/services/midi_connection_service.dart";
 import "../../shared/midi_mocks.dart";
@@ -77,7 +77,7 @@ void main() {
 
     group("Data Handler Registration Tests", () {
       test("should register data handlers", () {
-        final List<Uint8List> receivedData = [];
+        final receivedData = <Uint8List>[];
 
         void testHandler(Uint8List data) {
           receivedData.add(data);
@@ -98,15 +98,17 @@ void main() {
         void handler3(Uint8List data) {}
 
         expect(() {
-          service.registerDataHandler(handler1);
-          service.registerDataHandler(handler2);
-          service.registerDataHandler(handler3);
+          service
+            ..registerDataHandler(handler1)
+            ..registerDataHandler(handler2)
+            ..registerDataHandler(handler3);
         }, returnsNormally);
 
         // Clean up
-        service.unregisterDataHandler(handler1);
-        service.unregisterDataHandler(handler2);
-        service.unregisterDataHandler(handler3);
+        service
+          ..unregisterDataHandler(handler1)
+          ..unregisterDataHandler(handler2)
+          ..unregisterDataHandler(handler3);
       });
 
       test("should unregister data handlers", () {
@@ -149,15 +151,17 @@ void main() {
         void errorHandler3(String error) {}
 
         expect(() {
-          service.registerErrorHandler(errorHandler1);
-          service.registerErrorHandler(errorHandler2);
-          service.registerErrorHandler(errorHandler3);
+          service
+            ..registerErrorHandler(errorHandler1)
+            ..registerErrorHandler(errorHandler2)
+            ..registerErrorHandler(errorHandler3);
         }, returnsNormally);
 
         // Clean up
-        service.unregisterErrorHandler(errorHandler1);
-        service.unregisterErrorHandler(errorHandler2);
-        service.unregisterErrorHandler(errorHandler3);
+        service
+          ..unregisterErrorHandler(errorHandler1)
+          ..unregisterErrorHandler(errorHandler2)
+          ..unregisterErrorHandler(errorHandler3);
       });
 
       test("should unregister error handlers", () {
@@ -300,8 +304,9 @@ void main() {
         void dataHandler(Uint8List data) {}
         void errorHandler(String error) {}
 
-        service.registerDataHandler(dataHandler);
-        service.registerErrorHandler(errorHandler);
+        service
+          ..registerDataHandler(dataHandler)
+          ..registerErrorHandler(errorHandler);
 
         // Connect the service
         await service.connect();
@@ -316,12 +321,12 @@ void main() {
         await service.dispose();
 
         // Second dispose call should not throw
-        expect(() async => await service.dispose(), returnsNormally);
+        expect(() async => service.dispose(), returnsNormally);
       });
 
       test("dispose should handle disconnection errors gracefully", () async {
         // Even if disconnection fails, dispose should complete
-        expect(() async => await service.dispose(), returnsNormally);
+        expect(() async => service.dispose(), returnsNormally);
       });
     });
 
@@ -337,8 +342,9 @@ void main() {
             // This should still execute despite the throwing handler
           }
 
-          service.registerDataHandler(throwingHandler);
-          service.registerDataHandler(normalHandler);
+          service
+            ..registerDataHandler(throwingHandler)
+            ..registerDataHandler(normalHandler);
 
           // Even with a throwing handler, the service should continue operating
           expect(
@@ -347,8 +353,9 @@ void main() {
           );
 
           // Clean up
-          service.unregisterDataHandler(throwingHandler);
-          service.unregisterDataHandler(normalHandler);
+          service
+            ..unregisterDataHandler(throwingHandler)
+            ..unregisterDataHandler(normalHandler);
         },
       );
 
@@ -361,8 +368,9 @@ void main() {
           // This should still execute despite the throwing error handler
         }
 
-        service.registerErrorHandler(throwingErrorHandler);
-        service.registerErrorHandler(normalErrorHandler);
+        service
+          ..registerErrorHandler(throwingErrorHandler)
+          ..registerErrorHandler(normalErrorHandler);
 
         // Even with a throwing error handler, the service should continue operating
         expect(
@@ -371,8 +379,9 @@ void main() {
         );
 
         // Clean up
-        service.unregisterErrorHandler(throwingErrorHandler);
-        service.unregisterErrorHandler(normalErrorHandler);
+        service
+          ..unregisterErrorHandler(throwingErrorHandler)
+          ..unregisterErrorHandler(normalErrorHandler);
       });
 
       test("should handle null MIDI data stream gracefully", () async {
@@ -388,8 +397,8 @@ void main() {
       test(
         "should support full lifecycle: connect, register handlers, process data, disconnect",
         () async {
-          final List<Uint8List> receivedData = [];
-          final List<String> receivedErrors = [];
+          final receivedData = <Uint8List>[];
+          final receivedErrors = <String>[];
 
           void dataHandler(Uint8List data) {
             receivedData.add(data);
@@ -400,8 +409,9 @@ void main() {
           }
 
           // Register handlers
-          service.registerDataHandler(dataHandler);
-          service.registerErrorHandler(errorHandler);
+          service
+            ..registerDataHandler(dataHandler)
+            ..registerErrorHandler(errorHandler);
 
           // Connect
           await service.connect();
@@ -415,15 +425,16 @@ void main() {
 
           // Disconnect and cleanup
           await service.disconnect();
-          service.unregisterDataHandler(dataHandler);
-          service.unregisterErrorHandler(errorHandler);
+          service
+            ..unregisterDataHandler(dataHandler)
+            ..unregisterErrorHandler(errorHandler);
 
           expect(service.isConnected, isFalse);
         },
       );
 
       test("should maintain handler state across connection cycles", () async {
-        final List<Uint8List> receivedData = [];
+        final receivedData = <Uint8List>[];
 
         void dataHandler(Uint8List data) {
           receivedData.add(data);
@@ -445,8 +456,8 @@ void main() {
       test(
         "should handle simultaneous handler registration and data processing",
         () async {
-          final List<Uint8List> handler1Data = [];
-          final List<Uint8List> handler2Data = [];
+          final handler1Data = <Uint8List>[];
+          final handler2Data = <Uint8List>[];
 
           void handler1(Uint8List data) {
             handler1Data.add(data);
@@ -457,8 +468,9 @@ void main() {
           }
 
           // Register handlers
-          service.registerDataHandler(handler1);
-          service.registerDataHandler(handler2);
+          service
+            ..registerDataHandler(handler1)
+            ..registerDataHandler(handler2);
 
           // Test data processing
           final testMidiState = MidiState();
@@ -468,8 +480,9 @@ void main() {
           expect(testMidiState.activeNotes.contains(60), isTrue);
 
           // Clean up
-          service.unregisterDataHandler(handler1);
-          service.unregisterDataHandler(handler2);
+          service
+            ..unregisterDataHandler(handler1)
+            ..unregisterDataHandler(handler2);
         },
       );
 

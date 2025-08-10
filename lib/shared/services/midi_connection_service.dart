@@ -10,12 +10,14 @@ import "package:piano_fitness/shared/services/midi_service.dart";
 /// eliminating duplication across different ViewModels while providing consistent
 /// MIDI data handling and connection lifecycle management.
 class MidiConnectionService {
+
+  /// Factory constructor that returns the singleton instance.
+  factory MidiConnectionService() => _instance;
+  /// Private constructor for singleton implementation.
+  MidiConnectionService._internal();
+
   static final MidiConnectionService _instance =
       MidiConnectionService._internal();
-
-  factory MidiConnectionService() => _instance;
-
-  MidiConnectionService._internal();
 
   final MidiCommand _midiCommand = MidiCommand();
   StreamSubscription<MidiPacket>? _midiDataSubscription;

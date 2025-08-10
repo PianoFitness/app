@@ -55,7 +55,7 @@ void main() {
 
       // Should not crash when no MIDI state is set
       expect(
-        () async => await viewModelWithoutState.playVirtualNote(60),
+        () async => viewModelWithoutState.playVirtualNote(60),
         returnsNormally,
       );
 

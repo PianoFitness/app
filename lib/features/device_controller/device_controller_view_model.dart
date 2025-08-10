@@ -182,11 +182,10 @@ class DeviceControllerViewModel extends ChangeNotifier {
   }
 
   void _setupMidiListener() {
-    // Connect to the MIDI service
-    _midiService.connect();
-
-    // Register our data handler for this specific device
-    _midiService.registerDataHandler(_handleMidiData);
+    // Connect to the MIDI service and register our data handler
+    _midiService
+      ..connect()
+      ..registerDataHandler(_handleMidiData);
   }
 
   void _handleMidiData(Uint8List data) {
