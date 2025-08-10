@@ -48,6 +48,7 @@ flutter test --coverage               # with coverage
 # Coverage Analysis (REQUIRED)
 flutter test --coverage && genhtml coverage/lcov.info -o coverage/html
 open coverage/html/index.html   # View coverage report
+# Note: genhtml (lcov) must be installed locally (e.g., `brew install lcov` or your OS equivalent).
 
 # Pre-commit checklist
 # 1. Tests pass: flutter test
