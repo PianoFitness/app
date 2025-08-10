@@ -317,4 +317,14 @@ class PracticeSession {
     _currentlyHeldChordNotes.clear();
     _updateHighlightedNotes();
   }
+
+  /// Triggers exercise completion for testing purposes only.
+  ///
+  /// This method is intended for use in unit tests to simulate
+  /// the completion of a practice exercise without having to
+  /// play through the entire sequence.
+  @visibleForTesting
+  void triggerCompletionForTesting() {
+    _completeExercise();
+  }
 }
