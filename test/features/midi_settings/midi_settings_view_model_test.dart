@@ -2,6 +2,7 @@
 //
 // Tests the business logic, state management, and MIDI operations of the ViewModel.
 
+import "dart:async";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
@@ -10,18 +11,31 @@ import "package:piano_fitness/features/midi_settings/midi_settings_view_model.da
 import "package:piano_fitness/shared/models/midi_state.dart";
 
 void main() {
+  late StreamController<String> midiSetupController;
+  late StreamController<BluetoothState> bluetoothStateController;
+  late StreamController<MidiPacket> midiDataController;
+
   setUpAll(() {
     TestWidgetsFlutterBinding.ensureInitialized();
+
+    // Initialize stream controllers
+    midiSetupController = StreamController<String>.broadcast();
+    bluetoothStateController = StreamController<BluetoothState>.broadcast();
+    midiDataController = StreamController<MidiPacket>.broadcast();
 
     // Mock the flutter_midi_command method channel to prevent MissingPluginException
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-          const MethodChannel("flutter_midi_command"),
+          const MethodChannel(
+            "plugins.invisiblewrench.com/flutter_midi_command",
+          ),
           (MethodCall methodCall) async {
             switch (methodCall.method) {
               case "scanForDevices":
                 return <String, dynamic>{};
               case "getDevices":
+                return <Map<String, dynamic>>[];
+              case "devices":
                 return <Map<String, dynamic>>[];
               case "connectToDevice":
                 return true;
@@ -33,6 +47,8 @@ void main() {
                 return true;
               case "stopScanning":
                 return true;
+              case "stopScanForDevices":
+                return true;
               case "teardown":
                 return true;
               case "startBluetoothCentral":
@@ -43,6 +59,12 @@ void main() {
                 return true;
               case "stopScanningForBluetoothDevices":
                 return true;
+              case "onMidiSetupChanged":
+                return midiSetupController.stream;
+              case "onBluetoothStateChanged":
+                return bluetoothStateController.stream;
+              case "onMidiDataReceived":
+                return midiDataController.stream;
               default:
                 return null;
             }
@@ -50,11 +72,28 @@ void main() {
         );
   });
 
+  tearDownAll(() {
+    midiSetupController.close();
+    bluetoothStateController.close();
+    midiDataController.close();
+  });
+
   group("MidiSettingsViewModel Tests", () {
     late MidiSettingsViewModel viewModel;
 
-    setUp(() {
+    setUp(() async {
       viewModel = MidiSettingsViewModel(initialChannel: 5);
+
+      // Wait for async initialization to complete
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    });
+
+    tearDown(() async {
+      // Ensure proper cleanup to avoid "used after disposed" errors
+      viewModel.dispose();
+
+      // Wait for any pending async operations to complete
+      await Future<void>.delayed(const Duration(milliseconds: 10));
     });
 
     group("Initialization", () {
@@ -170,8 +209,9 @@ void main() {
       });
 
       test("should provide state flags correctly", () {
-        // Initial state
-        expect(viewModel.shouldShowErrorButtons, isFalse);
+        // After initialization, status will contain "No MIDI devices found"
+        // which triggers shouldShowErrorButtons = true
+        expect(viewModel.shouldShowErrorButtons, isTrue);
         expect(viewModel.shouldShowResetInfo, isFalse);
         expect(viewModel.shouldShowMidiActivity, isFalse);
       });
@@ -219,7 +259,10 @@ void main() {
         expect(viewModel.didAskForBluetoothPermissions, equals(false));
       });
 
-      test("should handle reset to main screen", () {
+      test("should handle reset to main screen", () async {
+        // Wait for any pending operations
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+
         viewModel.resetToMainScreen();
 
         // Should reset state appropriately
@@ -228,6 +271,9 @@ void main() {
         expect(viewModel.isScanning, equals(false));
         expect(viewModel.didAskForBluetoothPermissions, equals(false));
         expect(viewModel.midiStatus, contains("bluetoothNotAvailable"));
+
+        // Wait for any async operations to complete
+        await Future<void>.delayed(const Duration(milliseconds: 10));
       });
     });
 
@@ -247,8 +293,18 @@ void main() {
     });
 
     group("Disposal", () {
-      test("should dispose resources properly", () {
-        expect(() => viewModel.dispose(), returnsNormally);
+      test("should dispose resources properly", () async {
+        // Create a separate view model for disposal test to avoid conflicts
+        final disposalViewModel = MidiSettingsViewModel(initialChannel: 1);
+
+        // Wait for initialization
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+
+        // Dispose should not throw
+        expect(() => disposalViewModel.dispose(), returnsNormally);
+
+        // Wait for cleanup to complete
+        await Future<void>.delayed(const Duration(milliseconds: 10));
       });
     });
   });

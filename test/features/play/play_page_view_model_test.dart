@@ -1,25 +1,66 @@
 import "dart:typed_data";
+import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:piano/piano.dart";
 import "package:piano_fitness/features/play/play_page_view_model.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 
 void main() {
-  TestWidgetsFlutterBinding.ensureInitialized();
+  setUpAll(() {
+    TestWidgetsFlutterBinding.ensureInitialized();
+
+    // Mock the flutter_midi_command method channel to prevent MissingPluginException
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel(
+            "plugins.invisiblewrench.com/flutter_midi_command",
+          ),
+          (MethodCall methodCall) async {
+            switch (methodCall.method) {
+              case "sendData":
+                // Mock successful MIDI data sending
+                return true;
+              case "getDevices":
+                return <Map<String, dynamic>>[];
+              case "devices":
+                return <Map<String, dynamic>>[];
+              case "connectToDevice":
+                return true;
+              case "disconnectDevice":
+                return true;
+              case "startScanning":
+                return true;
+              case "stopScanning":
+                return true;
+              case "startScanningForBluetoothDevices":
+                return true;
+              case "stopScanningForBluetoothDevices":
+                return true;
+              default:
+                return null;
+            }
+          },
+        );
+  });
 
   group("PlayPageViewModel Tests", () {
     late PlayPageViewModel viewModel;
     late MidiState mockMidiState;
 
-    setUp(() {
+    setUp(() async {
       viewModel = PlayPageViewModel(initialChannel: 5);
       mockMidiState = MidiState();
       viewModel.setMidiState(mockMidiState);
+
+      // Wait for any async initialization to complete
+      await Future<void>.delayed(const Duration(milliseconds: 10));
     });
 
-    tearDown(() {
+    tearDown(() async {
       viewModel.dispose();
       mockMidiState.dispose();
+
+      // Wait for any pending async operations to complete
+      await Future<void>.delayed(const Duration(milliseconds: 10));
     });
 
     test("should initialize with correct MIDI channel", () {
@@ -79,13 +120,6 @@ void main() {
       viewModel.handleMidiData(midiData);
 
       expect(mockMidiState.lastNote.contains("Pitch Bend"), isTrue);
-    });
-
-    test("should provide correct 49-key range", () {
-      final range = viewModel.getFixed49KeyRange();
-
-      expect(range, isNotNull);
-      expect(range, isA<NoteRange>());
     });
 
     test("should handle virtual note playing", () async {

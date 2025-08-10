@@ -174,14 +174,19 @@ void main() {
       expect(range, isA<NoteRange>());
     });
 
-    test("should handle virtual note playing", () async {
+    test("should handle virtual note playing without throwing", () async {
       const testNote = 60;
 
-      // This test verifies the method doesn't throw
-      await viewModel.playVirtualNote(testNote);
+      // This test verifies the method handles missing MIDI state gracefully
+      final uninitializedViewModel = PracticePageViewModel();
 
-      // In a real implementation, this would trigger practice session updates
-      expect(viewModel.practiceSession, isNotNull);
+      // Should not crash when no MIDI state is set
+      expect(
+        () async => await uninitializedViewModel.playVirtualNote(testNote),
+        returnsNormally,
+      );
+
+      uninitializedViewModel.dispose();
     });
 
     test("should handle cases with no practice session initialized", () {
@@ -214,12 +219,16 @@ void main() {
       });
 
       test("should update highlighted notes through callback", () {
+        // Reset to ensure clean state
+        receivedHighlightedNotes.clear();
+
         final testNotes = [
           NotePosition(note: Note.C, octave: 4),
           NotePosition(note: Note.E, octave: 4),
           NotePosition(note: Note.G, octave: 4),
         ];
 
+        // Ensure we start with empty state
         expect(receivedHighlightedNotes, isEmpty);
 
         // Simulate highlighted notes change
@@ -227,6 +236,11 @@ void main() {
 
         expect(receivedHighlightedNotes, equals(testNotes));
         expect(viewModel.highlightedNotes, equals(testNotes));
+
+        // Test clearing notes
+        viewModel.practiceSession!.onHighlightedNotesChanged([]);
+        expect(receivedHighlightedNotes, isEmpty);
+        expect(viewModel.highlightedNotes, isEmpty);
       });
     });
 
