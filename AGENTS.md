@@ -287,9 +287,9 @@ All code shared across features, organized by responsibility:
 
 **Development Guidelines**:
 4. **Music Theory**: Always extend existing shared/utils/ classes
-   - Don't duplicate note conversion logic
-   - Use existing scale/chord/arpeggio definitions  
-   - Add new music theory to shared utilities, not features
+- Don't duplicate note conversion logic
+- Use existing scale/chord/arpeggio definitions  
+- Add new music theory to shared utilities, not features
 
 5. **MIDI Handling**: Centralize through shared/services/midi_service.dart
    - Don't parse MIDI messages directly in ViewModels
@@ -443,9 +443,9 @@ flutter test --coverage              # Check coverage meets 80% requirement
 - Integration tests for complete workflows
 
 #### **Current Test Coverage**
-- **MidiState**: 79% coverage (45/57 lines) ✅
-- **Practice Feature**: 100% ViewModel coverage with 321+ test lines
-- **Play Feature**: Complete MVVM test coverage
+- **MidiState**: target ≥80% coverage (verify via coverage report) ✅
+- **Practice Feature**: ViewModel tests should maintain ≥80% coverage
+- **Play Feature**: Maintain complete MVVM coverage as code evolves
 - **Target**: 80%+ for all new/modified code
 - **Critical Areas**: MIDI message handling, ViewModel business logic, UI integration
 
@@ -470,7 +470,7 @@ The app features optimized 49-key piano layouts across both PlayPage and Practic
 // Dynamic width based on screen size
 final screenWidth = MediaQuery.of(context).size.width;
 final availableWidth = screenWidth - 32; // Account for padding
-final dynamicKeyWidth = availableWidth / 29; // 28 white keys + buffer
+final dynamicKeyWidth = availableWidth / 29; // 29 white keys (C..C over 4 octaves)
 keyWidth: dynamicKeyWidth.clamp(20.0, 60.0) // Reasonable limits
 ```
 
@@ -500,24 +500,11 @@ keyWidth: dynamicKeyWidth.clamp(20.0, 60.0) // Reasonable limits
 #### **Piano Range Calculation Logic**
 
 **Exercise-Centered Algorithm** (PracticePage):
-```dart
-// Find exercise range
-final minNote = exerciseNotes.reduce((a, b) => a < b ? a : b);
-final maxNote = exerciseNotes.reduce((a, b) => a > b ? a : b);
-final centerNote = (minNote + maxNote) ~/ 2;
-
-// Create 49-key range (24 semitones on each side)
-const rangeHalfWidth = 24;
-var startNote = centerNote - rangeHalfWidth;
-var endNote = centerNote + rangeHalfWidth;
-
-// Ensure all exercise notes are visible
-if (minNote < startNote) {
-  final shift = startNote - minNote;
-  startNote -= shift;
-  endNote -= shift;
-}
-```
+1. Find the minimum and maximum notes in the current exercise
+2. Calculate center point of the exercise range  
+3. Create 49-key range (24 semitones on each side of center)
+4. Shift range if needed to ensure all exercise notes are visible
+5. Clamp final range to reasonable piano bounds (A0..C8)
 
 **Benefits**:
 - No horizontal scrolling required for any practice exercise
