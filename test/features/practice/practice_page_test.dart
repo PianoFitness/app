@@ -1,4 +1,6 @@
+import "dart:async";
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/practice/practice_page.dart";
@@ -7,6 +9,69 @@ import "package:piano_fitness/shared/widgets/practice_settings_panel.dart";
 import "package:provider/provider.dart";
 
 void main() {
+  late StreamController<String> midiSetupController;
+  late StreamController<dynamic> bluetoothStateController;
+  late StreamController<dynamic> midiDataController;
+
+  setUpAll(() {
+    TestWidgetsFlutterBinding.ensureInitialized();
+
+    // Initialize stream controllers
+    midiSetupController = StreamController<String>.broadcast();
+    bluetoothStateController = StreamController<dynamic>.broadcast();
+    midiDataController = StreamController<dynamic>.broadcast();
+
+    // Mock the flutter_midi_command method channel and event channels
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel(
+            "plugins.invisiblewrench.com/flutter_midi_command",
+          ),
+          (MethodCall methodCall) async {
+            switch (methodCall.method) {
+              case "sendData":
+                return true;
+              case "getDevices":
+              case "devices":
+                return <Map<String, dynamic>>[];
+              case "connectToDevice":
+              case "disconnectDevice":
+                return true;
+              case "startScanning":
+              case "stopScanning":
+              case "startScanningForBluetoothDevices":
+              case "stopScanningForBluetoothDevices":
+                return true;
+              default:
+                return null;
+            }
+          },
+        );
+
+    // Mock event channels for MIDI streams
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel(
+            "plugins.invisiblewrench.com/flutter_midi_command/rx_channel",
+          ),
+          (MethodCall methodCall) async {
+            switch (methodCall.method) {
+              case "listen":
+                return null;
+              case "cancel":
+                return null;
+              default:
+                return null;
+            }
+          },
+        );
+  });
+
+  tearDownAll(() {
+    midiSetupController.close();
+    bluetoothStateController.close();
+    midiDataController.close();
+  });
   group("PracticePage MVVM Tests", () {
     testWidgets("should create PracticePage with ViewModel without errors", (
       tester,
@@ -129,11 +194,20 @@ void main() {
       // The highlighted notes should be managed by the ViewModel
       expect(piano.highlightedNotes, isNotNull);
 
-      // Add a note to verify the connection works
-      midiState.noteOn(60, 100, 1);
-      await tester.pump();
+      // Use runAsync to properly handle the timer from _triggerActivity
+      await tester.runAsync(() async {
+        // Add a note to verify the connection works
+        midiState.noteOn(60, 100, 1);
+        await tester.pump();
 
-      expect(midiState.highlightedNotePositions.isNotEmpty, isTrue);
+        expect(midiState.highlightedNotePositions.isNotEmpty, isTrue);
+
+        // Wait for the activity timer to complete or let it be handled by runAsync
+        await Future<void>.delayed(const Duration(milliseconds: 1100));
+      });
+
+      // Properly dispose to clean up any remaining timers
+      midiState.dispose();
     });
 
     testWidgets("should handle dynamic key width calculation", (tester) async {

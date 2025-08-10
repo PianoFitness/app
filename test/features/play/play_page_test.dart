@@ -1,4 +1,6 @@
+import "dart:async";
 import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/midi_settings/midi_settings_page.dart";
@@ -8,6 +10,69 @@ import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:provider/provider.dart";
 
 void main() {
+  late StreamController<String> midiSetupController;
+  late StreamController<dynamic> bluetoothStateController;
+  late StreamController<dynamic> midiDataController;
+
+  setUpAll(() {
+    TestWidgetsFlutterBinding.ensureInitialized();
+
+    // Initialize stream controllers
+    midiSetupController = StreamController<String>.broadcast();
+    bluetoothStateController = StreamController<dynamic>.broadcast();
+    midiDataController = StreamController<dynamic>.broadcast();
+
+    // Mock the flutter_midi_command method channel and event channels
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel(
+            "plugins.invisiblewrench.com/flutter_midi_command",
+          ),
+          (MethodCall methodCall) async {
+            switch (methodCall.method) {
+              case "sendData":
+                return true;
+              case "getDevices":
+              case "devices":
+                return <Map<String, dynamic>>[];
+              case "connectToDevice":
+              case "disconnectDevice":
+                return true;
+              case "startScanning":
+              case "stopScanning":
+              case "startScanningForBluetoothDevices":
+              case "stopScanningForBluetoothDevices":
+                return true;
+              default:
+                return null;
+            }
+          },
+        );
+
+    // Mock event channels for MIDI streams
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel(
+            "plugins.invisiblewrench.com/flutter_midi_command/rx_channel",
+          ),
+          (MethodCall methodCall) async {
+            switch (methodCall.method) {
+              case "listen":
+                return null;
+              case "cancel":
+                return null;
+              default:
+                return null;
+            }
+          },
+        );
+  });
+
+  tearDownAll(() {
+    midiSetupController.close();
+    bluetoothStateController.close();
+    midiDataController.close();
+  });
   group("PlayPage MVVM Tests", () {
     testWidgets("should create PlayPage with ViewModel without errors", (
       tester,
@@ -124,11 +189,20 @@ void main() {
         equals(midiState.highlightedNotePositions),
       );
 
-      // Add a note to verify the connection
-      midiState.noteOn(60, 100, 1);
-      await tester.pump();
+      // Use runAsync to properly handle the timer from _triggerActivity
+      await tester.runAsync(() async {
+        // Add a note to verify the connection
+        midiState.noteOn(60, 100, 1);
+        await tester.pump();
 
-      expect(midiState.highlightedNotePositions.isNotEmpty, isTrue);
+        expect(midiState.highlightedNotePositions.isNotEmpty, isTrue);
+
+        // Wait for the activity timer to complete or let it be handled by runAsync
+        await Future<void>.delayed(const Duration(milliseconds: 1100));
+      });
+
+      // Properly dispose to clean up any remaining timers
+      midiState.dispose();
     });
 
     testWidgets("should navigate to practice pages correctly", (tester) async {
@@ -193,14 +267,20 @@ void main() {
       var decoration = indicator.decoration! as BoxDecoration;
       expect(decoration.color, isNot(Colors.green));
 
-      // Add MIDI activity through ViewModel/MidiState
-      midiState.noteOn(60, 100, 1);
-      await tester.pump();
+      // Use runAsync to properly handle the timer from _triggerActivity
+      await tester.runAsync(() async {
+        // Add MIDI activity through ViewModel/MidiState
+        midiState.noteOn(60, 100, 1);
+        await tester.pump();
 
-      // Should now be green (has activity)
-      indicator = tester.widget<Container>(indicatorFinder);
-      decoration = indicator.decoration! as BoxDecoration;
-      expect(decoration.color, Colors.green);
+        // Should now be green (has activity)
+        indicator = tester.widget<Container>(indicatorFinder);
+        decoration = indicator.decoration! as BoxDecoration;
+        expect(decoration.color, Colors.green);
+
+        // Wait for timer cleanup
+        await Future<void>.delayed(const Duration(milliseconds: 1100));
+      });
 
       midiState.dispose();
     });
@@ -235,6 +315,7 @@ void main() {
       expect(find.byType(SnackBar), findsOneWidget);
       expect(find.text("MIDI: Test MIDI from ViewModel"), findsOneWidget);
 
+      // Ensure proper disposal to prevent timer leaks
       midiState.dispose();
     });
 
