@@ -184,7 +184,7 @@ void main() {
     ) async {
       final Widget testWidget = ChangeNotifierProvider(
         create: (context) => MidiState(),
-        child: const MaterialApp(home: MidiSettingsPage(initialChannel: 7)),
+        child: const MaterialApp(home: MidiSettingsPage(initialChannel: 0)),
       );
 
       await tester.pumpWidget(testWidget);
@@ -193,6 +193,7 @@ void main() {
       // Should show channel selector
       expect(find.text("MIDI Output Channel"), findsOneWidget);
       expect(find.text("Channel: "), findsOneWidget);
+      expect(find.text("1"), findsOneWidget); // 0 (0-based) → 1 (user-facing)
 
       // Channel display should be present (displayed as 1-16, not 0-15)
       expect(
@@ -200,6 +201,29 @@ void main() {
         findsOneWidget,
       );
     });
+
+    testWidgets(
+      "should display default channel when no initial channel provided",
+      (
+        tester,
+      ) async {
+        final Widget testWidget = ChangeNotifierProvider(
+          create: (context) => MidiState(),
+          child: const MaterialApp(home: MidiSettingsPage()),
+        );
+
+        await tester.pumpWidget(testWidget);
+        await tester.pump();
+
+        // Should show default channel (Channel 1)
+        expect(find.text("MIDI Output Channel"), findsOneWidget);
+        expect(find.text("Channel: "), findsOneWidget);
+        expect(
+          find.text("1"),
+          findsOneWidget,
+        ); // Default: 0 (0-based) → 1 (user-facing)
+      },
+    );
 
     testWidgets("should show floating action button for scanning", (
       tester,
