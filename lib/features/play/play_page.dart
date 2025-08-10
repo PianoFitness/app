@@ -157,6 +157,36 @@ class _PlayPageState extends State<PlayPage> {
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 12),
+                          // Chord Detection Display
+                          Consumer<MidiState>(
+                            builder: (context, midiState, child) {
+                              final chord = midiState.currentChord;
+                              if (chord != null) {
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  margin: const EdgeInsets.only(bottom: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.shade100,
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: Colors.green.shade300),
+                                  ),
+                                  child: Text(
+                                    "♪ ${chord.chordName}",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.green.shade800,
+                                    ),
+                                  ),
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          ),
+                          const SizedBox(height: 4),
                           Wrap(
                             alignment: WrapAlignment.center,
                             spacing: 8,
