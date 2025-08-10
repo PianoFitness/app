@@ -152,7 +152,8 @@ void main() {
         // After initialization, status will contain "No MIDI devices found"
         // which triggers shouldShowErrorButtons = true
         expect(viewModel.shouldShowErrorButtons, isTrue);
-        expect(viewModel.shouldShowResetInfo, isFalse);
+        // shouldShowResetInfo is now true because "No MIDI devices found" triggers it
+        expect(viewModel.shouldShowResetInfo, isTrue);
         expect(viewModel.shouldShowMidiActivity, isFalse);
       });
     });
@@ -197,23 +198,6 @@ void main() {
         expect(viewModel.lastNote, equals(""));
         expect(viewModel.isScanning, equals(false));
         expect(viewModel.didAskForBluetoothPermissions, equals(false));
-      });
-
-      test("should handle reset to main screen", () async {
-        // Wait for any pending operations
-        await Future<void>.delayed(const Duration(milliseconds: 10));
-
-        viewModel.resetToMainScreen();
-
-        // Should reset state appropriately
-        expect(viewModel.devices, isEmpty);
-        expect(viewModel.lastNote, equals(""));
-        expect(viewModel.isScanning, equals(false));
-        expect(viewModel.didAskForBluetoothPermissions, equals(false));
-        expect(viewModel.midiStatus, contains("bluetoothNotAvailable"));
-
-        // Wait for any async operations to complete
-        await Future<void>.delayed(const Duration(milliseconds: 10));
       });
     });
 

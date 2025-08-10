@@ -277,7 +277,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
       } else {
         final errorMessage = _getBluetoothErrorMessage();
         _midiStatus =
-            'Cannot scan: $errorMessage\n\nTap "Reset" to return to main screen or "Retry" to try again';
+            'Cannot scan: $errorMessage\n\nTap "Retry" to try again or use the back button to return';
         notifyListeners();
         showSnackBar(errorMessage, Colors.red);
       }
@@ -286,10 +286,10 @@ class MidiSettingsViewModel extends ChangeNotifier {
 
       if (e.toString().contains("bluetoothNotAvailable")) {
         errorMessage +=
-            '\n\n🔧 Troubleshooting:\n• Simulators don\'t support Bluetooth\n• Try running on a physical device\n• Enable Bluetooth on your device\n• Check app permissions\n\nTap "Reset" to return to main screen or "Retry" to try again';
+            '\n\n🔧 Troubleshooting:\n• Simulators don\'t support Bluetooth\n• Try running on a physical device\n• Enable Bluetooth on your device\n• Check app permissions\n\nTap "Retry" to try again or use the back button to return';
       } else {
         errorMessage +=
-            '\n\nTap "Reset" to return to main screen or "Retry" to try again';
+            '\n\nTap "Retry" to try again or use the back button to return';
       }
 
       _midiStatus = errorMessage;
@@ -313,25 +313,6 @@ class MidiSettingsViewModel extends ChangeNotifier {
     _didAskForBluetoothPermissions = false;
     notifyListeners();
     await _setupMidi();
-  }
-
-  /// Resets to main screen state.
-  void resetToMainScreen() {
-    _midiStatus =
-        "bluetoothNotAvailable - Reset to default mode\n\nUse the virtual piano below or tap the scan button to search for MIDI devices";
-    _devices.clear();
-    _lastNote = "";
-    _isScanning = false;
-    _didAskForBluetoothPermissions = false;
-    notifyListeners();
-
-    try {
-      _midiCommand.stopScanningForBluetoothDevices();
-    } on Exception catch (e) {
-      if (kDebugMode) {
-        print("Error stopping scan: $e");
-      }
-    }
   }
 
   /// Connects or disconnects from a MIDI device.
@@ -418,7 +399,9 @@ class MidiSettingsViewModel extends ChangeNotifier {
   /// Determines if reset info should be shown.
   bool get shouldShowResetInfo {
     return _midiStatus.contains("bluetoothNotAvailable") ||
-        _midiStatus.contains("Bluetooth not available");
+        _midiStatus.contains("Bluetooth not available") ||
+        _midiStatus.contains("No MIDI devices found") ||
+        _midiStatus.contains("Cannot scan");
   }
 
   /// Determines if MIDI activity section should be shown.

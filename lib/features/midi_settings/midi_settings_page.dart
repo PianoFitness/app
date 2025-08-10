@@ -182,9 +182,9 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
           ),
         ),
         ElevatedButton.icon(
-          onPressed: () => viewModel.resetToMainScreen(),
-          icon: const Icon(Icons.home),
-          label: const Text("Reset"),
+          onPressed: () => Navigator.of(context).pop(viewModel.selectedChannel),
+          icon: const Icon(Icons.arrow_back),
+          label: const Text("Back"),
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.grey,
             foregroundColor: Colors.white,
@@ -200,21 +200,21 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.orange.shade100,
+        color: Colors.blue.shade50,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.orange),
+        border: Border.all(color: Colors.blue.shade200),
       ),
       child: const Column(
         children: [
-          Icon(Icons.info, color: Colors.orange, size: 32),
+          Icon(Icons.lightbulb_outline, color: Colors.blue, size: 32),
           SizedBox(height: 8),
           Text(
             "Alternative Options:",
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
           ),
           SizedBox(height: 8),
           Text(
-            "• Use a physical iPhone/iPad\n"
+            "• Use a physical iPhone/iPad device\n"
             "• Connect USB MIDI keyboard\n"
             "• Use virtual MIDI devices\n"
             "• Enable on-screen piano for testing",
@@ -337,52 +337,35 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
     MidiSettingsViewModel viewModel,
     MidiState midiState,
   ) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (viewModel.shouldShowErrorButtons)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: FloatingActionButton(
-              heroTag: "reset",
-              mini: true,
-              onPressed: () => viewModel.resetToMainScreen(),
-              tooltip: "Reset to main screen",
-              backgroundColor: Colors.grey,
-              child: const Icon(Icons.home),
+    return FloatingActionButton(
+      heroTag: "main",
+      onPressed: viewModel.isScanning
+          ? null
+          : (viewModel.shouldShowErrorButtons
+                ? () => viewModel.retrySetup()
+                : () => viewModel.scanForDevices(
+                    context,
+                    () => viewModel.informUserAboutBluetoothPermissions(
+                      context,
+                    ),
+                    _showSnackBar,
+                  )),
+      tooltip: viewModel.isScanning
+          ? "Scanning..."
+          : (viewModel.shouldShowErrorButtons
+                ? "Retry MIDI setup"
+                : "Scan for MIDI devices"),
+      backgroundColor: viewModel.isScanning ? Colors.grey : null,
+      child: viewModel.isScanning
+          ? const CircularProgressIndicator(
+              color: Colors.white,
+              strokeWidth: 2,
+            )
+          : Icon(
+              viewModel.shouldShowErrorButtons
+                  ? Icons.refresh
+                  : Icons.bluetooth_searching,
             ),
-          ),
-        FloatingActionButton(
-          heroTag: "main",
-          onPressed: viewModel.isScanning
-              ? null
-              : (viewModel.shouldShowErrorButtons
-                    ? () => viewModel.retrySetup()
-                    : () => viewModel.scanForDevices(
-                        context,
-                        () => viewModel.informUserAboutBluetoothPermissions(
-                          context,
-                        ),
-                        _showSnackBar,
-                      )),
-          tooltip: viewModel.isScanning
-              ? "Scanning..."
-              : (viewModel.shouldShowErrorButtons
-                    ? "Retry MIDI setup"
-                    : "Scan for MIDI devices"),
-          backgroundColor: viewModel.isScanning ? Colors.grey : null,
-          child: viewModel.isScanning
-              ? const CircularProgressIndicator(
-                  color: Colors.white,
-                  strokeWidth: 2,
-                )
-              : Icon(
-                  viewModel.shouldShowErrorButtons
-                      ? Icons.refresh
-                      : Icons.bluetooth_searching,
-                ),
-        ),
-      ],
     );
   }
 
