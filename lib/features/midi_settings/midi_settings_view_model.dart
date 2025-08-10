@@ -368,7 +368,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
       await updateDeviceList();
     } on Exception catch (e) {
       showSnackBar(
-        "Connection error: ${(e as PlatformException?)?.message ?? e.toString()}",
+        "Connection error: ${e is PlatformException ? e.message ?? e.toString() : e.toString()}",
         Colors.red,
       );
     }
