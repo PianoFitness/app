@@ -98,7 +98,7 @@ class _PracticePageState extends State<PracticePage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              Icons.fitness_center, 
+              Icons.fitness_center,
               key: const Key('practice_page_icon'),
               color: Colors.deepPurple,
               semanticLabel: 'Piano fitness icon',
