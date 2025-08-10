@@ -10,7 +10,7 @@ import "package:piano_fitness/shared/models/midi_state.dart";
 /// on-screen piano keyboard. It handles MIDI message sending, timing,
 /// and automatic note-off events with proper resource cleanup.
 class VirtualPianoUtils {
-  static final Map<int, Timer> _noteOffTimers = {};
+  static final Map<String, Timer> _noteOffTimers = {};
   static final MidiCommand _midiCommand = MidiCommand();
 
   /// Plays a virtual piano note through MIDI output.
@@ -51,9 +51,12 @@ class VirtualPianoUtils {
         print("Sent virtual note on: $note on channel ${selectedChannel + 1}");
       }
 
+      // Create a unique key for this note and channel combination
+      final noteKey = "${note}_$selectedChannel";
+      
       // Cancel any existing timer for this specific note
-      _noteOffTimers[note]?.cancel();
-      _noteOffTimers[note] = Timer(const Duration(milliseconds: 500), () async {
+      _noteOffTimers[noteKey]?.cancel();
+      _noteOffTimers[noteKey] = Timer(const Duration(milliseconds: 500), () async {
         if (mounted) {
           try {
             await Future.microtask(() {
@@ -70,7 +73,7 @@ class VirtualPianoUtils {
             }
           }
           // Remove the timer from the map once it's completed
-          _noteOffTimers.remove(note);
+          _noteOffTimers.remove(noteKey);
         }
       });
     } on Exception catch (e) {
@@ -91,9 +94,12 @@ class VirtualPianoUtils {
           "Virtual Note ON: $note (Ch: ${selectedChannel + 1}, Vel: 64) [fallback]",
         );
 
+        // Create a unique key for this note and channel combination
+        final noteKey = "${note}_$selectedChannel";
+
         // Cancel any existing timer for this specific note (fallback)
-        _noteOffTimers[note]?.cancel();
-        _noteOffTimers[note] = Timer(
+        _noteOffTimers[noteKey]?.cancel();
+        _noteOffTimers[noteKey] = Timer(
           const Duration(milliseconds: 500),
           () async {
             if (mounted) {
@@ -106,7 +112,7 @@ class VirtualPianoUtils {
                 _midiCommand.sendData(noteOffData);
               });
               // Remove the timer from the map once it's completed
-              _noteOffTimers.remove(note);
+              _noteOffTimers.remove(noteKey);
             }
           },
         );

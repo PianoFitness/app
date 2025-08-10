@@ -1,9 +1,9 @@
 import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
-import "package:flutter_midi_command/flutter_midi_command_messages.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/services/midi_service.dart";
+import "package:piano_fitness/shared/utils/virtual_piano_utils.dart";
 
 /// ViewModel for managing play page state and MIDI operations.
 ///
@@ -17,7 +17,6 @@ class PlayPageViewModel extends ChangeNotifier {
 
   StreamSubscription<MidiPacket>? _midiDataSubscription;
   final MidiCommand _midiCommand = MidiCommand();
-  Timer? _noteOffTimer;
 
   final int _midiChannel;
   MidiState? _midiState;
@@ -86,88 +85,16 @@ class PlayPageViewModel extends ChangeNotifier {
   Future<void> playVirtualNote(int note) async {
     if (_midiState == null) return;
 
-    final selectedChannel = _midiState!.selectedChannel;
-
-    try {
-      await Future.microtask(() {
-        NoteOnMessage(
-          channel: selectedChannel,
-          note: note,
-          velocity: 64,
-        ).send();
-      });
-
-      _midiState!.setLastNote(
-        "Virtual Note ON: $note (Ch: ${selectedChannel + 1}, Vel: 64)",
-      );
-
-      if (kDebugMode) {
-        print("Sent virtual note on: $note on channel ${selectedChannel + 1}");
-      }
-
-      _noteOffTimer?.cancel();
-      _noteOffTimer = Timer(const Duration(milliseconds: 500), () async {
-        try {
-          await Future.microtask(() {
-            NoteOffMessage(channel: selectedChannel, note: note).send();
-          });
-          if (kDebugMode) {
-            print(
-              "Sent virtual note off: $note on channel ${selectedChannel + 1}",
-            );
-          }
-        } on Exception catch (e) {
-          if (kDebugMode) {
-            print("Error sending note off: $e");
-          }
-        }
-      });
-    } on Exception catch (e) {
-      if (kDebugMode) {
-        print("Error playing virtual note: $e");
-      }
-      try {
-        await _sendRawMidiNote(note, selectedChannel);
-      } on Exception catch (fallbackError) {
-        if (kDebugMode) {
-          print("Fallback MIDI send also failed: $fallbackError");
-        }
-      }
-    }
-  }
-
-  /// Sends raw MIDI note data as fallback method.
-  Future<void> _sendRawMidiNote(int note, int selectedChannel) async {
-    await Future.microtask(() {
-      final noteOnData = Uint8List.fromList([
-        0x90 | selectedChannel,
-        note,
-        64,
-      ]);
-      _midiCommand.sendData(noteOnData);
-    });
-
-    _midiState!.setLastNote(
-      "Virtual Note ON: $note (Ch: ${selectedChannel + 1}, Vel: 64) [fallback]",
+    await VirtualPianoUtils.playVirtualNote(
+      note,
+      _midiState!,
+      (_) {}, // No specific callback needed for play page
     );
-
-    _noteOffTimer?.cancel();
-    _noteOffTimer = Timer(const Duration(milliseconds: 500), () async {
-      await Future.microtask(() {
-        final noteOffData = Uint8List.fromList([
-          0x80 | selectedChannel,
-          note,
-          0,
-        ]);
-        _midiCommand.sendData(noteOffData);
-      });
-    });
   }
 
   @override
   void dispose() {
     _midiDataSubscription?.cancel();
-    _noteOffTimer?.cancel();
     super.dispose();
   }
 }
