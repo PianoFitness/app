@@ -1,0 +1,332 @@
+import "dart:typed_data";
+import "package:flutter_test/flutter_test.dart";
+import "package:piano/piano.dart";
+import "package:piano_fitness/features/practice/practice_page_view_model.dart";
+import "package:piano_fitness/shared/models/midi_state.dart";
+import "package:piano_fitness/shared/utils/arpeggios.dart";
+import "package:piano_fitness/shared/utils/scales.dart" as music;
+import "package:piano_fitness/shared/widgets/practice_settings_panel.dart";
+import "../../shared/midi_mocks.dart";
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(MidiMocks.setUp);
+
+  tearDownAll(MidiMocks.tearDown);
+
+  group("PracticePageViewModel Tests", () {
+    late PracticePageViewModel viewModel;
+    late MidiState mockMidiState;
+    var exerciseCompletedCalled = false;
+    var receivedHighlightedNotes = <NotePosition>[];
+
+    setUp(() {
+      viewModel = PracticePageViewModel(
+        initialChannel: 3,
+      );
+      mockMidiState = MidiState();
+      exerciseCompletedCalled = false;
+      receivedHighlightedNotes = [];
+
+      viewModel
+        ..setMidiState(mockMidiState)
+        ..initializePracticeSession(
+          onExerciseCompleted: () {
+            exerciseCompletedCalled = true;
+          },
+          onHighlightedNotesChanged: (notes) {
+            receivedHighlightedNotes = notes;
+          },
+        );
+    });
+
+    tearDown(() {
+      viewModel.dispose();
+      mockMidiState.dispose();
+    });
+
+    test("should initialize with correct MIDI channel", () {
+      expect(viewModel.midiChannel, equals(3));
+      expect(mockMidiState.selectedChannel, equals(3));
+    });
+
+    test("should initialize practice session correctly", () {
+      expect(viewModel.practiceSession, isNotNull);
+      expect(
+        viewModel.practiceSession!.practiceMode,
+        equals(PracticeMode.scales),
+      );
+      expect(viewModel.practiceSession!.practiceActive, isFalse);
+    });
+
+    test("should handle MIDI data and update state for note on events", () {
+      final midiData = Uint8List.fromList([0x90, 60, 100]);
+
+      viewModel.handleMidiData(midiData);
+
+      expect(mockMidiState.activeNotes.contains(60), isTrue);
+      expect(mockMidiState.lastNote, "Note ON: 60 (Ch: 1, Vel: 100)");
+      expect(mockMidiState.hasRecentActivity, isTrue);
+    });
+
+    test("should handle MIDI data and update state for note off events", () {
+      // First add a note
+      mockMidiState.noteOn(60, 100, 1);
+      expect(mockMidiState.activeNotes.contains(60), isTrue);
+
+      final midiData = Uint8List.fromList([0x80, 60, 0]);
+
+      viewModel.handleMidiData(midiData);
+
+      expect(mockMidiState.activeNotes.contains(60), isFalse);
+      expect(mockMidiState.lastNote, "Note OFF: 60 (Ch: 1)");
+    });
+
+    test("should start and reset practice sessions", () {
+      expect(viewModel.practiceSession!.practiceActive, isFalse);
+
+      viewModel.startPractice();
+      expect(viewModel.practiceSession!.practiceActive, isTrue);
+
+      viewModel.resetPractice();
+      expect(viewModel.practiceSession!.practiceActive, isFalse);
+    });
+
+    test("should change practice mode and notify listeners", () {
+      var notificationReceived = false;
+      viewModel
+        ..addListener(() {
+          notificationReceived = true;
+        })
+        ..setPracticeMode(PracticeMode.chords);
+
+      expect(
+        viewModel.practiceSession!.practiceMode,
+        equals(PracticeMode.chords),
+      );
+      expect(notificationReceived, isTrue);
+    });
+
+    test("should change selected key and notify listeners", () {
+      var notificationReceived = false;
+      viewModel
+        ..addListener(() {
+          notificationReceived = true;
+        })
+        ..setSelectedKey(music.Key.d);
+
+      expect(viewModel.practiceSession!.selectedKey, equals(music.Key.d));
+      expect(notificationReceived, isTrue);
+    });
+
+    test("should change selected scale type and notify listeners", () {
+      var notificationReceived = false;
+      viewModel
+        ..addListener(() {
+          notificationReceived = true;
+        })
+        ..setSelectedScaleType(music.ScaleType.minor);
+
+      expect(
+        viewModel.practiceSession!.selectedScaleType,
+        equals(music.ScaleType.minor),
+      );
+      expect(notificationReceived, isTrue);
+    });
+
+    test("should change selected arpeggio type and notify listeners", () {
+      var notificationReceived = false;
+      viewModel
+        ..addListener(() {
+          notificationReceived = true;
+        })
+        ..setSelectedArpeggioType(ArpeggioType.minor);
+
+      expect(
+        viewModel.practiceSession!.selectedArpeggioType,
+        equals(ArpeggioType.minor),
+      );
+      expect(notificationReceived, isTrue);
+    });
+
+    test("should calculate appropriate highlighted notes for display", () {
+      // Test when ViewModel has highlighted notes
+      final testNotes = [
+        NotePosition(note: Note.C),
+        NotePosition(note: Note.E),
+      ];
+      receivedHighlightedNotes = testNotes;
+      viewModel.practiceSession!.onHighlightedNotesChanged(testNotes);
+
+      final result = viewModel.getDisplayHighlightedNotes(mockMidiState);
+      expect(result, equals(testNotes));
+
+      // Test when ViewModel has no highlighted notes, falls back to MidiState
+      viewModel.practiceSession!.onHighlightedNotesChanged([]);
+      mockMidiState.noteOn(60, 100, 1);
+
+      final fallbackResult = viewModel.getDisplayHighlightedNotes(
+        mockMidiState,
+      );
+      expect(fallbackResult, equals(mockMidiState.highlightedNotePositions));
+    });
+
+    test("should calculate practice range correctly", () {
+      final range = viewModel.calculatePracticeRange();
+
+      expect(range, isNotNull);
+      expect(range, isA<NoteRange>());
+    });
+
+    test("should handle virtual note playing without throwing", () async {
+      const testNote = 60;
+
+      // This test verifies the method handles missing MIDI state gracefully
+      final uninitializedViewModel = PracticePageViewModel();
+
+      // Should not crash when no MIDI state is set
+      expect(
+        () async => uninitializedViewModel.playVirtualNote(testNote),
+        returnsNormally,
+      );
+
+      uninitializedViewModel.dispose();
+    });
+
+    test("should handle cases with no practice session initialized", () {
+      final uninitializedViewModel = PracticePageViewModel();
+      final midiData = Uint8List.fromList([0x90, 60, 100]);
+
+      // Should not crash when no practice session is set
+      expect(
+        () => uninitializedViewModel.handleMidiData(midiData),
+        returnsNormally,
+      );
+
+      uninitializedViewModel.dispose();
+    });
+
+    test("should provide access to MIDI command instance", () {
+      expect(viewModel.midiCommand, isNotNull);
+    });
+
+    group("Practice Session Integration", () {
+      test("should trigger exercise completed callback", () {
+        // This would be triggered by the practice session internally
+        // when an exercise is completed
+        expect(exerciseCompletedCalled, isFalse);
+
+        // Simulate exercise completion by calling the callback directly
+        viewModel.practiceSession!.onExerciseCompleted();
+
+        expect(exerciseCompletedCalled, isTrue);
+      });
+
+      test("should update highlighted notes through callback", () {
+        // Reset to ensure clean state
+        receivedHighlightedNotes.clear();
+
+        final testNotes = [
+          NotePosition(note: Note.C),
+          NotePosition(note: Note.E),
+          NotePosition(note: Note.G),
+        ];
+
+        // Ensure we start with empty state
+        expect(receivedHighlightedNotes, isEmpty);
+
+        // Simulate highlighted notes change
+        viewModel.practiceSession!.onHighlightedNotesChanged(testNotes);
+
+        expect(receivedHighlightedNotes, equals(testNotes));
+        expect(viewModel.highlightedNotes, equals(testNotes));
+
+        // Test clearing notes
+        viewModel.practiceSession!.onHighlightedNotesChanged([]);
+        expect(receivedHighlightedNotes, isEmpty);
+        expect(viewModel.highlightedNotes, isEmpty);
+      });
+    });
+
+    group("MIDI Data Processing Edge Cases", () {
+      test("should handle control change messages", () {
+        final midiData = Uint8List.fromList([0xB0, 7, 100]);
+
+        viewModel.handleMidiData(midiData);
+
+        expect(mockMidiState.lastNote, "CC: Controller 7 = 100 (Ch: 1)");
+      });
+
+      test("should handle program change messages", () {
+        final midiData = Uint8List.fromList([0xC0, 42]);
+
+        viewModel.handleMidiData(midiData);
+
+        expect(mockMidiState.lastNote, "Program Change: 42 (Ch: 1)");
+      });
+
+      test("should handle pitch bend messages", () {
+        final midiData = Uint8List.fromList([0xE0, 0x00, 0x60]);
+
+        viewModel.handleMidiData(midiData);
+
+        expect(mockMidiState.lastNote.contains("Pitch Bend"), isTrue);
+      });
+
+      test("should filter out clock and active sense messages", () {
+        final clockMessage = Uint8List.fromList([0xF8]); // MIDI Clock
+        final activeSenseMessage = Uint8List.fromList([0xFE]); // Active Sense
+
+        mockMidiState.setLastNote("Previous message");
+
+        viewModel.handleMidiData(clockMessage);
+        expect(mockMidiState.lastNote, equals("Previous message"));
+
+        viewModel.handleMidiData(activeSenseMessage);
+        expect(mockMidiState.lastNote, equals("Previous message"));
+      });
+    });
+
+    group("Practice Settings Management", () {
+      test("should handle all practice mode changes", () {
+        final modes = [
+          PracticeMode.scales,
+          PracticeMode.chords,
+          PracticeMode.arpeggios,
+        ];
+
+        for (final mode in modes) {
+          viewModel.setPracticeMode(mode);
+          expect(viewModel.practiceSession!.practiceMode, equals(mode));
+        }
+      });
+
+      test("should handle all key changes", () {
+        final keys = [music.Key.c, music.Key.d, music.Key.e, music.Key.f];
+
+        for (final key in keys) {
+          viewModel.setSelectedKey(key);
+          expect(viewModel.practiceSession!.selectedKey, equals(key));
+        }
+      });
+
+      test("should handle all scale type changes", () {
+        final scaleTypes = [
+          music.ScaleType.major,
+          music.ScaleType.minor,
+          music.ScaleType.dorian,
+          music.ScaleType.mixolydian,
+        ];
+
+        for (final scaleType in scaleTypes) {
+          viewModel.setSelectedScaleType(scaleType);
+          expect(
+            viewModel.practiceSession!.selectedScaleType,
+            equals(scaleType),
+          );
+        }
+      });
+    });
+  });
+}
