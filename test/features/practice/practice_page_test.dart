@@ -193,9 +193,10 @@ void main() {
 
         await tester.pumpWidget(testWidget);
 
-        // Before the post-frame callback, there might be a loading state
-        // This test verifies the UI handles uninitialized state gracefully
+        // Before the post-frame callback, there should be a loading indicator
+        // when the practice session is not yet initialized
         expect(find.byType(PracticePage), findsOneWidget);
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
       },
     );
 
