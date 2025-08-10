@@ -165,35 +165,6 @@ class PlayPageViewModel extends ChangeNotifier {
     });
   }
 
-  /// Converts NotePosition to MIDI note number.
-  int convertNotePositionToMidi(NotePosition position) {
-    int noteOffset;
-    switch (position.note) {
-      case Note.C:
-        noteOffset = 0;
-      case Note.D:
-        noteOffset = 2;
-      case Note.E:
-        noteOffset = 4;
-      case Note.F:
-        noteOffset = 5;
-      case Note.G:
-        noteOffset = 7;
-      case Note.A:
-        noteOffset = 9;
-      case Note.B:
-        noteOffset = 11;
-    }
-
-    if (position.accidental == Accidental.Sharp) {
-      noteOffset += 1;
-    } else if (position.accidental == Accidental.Flat) {
-      noteOffset -= 1;
-    }
-
-    return (position.octave + 1) * 12 + noteOffset;
-  }
-
   /// Gets the fixed 49-key range for consistent layout.
   NoteRange getFixed49KeyRange() {
     return NoteRange(

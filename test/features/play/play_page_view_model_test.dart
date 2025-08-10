@@ -81,36 +81,6 @@ void main() {
       expect(mockMidiState.lastNote.contains("Pitch Bend"), isTrue);
     });
 
-    test("should correctly convert note positions to MIDI numbers", () {
-      // Test C4 (middle C)
-      final c4Position = NotePosition(note: Note.C, octave: 4);
-      expect(viewModel.convertNotePositionToMidi(c4Position), equals(60));
-
-      // Test C#4
-      final cSharp4Position = NotePosition(
-        note: Note.C,
-        octave: 4,
-        accidental: Accidental.Sharp,
-      );
-      expect(viewModel.convertNotePositionToMidi(cSharp4Position), equals(61));
-
-      // Test Bb4
-      final bFlat4Position = NotePosition(
-        note: Note.B,
-        octave: 4,
-        accidental: Accidental.Flat,
-      );
-      expect(viewModel.convertNotePositionToMidi(bFlat4Position), equals(70));
-
-      // Test A0 (lowest piano key)
-      final a0Position = NotePosition(note: Note.A, octave: 0);
-      expect(viewModel.convertNotePositionToMidi(a0Position), equals(21));
-
-      // Test C8 (highest piano key)
-      final c8Position = NotePosition(note: Note.C, octave: 8);
-      expect(viewModel.convertNotePositionToMidi(c8Position), equals(108));
-    });
-
     test("should provide correct 49-key range", () {
       final range = viewModel.getFixed49KeyRange();
 
@@ -147,101 +117,6 @@ void main() {
 
     test("should provide access to MIDI command instance", () {
       expect(viewModel.midiCommand, isNotNull);
-    });
-
-    group("Note Position to MIDI Conversion Edge Cases", () {
-      test("should handle all natural notes correctly", () {
-        const octave = 4;
-        final expectedMidiNumbers = {
-          Note.C: 60, // C4
-          Note.D: 62, // D4
-          Note.E: 64, // E4
-          Note.F: 65, // F4
-          Note.G: 67, // G4
-          Note.A: 69, // A4
-          Note.B: 71, // B4
-        };
-
-        for (final entry in expectedMidiNumbers.entries) {
-          final position = NotePosition(note: entry.key, octave: octave);
-          expect(
-            viewModel.convertNotePositionToMidi(position),
-            equals(entry.value),
-            reason: "Failed for ${entry.key}$octave",
-          );
-        }
-      });
-
-      test("should handle sharp accidentals correctly", () {
-        const octave = 4;
-        final testCases = [
-          (Note.C, 61), // C#4
-          (Note.D, 63), // D#4
-          (Note.F, 66), // F#4
-          (Note.G, 68), // G#4
-          (Note.A, 70), // A#4
-        ];
-
-        for (final (note, expectedMidi) in testCases) {
-          final position = NotePosition(
-            note: note,
-            octave: octave,
-            accidental: Accidental.Sharp,
-          );
-          expect(
-            viewModel.convertNotePositionToMidi(position),
-            equals(expectedMidi),
-            reason: "Failed for ${note}#$octave",
-          );
-        }
-      });
-
-      test("should handle flat accidentals correctly", () {
-        const octave = 4;
-        final testCases = [
-          (Note.D, 61), // Db4 = C#4
-          (Note.E, 63), // Eb4 = D#4
-          (Note.G, 66), // Gb4 = F#4
-          (Note.A, 68), // Ab4 = G#4
-          (Note.B, 70), // Bb4 = A#4
-        ];
-
-        for (final (note, expectedMidi) in testCases) {
-          final position = NotePosition(
-            note: note,
-            octave: octave,
-            accidental: Accidental.Flat,
-          );
-          expect(
-            viewModel.convertNotePositionToMidi(position),
-            equals(expectedMidi),
-            reason: "Failed for ${note}b$octave",
-          );
-        }
-      });
-
-      test("should handle different octaves correctly", () {
-        final testCases = [
-          (0, 12), // C0
-          (1, 24), // C1
-          (2, 36), // C2
-          (3, 48), // C3
-          (4, 60), // C4 (middle C)
-          (5, 72), // C5
-          (6, 84), // C6
-          (7, 96), // C7
-          (8, 108), // C8
-        ];
-
-        for (final (octave, expectedMidi) in testCases) {
-          final position = NotePosition(note: Note.C, octave: octave);
-          expect(
-            viewModel.convertNotePositionToMidi(position),
-            equals(expectedMidi),
-            reason: "Failed for C$octave",
-          );
-        }
-      });
     });
 
     group("MIDI Data Processing Integration", () {

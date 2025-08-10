@@ -4,6 +4,7 @@ import "package:piano_fitness/features/midi_settings/midi_settings_page.dart";
 import "package:piano_fitness/features/play/play_page_view_model.dart";
 import "package:piano_fitness/features/practice/practice_page.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
+import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_range_utils.dart";
 import "package:piano_fitness/shared/widgets/practice_settings_panel.dart";
 import "package:provider/provider.dart";
@@ -238,7 +239,7 @@ class _PlayPageState extends State<PlayPage> {
                   ),
                   noteRange: fixed49KeyRange,
                   onNotePositionTapped: (position) {
-                    final midiNote = _viewModel.convertNotePositionToMidi(
+                    final midiNote = NoteUtils.convertNotePositionToMidi(
                       position,
                     );
                     _viewModel.playVirtualNote(midiNote);

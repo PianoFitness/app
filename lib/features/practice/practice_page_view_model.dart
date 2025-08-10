@@ -196,11 +196,6 @@ class PracticePageViewModel extends ChangeNotifier {
     return PianoRangeUtils.calculateScreenBasedKeyWidth(screenWidth);
   }
 
-  /// Converts NotePosition to MIDI note number for virtual piano playback.
-  int convertNotePositionToMidi(NotePosition position) {
-    return NoteUtils.convertNotePositionToMidi(position);
-  }
-
   @override
   void dispose() {
     _midiDataSubscription?.cancel();

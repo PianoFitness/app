@@ -183,24 +183,6 @@ void main() {
       expect(keyWidth, isA<double>());
     });
 
-    test("should convert note positions to MIDI numbers correctly", () {
-      // Test C4 (middle C)
-      final c4Position = NotePosition(note: Note.C, octave: 4);
-      expect(viewModel.convertNotePositionToMidi(c4Position), equals(60));
-
-      // Test C#4
-      final cSharp4Position = NotePosition(
-        note: Note.C,
-        octave: 4,
-        accidental: Accidental.Sharp,
-      );
-      expect(viewModel.convertNotePositionToMidi(cSharp4Position), equals(61));
-
-      // Test A0 (lowest piano key)
-      final a0Position = NotePosition(note: Note.A, octave: 0);
-      expect(viewModel.convertNotePositionToMidi(a0Position), equals(21));
-    });
-
     test("should handle virtual note playing", () async {
       const testNote = 60;
 
