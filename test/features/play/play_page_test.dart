@@ -221,7 +221,7 @@ void main() {
         expect(indicatorTapArea, findsOneWidget);
 
         await tester.tap(indicatorTapArea);
-        await tester.pump();
+        await tester.pumpAndSettle();
 
         // Verify snackbar is shown with MIDI message
         expect(find.byType(SnackBar), findsOneWidget);
