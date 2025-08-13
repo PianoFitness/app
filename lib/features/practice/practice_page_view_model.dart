@@ -18,9 +18,8 @@ import "package:piano_fitness/shared/widgets/practice_settings_panel.dart";
 /// including MIDI data processing, practice session management, and piano range calculations.
 class PracticePageViewModel extends ChangeNotifier {
   /// Creates a new PracticePageViewModel with optional initial configuration.
-  PracticePageViewModel({
-    int initialChannel = 0,
-  }) : _midiChannel = initialChannel {
+  PracticePageViewModel({int initialChannel = 0})
+    : _midiChannel = initialChannel {
     _setupMidiListener();
   }
 

@@ -109,10 +109,7 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "MIDI Channel",
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text("MIDI Channel", style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -240,10 +237,7 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Pitch Bend",
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text("Pitch Bend", style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 16),
             Slider(
               value: viewModel.pitchBend,

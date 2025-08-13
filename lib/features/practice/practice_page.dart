@@ -41,9 +41,7 @@ class _PracticePageState extends State<PracticePage> {
   @override
   void initState() {
     super.initState();
-    _viewModel = PracticePageViewModel(
-      initialChannel: widget.midiChannel,
-    );
+    _viewModel = PracticePageViewModel(initialChannel: widget.midiChannel);
 
     // Initialize the ViewModel with callbacks and MIDI state
     WidgetsBinding.instance.addPostFrameCallback((_) {

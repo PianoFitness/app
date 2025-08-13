@@ -22,9 +22,7 @@ void main() {
     var receivedHighlightedNotes = <NotePosition>[];
 
     setUp(() {
-      viewModel = PracticePageViewModel(
-        initialChannel: 3,
-      );
+      viewModel = PracticePageViewModel(initialChannel: 3);
       mockMidiState = MidiState();
       exerciseCompletedCalled = false;
       receivedHighlightedNotes = [];

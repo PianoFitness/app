@@ -338,9 +338,7 @@ void main() {
     test("should handle custom key count", () {
       const screenWidth = 1000.0;
 
-      final keys28 = PianoRangeUtils.calculateScreenBasedKeyWidth(
-        screenWidth,
-      );
+      final keys28 = PianoRangeUtils.calculateScreenBasedKeyWidth(screenWidth);
 
       final keys35 = PianoRangeUtils.calculateScreenBasedKeyWidth(
         screenWidth,

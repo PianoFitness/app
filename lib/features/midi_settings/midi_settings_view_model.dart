@@ -76,9 +76,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
   }
 
   /// Shows Bluetooth permissions dialog.
-  Future<void> informUserAboutBluetoothPermissions(
-    BuildContext context,
-  ) async {
+  Future<void> informUserAboutBluetoothPermissions(BuildContext context) async {
     if (_didAskForBluetoothPermissions) {
       return;
     }
@@ -260,10 +258,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
           throw Exception(err);
         });
 
-        showSnackBar(
-          "Scanning for Bluetooth MIDI devices...",
-          Colors.blue,
-        );
+        showSnackBar("Scanning for Bluetooth MIDI devices...", Colors.blue);
 
         await Future<void>.delayed(const Duration(seconds: 3));
         await updateDeviceList();
@@ -360,10 +355,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
           print("Connecting to ${device.name}");
         }
         await _midiCommand.connectToDevice(device);
-        showSnackBar(
-          "Connected to ${device.name}",
-          Colors.green,
-        );
+        showSnackBar("Connected to ${device.name}", Colors.green);
       }
       await updateDeviceList();
     } on Exception catch (e) {
@@ -389,10 +381,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
         orElse: () => currentDevice,
       );
       if (!updatedDevice.connected) {
-        showSnackBar(
-          "Failed to connect to device",
-          Colors.red,
-        );
+        showSnackBar("Failed to connect to device", Colors.red);
         return null;
       }
       currentDevice = updatedDevice;

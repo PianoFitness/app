@@ -121,19 +121,13 @@ void main() {
       });
 
       test("should convert flat note positions correctly", () {
-        final dFlat4 = NotePosition(
-          note: Note.D,
-          accidental: Accidental.Flat,
-        );
+        final dFlat4 = NotePosition(note: Note.D, accidental: Accidental.Flat);
         expect(
           NoteUtils.convertNotePositionToMidi(dFlat4),
           equals(61),
         ); // Same as C#
 
-        final bFlat4 = NotePosition(
-          note: Note.B,
-          accidental: Accidental.Flat,
-        );
+        final bFlat4 = NotePosition(note: Note.B, accidental: Accidental.Flat);
         expect(
           NoteUtils.convertNotePositionToMidi(bFlat4),
           equals(70),
