@@ -81,6 +81,9 @@ extension KeyDisplay on Key {
   ///
   /// For enharmonic keys (black keys), returns the more commonly used
   /// flat notation (D♭, E♭, G♭, A♭, B♭) rather than sharp notation.
+  /// This follows standard musical key signature conventions where flat
+  /// notation is preferred for most practical applications, as it aligns
+  /// with how key signatures are typically written and taught in music theory.
   String get displayName {
     switch (this) {
       case Key.c:
@@ -113,34 +116,28 @@ extension KeyDisplay on Key {
   /// Returns the full display name with enharmonic equivalent in parentheses.
   ///
   /// For natural keys (white keys), returns just the key name.
-  /// For enharmonic keys (black keys), returns the conventional name
-  /// followed by the alternative name in parentheses.
+  /// For enharmonic keys (black keys), returns the conventional flat name
+  /// followed by the sharp alternative in parentheses (e.g., "D♭ (C#)").
+  /// This provides both notations while maintaining the preference for flat
+  /// notation as the primary display format.
   String get fullDisplayName {
+    final primaryName = displayName;
+    
+    // For enharmonic keys (black keys), add the sharp alternative in parentheses
     switch (this) {
-      case Key.c:
-        return "C";
       case Key.cSharp:
-        return "D♭ (C#)";
-      case Key.d:
-        return "D";
+        return "$primaryName (C#)";
       case Key.dSharp:
-        return "E♭ (D#)";
-      case Key.e:
-        return "E";
-      case Key.f:
-        return "F";
+        return "$primaryName (D#)";
       case Key.fSharp:
-        return "G♭ (F#)";
-      case Key.g:
-        return "G";
+        return "$primaryName (F#)";
       case Key.gSharp:
-        return "A♭ (G#)";
-      case Key.a:
-        return "A";
+        return "$primaryName (G#)";
       case Key.aSharp:
-        return "B♭ (A#)";
-      case Key.b:
-        return "B";
+        return "$primaryName (A#)";
+      default:
+        // For natural keys, just return the primary name
+        return primaryName;
     }
   }
 }
