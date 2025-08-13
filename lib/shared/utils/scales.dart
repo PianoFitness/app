@@ -72,11 +72,54 @@ enum Key {
   b,
 }
 
+/// Represents the display names for a musical key.
+///
+/// This data structure co-locates the primary (conventional) name and
+/// secondary (alternative) name for each key, making it easy to verify
+/// musical conventions and maintain consistency.
+class _KeyNames {
+  const _KeyNames({
+    required this.primary,
+    this.secondary,
+  });
+
+  /// The primary/conventional display name (uses flat notation for black keys)
+  final String primary;
+  
+  /// The secondary/alternative display name (sharp notation for black keys)
+  /// Null for natural keys that have no enharmonic equivalent
+  final String? secondary;
+}
+
 /// Extension on [Key] to provide consistent display names across the app.
 ///
 /// This centralizes the logic for displaying key names and follows musical
 /// conventions for enharmonic equivalents.
 extension KeyDisplay on Key {
+  /// Mapping of keys to their display names, co-locating primary and secondary names.
+  ///
+  /// This makes it easy to verify that musical conventions are followed:
+  /// - Natural keys (C, D, E, F, G, A, B) have no secondary name
+  /// - Black keys use flat notation as primary (following key signature conventions)
+  /// - Black keys include sharp notation as secondary (alternative notation)
+  static const Map<Key, _KeyNames> _keyNameMap = {
+    // Natural keys (white keys) - no enharmonic equivalents
+    Key.c: _KeyNames(primary: "C"),
+    Key.d: _KeyNames(primary: "D"), 
+    Key.e: _KeyNames(primary: "E"),
+    Key.f: _KeyNames(primary: "F"),
+    Key.g: _KeyNames(primary: "G"),
+    Key.a: _KeyNames(primary: "A"),
+    Key.b: _KeyNames(primary: "B"),
+    
+    // Black keys (enharmonic keys) - flat primary, sharp secondary
+    Key.cSharp: _KeyNames(primary: "D♭", secondary: "C#"),
+    Key.dSharp: _KeyNames(primary: "E♭", secondary: "D#"),
+    Key.fSharp: _KeyNames(primary: "G♭", secondary: "F#"),
+    Key.gSharp: _KeyNames(primary: "A♭", secondary: "G#"),
+    Key.aSharp: _KeyNames(primary: "B♭", secondary: "A#"),
+  };
+
   /// Returns the conventional display name for the key.
   ///
   /// For enharmonic keys (black keys), returns the more commonly used
@@ -85,32 +128,7 @@ extension KeyDisplay on Key {
   /// notation is preferred for most practical applications, as it aligns
   /// with how key signatures are typically written and taught in music theory.
   String get displayName {
-    switch (this) {
-      case Key.c:
-        return "C";
-      case Key.cSharp:
-        return "D♭";
-      case Key.d:
-        return "D";
-      case Key.dSharp:
-        return "E♭";
-      case Key.e:
-        return "E";
-      case Key.f:
-        return "F";
-      case Key.fSharp:
-        return "G♭";
-      case Key.g:
-        return "G";
-      case Key.gSharp:
-        return "A♭";
-      case Key.a:
-        return "A";
-      case Key.aSharp:
-        return "B♭";
-      case Key.b:
-        return "B";
-    }
+    return _keyNameMap[this]!.primary;
   }
 
   /// Returns the full display name with enharmonic equivalent in parentheses.
@@ -121,24 +139,13 @@ extension KeyDisplay on Key {
   /// This provides both notations while maintaining the preference for flat
   /// notation as the primary display format.
   String get fullDisplayName {
-    final primaryName = displayName;
+    final keyNames = _keyNameMap[this]!;
+    final secondary = keyNames.secondary;
     
-    // For enharmonic keys (black keys), add the sharp alternative in parentheses
-    switch (this) {
-      case Key.cSharp:
-        return "$primaryName (C#)";
-      case Key.dSharp:
-        return "$primaryName (D#)";
-      case Key.fSharp:
-        return "$primaryName (F#)";
-      case Key.gSharp:
-        return "$primaryName (G#)";
-      case Key.aSharp:
-        return "$primaryName (A#)";
-      default:
-        // For natural keys, just return the primary name
-        return primaryName;
-    }
+    // If there's a secondary name (enharmonic equivalent), include it in parentheses
+    return secondary != null 
+        ? "${keyNames.primary} ($secondary)"
+        : keyNames.primary;
   }
 }
 
