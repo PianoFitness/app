@@ -106,32 +106,7 @@ class PracticeSettingsPanel extends StatelessWidget {
   }
 
   String _getKeyString(music.Key key) {
-    switch (key) {
-      case music.Key.c:
-        return "C";
-      case music.Key.cSharp:
-        return "C#";
-      case music.Key.d:
-        return "D";
-      case music.Key.dSharp:
-        return "D#";
-      case music.Key.e:
-        return "E";
-      case music.Key.f:
-        return "F";
-      case music.Key.fSharp:
-        return "F#";
-      case music.Key.g:
-        return "G";
-      case music.Key.gSharp:
-        return "G#";
-      case music.Key.a:
-        return "A";
-      case music.Key.aSharp:
-        return "A#";
-      case music.Key.b:
-        return "B";
-    }
+    return key.fullDisplayName;
   }
 
   String _getScaleTypeString(music.ScaleType type) {

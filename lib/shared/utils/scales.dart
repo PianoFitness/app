@@ -72,6 +72,79 @@ enum Key {
   b,
 }
 
+/// Extension on [Key] to provide consistent display names across the app.
+///
+/// This centralizes the logic for displaying key names and follows musical
+/// conventions for enharmonic equivalents.
+extension KeyDisplay on Key {
+  /// Returns the conventional display name for the key.
+  ///
+  /// For enharmonic keys (black keys), returns the more commonly used
+  /// flat notation (D♭, E♭, G♭, A♭, B♭) rather than sharp notation.
+  String get displayName {
+    switch (this) {
+      case Key.c:
+        return "C";
+      case Key.cSharp:
+        return "D♭";
+      case Key.d:
+        return "D";
+      case Key.dSharp:
+        return "E♭";
+      case Key.e:
+        return "E";
+      case Key.f:
+        return "F";
+      case Key.fSharp:
+        return "G♭";
+      case Key.g:
+        return "G";
+      case Key.gSharp:
+        return "A♭";
+      case Key.a:
+        return "A";
+      case Key.aSharp:
+        return "B♭";
+      case Key.b:
+        return "B";
+    }
+  }
+
+  /// Returns the full display name with enharmonic equivalent in parentheses.
+  ///
+  /// For natural keys (white keys), returns just the key name.
+  /// For enharmonic keys (black keys), returns the conventional name
+  /// followed by the alternative name in parentheses.
+  String get fullDisplayName {
+    switch (this) {
+      case Key.c:
+        return "C";
+      case Key.cSharp:
+        return "D♭ (C#)";
+      case Key.d:
+        return "D";
+      case Key.dSharp:
+        return "E♭ (D#)";
+      case Key.e:
+        return "E";
+      case Key.f:
+        return "F";
+      case Key.fSharp:
+        return "G♭ (F#)";
+      case Key.g:
+        return "G";
+      case Key.gSharp:
+        return "A♭ (G#)";
+      case Key.a:
+        return "A";
+      case Key.aSharp:
+        return "B♭ (A#)";
+      case Key.b:
+        return "B";
+    }
+  }
+}
+
 /// Represents a musical scale with its key, type, intervals, and name.
 ///
 /// A scale defines a sequence of musical notes based on a specific pattern
@@ -239,31 +312,6 @@ class ScaleDefinitions {
   static Scale get cMajor => getScale(Key.c, ScaleType.major);
 
   static String _getKeyName(Key key) {
-    switch (key) {
-      case Key.c:
-        return "C";
-      case Key.cSharp:
-        return "C#";
-      case Key.d:
-        return "D";
-      case Key.dSharp:
-        return "D#";
-      case Key.e:
-        return "E";
-      case Key.f:
-        return "F";
-      case Key.fSharp:
-        return "F#";
-      case Key.g:
-        return "G";
-      case Key.gSharp:
-        return "G#";
-      case Key.a:
-        return "A";
-      case Key.aSharp:
-        return "A#";
-      case Key.b:
-        return "B";
-    }
+    return key.displayName;
   }
 }
