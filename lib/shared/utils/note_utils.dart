@@ -294,4 +294,19 @@ class NoteUtils {
   static String noteDisplayName(MusicalNote note, int octave) {
     return "${_noteToString[note]}$octave";
   }
+
+  /// Gets a compact note name without octave information.
+  ///
+  /// This is useful for UI elements where space is limited, such as piano key labels.
+  /// The [midiNumber] must be in the valid MIDI range (0-127).
+  /// Returns just the note name (e.g., "C", "F#", "Bb").
+  ///
+  /// Throws [ArgumentError] if the MIDI number is outside the valid range.
+  ///
+  /// Example: `getCompactNoteName(60)` returns "C" (for middle C).
+  /// Example: `getCompactNoteName(61)` returns "C#" (for C# above middle C).
+  static String getCompactNoteName(int midiNumber) {
+    final noteInfo = midiNumberToNote(midiNumber);
+    return _noteToString[noteInfo.note]!;
+  }
 }
