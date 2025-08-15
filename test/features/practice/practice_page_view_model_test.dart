@@ -3,9 +3,9 @@ import "package:flutter_test/flutter_test.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/practice/practice_page_view_model.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
+import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as music;
-import "package:piano_fitness/shared/widgets/practice_settings_panel.dart";
 import "../../shared/midi_mocks.dart";
 
 void main() {

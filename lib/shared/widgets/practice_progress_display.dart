@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
+import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/chords.dart";
-import "package:piano_fitness/shared/widgets/practice_settings_panel.dart";
 
 /// A widget that displays progress information during active practice sessions.
 ///

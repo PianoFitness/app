@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/practice/practice_page_view_model.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
+import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_range_utils.dart";
 import "package:piano_fitness/shared/widgets/midi_status_indicator.dart";
