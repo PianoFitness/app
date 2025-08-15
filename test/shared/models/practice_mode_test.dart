@@ -10,7 +10,13 @@ void main() {
       expect(PracticeMode.values, contains(PracticeMode.arpeggios));
     });
 
-    test("should have correct string representation", () {
+    test("should have stable name property for serialization", () {
+      // Prefer .name over .toString() for stability and serialization
+      expect(PracticeMode.scales.name, equals("scales"));
+      expect(PracticeMode.chords.name, equals("chords"));
+      expect(PracticeMode.arpeggios.name, equals("arpeggios"));
+      
+      // toString() includes type prefix, less ideal for serialization
       expect(PracticeMode.scales.toString(), equals("PracticeMode.scales"));
       expect(PracticeMode.chords.toString(), equals("PracticeMode.chords"));
       expect(
