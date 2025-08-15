@@ -299,7 +299,7 @@ class NoteUtils {
   ///
   /// This is useful for UI elements where space is limited, such as piano key labels.
   /// The [midiNumber] must be in the valid MIDI range (0-127).
-  /// Returns just the note name (e.g., "C", "F#", "Bb").
+  /// Returns just the note name (e.g., "C", "F#", "A#").
   ///
   /// Throws [ArgumentError] if the MIDI number is outside the valid range.
   ///
