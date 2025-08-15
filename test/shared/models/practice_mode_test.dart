@@ -46,15 +46,32 @@ void main() {
       expect(getModeString(PracticeMode.arpeggios), equals("Arpeggios"));
     });
 
-    test("should be serializable by index", () {
-      expect(PracticeMode.scales.index, equals(0));
-      expect(PracticeMode.chords.index, equals(1));
-      expect(PracticeMode.arpeggios.index, equals(2));
+    test("should serialize to and from JSON correctly", () {
+      // Test toJson() returns expected string values
+      expect(PracticeMode.scales.toJson(), equals("scales"));
+      expect(PracticeMode.chords.toJson(), equals("chords"));
+      expect(PracticeMode.arpeggios.toJson(), equals("arpeggios"));
 
-      // Test that we can reconstruct from index
-      expect(PracticeMode.values[0], equals(PracticeMode.scales));
-      expect(PracticeMode.values[1], equals(PracticeMode.chords));
-      expect(PracticeMode.values[2], equals(PracticeMode.arpeggios));
+      // Test fromJson() reconstructs correct enum values
+      expect(PracticeModeJson.fromJson("scales"), equals(PracticeMode.scales));
+      expect(PracticeModeJson.fromJson("chords"), equals(PracticeMode.chords));
+      expect(
+        PracticeModeJson.fromJson("arpeggios"),
+        equals(PracticeMode.arpeggios),
+      );
+
+      // Test round-trip serialization
+      for (final mode in PracticeMode.values) {
+        final serialized = mode.toJson();
+        final deserialized = PracticeModeJson.fromJson(serialized);
+        expect(deserialized, equals(mode));
+      }
+    });
+
+    test("should handle invalid JSON gracefully", () {
+      expect(() => PracticeModeJson.fromJson("invalid"), throwsArgumentError);
+      expect(() => PracticeModeJson.fromJson(""), throwsArgumentError);
+      expect(() => PracticeModeJson.fromJson("SCALES"), throwsArgumentError);
     });
   });
 }
