@@ -273,7 +273,7 @@ class PracticeSession {
       final currentChord = _currentChordProgression[_currentChordIndex];
       final expectedChordNotes = currentChord.getMidiNotes(4).toSet();
 
-      if (expectedChordNotes.every(_currentlyHeldChordNotes.contains)) {
+      if (_currentlyHeldChordNotes.containsAll(expectedChordNotes)) {
         _currentChordIndex++;
         _currentlyHeldChordNotes.clear();
 
