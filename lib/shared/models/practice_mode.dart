@@ -28,23 +28,17 @@ extension PracticeModeJson on PracticeMode {
 
   /// Creates a [PracticeMode] from a JSON string value.
   ///
-  /// Uses [PracticeMode.values.byName] for modern Dart versions, with
-  /// fallback to manual search for compatibility.
+  /// Uses [PracticeMode.values.byName] to find the enum value by name.
   ///
   /// Throws [ArgumentError] if the provided string doesn't match any
   /// enum value.
   static PracticeMode fromJson(String json) {
     try {
-      // Use byName if available (Dart 2.15+)
       return PracticeMode.values.byName(json);
-    } catch (e) {
-      // Fallback for older Dart versions
-      for (final mode in PracticeMode.values) {
-        if (mode.name == json) {
-          return mode;
-        }
-      }
-      throw ArgumentError('Invalid PracticeMode: $json');
+    } on ArgumentError {
+      throw ArgumentError(
+        'Invalid PracticeMode: $json. Valid values are: ${PracticeMode.values.map((e) => e.name).join(', ')}',
+      );
     }
   }
 }
