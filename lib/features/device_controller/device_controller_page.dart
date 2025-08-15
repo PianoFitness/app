@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:piano_fitness/features/device_controller/device_controller_view_model.dart";
+import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:provider/provider.dart";
 
 /// A detailed controller interface for a specific MIDI device.
@@ -109,10 +110,7 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "MIDI Channel",
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text("MIDI Channel", style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -240,10 +238,7 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Pitch Bend",
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text("Pitch Bend", style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 16),
             Slider(
               value: viewModel.pitchBend,
@@ -308,21 +303,8 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
     Color color,
     DeviceControllerViewModel viewModel,
   ) {
-    final noteNames = [
-      "C",
-      "C#",
-      "D",
-      "D#",
-      "E",
-      "F",
-      "F#",
-      "G",
-      "G#",
-      "A",
-      "A#",
-      "B",
-    ];
-    final noteName = noteNames[midiNote % 12];
+    // Use centralized compact note naming to ensure consistency across the app
+    final noteName = NoteUtils.getCompactNoteName(midiNote);
 
     return GestureDetector(
       onTap: () => viewModel.sendNoteOn(midiNote),

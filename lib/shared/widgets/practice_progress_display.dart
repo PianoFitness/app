@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
+import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/chords.dart";
-import "package:piano_fitness/shared/widgets/practice_settings_panel.dart";
 
 /// A widget that displays progress information during active practice sessions.
 ///
@@ -57,24 +57,21 @@ class PracticeProgressDisplay extends StatelessWidget {
           if (practiceMode == PracticeMode.scales) ...[
             Text(
               "Progress: ${currentNoteIndex + 1}/${currentSequence.length}",
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             LinearProgressIndicator(
               value: (currentNoteIndex + 1) / currentSequence.length,
               backgroundColor: Colors.blue.shade100,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                Colors.blue.shade600,
-              ),
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade600),
+              semanticsLabel: "Scale practice progress",
+              semanticsValue:
+                  "${currentNoteIndex + 1} of ${currentSequence.length}",
             ),
           ] else if (practiceMode == PracticeMode.chords) ...[
             Text(
               "Chord ${currentChordIndex + 1}/${currentChordProgression.length}",
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             if (currentChordIndex < currentChordProgression.length) ...[
               const SizedBox(height: 4),
@@ -91,9 +88,10 @@ class PracticeProgressDisplay extends StatelessWidget {
             LinearProgressIndicator(
               value: (currentChordIndex + 1) / currentChordProgression.length,
               backgroundColor: Colors.blue.shade100,
-              valueColor: AlwaysStoppedAnimation<Color>(
-                Colors.blue.shade600,
-              ),
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade600),
+              semanticsLabel: "Chord progression practice progress",
+              semanticsValue:
+                  "${currentChordIndex + 1} of ${currentChordProgression.length}",
             ),
           ],
         ],

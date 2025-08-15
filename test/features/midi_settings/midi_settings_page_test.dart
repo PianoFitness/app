@@ -204,9 +204,7 @@ void main() {
 
     testWidgets(
       "should display default channel when no initial channel provided",
-      (
-        tester,
-      ) async {
+      (tester) async {
         final Widget testWidget = ChangeNotifierProvider(
           create: (context) => MidiState(),
           child: const MaterialApp(home: MidiSettingsPage()),

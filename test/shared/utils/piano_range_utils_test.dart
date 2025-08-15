@@ -340,6 +340,7 @@ void main() {
 
       final keys28 = PianoRangeUtils.calculateScreenBasedKeyWidth(
         screenWidth,
+        keyCount: 28,
       );
 
       final keys35 = PianoRangeUtils.calculateScreenBasedKeyWidth(

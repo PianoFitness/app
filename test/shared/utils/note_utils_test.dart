@@ -121,19 +121,13 @@ void main() {
       });
 
       test("should convert flat note positions correctly", () {
-        final dFlat4 = NotePosition(
-          note: Note.D,
-          accidental: Accidental.Flat,
-        );
+        final dFlat4 = NotePosition(note: Note.D, accidental: Accidental.Flat);
         expect(
           NoteUtils.convertNotePositionToMidi(dFlat4),
           equals(61),
         ); // Same as C#
 
-        final bFlat4 = NotePosition(
-          note: Note.B,
-          accidental: Accidental.Flat,
-        );
+        final bFlat4 = NotePosition(note: Note.B, accidental: Accidental.Flat);
         expect(
           NoteUtils.convertNotePositionToMidi(bFlat4),
           equals(70),
@@ -276,6 +270,108 @@ void main() {
         expect(NoteUtils.noteDisplayName(MusicalNote.cSharp, 4), equals("C#4"));
         expect(NoteUtils.noteDisplayName(MusicalNote.fSharp, 2), equals("F#2"));
         expect(NoteUtils.noteDisplayName(MusicalNote.b, 6), equals("B6"));
+      });
+    });
+
+    group("getCompactNoteName", () {
+      test("should return note names without octave", () {
+        expect(NoteUtils.getCompactNoteName(60), equals("C")); // C4
+        expect(NoteUtils.getCompactNoteName(61), equals("C#")); // C#4
+        expect(NoteUtils.getCompactNoteName(62), equals("D")); // D4
+        expect(NoteUtils.getCompactNoteName(63), equals("D#")); // D#4
+        expect(NoteUtils.getCompactNoteName(64), equals("E")); // E4
+        expect(NoteUtils.getCompactNoteName(65), equals("F")); // F4
+        expect(NoteUtils.getCompactNoteName(66), equals("F#")); // F#4
+        expect(NoteUtils.getCompactNoteName(67), equals("G")); // G4
+        expect(NoteUtils.getCompactNoteName(68), equals("G#")); // G#4
+        expect(NoteUtils.getCompactNoteName(69), equals("A")); // A4
+        expect(NoteUtils.getCompactNoteName(70), equals("A#")); // A#4
+        expect(NoteUtils.getCompactNoteName(71), equals("B")); // B4
+      });
+
+      test("should work consistently across octaves", () {
+        // Test same note across different octaves
+        expect(NoteUtils.getCompactNoteName(12), equals("C")); // C0
+        expect(NoteUtils.getCompactNoteName(24), equals("C")); // C1
+        expect(NoteUtils.getCompactNoteName(36), equals("C")); // C2
+        expect(NoteUtils.getCompactNoteName(48), equals("C")); // C3
+        expect(NoteUtils.getCompactNoteName(60), equals("C")); // C4
+        expect(NoteUtils.getCompactNoteName(72), equals("C")); // C5
+        expect(NoteUtils.getCompactNoteName(84), equals("C")); // C6
+
+        // Test sharp notes across octaves
+        expect(NoteUtils.getCompactNoteName(13), equals("C#")); // C#0
+        expect(NoteUtils.getCompactNoteName(25), equals("C#")); // C#1
+        expect(NoteUtils.getCompactNoteName(61), equals("C#")); // C#4
+        expect(NoteUtils.getCompactNoteName(85), equals("C#")); // C#6
+      });
+
+      test("should handle extreme MIDI ranges", () {
+        // Test lowest MIDI note (C-1)
+        expect(NoteUtils.getCompactNoteName(0), equals("C"));
+
+        // Test highest MIDI note (G9)
+        expect(NoteUtils.getCompactNoteName(127), equals("G"));
+
+        // Test some other extreme values
+        expect(NoteUtils.getCompactNoteName(1), equals("C#")); // C#-1
+        expect(NoteUtils.getCompactNoteName(126), equals("F#")); // F#9
+      });
+
+      test("should throw ArgumentError for invalid MIDI numbers", () {
+        expect(
+          () => NoteUtils.getCompactNoteName(-1),
+          throwsA(
+            isA<ArgumentError>().having(
+              (e) => e.message,
+              "message",
+              contains("MIDI number must be between 0 and 127"),
+            ),
+          ),
+        );
+
+        expect(
+          () => NoteUtils.getCompactNoteName(128),
+          throwsA(
+            isA<ArgumentError>().having(
+              (e) => e.message,
+              "message",
+              contains("MIDI number must be between 0 and 127"),
+            ),
+          ),
+        );
+
+        expect(
+          () => NoteUtils.getCompactNoteName(200),
+          throwsA(
+            isA<ArgumentError>().having(
+              (e) => e.message,
+              "message",
+              contains("MIDI number must be between 0 and 127"),
+            ),
+          ),
+        );
+      });
+
+      test("should be consistent with midiNumberToNote", () {
+        // Test that compact note name matches the note part of full display name
+        for (var midi = 0; midi <= 127; midi++) {
+          final fullInfo = NoteUtils.midiNumberToNote(midi);
+          final compactName = NoteUtils.getCompactNoteName(midi);
+
+          // Extract note name from full display name (remove octave and minus signs)
+          final expectedName = fullInfo.displayName.replaceAll(
+            RegExp(r"[-\d]+$"),
+            "",
+          );
+
+          expect(
+            compactName,
+            equals(expectedName),
+            reason:
+                "Compact name for MIDI $midi should match note part of ${fullInfo.displayName}",
+          );
+        }
       });
     });
 

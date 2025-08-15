@@ -25,9 +25,8 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => MidiSettingsViewModel(
-        initialChannel: widget.initialChannel,
-      ),
+      create: (context) =>
+          MidiSettingsViewModel(initialChannel: widget.initialChannel),
       child: Consumer<MidiSettingsViewModel>(
         builder: (context, viewModel, child) {
           // Set up MIDI data handling with MidiState
@@ -113,10 +112,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
         children: [
           const Text(
             "MIDI Output Channel",
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Row(
@@ -302,26 +298,16 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
           ),
           child: Column(
             children: [
-              const Icon(
-                Icons.music_note,
-                color: Colors.green,
-                size: 32,
-              ),
+              const Icon(Icons.music_note, color: Colors.green, size: 32),
               const SizedBox(height: 8),
               const Text(
                 "MIDI Activity:",
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
               Text(
                 viewModel.lastNote,
-                style: const TextStyle(
-                  color: Colors.green,
-                  fontSize: 16,
-                ),
+                style: const TextStyle(color: Colors.green, fontSize: 16),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -343,9 +329,8 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                 ? () => viewModel.retrySetup()
                 : () => viewModel.scanForDevices(
                     context,
-                    () => viewModel.informUserAboutBluetoothPermissions(
-                      context,
-                    ),
+                    () =>
+                        viewModel.informUserAboutBluetoothPermissions(context),
                     _showSnackBar,
                   )),
       tooltip: viewModel.isScanning
@@ -355,10 +340,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                 : "Scan for MIDI devices"),
       backgroundColor: viewModel.isScanning ? Colors.grey : null,
       child: viewModel.isScanning
-          ? const CircularProgressIndicator(
-              color: Colors.white,
-              strokeWidth: 2,
-            )
+          ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
           : Icon(
               viewModel.shouldShowErrorButtons
                   ? Icons.refresh
@@ -388,10 +370,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
   void _showSnackBar(String message, [Color? backgroundColor]) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(message),
-          backgroundColor: backgroundColor,
-        ),
+        SnackBar(content: Text(message), backgroundColor: backgroundColor),
       );
     }
   }

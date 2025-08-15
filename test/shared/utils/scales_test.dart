@@ -547,4 +547,197 @@ void main() {
       });
     });
   });
+
+  group("KeyDisplay Extension", () {
+    group("displayName", () {
+      test("should return correct names for natural keys", () {
+        expect(Key.c.displayName, equals("C"));
+        expect(Key.d.displayName, equals("D"));
+        expect(Key.e.displayName, equals("E"));
+        expect(Key.f.displayName, equals("F"));
+        expect(Key.g.displayName, equals("G"));
+        expect(Key.a.displayName, equals("A"));
+        expect(Key.b.displayName, equals("B"));
+      });
+
+      test("should return flat notation for enharmonic keys", () {
+        expect(Key.cSharp.displayName, equals("D♭"));
+        expect(Key.dSharp.displayName, equals("E♭"));
+        expect(Key.fSharp.displayName, equals("G♭"));
+        expect(Key.gSharp.displayName, equals("A♭"));
+        expect(Key.aSharp.displayName, equals("B♭"));
+      });
+
+      test("should use conventional flat notation over sharp notation", () {
+        // These tests verify that the extension follows musical conventions
+        // where flat notation is preferred for key signatures
+        expect(Key.cSharp.displayName, isNot(equals("C#")));
+        expect(Key.dSharp.displayName, isNot(equals("D#")));
+        expect(Key.fSharp.displayName, isNot(equals("F#")));
+        expect(Key.gSharp.displayName, isNot(equals("G#")));
+        expect(Key.aSharp.displayName, isNot(equals("A#")));
+      });
+
+      test("should return consistent results for all keys", () {
+        for (final key in Key.values) {
+          final displayName = key.displayName;
+          expect(displayName, isNotEmpty);
+          expect(displayName, isA<String>());
+
+          // Verify the name contains expected musical notation
+          final isNaturalKey = [
+            "C",
+            "D",
+            "E",
+            "F",
+            "G",
+            "A",
+            "B",
+          ].contains(displayName);
+          final isFlatKey = displayName.contains("♭");
+
+          expect(
+            isNaturalKey || isFlatKey,
+            isTrue,
+            reason: "Key $key should have either natural or flat notation",
+          );
+        }
+      });
+    });
+
+    group("fullDisplayName", () {
+      test("should return just the key name for natural keys", () {
+        expect(Key.c.fullDisplayName, equals("C"));
+        expect(Key.d.fullDisplayName, equals("D"));
+        expect(Key.e.fullDisplayName, equals("E"));
+        expect(Key.f.fullDisplayName, equals("F"));
+        expect(Key.g.fullDisplayName, equals("G"));
+        expect(Key.a.fullDisplayName, equals("A"));
+        expect(Key.b.fullDisplayName, equals("B"));
+      });
+
+      test("should include enharmonic equivalent for black keys", () {
+        expect(Key.cSharp.fullDisplayName, equals("D♭ (C#)"));
+        expect(Key.dSharp.fullDisplayName, equals("E♭ (D#)"));
+        expect(Key.fSharp.fullDisplayName, equals("G♭ (F#)"));
+        expect(Key.gSharp.fullDisplayName, equals("A♭ (G#)"));
+        expect(Key.aSharp.fullDisplayName, equals("B♭ (A#)"));
+      });
+
+      test("should show flat notation first, sharp in parentheses", () {
+        for (final key in Key.values) {
+          final fullName = key.fullDisplayName;
+
+          if (fullName.contains("(")) {
+            // For enharmonic keys, verify format: "Flat (Sharp)"
+            expect(fullName, matches(r"^[A-G]♭ \([A-G]#\)$"));
+            expect(fullName.indexOf("♭"), lessThan(fullName.indexOf("#")));
+          } else {
+            // For natural keys, verify single letter format
+            expect(fullName, matches(r"^[A-G]$"));
+          }
+        }
+      });
+
+      test("should be consistent for all keys", () {
+        for (final key in Key.values) {
+          final fullDisplayName = key.fullDisplayName;
+          expect(fullDisplayName, isNotEmpty);
+          expect(fullDisplayName, isA<String>());
+
+          // Multiple calls should return same result
+          expect(key.fullDisplayName, equals(fullDisplayName));
+        }
+      });
+    });
+
+    group("KeyDisplay integration", () {
+      test("should integrate properly with scale name generation", () {
+        // Test that the extension works correctly when used in ScaleDefinitions
+        for (final key in Key.values) {
+          final scale = ScaleDefinitions.getScale(key, ScaleType.major);
+          final expectedKeyName = key.displayName;
+
+          expect(scale.name, contains(expectedKeyName));
+          expect(scale.name, endsWith(" Major (Ionian)"));
+        }
+      });
+
+      test("should provide readable names for user interfaces", () {
+        // Test that names are appropriate for display in UI
+        for (final key in Key.values) {
+          final displayName = key.displayName;
+          final fullDisplayName = key.fullDisplayName;
+
+          // Keep names concise for UI, but avoid brittle hard caps.
+          expect(displayName, matches(r"^[A-G]$|^[A-G]♭$"));
+          // Full name either a single letter or "X♭ (Y#)"
+          if (fullDisplayName.contains("(")) {
+            expect(fullDisplayName, matches(r"^[A-G]♭ \([A-G]#\)$"));
+          } else {
+            expect(fullDisplayName, matches(r"^[A-G]$"));
+          }
+
+          // Should not contain special characters except musical symbols
+          expect(displayName, matches(r"^[A-G♭]+$"));
+        }
+      });
+
+      test("should maintain musical conventions across all keys", () {
+        final expectedNaturalKeys = ["C", "D", "E", "F", "G", "A", "B"];
+        final expectedFlatKeys = ["D♭", "E♭", "G♭", "A♭", "B♭"];
+
+        final actualDisplayNames = Key.values
+            .map((k) => k.displayName)
+            .toList();
+
+        // Verify we have exactly the expected natural keys
+        for (final natural in expectedNaturalKeys) {
+          expect(actualDisplayNames, contains(natural));
+        }
+
+        // Verify we have exactly the expected flat keys
+        for (final flat in expectedFlatKeys) {
+          expect(actualDisplayNames, contains(flat));
+        }
+
+        // Verify total count matches enum values
+        expect(actualDisplayNames.length, equals(Key.values.length));
+      });
+    });
+
+    group("Edge cases and validation", () {
+      test("should handle all Key enum values", () {
+        // Ensure no Key values are missing from the extension
+        for (final key in Key.values) {
+          expect(() => key.displayName, returnsNormally);
+          expect(() => key.fullDisplayName, returnsNormally);
+        }
+      });
+
+      test("should return non-null, non-empty strings", () {
+        for (final key in Key.values) {
+          final displayName = key.displayName;
+          final fullDisplayName = key.fullDisplayName;
+
+          expect(displayName, isNotNull);
+          expect(displayName, isNotEmpty);
+          expect(fullDisplayName, isNotNull);
+          expect(fullDisplayName, isNotEmpty);
+        }
+      });
+
+      test("should be deterministic across multiple calls", () {
+        for (final key in Key.values) {
+          final name1 = key.displayName;
+          final name2 = key.displayName;
+          final fullName1 = key.fullDisplayName;
+          final fullName2 = key.fullDisplayName;
+
+          expect(name1, equals(name2));
+          expect(fullName1, equals(fullName2));
+        }
+      });
+    });
+  });
 }

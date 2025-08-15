@@ -1,24 +1,8 @@
 import "package:flutter/material.dart";
+import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as music;
-
-/// Practice modes available in the Piano Fitness app.
-///
-/// Each mode focuses on different aspects of piano technique:
-/// - [scales]: Practice major, minor, and modal scales
-/// - [chords]: Practice chord progressions and triads
-/// - [arpeggios]: Practice broken chord patterns across octaves
-enum PracticeMode {
-  /// Practice scales in various keys and modes
-  scales,
-
-  /// Practice chord progressions and triads
-  chords,
-
-  /// Practice arpeggio patterns across multiple octaves
-  arpeggios,
-}
 
 /// A comprehensive settings panel for configuring piano practice exercises.
 ///
@@ -106,32 +90,7 @@ class PracticeSettingsPanel extends StatelessWidget {
   }
 
   String _getKeyString(music.Key key) {
-    switch (key) {
-      case music.Key.c:
-        return "C";
-      case music.Key.cSharp:
-        return "C#";
-      case music.Key.d:
-        return "D";
-      case music.Key.dSharp:
-        return "D#";
-      case music.Key.e:
-        return "E";
-      case music.Key.f:
-        return "F";
-      case music.Key.fSharp:
-        return "F#";
-      case music.Key.g:
-        return "G";
-      case music.Key.gSharp:
-        return "G#";
-      case music.Key.a:
-        return "A";
-      case music.Key.aSharp:
-        return "A#";
-      case music.Key.b:
-        return "B";
-    }
+    return key.fullDisplayName;
   }
 
   String _getScaleTypeString(music.ScaleType type) {
