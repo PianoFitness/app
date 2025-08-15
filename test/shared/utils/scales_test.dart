@@ -583,13 +583,24 @@ void main() {
           final displayName = key.displayName;
           expect(displayName, isNotEmpty);
           expect(displayName, isA<String>());
-          
+
           // Verify the name contains expected musical notation
-          final isNaturalKey = ["C", "D", "E", "F", "G", "A", "B"].contains(displayName);
+          final isNaturalKey = [
+            "C",
+            "D",
+            "E",
+            "F",
+            "G",
+            "A",
+            "B",
+          ].contains(displayName);
           final isFlatKey = displayName.contains("♭");
-          
-          expect(isNaturalKey || isFlatKey, isTrue, 
-              reason: "Key $key should have either natural or flat notation");
+
+          expect(
+            isNaturalKey || isFlatKey,
+            isTrue,
+            reason: "Key $key should have either natural or flat notation",
+          );
         }
       });
     });
@@ -616,7 +627,7 @@ void main() {
       test("should show flat notation first, sharp in parentheses", () {
         for (final key in Key.values) {
           final fullName = key.fullDisplayName;
-          
+
           if (fullName.contains("(")) {
             // For enharmonic keys, verify format: "Flat (Sharp)"
             expect(fullName, matches(r"^[A-G]♭ \([A-G]#\)$"));
@@ -633,7 +644,7 @@ void main() {
           final fullDisplayName = key.fullDisplayName;
           expect(fullDisplayName, isNotEmpty);
           expect(fullDisplayName, isA<String>());
-          
+
           // Multiple calls should return same result
           expect(key.fullDisplayName, equals(fullDisplayName));
         }
@@ -646,7 +657,7 @@ void main() {
         for (final key in Key.values) {
           final scale = ScaleDefinitions.getScale(key, ScaleType.major);
           final expectedKeyName = key.displayName;
-          
+
           expect(scale.name, contains(expectedKeyName));
           expect(scale.name, endsWith(" Major (Ionian)"));
         }
@@ -657,37 +668,39 @@ void main() {
         for (final key in Key.values) {
           final displayName = key.displayName;
           final fullDisplayName = key.fullDisplayName;
-          
-          // Names should be reasonably short for UI display
-          expect(displayName.length, lessThanOrEqualTo(3));
-          expect(fullDisplayName.length, lessThanOrEqualTo(8));
-          
-          // Should not contain special characters except musical symbols
-          expect(displayName, matches(r"^[A-G♭]+$"));
+
+          // Keep names concise for UI, but avoid brittle hard caps.
+          expect(displayName, matches(r"^[A-G]$|^[A-G]♭$"));
+          // Full name either a single letter or "X♭ (Y#)"
           if (fullDisplayName.contains("(")) {
             expect(fullDisplayName, matches(r"^[A-G]♭ \([A-G]#\)$"));
           } else {
             expect(fullDisplayName, matches(r"^[A-G]$"));
           }
+
+          // Should not contain special characters except musical symbols
+          expect(displayName, matches(r"^[A-G♭]+$"));
         }
       });
 
       test("should maintain musical conventions across all keys", () {
         final expectedNaturalKeys = ["C", "D", "E", "F", "G", "A", "B"];
         final expectedFlatKeys = ["D♭", "E♭", "G♭", "A♭", "B♭"];
-        
-        final actualDisplayNames = Key.values.map((k) => k.displayName).toList();
-        
+
+        final actualDisplayNames = Key.values
+            .map((k) => k.displayName)
+            .toList();
+
         // Verify we have exactly the expected natural keys
         for (final natural in expectedNaturalKeys) {
           expect(actualDisplayNames, contains(natural));
         }
-        
+
         // Verify we have exactly the expected flat keys
         for (final flat in expectedFlatKeys) {
           expect(actualDisplayNames, contains(flat));
         }
-        
+
         // Verify total count matches enum values
         expect(actualDisplayNames.length, equals(Key.values.length));
       });
@@ -706,7 +719,7 @@ void main() {
         for (final key in Key.values) {
           final displayName = key.displayName;
           final fullDisplayName = key.fullDisplayName;
-          
+
           expect(displayName, isNotNull);
           expect(displayName, isNotEmpty);
           expect(fullDisplayName, isNotNull);
@@ -720,7 +733,7 @@ void main() {
           final name2 = key.displayName;
           final fullName1 = key.fullDisplayName;
           final fullName2 = key.fullDisplayName;
-          
+
           expect(name1, equals(name2));
           expect(fullName1, equals(fullName2));
         }
