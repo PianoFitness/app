@@ -176,14 +176,9 @@ void main() {
         final highlightedNotes = viewModel.getHighlightedMidiNotes();
 
         // C Major scale: C, D, E, F, G, A, B
-        // Should be present in octaves 3, 4, and 5
+        // Should be present in octave 4 only
         final expectedNotes = <int>{
-          // Octave 3
-          48, 50, 52, 53, 55, 57, 59, // C3, D3, E3, F3, G3, A3, B3
-          // Octave 4
           60, 62, 64, 65, 67, 69, 71, // C4, D4, E4, F4, G4, A4, B4
-          // Octave 5
-          72, 74, 76, 77, 79, 81, 83, // C5, D5, E5, F5, G5, A5, B5
         };
 
         expect(highlightedNotes, equals(expectedNotes));
@@ -197,12 +192,12 @@ void main() {
 
         // D Minor scale: D, E, F, G, A, Bb, C
         expect(highlightedNotes.isNotEmpty, isTrue);
-        expect(highlightedNotes.length, equals(21)); // 7 notes × 3 octaves
+        expect(highlightedNotes.length, equals(7)); // 7 notes × 1 octave
 
-        // Verify some key notes are present
-        expect(highlightedNotes.contains(50), isTrue); // D3
+        // Verify key notes are present in octave 4
         expect(highlightedNotes.contains(62), isTrue); // D4
-        expect(highlightedNotes.contains(74), isTrue); // D5
+        expect(highlightedNotes.contains(64), isTrue); // E4
+        expect(highlightedNotes.contains(65), isTrue); // F4
       });
 
       test("should return correct MIDI notes for F# Lydian scale", () {
@@ -212,12 +207,13 @@ void main() {
         final highlightedNotes = viewModel.getHighlightedMidiNotes();
 
         expect(highlightedNotes.isNotEmpty, isTrue);
-        expect(highlightedNotes.length, equals(21)); // 7 notes × 3 octaves
+        expect(highlightedNotes.length, equals(7)); // 7 notes × 1 octave
 
-        // Verify F# is present in all octaves
-        expect(highlightedNotes.contains(54), isTrue); // F#3
-        expect(highlightedNotes.contains(66), isTrue); // F#4
-        expect(highlightedNotes.contains(78), isTrue); // F#5
+        // F# Lydian scale: F#, G#, A#, B#(C), C#, D#, E#(F)
+        expect(highlightedNotes.contains(66), isTrue); // F#4 (root)
+        expect(highlightedNotes.contains(68), isTrue); // G#4
+        expect(highlightedNotes.contains(70), isTrue); // A#4
+        expect(highlightedNotes.contains(72), isTrue); // B#4 (C5)
       });
     });
 
@@ -234,11 +230,9 @@ void main() {
 
           // C Major chord: C, E, G
           expect(highlightedNotes.isNotEmpty, isTrue);
+          expect(highlightedNotes.length, equals(3)); // 3 notes × 1 octave
 
-          // Verify the chord notes are present in multiple octaves
-          expect(highlightedNotes.contains(48), isTrue); // C3
-          expect(highlightedNotes.contains(52), isTrue); // E3
-          expect(highlightedNotes.contains(55), isTrue); // G3
+          // Verify the chord notes are present in octave 4 only
           expect(highlightedNotes.contains(60), isTrue); // C4
           expect(highlightedNotes.contains(64), isTrue); // E4
           expect(highlightedNotes.contains(67), isTrue); // G4
@@ -258,14 +252,15 @@ void main() {
           // A Minor chord: A, C, E
           // First inversion: C, E, A (notes reordered but same pitches)
           expect(highlightedNotes.isNotEmpty, isTrue);
+          expect(highlightedNotes.length, equals(3)); // 3 notes × 1 octave
 
-          // Verify the chord notes are present (all octaves)
-          expect(highlightedNotes.contains(57), isTrue); // A3
+          // Verify the chord notes are present in octave 4 only
+          expect(
+            highlightedNotes.contains(57),
+            isTrue,
+          ); // A3 (from first inversion voicing)
           expect(highlightedNotes.contains(60), isTrue); // C4
           expect(highlightedNotes.contains(64), isTrue); // E4
-          expect(highlightedNotes.contains(69), isTrue); // A4
-          expect(highlightedNotes.contains(72), isTrue); // C5
-          expect(highlightedNotes.contains(76), isTrue); // E5
         },
       );
 
@@ -278,11 +273,15 @@ void main() {
 
         // F# Diminished chord: F#, A, C
         expect(highlightedNotes.isNotEmpty, isTrue);
+        expect(highlightedNotes.length, equals(3)); // 3 notes × 1 octave
 
-        // Verify the chord notes are present
-        expect(highlightedNotes.contains(54), isTrue); // F#3
-        expect(highlightedNotes.contains(57), isTrue); // A3
-        expect(highlightedNotes.contains(60), isTrue); // C4
+        // Verify the chord notes are present in octave 4 only
+        expect(highlightedNotes.contains(66), isTrue); // F#4
+        expect(highlightedNotes.contains(69), isTrue); // A4
+        expect(
+          highlightedNotes.contains(72),
+          isTrue,
+        ); // C5 (wraps to next octave)
       });
     });
 
@@ -330,18 +329,18 @@ void main() {
       test("should convert all keys correctly", () {
         // Test each key by setting it and verifying the MIDI notes contain expected values
         final testCases = [
-          (scales.Key.c, 48), // C3
-          (scales.Key.cSharp, 49), // C#3
-          (scales.Key.d, 50), // D3
-          (scales.Key.dSharp, 51), // D#3
-          (scales.Key.e, 52), // E3
-          (scales.Key.f, 53), // F3
-          (scales.Key.fSharp, 54), // F#3
-          (scales.Key.g, 55), // G3
-          (scales.Key.gSharp, 56), // G#3
-          (scales.Key.a, 57), // A3
-          (scales.Key.aSharp, 58), // A#3
-          (scales.Key.b, 59), // B3
+          (scales.Key.c, 60), // C4
+          (scales.Key.cSharp, 61), // C#4
+          (scales.Key.d, 62), // D4
+          (scales.Key.dSharp, 63), // D#4
+          (scales.Key.e, 64), // E4
+          (scales.Key.f, 65), // F4
+          (scales.Key.fSharp, 66), // F#4
+          (scales.Key.g, 67), // G4
+          (scales.Key.gSharp, 68), // G#4
+          (scales.Key.a, 69), // A4
+          (scales.Key.aSharp, 70), // A#4
+          (scales.Key.b, 71), // B4
         ];
 
         for (final (key, expectedMidiNote) in testCases) {
@@ -351,7 +350,7 @@ void main() {
 
           final highlightedNotes = viewModel.getHighlightedMidiNotes();
 
-          // The root note should be present in octave 3
+          // The root note should be present in octave 4
           expect(
             highlightedNotes.contains(expectedMidiNote),
             isTrue,

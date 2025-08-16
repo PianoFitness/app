@@ -272,8 +272,8 @@ void main() {
       // Should complete within reasonable time (1 second is very generous)
       expect(stopwatch.elapsedMilliseconds, lessThan(1000));
 
-      // Should have the correct notes highlighted
-      expect(midiState.activeNotes.length, equals(21)); // 7 notes × 3 octaves
+      // Should have the correct notes highlighted (7 notes in one octave)
+      expect(midiState.activeNotes.length, equals(7)); // 7 notes × 1 octave
 
       // Clean up any pending timers
       await tester.pumpAndSettle(const Duration(seconds: 2));
