@@ -15,11 +15,6 @@ pre-commit:
       run: flutter analyze
       fail_text: "Flutter analyze found issues. Please fix them before committing."
 
-    # Run tests (optional - can be enabled when test coverage is sufficient)
-    # test:
-    #   run: flutter test
-    #   fail_text: "Tests failed. Please fix them before committing."
-
 pre-push:
   commands:
     # Run full test suite before pushing
@@ -29,14 +24,21 @@ pre-push:
 
 commit-msg:
   commands:
-    # Ensure commit messages follow conventional commits format (optional)
-    # conventional:
-    #   run: |
-    #     if ! grep -qE "^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .{1,50}" "$1"; then
-    #       echo "Commit message should follow conventional commits format:"
-    #       echo "type(scope): description"
-    #       echo "Examples: feat: add chord progression practice"
-    #       echo "          fix(midi): resolve timing issues"
-    #       echo "          docs: update README with lefthook setup"
-    #       exit 1
-    #     fi
+    # Ensure commit messages follow conventional commits format
+    conventional:
+      run: |
+        # Use {1} for lefthook argument passing
+        commit_message=$(cat {1})
+        if ! echo "$commit_message" | grep -qE "^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .{1,50}"; then
+          echo "❌ Commit message should follow conventional commits format:"
+          echo "   type(scope): description"
+          echo ""
+          echo "Examples:"
+          echo "   feat: add chord progression practice"
+          echo "   fix(midi): resolve timing issues"
+          echo "   docs: update README with lefthook setup"
+          echo ""
+          echo "Your message: $commit_message"
+          exit 1
+        fi
+        echo "✅ Commit message format is valid"
