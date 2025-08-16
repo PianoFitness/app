@@ -55,6 +55,7 @@ class PracticePageViewModel extends ChangeNotifier {
     required VoidCallback onExerciseCompleted,
     required void Function(List<NotePosition>) onHighlightedNotesChanged,
     PracticeMode initialMode = PracticeMode.scales,
+    ChordProgression? initialChordProgression,
   }) {
     _practiceSession = PracticeSession(
       onExerciseCompleted: onExerciseCompleted,
@@ -65,6 +66,11 @@ class PracticePageViewModel extends ChangeNotifier {
       },
     );
     _practiceSession!.setPracticeMode(initialMode);
+
+    // Set initial chord progression if provided
+    if (initialChordProgression != null) {
+      _practiceSession!.setSelectedChordProgression(initialChordProgression);
+    }
   }
 
   /// Sets up MIDI listener for incoming data.
