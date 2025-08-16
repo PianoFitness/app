@@ -200,4 +200,127 @@ void main() {
       expect(midiState.lastNote, "Note ON: 61 (Ch: 15, Vel: 127)");
     });
   });
+
+  group("MidiState Highlighted Notes (Reference Mode)", () {
+    late MidiState midiState;
+
+    setUp(() {
+      midiState = MidiState();
+    });
+
+    tearDown(() {
+      midiState.dispose();
+    });
+
+    test("should set highlighted notes correctly", () {
+      final testNotes = {60, 64, 67}; // C Major triad
+
+      midiState.setHighlightedNotes(testNotes);
+
+      expect(midiState.activeNotes, equals(testNotes));
+      expect(midiState.highlightedNotePositions.length, equals(3));
+    });
+
+    test(
+      "should replace existing active notes when setting highlighted notes",
+      () {
+        // First set some active notes through normal note on
+        midiState
+          ..noteOn(48, 127, 1)
+          ..noteOn(50, 127, 1);
+
+        expect(midiState.activeNotes.length, equals(2));
+
+        // Now set highlighted notes - should replace the existing ones
+        final newNotes = {60, 64, 67, 72};
+        midiState.setHighlightedNotes(newNotes);
+
+        expect(midiState.activeNotes, equals(newNotes));
+        expect(midiState.activeNotes.length, equals(4));
+      },
+    );
+
+    test("should clear active notes when setting empty highlighted notes", () {
+      // First set some active notes
+      midiState
+        ..noteOn(60, 127, 1)
+        ..noteOn(64, 127, 1);
+
+      expect(midiState.activeNotes.length, equals(2));
+
+      // Set empty highlighted notes
+      midiState.setHighlightedNotes(<int>{});
+
+      expect(midiState.activeNotes.isEmpty, isTrue);
+    });
+
+    test("should notify listeners when setting highlighted notes", () {
+      var notified = false;
+      midiState.addListener(() {
+        notified = true;
+      });
+
+      midiState.setHighlightedNotes({60, 64, 67});
+
+      expect(notified, isTrue);
+    });
+
+    test("should handle large sets of highlighted notes", () {
+      // Create a large set of notes (e.g., multiple octaves of a scale)
+      final largeNoteSet = <int>{};
+      for (var octave = 2; octave <= 6; octave++) {
+        for (var note = 0; note < 12; note++) {
+          largeNoteSet.add((octave + 1) * 12 + note);
+        }
+      }
+
+      midiState.setHighlightedNotes(largeNoteSet);
+
+      expect(midiState.activeNotes.length, equals(largeNoteSet.length));
+      expect(midiState.activeNotes, equals(largeNoteSet));
+    });
+
+    test("should handle highlighted notes with invalid MIDI values", () {
+      // Test with notes outside normal MIDI range
+      final notesWithInvalidValues = {-1, 60, 64, 67, 128, 200};
+
+      midiState.setHighlightedNotes(notesWithInvalidValues);
+
+      // MidiState should store all values (it doesn't validate MIDI range)
+      expect(midiState.activeNotes, equals(notesWithInvalidValues));
+    });
+
+    test("should convert highlighted notes to NotePosition correctly", () {
+      final testNotes = {60, 61, 62}; // C4, C#4, D4
+
+      midiState.setHighlightedNotes(testNotes);
+
+      final positions = midiState.highlightedNotePositions;
+      expect(positions.length, equals(3));
+
+      // Check for C4 (should have exactly one)
+      final cNote = positions.where(
+        (pos) =>
+            pos.note == Note.C &&
+            pos.octave == 4 &&
+            pos.accidental != Accidental.Sharp,
+      );
+      expect(cNote.length, equals(1));
+
+      // Check for C#4
+      final cSharpNote = positions.where(
+        (pos) =>
+            pos.note == Note.C &&
+            pos.octave == 4 &&
+            pos.accidental == Accidental.Sharp,
+      );
+      expect(cSharpNote.length, equals(1));
+
+      // Check for D4
+      final dNote = positions.where(
+        (pos) => pos.note == Note.D && pos.octave == 4,
+      );
+      expect(dNote.length, equals(1));
+    });
+  });
 }
