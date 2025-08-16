@@ -55,7 +55,20 @@ class ReferencePageViewModel extends ChangeNotifier {
   /// Sets the MIDI state reference for updating UI state.
   void setMidiState(MidiState midiState) {
     _midiState = midiState;
-    _updateHighlightedNotes(); // Initialize with default scale
+    // Don't automatically set highlighted notes - wait for user interaction
+    // or explicit activation of the reference page
+  }
+
+  /// Activates the reference display with current scale/chord selection.
+  /// Call this when the reference page becomes visible or active.
+  void activateReferenceDisplay() {
+    _updateHighlightedNotes();
+  }
+
+  /// Clears the reference display, removing all highlighted notes.
+  /// Call this when leaving the reference page.
+  void deactivateReferenceDisplay() {
+    _midiState?.setHighlightedNotes(<int>{});
   }
 
   /// Sets the selected reference mode and updates the display.

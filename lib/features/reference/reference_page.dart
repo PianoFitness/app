@@ -44,6 +44,8 @@ class _ReferencePageState extends State<ReferencePage> {
 
   @override
   void dispose() {
+    // Clear reference display when page is disposed
+    _viewModel.deactivateReferenceDisplay();
     _viewModel.dispose();
     super.dispose();
   }
