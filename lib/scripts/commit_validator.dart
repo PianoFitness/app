@@ -42,14 +42,11 @@ class CommitValidator {
 
   /// Generates help text for invalid commit messages
   static String generateHelpText(String invalidMessage) {
-    final buffer = StringBuffer();
-
-    buffer.writeln(
-      "❌ Commit message should follow conventional commits format:",
-    );
-    buffer.writeln("   type(scope): description");
-    buffer.writeln();
-    buffer.writeln("Allowed types:");
+    final buffer = StringBuffer()
+      ..writeln("❌ Commit message should follow conventional commits format:")
+      ..writeln("   type(scope): description")
+      ..writeln()
+      ..writeln("Allowed types:");
 
     // Find the longest type name for proper alignment
     final maxTypeLength = commitTypes.keys
@@ -61,14 +58,16 @@ class CommitValidator {
       buffer.writeln("   $type - ${entry.value}");
     }
 
-    buffer.writeln();
-    buffer.writeln("Examples:");
+    buffer
+      ..writeln()
+      ..writeln("Examples:");
     for (final example in examples) {
       buffer.writeln("   $example");
     }
 
-    buffer.writeln();
-    buffer.writeln("Your message: $invalidMessage");
+    buffer
+      ..writeln()
+      ..writeln("Your message: $invalidMessage");
 
     return buffer.toString();
   }

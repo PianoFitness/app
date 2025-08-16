@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import "package:piano_fitness/scripts/commit_validator.dart";
 
 void main() {
