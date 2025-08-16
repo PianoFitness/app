@@ -1,0 +1,35 @@
+# Lefthook configuration for Piano Fitness
+# Git hooks for code quality and consistency
+
+pre-commit:
+  parallel: true
+  commands:
+    # Auto-fix Dart code issues
+    fix:
+      glob: "*.dart"
+      run: dart fix --apply
+      stage_fixed: true
+
+    # Format Dart code
+    format:
+      glob: "*.dart"
+      run: dart format {staged_files}
+      stage_fixed: true
+
+    # Analyze Dart code for issues
+    analyze:
+      run: flutter analyze --no-fatal-infos
+      fail_text: "Flutter analyze found warnings or errors. Please fix them before committing."
+
+pre-push:
+  commands:
+    # Run full test suite before pushing
+    test:
+      run: flutter test
+      fail_text: "Tests failed. Please fix them before pushing."
+
+commit-msg:
+  commands:
+    # Ensure commit messages follow conventional commits format
+    conventional:
+      run: dart scripts/validate_commit_msg.dart {1}

@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/practice/practice_page_view_model.dart";
+import "package:piano_fitness/shared/models/chord_progression_type.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
@@ -20,10 +21,12 @@ class PracticePage extends StatefulWidget {
   ///
   /// The [initialMode] determines which type of practice to start with.
   /// The [midiChannel] sets the MIDI channel for input/output operations.
+  /// The [initialChordProgression] pre-selects a chord progression when mode is chordProgressions.
   const PracticePage({
     super.key,
     this.initialMode = PracticeMode.scales,
     this.midiChannel = 0,
+    this.initialChordProgression,
   });
 
   /// The initial practice mode to display when the page loads.
@@ -31,6 +34,9 @@ class PracticePage extends StatefulWidget {
 
   /// The MIDI channel to use for input and output (0-15).
   final int midiChannel;
+
+  /// The initial chord progression to pre-select (optional).
+  final ChordProgression? initialChordProgression;
 
   @override
   State<PracticePage> createState() => _PracticePageState();
@@ -57,6 +63,7 @@ class _PracticePageState extends State<PracticePage> {
             });
           },
           initialMode: widget.initialMode,
+          initialChordProgression: widget.initialChordProgression,
         );
     });
   }
@@ -140,6 +147,8 @@ class _PracticePageState extends State<PracticePage> {
                           selectedArpeggioType: session.selectedArpeggioType,
                           selectedArpeggioOctaves:
                               session.selectedArpeggioOctaves,
+                          selectedChordProgression:
+                              session.selectedChordProgression,
                           practiceActive: session.practiceActive,
                           onStartPractice: _startPractice,
                           onResetPractice: _resetPractice,
@@ -160,6 +169,9 @@ class _PracticePageState extends State<PracticePage> {
                           },
                           onArpeggioOctavesChanged: (octaves) {
                             _viewModel.setSelectedArpeggioOctaves(octaves);
+                          },
+                          onChordProgressionChanged: (progression) {
+                            _viewModel.setSelectedChordProgression(progression);
                           },
                         );
                       },

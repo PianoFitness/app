@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
-import "package:piano_fitness/features/play/play_page.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
+import "package:piano_fitness/shared/widgets/main_navigation.dart";
 import "package:provider/provider.dart";
 
 /// Entry point for the Piano Fitness application.
@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: const PlayPage(),
+        home: const MainNavigation(),
       ),
     );
   }

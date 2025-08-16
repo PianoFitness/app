@@ -78,14 +78,11 @@ enum Key {
 /// secondary (alternative) name for each key, making it easy to verify
 /// musical conventions and maintain consistency.
 class _KeyNames {
-  const _KeyNames({
-    required this.primary,
-    this.secondary,
-  });
+  const _KeyNames({required this.primary, this.secondary});
 
   /// The primary/conventional display name (uses flat notation for black keys)
   final String primary;
-  
+
   /// The secondary/alternative display name (sharp notation for black keys)
   /// Null for natural keys that have no enharmonic equivalent
   final String? secondary;
@@ -105,13 +102,13 @@ extension KeyDisplay on Key {
   static const Map<Key, _KeyNames> _keyNameMap = {
     // Natural keys (white keys) - no enharmonic equivalents
     Key.c: _KeyNames(primary: "C"),
-    Key.d: _KeyNames(primary: "D"), 
+    Key.d: _KeyNames(primary: "D"),
     Key.e: _KeyNames(primary: "E"),
     Key.f: _KeyNames(primary: "F"),
     Key.g: _KeyNames(primary: "G"),
     Key.a: _KeyNames(primary: "A"),
     Key.b: _KeyNames(primary: "B"),
-    
+
     // Black keys (enharmonic keys) - flat primary, sharp secondary
     Key.cSharp: _KeyNames(primary: "D♭", secondary: "C#"),
     Key.dSharp: _KeyNames(primary: "E♭", secondary: "D#"),
@@ -141,9 +138,9 @@ extension KeyDisplay on Key {
   String get fullDisplayName {
     final keyNames = _keyNameMap[this]!;
     final secondary = keyNames.secondary;
-    
+
     // If there's a secondary name (enharmonic equivalent), include it in parentheses
-    return secondary != null 
+    return secondary != null
         ? "${keyNames.primary} ($secondary)"
         : keyNames.primary;
   }
