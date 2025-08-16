@@ -6,7 +6,7 @@ import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_range_utils.dart";
-import "package:piano_fitness/shared/widgets/midi_status_indicator.dart";
+import "package:piano_fitness/shared/widgets/midi_controls.dart";
 import "package:piano_fitness/shared/widgets/practice_progress_display.dart";
 import "package:piano_fitness/shared/widgets/practice_settings_panel.dart";
 import "package:provider/provider.dart";
@@ -52,10 +52,25 @@ class _PracticePageState extends State<PracticePage> {
 
     // Initialize the ViewModel with callbacks and MIDI state
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final midiState = Provider.of<MidiState>(context, listen: false);
-      _viewModel
-        ..setMidiState(midiState)
-        ..initializePracticeSession(
+      try {
+        final midiState = Provider.of<MidiState>(context, listen: false);
+        _viewModel
+          ..setMidiState(midiState)
+          ..initializePracticeSession(
+            onExerciseCompleted: _completeExercise,
+            onHighlightedNotesChanged: (notes) {
+              setState(() {
+                // Notes are automatically updated in ViewModel
+              });
+            },
+            initialMode: widget.initialMode,
+            initialChordProgression: widget.initialChordProgression,
+          );
+      } catch (e) {
+        // Handle case where MidiState provider is not available
+        debugPrint("MidiState provider not found: $e");
+        // Initialize without MIDI state
+        _viewModel.initializePracticeSession(
           onExerciseCompleted: _completeExercise,
           onHighlightedNotesChanged: (notes) {
             setState(() {
@@ -65,6 +80,7 @@ class _PracticePageState extends State<PracticePage> {
           initialMode: widget.initialMode,
           initialChordProgression: widget.initialChordProgression,
         );
+      }
     });
   }
 
@@ -116,7 +132,7 @@ class _PracticePageState extends State<PracticePage> {
             ),
           ],
         ),
-        actions: const [MidiStatusIndicator(key: Key("midi_status_indicator"))],
+        actions: const [MidiControls(key: Key("midi_controls"))],
       ),
       body: Column(
         children: [
@@ -202,14 +218,24 @@ class _PracticePageState extends State<PracticePage> {
             ),
           ),
           Expanded(
-            child: Consumer<MidiState>(
-              builder: (context, midiState, child) {
+            child: Builder(
+              builder: (context) {
+                // Check if MidiState provider is available
+                MidiState? midiState;
+                try {
+                  midiState = Provider.of<MidiState>(context);
+                } catch (e) {
+                  // Provider not available, use null
+                  midiState = null;
+                }
+
                 return AnimatedBuilder(
                   animation: _viewModel,
                   builder: (context, child) {
                     // Calculate highlighted notes for display
-                    final highlightedNotes = _viewModel
-                        .getDisplayHighlightedNotes(midiState);
+                    final highlightedNotes = midiState != null
+                        ? _viewModel.getDisplayHighlightedNotes(midiState)
+                        : const <NotePosition>[];
 
                     // Calculate 49-key range centered around practice exercise
                     final practiceRange = _viewModel.calculatePracticeRange();

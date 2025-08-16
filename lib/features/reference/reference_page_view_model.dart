@@ -143,10 +143,13 @@ class ReferencePageViewModel extends ChangeNotifier {
 
     final midiNotes = <int>{};
 
-    // Show the chord in multiple octaves for better visibility
+    // Show the chord tones across multiple octaves for better visibility
+    // This shows each chord tone in each octave, similar to how scales work
     for (var octave = 3; octave <= 5; octave++) {
-      final chordMidiNotes = chord.getMidiNotes(octave);
-      midiNotes.addAll(chordMidiNotes);
+      for (final note in chord.notes) {
+        final midiNote = NoteUtils.noteToMidiNumber(note, octave);
+        midiNotes.add(midiNote);
+      }
     }
 
     return midiNotes;

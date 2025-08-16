@@ -1,10 +1,10 @@
 import "package:flutter/material.dart";
 import "package:piano/piano.dart";
-import "package:piano_fitness/features/midi_settings/midi_settings_page.dart";
 import "package:piano_fitness/features/play/play_page_view_model.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_range_utils.dart";
+import "package:piano_fitness/shared/widgets/midi_controls.dart";
 import "package:provider/provider.dart";
 
 /// The main page of the Piano Fitness application.
@@ -59,54 +59,7 @@ class _PlayPageState extends State<PlayPage> {
             Text("Piano Fitness"),
           ],
         ),
-        actions: [
-          // MIDI Activity Indicator
-          Consumer<MidiState>(
-            builder: (context, midiState, child) {
-              return GestureDetector(
-                onTap: () {
-                  if (midiState.lastNote.isNotEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("MIDI: ${midiState.lastNote}"),
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
-                  }
-                },
-                child: Container(
-                  margin: const EdgeInsets.only(right: 8),
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: midiState.hasRecentActivity
-                        ? Colors.green
-                        : Colors.grey.shade400,
-                  ),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () async {
-              final midiState = Provider.of<MidiState>(context, listen: false);
-              final result = await Navigator.of(context).push<int>(
-                MaterialPageRoute(
-                  builder: (context) => MidiSettingsPage(
-                    initialChannel: midiState.selectedChannel,
-                  ),
-                ),
-              );
-              if (result != null && result != midiState.selectedChannel) {
-                // Channel changed, update the provider
-                midiState.setSelectedChannel(result);
-              }
-            },
-            tooltip: "MIDI Settings",
-          ),
-        ],
+        actions: const [MidiControls()],
       ),
       body: Column(
         children: [

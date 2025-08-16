@@ -413,7 +413,7 @@ void main() {
         );
       });
 
-      testWidgets("should display MIDI status indicator", (tester) async {
+      testWidgets("should display MIDI controls", (tester) async {
         final Widget testWidget = ChangeNotifierProvider(
           create: (context) => MidiState(),
           child: const MaterialApp(home: PracticePage()),
@@ -421,8 +421,8 @@ void main() {
 
         await tester.pumpWidget(testWidget);
 
-        // Verify MIDI status indicator is present using key instead of searching app bar internals
-        expect(find.byKey(const Key("midi_status_indicator")), findsOneWidget);
+        // Verify MIDI controls are present using key instead of searching app bar internals
+        expect(find.byKey(const Key("midi_controls")), findsOneWidget);
       });
     });
   });

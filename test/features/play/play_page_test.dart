@@ -4,6 +4,7 @@ import "package:piano/piano.dart";
 import "package:piano_fitness/features/midi_settings/midi_settings_page.dart";
 import "package:piano_fitness/features/play/play_page.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
+import "package:piano_fitness/shared/widgets/midi_controls.dart";
 import "package:provider/provider.dart";
 import "../../shared/midi_mocks.dart";
 
@@ -147,6 +148,14 @@ void main() {
 
       // Verify MIDI settings page is shown
       expect(find.byType(MidiSettingsPage), findsOneWidget);
+    });
+
+    testWidgets("should display MIDI controls", (tester) async {
+      await tester.pumpWidget(testWidget);
+      await tester.pumpAndSettle();
+
+      // Verify MIDI controls component is present in the app bar
+      expect(find.byType(MidiControls), findsOneWidget);
     });
 
     testWidgets("should show MIDI activity indicator", (tester) async {

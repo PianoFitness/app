@@ -6,6 +6,7 @@ import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_range_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as scales;
 import "package:piano_fitness/shared/utils/chords.dart";
+import "package:piano_fitness/shared/widgets/midi_controls.dart";
 import "package:provider/provider.dart";
 
 /// Reference page for viewing scales and chords on the piano.
@@ -30,8 +31,14 @@ class _ReferencePageState extends State<ReferencePage> {
     _viewModel = ReferencePageViewModel();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final midiState = Provider.of<MidiState>(context, listen: false);
-      _viewModel.setMidiState(midiState);
+      try {
+        final midiState = Provider.of<MidiState>(context, listen: false);
+        _viewModel.setMidiState(midiState);
+      } catch (e) {
+        // Handle case where MidiState provider is not available
+        // This allows the page to render gracefully in test environments
+        debugPrint("MidiState provider not found: $e");
+      }
     });
   }
 
@@ -54,6 +61,7 @@ class _ReferencePageState extends State<ReferencePage> {
             Text("Reference"),
           ],
         ),
+        actions: const [MidiControls()],
       ),
       body: Column(
         children: [
@@ -131,8 +139,17 @@ class _ReferencePageState extends State<ReferencePage> {
 
           // Piano Display
           Expanded(
-            child: Consumer<MidiState>(
-              builder: (context, midiState, child) {
+            child: Builder(
+              builder: (context) {
+                // Check if MidiState provider is available
+                MidiState? midiState;
+                try {
+                  midiState = Provider.of<MidiState>(context);
+                } catch (e) {
+                  // Provider not available, use default behavior
+                  midiState = null;
+                }
+
                 final fixed49KeyRange = PianoRangeUtils.standard49KeyRange;
                 final screenWidth = MediaQuery.of(context).size.width;
                 final dynamicKeyWidth =
@@ -142,7 +159,9 @@ class _ReferencePageState extends State<ReferencePage> {
                   listenable: _viewModel,
                   builder: (context, child) {
                     return InteractivePiano(
-                      highlightedNotes: midiState.highlightedNotePositions,
+                      highlightedNotes:
+                          midiState?.highlightedNotePositions ??
+                          const <NotePosition>[],
                       keyWidth: dynamicKeyWidth.clamp(
                         PianoRangeUtils.minKeyWidth,
                         PianoRangeUtils.maxKeyWidth,
