@@ -28,23 +28,39 @@ const List<String> examples = [
 /// Utility class for validating conventional commit messages
 class CommitValidator {
   /// Validates a commit message against conventional commit format
+  /// Only validates the first line, allows multi-line messages
   static bool isValidCommitMessage(String message) {
+    if (message.isEmpty) return false;
+
+    // Get the first line of the commit message
+    final firstLine = message.split("\n").first.trim();
+
     final typePattern = commitTypes.keys.join("|");
-    final regex = RegExp(r"^(" + typePattern + r")(\(.+\))?: .{1,50}$");
-    return regex.hasMatch(message);
+    // Allow longer descriptions (up to 100 chars) and optional scope
+    final regex = RegExp(r"^(" + typePattern + r")(\(.+\))?: .{1,100}$");
+    return regex.hasMatch(firstLine);
   }
 
   /// Generates a regex pattern from available commit types
   static String buildRegexPattern() {
     final typePattern = commitTypes.keys.join("|");
-    return "^($typePattern)(\\(.+\\))?: .{1,50}\$";
+    return "^($typePattern)(\\(.+\\))?: .{1,100}\$";
   }
 
   /// Generates help text for invalid commit messages
   static String generateHelpText(String invalidMessage) {
+    final firstLine = invalidMessage.split("\n").first.trim();
+
     final buffer = StringBuffer()
       ..writeln("❌ Commit message should follow conventional commits format:")
       ..writeln("   type(scope): description")
+      ..writeln()
+      ..writeln("Rules:")
+      ..writeln(
+        "   - First line: type(scope): description (max 100 characters)",
+      )
+      ..writeln("   - Additional lines: optional body and footer")
+      ..writeln("   - Scope is optional: type: description")
       ..writeln()
       ..writeln("Allowed types:");
 
@@ -67,7 +83,7 @@ class CommitValidator {
 
     buffer
       ..writeln()
-      ..writeln("Your message: $invalidMessage");
+      ..writeln("Your message: $firstLine");
 
     return buffer.toString();
   }

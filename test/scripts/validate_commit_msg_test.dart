@@ -17,13 +17,18 @@ void main() {
         "ci: configure GitHub Actions",
         "chore: update version",
         "revert: undo previous change",
+        // Test longer descriptions (up to 100 chars)
+        "feat: add comprehensive piano chord progression practice with multiple difficulty levels",
+        // Test multi-line commits
+        "fix: resolve MIDI timing issues\n\nThis fix addresses several timing problems:\n- Buffer overflow in MIDI processing\n- Synchronization issues between UI and audio",
+        "feat(piano): add chord reference system\n\nImplements a complete chord reference with:\n- All major and minor chords\n- Inversions support\n- Visual highlighting on piano",
       ];
 
       for (final message in validMessages) {
         expect(
           CommitValidator.isValidCommitMessage(message),
           isTrue,
-          reason: "Message should be valid: $message",
+          reason: "Message should be valid: ${message.split('\n').first}",
         );
       }
     });
@@ -36,14 +41,19 @@ void main() {
         "feat:",
         "feat: ",
         "unknown: invalid type",
-        "feat: this is a very long commit message that exceeds fifty characters limit",
+        // Test message that's too long (over 100 chars)
+        "feat: this is an extremely long commit message that exceeds the one hundred character limit for the first line",
+        // Test multi-line where first line is invalid
+        "invalid first line\nBut this has a valid body",
+        // Empty message
+        "",
       ];
 
       for (final message in invalidMessages) {
         expect(
           CommitValidator.isValidCommitMessage(message),
           isFalse,
-          reason: "Message should be invalid: $message",
+          reason: "Message should be invalid: ${message.split('\n').first}",
         );
       }
     });
@@ -56,6 +66,18 @@ void main() {
       expect(helpText, contains("feat     - new feature"));
       expect(helpText, contains("Your message: $invalidMessage"));
       expect(helpText, contains("Examples:"));
+      expect(helpText, contains("Rules:"));
+      expect(helpText, contains("max 100 characters"));
+    });
+
+    test("should handle multi-line error messages correctly", () {
+      const invalidMessage =
+          "bad commit message\nwith multiple lines\nand more content";
+      final helpText = CommitValidator.generateHelpText(invalidMessage);
+
+      // Should only show the first line in the error
+      expect(helpText, contains("Your message: bad commit message"));
+      expect(helpText.contains("with multiple lines"), isFalse);
     });
 
     test("should build correct regex pattern", () {
