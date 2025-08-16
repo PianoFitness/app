@@ -6,6 +6,7 @@ import "package:piano_fitness/shared/utils/virtual_piano_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as scales;
 import "package:piano_fitness/shared/utils/chords.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
+import "package:piano_fitness/shared/utils/chord_inversion_utils.dart";
 
 /// Reference mode options for the reference page.
 enum ReferenceMode {
@@ -179,105 +180,22 @@ class ReferencePageViewModel extends ChangeNotifier {
 
   /// Gets the MIDI note numbers for the currently selected chord.
   Set<int> _getChordMidiNotes() {
-    final rootNote = _keyToMusicalNote(_selectedKey);
-    final chord = ChordDefinitions.getChord(
-      rootNote,
-      _selectedChordType,
-      _selectedChordInversion,
+    final rootNote = ChordInversionUtils.keyToMusicalNote(_selectedKey);
+
+    // Use the standard chord inversion utility
+    final midiNotes = ChordInversionUtils.getChordMidiNotes(
+      rootNote: rootNote,
+      chordType: _selectedChordType,
+      inversion: _selectedChordInversion,
+      octave: 4, // Base octave for chord display
     );
 
-    final midiNotes = <int>{};
-
-    // Show the chord in only one octave for cleaner learning
-    // Use octave 4 (middle octave) as base, with specific voicing for inversions
-    const baseOctave = 4;
-
-    if (_selectedChordInversion == ChordInversion.root) {
-      // Root position: start with root note in base octave, others ascend
-      var currentOctave = baseOctave;
-      MusicalNote? previousNote;
-
-      for (final note in chord.notes) {
-        // If this note's index is lower than the previous note's index,
-        // we've wrapped around the chromatic scale, so move to the next octave
-        if (previousNote != null && note.index < previousNote.index) {
-          currentOctave++;
-        }
-
-        final midiNote = NoteUtils.noteToMidiNumber(note, currentOctave);
-        midiNotes.add(midiNote);
-        previousNote = note;
-      }
-    } else {
-      // Inversions: create close voicing based on test expectations
-      // The chord.notes array has already been reordered by the ChordDefinitions
-
-      for (var i = 0; i < chord.notes.length; i++) {
-        final note = chord.notes[i];
-        var octave = baseOctave;
-
-        // Special handling for specific expected voicings from tests
-        if (_selectedChordInversion == ChordInversion.first) {
-          if (i == 0) {
-            // First note (bass note - the third) - goes to base octave
-            octave = baseOctave;
-          } else if (i == 1) {
-            // Second note (fifth) - goes to base octave
-            octave = baseOctave;
-          } else if (i == 2) {
-            // Third note (root) - for A Minor first inversion, A goes to octave 3
-            if (note == chord.rootNote) {
-              octave =
-                  baseOctave - 1; // Put root in lower octave for close voicing
-            } else {
-              octave = baseOctave;
-            }
-          }
-        } else if (_selectedChordInversion == ChordInversion.second) {
-          // For second inversion, use similar logic but fifth is in bass
-          if (i == 0) {
-            octave = baseOctave; // Fifth in bass
-          } else {
-            octave = baseOctave; // Other notes follow
-          }
-        }
-
-        final midiNote = NoteUtils.noteToMidiNumber(note, octave);
-        midiNotes.add(midiNote);
-      }
-    }
-
-    return midiNotes;
+    return midiNotes.toSet();
   }
 
-  /// Converts a Key enum to a MusicalNote enum.
-  MusicalNote _keyToMusicalNote(scales.Key key) {
-    switch (key) {
-      case scales.Key.c:
-        return MusicalNote.c;
-      case scales.Key.cSharp:
-        return MusicalNote.cSharp;
-      case scales.Key.d:
-        return MusicalNote.d;
-      case scales.Key.dSharp:
-        return MusicalNote.dSharp;
-      case scales.Key.e:
-        return MusicalNote.e;
-      case scales.Key.f:
-        return MusicalNote.f;
-      case scales.Key.fSharp:
-        return MusicalNote.fSharp;
-      case scales.Key.g:
-        return MusicalNote.g;
-      case scales.Key.gSharp:
-        return MusicalNote.gSharp;
-      case scales.Key.a:
-        return MusicalNote.a;
-      case scales.Key.aSharp:
-        return MusicalNote.aSharp;
-      case scales.Key.b:
-        return MusicalNote.b;
-    }
+  /// Handles incoming MIDI data and updates state.
+  void _handleMidiData(Uint8List data) {
+    MidiConnectionService.handleStandardMidiData(data, _localMidiState);
   }
 
   /// Updates the local highlighted notes based on current selections.
@@ -301,11 +219,6 @@ class ReferencePageViewModel extends ChangeNotifier {
     _midiConnectionService
       ..registerDataHandler(_handleMidiData)
       ..connect();
-  }
-
-  /// Handles incoming MIDI data and updates state.
-  void _handleMidiData(Uint8List data) {
-    MidiConnectionService.handleStandardMidiData(data, _localMidiState);
   }
 
   @override

@@ -248,17 +248,18 @@ void main() {
           final highlightedNotes = viewModel.getHighlightedMidiNotes();
 
           // A Minor chord: A, C, E
-          // First inversion: C, E, A (notes reordered but same pitches)
+          // First inversion: C, E, A (proper ascending voicing)
           expect(highlightedNotes.isNotEmpty, isTrue);
-          expect(highlightedNotes.length, equals(3)); // 3 notes × 1 octave
+          expect(highlightedNotes.length, equals(3)); // 3 notes
 
-          // Verify the chord notes are present in octave 4 only
+          // Verify the chord notes are present - using proper ascending inversion voicing
+          // First inversion should be C-E-A ascending, not A going down an octave
+          expect(highlightedNotes.contains(72), isTrue); // C5
+          expect(highlightedNotes.contains(76), isTrue); // E5
           expect(
-            highlightedNotes.contains(57),
+            highlightedNotes.contains(81),
             isTrue,
-          ); // A3 (from first inversion voicing)
-          expect(highlightedNotes.contains(60), isTrue); // C4
-          expect(highlightedNotes.contains(64), isTrue); // E4
+          ); // A6 (properly ascending)
         },
       );
 
