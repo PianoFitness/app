@@ -380,6 +380,7 @@ class MockBluetoothManager extends Mock implements BluetoothManager {}
 This project uses [lefthook](https://github.com/evilmartians/lefthook) for automated code quality checks via git hooks.
 
 **Installation** (one-time setup):
+
 ```bash
 # Install lefthook globally
 brew install lefthook  # macOS
@@ -392,11 +393,13 @@ lefthook install
 ```
 
 **Automated Checks**:
+
 - **Pre-commit**: Automatically formats code and runs `flutter analyze`
 - **Pre-push**: Runs full test suite before pushing
 - **Commit-msg**: (Optional) Validates conventional commit format
 
 **Manual Commands**:
+
 ```bash
 # Run all pre-commit checks manually
 lefthook run pre-commit
