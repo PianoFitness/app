@@ -20,15 +20,19 @@ enum ReferenceMode {
 ///
 /// This class handles the business logic for the reference page,
 /// managing scale and chord selections and providing highlighted notes
-/// for the piano display.
+/// for the piano display. It maintains its own display state separate
+/// from the shared MIDI state to prevent cross-page interference.
 class ReferencePageViewModel extends ChangeNotifier {
   /// Creates a new ReferencePageViewModel.
   ReferencePageViewModel() {
+    _localMidiState = MidiState();
     _initializeMidiConnection();
+    // Initialize with default selection (C Major scale)
+    _updateLocalHighlightedNotes();
   }
 
   final MidiConnectionService _midiConnectionService = MidiConnectionService();
-  MidiState? _midiState;
+  late final MidiState _localMidiState;
 
   // Current selections
   ReferenceMode _selectedMode = ReferenceMode.scales;
@@ -36,6 +40,9 @@ class ReferencePageViewModel extends ChangeNotifier {
   scales.ScaleType _selectedScaleType = scales.ScaleType.major;
   ChordType _selectedChordType = ChordType.major;
   ChordInversion _selectedChordInversion = ChordInversion.root;
+
+  // Local reference highlighting state (separate from shared MIDI state)
+  Set<int> _localHighlightedNotes = <int>{};
 
   /// The currently selected reference mode (scales or chords).
   ReferenceMode get selectedMode => _selectedMode;
@@ -52,30 +59,39 @@ class ReferencePageViewModel extends ChangeNotifier {
   /// The currently selected chord inversion.
   ChordInversion get selectedChordInversion => _selectedChordInversion;
 
-  /// Sets the MIDI state reference for updating UI state.
+  /// Gets the locally managed highlighted notes for this reference page.
+  Set<int> get localHighlightedNotes =>
+      Set.unmodifiable(_localHighlightedNotes);
+
+  /// Gets the local MIDI state for this reference view model.
+  MidiState get localMidiState => _localMidiState;
+
+  /// Sets the MIDI state reference for playing notes (not for highlighting).
+  /// Note: This is deprecated since we now use local MIDI state.
+  @Deprecated("Use local MIDI state instead")
   void setMidiState(MidiState midiState) {
-    _midiState = midiState;
-    // Don't automatically set highlighted notes - wait for user interaction
-    // or explicit activation of the reference page
+    // This method is kept for backward compatibility but does nothing
+    // since we now use local MIDI state
   }
 
   /// Activates the reference display with current scale/chord selection.
   /// Call this when the reference page becomes visible or active.
   void activateReferenceDisplay() {
-    _updateHighlightedNotes();
+    _updateLocalHighlightedNotes();
   }
 
   /// Clears the reference display, removing all highlighted notes.
   /// Call this when leaving the reference page.
   void deactivateReferenceDisplay() {
-    _midiState?.setHighlightedNotes(<int>{});
+    _localHighlightedNotes.clear();
+    notifyListeners();
   }
 
   /// Sets the selected reference mode and updates the display.
   void setSelectedMode(ReferenceMode mode) {
     if (_selectedMode != mode) {
       _selectedMode = mode;
-      _updateHighlightedNotes();
+      _updateLocalHighlightedNotes();
       notifyListeners();
     }
   }
@@ -84,7 +100,7 @@ class ReferencePageViewModel extends ChangeNotifier {
   void setSelectedKey(scales.Key key) {
     if (_selectedKey != key) {
       _selectedKey = key;
-      _updateHighlightedNotes();
+      _updateLocalHighlightedNotes();
       notifyListeners();
     }
   }
@@ -93,7 +109,7 @@ class ReferencePageViewModel extends ChangeNotifier {
   void setSelectedScaleType(scales.ScaleType type) {
     if (_selectedScaleType != type) {
       _selectedScaleType = type;
-      _updateHighlightedNotes();
+      _updateLocalHighlightedNotes();
       notifyListeners();
     }
   }
@@ -102,7 +118,7 @@ class ReferencePageViewModel extends ChangeNotifier {
   void setSelectedChordType(ChordType type) {
     if (_selectedChordType != type) {
       _selectedChordType = type;
-      _updateHighlightedNotes();
+      _updateLocalHighlightedNotes();
       notifyListeners();
     }
   }
@@ -111,7 +127,7 @@ class ReferencePageViewModel extends ChangeNotifier {
   void setSelectedChordInversion(ChordInversion inversion) {
     if (_selectedChordInversion != inversion) {
       _selectedChordInversion = inversion;
-      _updateHighlightedNotes();
+      _updateLocalHighlightedNotes();
       notifyListeners();
     }
   }
@@ -264,21 +280,18 @@ class ReferencePageViewModel extends ChangeNotifier {
     }
   }
 
-  /// Updates the highlighted notes on the piano based on current selections.
-  void _updateHighlightedNotes() {
-    if (_midiState == null) return;
-
+  /// Updates the local highlighted notes based on current selections.
+  void _updateLocalHighlightedNotes() {
     final highlightedMidiNotes = getHighlightedMidiNotes();
-    _midiState!.setHighlightedNotes(highlightedMidiNotes);
+    _localHighlightedNotes = highlightedMidiNotes;
+    notifyListeners();
   }
 
   /// Plays a note through MIDI output.
   Future<void> playNote(int midiNote) async {
-    if (_midiState == null) return;
-
     await VirtualPianoUtils.playVirtualNote(
       midiNote,
-      _midiState!,
+      _localMidiState,
       (_) {}, // No specific callback needed for reference page
     );
   }
@@ -292,13 +305,12 @@ class ReferencePageViewModel extends ChangeNotifier {
 
   /// Handles incoming MIDI data and updates state.
   void _handleMidiData(Uint8List data) {
-    if (_midiState == null) return;
-
-    MidiConnectionService.handleStandardMidiData(data, _midiState!);
+    MidiConnectionService.handleStandardMidiData(data, _localMidiState);
   }
 
   @override
   void dispose() {
+    _localMidiState.dispose();
     _midiConnectionService.unregisterDataHandler(_handleMidiData);
     super.dispose();
   }

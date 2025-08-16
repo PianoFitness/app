@@ -2,7 +2,6 @@ import "package:flutter/material.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:piano_fitness/features/device_controller/device_controller_page.dart";
 import "package:piano_fitness/features/midi_settings/midi_settings_view_model.dart";
-import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:provider/provider.dart";
 
 /// The MIDI settings and device management page.
@@ -29,68 +28,63 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
           MidiSettingsViewModel(initialChannel: widget.initialChannel),
       child: Consumer<MidiSettingsViewModel>(
         builder: (context, viewModel, child) {
-          // Set up MIDI data handling with MidiState
-          return Consumer<MidiState>(
-            builder: (context, midiState, child) {
-              return Scaffold(
-                appBar: AppBar(
-                  backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-                  title: const Text("MIDI Settings"),
-                  leading: IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () {
-                      Navigator.of(context).pop(viewModel.selectedChannel);
-                    },
-                  ),
-                ),
-                body: SafeArea(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const SizedBox(height: 20),
-                        const Center(
-                          child: Icon(
-                            Icons.bluetooth_audio,
-                            size: 80,
-                            color: Colors.blue,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        const Center(
-                          child: Text(
-                            "MIDI Device Configuration",
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        _buildChannelSelector(context, viewModel),
-                        const SizedBox(height: 16),
-                        _buildStatusSection(context, viewModel),
-                        const SizedBox(height: 16),
-                        if (viewModel.shouldShowErrorButtons)
-                          _buildErrorButtons(context, viewModel),
-                        const SizedBox(height: 16),
-                        if (viewModel.shouldShowResetInfo) _buildResetInfo(),
-                        if (viewModel.devices.isNotEmpty) ...[
-                          _buildDevicesList(context, viewModel),
-                          if (viewModel.shouldShowMidiActivity)
-                            _buildMidiActivity(context, viewModel),
-                        ],
-                      ],
+          return Scaffold(
+            appBar: AppBar(
+              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+              title: const Text("MIDI Settings"),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.of(context).pop(viewModel.selectedChannel);
+                },
+              ),
+            ),
+            body: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 20),
+                    const Center(
+                      child: Icon(
+                        Icons.bluetooth_audio,
+                        size: 80,
+                        color: Colors.blue,
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 20),
+                    const Center(
+                      child: Text(
+                        "MIDI Device Configuration",
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    _buildChannelSelector(context, viewModel),
+                    const SizedBox(height: 16),
+                    _buildStatusSection(context, viewModel),
+                    const SizedBox(height: 16),
+                    if (viewModel.shouldShowErrorButtons)
+                      _buildErrorButtons(context, viewModel),
+                    const SizedBox(height: 16),
+                    if (viewModel.shouldShowResetInfo) _buildResetInfo(),
+                    if (viewModel.devices.isNotEmpty) ...[
+                      _buildDevicesList(context, viewModel),
+                      if (viewModel.shouldShowMidiActivity)
+                        _buildMidiActivity(context, viewModel),
+                    ],
+                  ],
                 ),
-                floatingActionButton: _buildFloatingActionButtons(
-                  context,
-                  viewModel,
-                ),
-              );
-            },
+              ),
+            ),
+            floatingActionButton: _buildFloatingActionButtons(
+              context,
+              viewModel,
+            ),
           );
         },
       ),

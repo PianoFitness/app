@@ -2,14 +2,12 @@ import "package:flutter/material.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/practice/practice_page_view_model.dart";
 import "package:piano_fitness/shared/models/chord_progression_type.dart";
-import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_range_utils.dart";
 import "package:piano_fitness/shared/widgets/midi_controls.dart";
 import "package:piano_fitness/shared/widgets/practice_progress_display.dart";
 import "package:piano_fitness/shared/widgets/practice_settings_panel.dart";
-import "package:provider/provider.dart";
 
 /// A comprehensive piano practice page with guided exercises and real-time feedback.
 ///
@@ -50,37 +48,18 @@ class _PracticePageState extends State<PracticePage> {
     super.initState();
     _viewModel = PracticePageViewModel(initialChannel: widget.midiChannel);
 
-    // Initialize the ViewModel with callbacks and MIDI state
+    // Initialize the ViewModel with callbacks and local MIDI state
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      try {
-        final midiState = Provider.of<MidiState>(context, listen: false);
-        _viewModel
-          ..setMidiState(midiState)
-          ..initializePracticeSession(
-            onExerciseCompleted: _completeExercise,
-            onHighlightedNotesChanged: (notes) {
-              setState(() {
-                // Notes are automatically updated in ViewModel
-              });
-            },
-            initialMode: widget.initialMode,
-            initialChordProgression: widget.initialChordProgression,
-          );
-      } catch (e) {
-        // Handle case where MidiState provider is not available
-        debugPrint("MidiState provider not found: $e");
-        // Initialize without MIDI state
-        _viewModel.initializePracticeSession(
-          onExerciseCompleted: _completeExercise,
-          onHighlightedNotesChanged: (notes) {
-            setState(() {
-              // Notes are automatically updated in ViewModel
-            });
-          },
-          initialMode: widget.initialMode,
-          initialChordProgression: widget.initialChordProgression,
-        );
-      }
+      _viewModel.initializePracticeSession(
+        onExerciseCompleted: _completeExercise,
+        onHighlightedNotesChanged: (notes) {
+          setState(() {
+            // Notes are automatically updated in ViewModel
+          });
+        },
+        initialMode: widget.initialMode,
+        initialChordProgression: widget.initialChordProgression,
+      );
     });
   }
 
@@ -218,49 +197,33 @@ class _PracticePageState extends State<PracticePage> {
             ),
           ),
           Expanded(
-            child: Builder(
-              builder: (context) {
-                // Check if MidiState provider is available
-                MidiState? midiState;
-                try {
-                  midiState = Provider.of<MidiState>(context);
-                } catch (e) {
-                  // Provider not available, use null
-                  midiState = null;
-                }
+            child: AnimatedBuilder(
+              animation: _viewModel,
+              builder: (context, child) {
+                // Calculate highlighted notes for display using local state
+                final highlightedNotes = _viewModel
+                    .getDisplayHighlightedNotes();
 
-                return AnimatedBuilder(
-                  animation: _viewModel,
-                  builder: (context, child) {
-                    // Calculate highlighted notes for display
-                    final highlightedNotes = midiState != null
-                        ? _viewModel.getDisplayHighlightedNotes(midiState)
-                        : const <NotePosition>[];
+                // Calculate 49-key range centered around practice exercise
+                final practiceRange = _viewModel.calculatePracticeRange();
 
-                    // Calculate 49-key range centered around practice exercise
-                    final practiceRange = _viewModel.calculatePracticeRange();
+                // Calculate dynamic key width based on screen width
+                final screenWidth = MediaQuery.of(context).size.width;
+                final dynamicKeyWidth =
+                    PianoRangeUtils.calculateScreenBasedKeyWidth(screenWidth);
 
-                    // Calculate dynamic key width based on screen width
-                    final screenWidth = MediaQuery.of(context).size.width;
-                    final dynamicKeyWidth =
-                        PianoRangeUtils.calculateScreenBasedKeyWidth(
-                          screenWidth,
-                        );
-
-                    return InteractivePiano(
-                      key: const Key("practice_interactive_piano"),
-                      highlightedNotes: highlightedNotes,
-                      keyWidth: dynamicKeyWidth,
-                      noteRange: practiceRange,
-                      onNotePositionTapped: (position) async {
-                        final midiNote = NoteUtils.convertNotePositionToMidi(
-                          position,
-                        );
-                        await _viewModel.playVirtualNote(
-                          midiNote,
-                          mounted: mounted,
-                        );
-                      },
+                return InteractivePiano(
+                  key: const Key("practice_interactive_piano"),
+                  highlightedNotes: highlightedNotes,
+                  keyWidth: dynamicKeyWidth,
+                  noteRange: practiceRange,
+                  onNotePositionTapped: (position) async {
+                    final midiNote = NoteUtils.convertNotePositionToMidi(
+                      position,
+                    );
+                    await _viewModel.playVirtualNote(
+                      midiNote,
+                      mounted: mounted,
                     );
                   },
                 );

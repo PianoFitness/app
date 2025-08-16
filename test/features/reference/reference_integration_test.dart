@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:piano/piano.dart";
 import "package:piano_fitness/shared/widgets/main_navigation.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:provider/provider.dart";
@@ -86,7 +87,9 @@ void main() {
       expect(find.text("Chord Type"), findsOneWidget);
     });
 
-    testWidgets("should integrate with MIDI state across app", (tester) async {
+    testWidgets("should not interfere with MIDI state across app", (
+      tester,
+    ) async {
       await tester.pumpWidget(createTestApp());
       await tester.pumpAndSettle();
 
@@ -94,22 +97,25 @@ void main() {
       await tester.tap(find.text("Reference"));
       await tester.pumpAndSettle();
 
+      // Verify initial MIDI state is clean
+      expect(midiState.activeNotes.isEmpty, isTrue);
+
       // Select a specific scale
       await tester.tap(find.text("A"));
       await tester.pumpAndSettle();
       await tester.tap(find.text("Minor"));
       await tester.pumpAndSettle();
 
-      // The MIDI state should be updated with the scale notes
-      expect(midiState.activeNotes.isNotEmpty, isTrue);
+      // The shared MIDI state should NOT be affected by reference page selections
+      // (This prevents cross-page interference)
+      expect(midiState.activeNotes.isEmpty, isTrue);
 
       // Switch to play page
       await tester.tap(find.text("Free Play"));
       await tester.pumpAndSettle();
 
-      // The MIDI state should still contain the highlighted notes
-      // (This tests that the reference page doesn't clear the state when disposing)
-      expect(midiState.activeNotes.isNotEmpty, isTrue);
+      // The MIDI state should still be clean (no interference from reference page)
+      expect(midiState.activeNotes.isEmpty, isTrue);
     });
 
     testWidgets("should handle rapid mode switching", (tester) async {
@@ -159,8 +165,9 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // Should still be functional and have notes highlighted
-      expect(midiState.activeNotes.isNotEmpty, isTrue);
+      // Should still be functional - verify UI is working
+      expect(find.byType(InteractivePiano), findsOneWidget);
+      expect(find.text("Scale Type"), findsOneWidget);
 
       // Clean up any pending timers
       await tester.pumpAndSettle(const Duration(seconds: 2));
@@ -202,8 +209,8 @@ void main() {
         }
         await tester.pumpAndSettle();
 
-        // Should have highlighted notes
-        expect(midiState.activeNotes.isNotEmpty, isTrue);
+        // Should have functional UI (no longer testing shared MIDI state)
+        expect(find.byType(InteractivePiano), findsOneWidget);
       }
     });
 
@@ -272,8 +279,8 @@ void main() {
       // Should complete within reasonable time (1 second is very generous)
       expect(stopwatch.elapsedMilliseconds, lessThan(1000));
 
-      // Should have the correct notes highlighted (7 notes in one octave)
-      expect(midiState.activeNotes.length, equals(7)); // 7 notes × 1 octave
+      // Should have functional UI (no longer testing specific MIDI state)
+      expect(find.byType(InteractivePiano), findsOneWidget);
 
       // Clean up any pending timers
       await tester.pumpAndSettle(const Duration(seconds: 2));
@@ -306,8 +313,8 @@ void main() {
       // Should complete efficiently
       expect(stopwatch.elapsedMilliseconds, lessThan(500));
 
-      // Should have notes highlighted
-      expect(midiState.activeNotes.isNotEmpty, isTrue);
+      // Should have functional UI - check for reference page
+      expect(find.text("Reference"), findsOneWidget);
     });
   });
 }

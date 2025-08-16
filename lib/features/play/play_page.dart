@@ -1,11 +1,9 @@
 import "package:flutter/material.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/play/play_page_view_model.dart";
-import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_range_utils.dart";
 import "package:piano_fitness/shared/widgets/midi_controls.dart";
-import "package:provider/provider.dart";
 
 /// The main page of the Piano Fitness application.
 ///
@@ -32,12 +30,6 @@ class _PlayPageState extends State<PlayPage> {
   void initState() {
     super.initState();
     _viewModel = PlayPageViewModel(initialChannel: widget.midiChannel);
-
-    // Initialize the MIDI channel in the provider
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final midiState = Provider.of<MidiState>(context, listen: false);
-      _viewModel.setMidiState(midiState);
-    });
   }
 
   @override
@@ -151,8 +143,9 @@ class _PlayPageState extends State<PlayPage> {
             ),
           ),
           Expanded(
-            child: Consumer<MidiState>(
-              builder: (context, midiState, child) {
+            child: AnimatedBuilder(
+              animation: _viewModel,
+              builder: (context, child) {
                 // Define a fixed 49-key range for consistent layout
                 final fixed49KeyRange = PianoRangeUtils.standard49KeyRange;
 
@@ -162,7 +155,8 @@ class _PlayPageState extends State<PlayPage> {
                     PianoRangeUtils.calculateScreenBasedKeyWidth(screenWidth);
 
                 return InteractivePiano(
-                  highlightedNotes: midiState.highlightedNotePositions,
+                  highlightedNotes:
+                      _viewModel.localMidiState.highlightedNotePositions,
                   keyWidth: dynamicKeyWidth.clamp(
                     PianoRangeUtils.minKeyWidth,
                     PianoRangeUtils.maxKeyWidth,

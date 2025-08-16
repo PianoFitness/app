@@ -16,21 +16,27 @@ import "package:piano_fitness/shared/utils/virtual_piano_utils.dart";
 /// ViewModel for managing practice page state and operations.
 ///
 /// This class handles all business logic for the practice interface,
-/// including MIDI data processing, practice session management, and piano range calculations.
+/// managing its own local MIDI state for practice-specific note tracking
+/// and piano range calculations.
 class PracticePageViewModel extends ChangeNotifier {
   /// Creates a new PracticePageViewModel with optional initial configuration.
   PracticePageViewModel({int initialChannel = 0})
     : _midiChannel = initialChannel {
+    _localMidiState = MidiState();
+    _localMidiState.setSelectedChannel(_midiChannel);
     _setupMidiListener();
   }
 
   StreamSubscription<MidiPacket>? _midiDataSubscription;
   final MidiCommand _midiCommand = MidiCommand();
   final int _midiChannel;
+  late final MidiState _localMidiState;
 
   PracticeSession? _practiceSession;
-  MidiState? _midiState;
   List<NotePosition> _highlightedNotes = [];
+
+  /// Local MIDI state for this practice page instance.
+  MidiState get localMidiState => _localMidiState;
 
   /// MIDI channel for input and output operations (0-15).
   int get midiChannel => _midiChannel;
@@ -45,9 +51,14 @@ class PracticePageViewModel extends ChangeNotifier {
   List<NotePosition> get highlightedNotes => _highlightedNotes;
 
   /// Sets the MIDI state reference for updating UI state.
+  ///
+  /// Note: The Practice page now uses its own local MIDI state, so this method
+  /// is maintained for compatibility but no longer needed.
+  @Deprecated(
+    "Practice page now uses local MIDI state. Use localMidiState instead.",
+  )
   void setMidiState(MidiState midiState) {
-    _midiState = midiState;
-    _midiState?.setSelectedChannel(_midiChannel);
+    // No-op: We use local state now
   }
 
   /// Initializes the practice session with required callbacks.
@@ -99,25 +110,25 @@ class PracticePageViewModel extends ChangeNotifier {
     }
   }
 
-  /// Handles incoming MIDI data and updates state.
+  /// Handles incoming MIDI data and updates local state.
   void handleMidiData(Uint8List data) {
-    if (_midiState == null || _practiceSession == null) return;
+    if (_practiceSession == null) return;
 
     MidiService.handleMidiData(data, (MidiEvent event) {
       switch (event.type) {
         case MidiEventType.noteOn:
-          _midiState?.noteOn(event.data1, event.data2, event.channel);
+          _localMidiState.noteOn(event.data1, event.data2, event.channel);
           _practiceSession?.handleNotePressed(event.data1);
           break;
         case MidiEventType.noteOff:
-          _midiState?.noteOff(event.data1, event.channel);
+          _localMidiState.noteOff(event.data1, event.channel);
           _practiceSession?.handleNoteReleased(event.data1);
           break;
         case MidiEventType.controlChange:
         case MidiEventType.programChange:
         case MidiEventType.pitchBend:
         case MidiEventType.other:
-          _midiState?.setLastNote(event.displayMessage);
+          _localMidiState.setLastNote(event.displayMessage);
           break;
       }
     });
@@ -179,21 +190,21 @@ class PracticePageViewModel extends ChangeNotifier {
 
   /// Plays a virtual note through MIDI output and triggers practice session.
   Future<void> playVirtualNote(int note, {bool mounted = true}) async {
-    if (_midiState == null || _practiceSession == null) return;
+    if (_practiceSession == null) return;
 
     await VirtualPianoUtils.playVirtualNote(
       note,
-      _midiState!,
+      _localMidiState,
       _practiceSession!.handleNotePressed,
       mounted: mounted,
     );
   }
 
   /// Calculates the appropriate highlighted notes for piano display.
-  List<NotePosition> getDisplayHighlightedNotes(MidiState midiState) {
+  List<NotePosition> getDisplayHighlightedNotes() {
     return _highlightedNotes.isNotEmpty
         ? _highlightedNotes
-        : midiState.highlightedNotePositions;
+        : _localMidiState.highlightedNotePositions;
   }
 
   /// Calculates the 49-key range centered around the current practice exercise.
@@ -207,6 +218,8 @@ class PracticePageViewModel extends ChangeNotifier {
   void dispose() {
     _midiDataSubscription?.cancel();
     VirtualPianoUtils.dispose();
+    // Dispose local MIDI state
+    _localMidiState.dispose();
     super.dispose();
   }
 }

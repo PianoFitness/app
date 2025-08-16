@@ -1,7 +1,5 @@
 import "package:flutter/material.dart";
-import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/widgets/main_navigation.dart";
-import "package:provider/provider.dart";
 
 /// Entry point for the Piano Fitness application.
 ///
@@ -12,25 +10,22 @@ void main() {
 
 /// The root widget of the Piano Fitness application.
 ///
-/// Sets up the app theme, provides global state management via Provider,
-/// and defines the initial navigation structure.
+/// Sets up the app theme and defines the initial navigation structure.
+/// Each page now manages its own local MIDI state for better isolation.
 class MyApp extends StatelessWidget {
   /// Creates the root widget of the Piano Fitness app.
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MidiState(),
-      child: MaterialApp(
-        title: "Piano Fitness",
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
-        home: const MainNavigation(),
+    return MaterialApp(
+      title: "Piano Fitness",
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
       ),
+      home: const MainNavigation(),
     );
   }
 }

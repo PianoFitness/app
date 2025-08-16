@@ -1,6 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/features/reference/reference_page_view_model.dart";
-import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as scales;
 import "package:piano_fitness/shared/utils/chords.dart";
 import "../../shared/midi_mocks.dart";
@@ -12,12 +11,11 @@ void main() {
 
   group("ReferencePageViewModel Tests", () {
     late ReferencePageViewModel viewModel;
-    late MidiState mockMidiState;
 
     setUp(() async {
       viewModel = ReferencePageViewModel();
-      mockMidiState = MidiState();
-      viewModel.setMidiState(mockMidiState);
+      // Note: ReferencePageViewModel now has its own local MIDI state
+      // No need to set external MIDI state
 
       // Wait for any async initialization to complete
       await Future<void>.delayed(const Duration(milliseconds: 10));
@@ -25,7 +23,7 @@ void main() {
 
     tearDown(() async {
       viewModel.dispose();
-      mockMidiState.dispose();
+      // Note: Local MIDI state is disposed by the viewModel
 
       // Wait for any pending async operations to complete
       await Future<void>.delayed(const Duration(milliseconds: 10));
@@ -292,36 +290,45 @@ void main() {
         // This test verifies the method doesn't throw
         await viewModel.playNote(testNote);
 
-        // Verify the last note message was set (if MIDI state is available)
+        // Verify the note was played through local MIDI state
         expect(
-          mockMidiState.lastNote.contains("Virtual Note ON: $testNote"),
+          viewModel.localMidiState.lastNote.contains(
+            "Virtual Note ON: $testNote",
+          ),
           isTrue,
         );
       });
 
-      test("should handle cases with no MIDI state set", () {
-        final viewModelWithoutState = ReferencePageViewModel();
+      test("should handle note playing with local MIDI state", () async {
+        final viewModelWithLocalState = ReferencePageViewModel();
 
-        // Should not crash when no MIDI state is set
-        expect(() async => viewModelWithoutState.playNote(60), returnsNormally);
+        // Should not crash and should work with local MIDI state
+        await expectLater(
+          () async => viewModelWithLocalState.playNote(60),
+          returnsNormally,
+        );
 
-        viewModelWithoutState.dispose();
+        // Verify the note was processed in local state
+        expect(
+          viewModelWithLocalState.localMidiState.lastNote.contains("Virtual"),
+          isTrue,
+        );
+
+        viewModelWithLocalState.dispose();
       });
     });
 
     group("MIDI State Integration", () {
-      test("should set MIDI state correctly", () async {
-        final newMidiState = MidiState();
-
-        viewModel.setMidiState(newMidiState);
-
-        // Verify the MIDI state was set (indirectly through functionality)
+      test("should use local MIDI state correctly", () async {
+        // ReferencePageViewModel now uses its own local MIDI state
+        // Verify the MIDI state functionality works through note playing
         await viewModel.playNote(60);
 
-        // Should have updated the last note
-        expect(newMidiState.lastNote.contains("Virtual Note ON: 60"), isTrue);
-
-        newMidiState.dispose();
+        // Should have updated the last note in local MIDI state
+        expect(
+          viewModel.localMidiState.lastNote.contains("Virtual Note ON: 60"),
+          isTrue,
+        );
       });
     });
 

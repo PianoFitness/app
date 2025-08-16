@@ -1,13 +1,11 @@
 import "package:flutter/material.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/reference/reference_page_view_model.dart";
-import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_range_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as scales;
 import "package:piano_fitness/shared/utils/chords.dart";
 import "package:piano_fitness/shared/widgets/midi_controls.dart";
-import "package:provider/provider.dart";
 
 /// Reference page for viewing scales and chords on the piano.
 ///
@@ -30,15 +28,9 @@ class _ReferencePageState extends State<ReferencePage> {
     super.initState();
     _viewModel = ReferencePageViewModel();
 
+    // Activate the reference display when the page is initialized
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      try {
-        final midiState = Provider.of<MidiState>(context, listen: false);
-        _viewModel.setMidiState(midiState);
-      } catch (e) {
-        // Handle case where MidiState provider is not available
-        // This allows the page to render gracefully in test environments
-        debugPrint("MidiState provider not found: $e");
-      }
+      _viewModel.activateReferenceDisplay();
     });
   }
 
@@ -52,6 +44,11 @@ class _ReferencePageState extends State<ReferencePage> {
 
   @override
   Widget build(BuildContext context) {
+    // Activate reference display when this widget builds (page becomes visible)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _viewModel.activateReferenceDisplay();
+    });
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
@@ -143,15 +140,6 @@ class _ReferencePageState extends State<ReferencePage> {
           Expanded(
             child: Builder(
               builder: (context) {
-                // Check if MidiState provider is available
-                MidiState? midiState;
-                try {
-                  midiState = Provider.of<MidiState>(context);
-                } catch (e) {
-                  // Provider not available, use default behavior
-                  midiState = null;
-                }
-
                 final fixed49KeyRange = PianoRangeUtils.standard49KeyRange;
                 final screenWidth = MediaQuery.of(context).size.width;
                 final dynamicKeyWidth =
@@ -160,10 +148,16 @@ class _ReferencePageState extends State<ReferencePage> {
                 return ListenableBuilder(
                   listenable: _viewModel,
                   builder: (context, child) {
+                    // Convert local highlighted MIDI notes to NotePositions
+                    final localHighlightedPositions = _viewModel
+                        .localHighlightedNotes
+                        .map<NotePosition?>(_convertMidiToNotePosition)
+                        .where((position) => position != null)
+                        .cast<NotePosition>()
+                        .toList();
+
                     return InteractivePiano(
-                      highlightedNotes:
-                          midiState?.highlightedNotePositions ??
-                          const <NotePosition>[],
+                      highlightedNotes: localHighlightedPositions,
                       keyWidth: dynamicKeyWidth.clamp(
                         PianoRangeUtils.minKeyWidth,
                         PianoRangeUtils.maxKeyWidth,
@@ -462,6 +456,69 @@ class _ReferencePageState extends State<ReferencePage> {
         return "1st Inversion";
       case ChordInversion.second:
         return "2nd Inversion";
+    }
+  }
+
+  /// Converts a MIDI note number to a NotePosition for piano display.
+  NotePosition? _convertMidiToNotePosition(int midiNote) {
+    if (midiNote < 0 || midiNote > 127) return null;
+
+    final octave = (midiNote ~/ 12) - 1;
+    final noteInOctave = midiNote % 12;
+
+    Note note;
+    Accidental? accidental;
+
+    switch (noteInOctave) {
+      case 0:
+        note = Note.C;
+        break;
+      case 1:
+        note = Note.C;
+        accidental = Accidental.Sharp;
+        break;
+      case 2:
+        note = Note.D;
+        break;
+      case 3:
+        note = Note.D;
+        accidental = Accidental.Sharp;
+        break;
+      case 4:
+        note = Note.E;
+        break;
+      case 5:
+        note = Note.F;
+        break;
+      case 6:
+        note = Note.F;
+        accidental = Accidental.Sharp;
+        break;
+      case 7:
+        note = Note.G;
+        break;
+      case 8:
+        note = Note.G;
+        accidental = Accidental.Sharp;
+        break;
+      case 9:
+        note = Note.A;
+        break;
+      case 10:
+        note = Note.A;
+        accidental = Accidental.Sharp;
+        break;
+      case 11:
+        note = Note.B;
+        break;
+      default:
+        return null;
+    }
+
+    if (accidental != null) {
+      return NotePosition(note: note, octave: octave, accidental: accidental);
+    } else {
+      return NotePosition(note: note, octave: octave);
     }
   }
 }
