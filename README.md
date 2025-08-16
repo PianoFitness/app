@@ -201,16 +201,30 @@ We'd love to have you involved! Check out our [specifications](docs/specificatio
    - Install [Flutter SDK](https://flutter.dev/docs/get-started/install)
    - Set up your preferred IDE (VS Code, Android Studio, IntelliJ)
 
-3. **Install dependencies**
+3. **Install development dependencies**
    ```bash
+   # Install lefthook globally for git hooks
+   brew install lefthook  # macOS
+   # or
+   npm install -g lefthook  # Cross-platform
+   
+   # Install and initialize lefthook in the project
    cd app
+   lefthook install
+   ```
+
+4. **Install Flutter dependencies**
+   ```bash
    flutter pub get
    ```
 
-4. **Run the app**
+5. **Run the app**
    ```bash
    flutter run
    ```
+
+### Development Dependencies
+- **lefthook** - Git hooks manager for automated linting and formatting
 
 ## 🎵 The Future of Piano Practice
 

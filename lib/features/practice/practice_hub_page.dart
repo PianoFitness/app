@@ -41,7 +41,6 @@ class PracticeHubPage extends StatelessWidget {
                   border: Border.all(color: Colors.deepPurple.shade100),
                 ),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     // Icon column (compact)
                     const Icon(

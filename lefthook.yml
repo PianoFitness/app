@@ -1,0 +1,42 @@
+# Lefthook configuration for Piano Fitness
+# Git hooks for code quality and consistency
+
+pre-commit:
+  parallel: true
+  commands:
+    # Format Dart code
+    format:
+      glob: "*.dart"
+      run: dart format {staged_files}
+      stage_fixed: true
+
+    # Analyze Dart code for issues
+    analyze:
+      run: flutter analyze
+      fail_text: "Flutter analyze found issues. Please fix them before committing."
+
+    # Run tests (optional - can be enabled when test coverage is sufficient)
+    # test:
+    #   run: flutter test
+    #   fail_text: "Tests failed. Please fix them before committing."
+
+pre-push:
+  commands:
+    # Run full test suite before pushing
+    test:
+      run: flutter test
+      fail_text: "Tests failed. Please fix them before pushing."
+
+commit-msg:
+  commands:
+    # Ensure commit messages follow conventional commits format (optional)
+    # conventional:
+    #   run: |
+    #     if ! grep -qE "^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .{1,50}" "$1"; then
+    #       echo "Commit message should follow conventional commits format:"
+    #       echo "type(scope): description"
+    #       echo "Examples: feat: add chord progression practice"
+    #       echo "          fix(midi): resolve timing issues"
+    #       echo "          docs: update README with lefthook setup"
+    #       exit 1
+    #     fi
