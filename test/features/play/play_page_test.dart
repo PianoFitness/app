@@ -3,7 +3,6 @@ import "package:flutter_test/flutter_test.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/midi_settings/midi_settings_page.dart";
 import "package:piano_fitness/features/play/play_page.dart";
-import "package:piano_fitness/features/practice/practice_page.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:provider/provider.dart";
 import "../../shared/midi_mocks.dart";
@@ -36,7 +35,10 @@ void main() {
       // Verify PlayPage is rendered
       expect(find.byType(PlayPage), findsOneWidget);
       expect(find.text("Piano Fitness"), findsOneWidget);
-      expect(find.byIcon(Icons.piano), findsOneWidget);
+      expect(
+        find.byIcon(Icons.piano),
+        findsWidgets,
+      ); // There are multiple piano icons
     });
 
     testWidgets("should initialize ViewModel with correct MIDI channel", (
@@ -59,17 +61,15 @@ void main() {
       specificMidiState.dispose();
     });
 
-    testWidgets("should display educational content and navigation chips", (
+    testWidgets("should display educational content for free play", (
       tester,
     ) async {
       await tester.pumpWidget(testWidget);
 
-      // Verify educational content is present
-      expect(find.text("Piano Practice"), findsOneWidget);
-      expect(find.byIcon(Icons.school), findsOneWidget);
-      expect(find.text("Scales"), findsOneWidget);
-      expect(find.text("Chords"), findsOneWidget);
-      expect(find.text("Arpeggios"), findsOneWidget);
+      // Verify free play content is present
+      expect(find.text("Free Play Mode"), findsOneWidget);
+      expect(find.byIcon(Icons.piano), findsWidgets);
+      expect(find.textContaining("Explore and play freely"), findsOneWidget);
     });
 
     testWidgets("should use ViewModel for piano range calculation", (
@@ -133,19 +133,6 @@ void main() {
       });
 
       // Note: midiState disposal is handled in tearDown
-    });
-
-    testWidgets("should navigate to practice pages correctly", (tester) async {
-      await tester.pumpWidget(testWidget);
-
-      // Test Scales navigation
-      final scalesChip = find.widgetWithText(Chip, "Scales");
-      expect(scalesChip, findsOneWidget);
-
-      await tester.tap(scalesChip);
-      await tester.pumpAndSettle();
-
-      expect(find.byType(PracticePage), findsOneWidget);
     });
 
     testWidgets("should handle MIDI settings navigation", (tester) async {
@@ -252,36 +239,6 @@ void main() {
       // Verify it's clamped to reasonable bounds (20-60 as per piano_range_utils)
       expect(piano.keyWidth, greaterThanOrEqualTo(20));
       expect(piano.keyWidth, lessThanOrEqualTo(60));
-    });
-
-    group("Chords Navigation Tests", () {
-      testWidgets("should navigate to chords practice page", (tester) async {
-        await tester.pumpWidget(testWidget);
-
-        // Find and tap the Chords chip
-        final chordsChip = find.widgetWithText(Chip, "Chords");
-        expect(chordsChip, findsOneWidget);
-
-        await tester.tap(chordsChip);
-        await tester.pumpAndSettle();
-
-        // Verify navigation to practice page with chords mode
-        expect(find.byType(PracticePage), findsOneWidget);
-      });
-
-      testWidgets("should navigate to arpeggios practice page", (tester) async {
-        await tester.pumpWidget(testWidget);
-
-        // Find and tap the Arpeggios chip
-        final arpeggiosChip = find.widgetWithText(Chip, "Arpeggios");
-        expect(arpeggiosChip, findsOneWidget);
-
-        await tester.tap(arpeggiosChip);
-        await tester.pumpAndSettle();
-
-        // Verify navigation to practice page with arpeggios mode
-        expect(find.byType(PracticePage), findsOneWidget);
-      });
     });
   });
 }
