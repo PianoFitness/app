@@ -26,19 +26,4 @@ commit-msg:
   commands:
     # Ensure commit messages follow conventional commits format
     conventional:
-      run: |
-        # Use {1} for lefthook argument passing
-        commit_message=$(cat {1})
-        if ! echo "$commit_message" | grep -qE "^(feat|fix|docs|style|refactor|test|chore)(\(.+\))?: .{1,50}"; then
-          echo "❌ Commit message should follow conventional commits format:"
-          echo "   type(scope): description"
-          echo ""
-          echo "Examples:"
-          echo "   feat: add chord progression practice"
-          echo "   fix(midi): resolve timing issues"
-          echo "   docs: update README with lefthook setup"
-          echo ""
-          echo "Your message: $commit_message"
-          exit 1
-        fi
-        echo "✅ Commit message format is valid"
+      run: ./scripts/validate-commit-msg.sh {1}
