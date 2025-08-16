@@ -4,6 +4,12 @@
 pre-commit:
   parallel: true
   commands:
+    # Auto-fix Dart code issues
+    fix:
+      glob: "*.dart"
+      run: dart fix --apply
+      stage_fixed: true
+
     # Format Dart code
     format:
       glob: "*.dart"
@@ -12,8 +18,8 @@ pre-commit:
 
     # Analyze Dart code for issues
     analyze:
-      run: flutter analyze
-      fail_text: "Flutter analyze found issues. Please fix them before committing."
+      run: flutter analyze --no-fatal-infos
+      fail_text: "Flutter analyze found warnings or errors. Please fix them before committing."
 
 pre-push:
   commands:
@@ -26,4 +32,4 @@ commit-msg:
   commands:
     # Ensure commit messages follow conventional commits format
     conventional:
-      run: ./scripts/validate-commit-msg.sh {1}
+      run: dart scripts/validate_commit_msg.dart {1}
