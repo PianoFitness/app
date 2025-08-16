@@ -33,20 +33,11 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: _pages,
-      ),
+      body: IndexedStack(index: _selectedIndex, children: _pages),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.piano),
-            label: "Free Play",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.school),
-            label: "Practice",
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.piano), label: "Free Play"),
+          BottomNavigationBarItem(icon: Icon(Icons.school), label: "Practice"),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.deepPurple,

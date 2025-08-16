@@ -156,11 +156,16 @@ class _PlayPageState extends State<PlayPage> {
                           ),
                           const SizedBox(height: 16),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.deepPurple.shade200),
+                              border: Border.all(
+                                color: Colors.deepPurple.shade200,
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,

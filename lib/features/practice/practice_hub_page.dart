@@ -78,7 +78,7 @@ class PracticeHubPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Practice Modes Grid
               const Text(
                 "Practice Modes",
@@ -89,7 +89,7 @@ class PracticeHubPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               IntrinsicHeight(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -101,7 +101,8 @@ class PracticeHubPage extends StatelessWidget {
                         icon: Icons.trending_up,
                         description: "Major, minor, and modal scales",
                         color: Colors.blue,
-                        onTap: () => _navigateToPractice(context, PracticeMode.scales),
+                        onTap: () =>
+                            _navigateToPractice(context, PracticeMode.scales),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -112,7 +113,8 @@ class PracticeHubPage extends StatelessWidget {
                         icon: Icons.piano,
                         description: "Individual chord triads and inversions",
                         color: Colors.green,
-                        onTap: () => _navigateToPractice(context, PracticeMode.chords),
+                        onTap: () =>
+                            _navigateToPractice(context, PracticeMode.chords),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -121,9 +123,13 @@ class PracticeHubPage extends StatelessWidget {
                         context,
                         title: "Arpeggios",
                         icon: Icons.swap_vert,
-                        description: "Arpeggio patterns across multiple octaves",
+                        description:
+                            "Arpeggio patterns across multiple octaves",
                         color: Colors.orange,
-                        onTap: () => _navigateToPractice(context, PracticeMode.arpeggios),
+                        onTap: () => _navigateToPractice(
+                          context,
+                          PracticeMode.arpeggios,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -132,17 +138,21 @@ class PracticeHubPage extends StatelessWidget {
                         context,
                         title: "Chord Progressions",
                         icon: Icons.music_note,
-                        description: "Chord progressions using roman numeral notation",
+                        description:
+                            "Chord progressions using roman numeral notation",
                         color: Colors.purple,
-                        onTap: () => _navigateToPractice(context, PracticeMode.chordProgressions),
+                        onTap: () => _navigateToPractice(
+                          context,
+                          PracticeMode.chordProgressions,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Quick Start Section
               const Text(
                 "Quick Start",
@@ -153,14 +163,14 @@ class PracticeHubPage extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              
+
               _buildQuickStartCard(
                 context,
                 title: "Beginner Chord Progression",
                 subtitle: "I - V in C Major",
                 icon: Icons.play_circle_fill,
                 onTap: () => _navigateToChordProgression(
-                  context, 
+                  context,
                   ChordProgressionLibrary.getProgressionByName("I - V")!,
                 ),
               ),
@@ -198,11 +208,7 @@ class PracticeHubPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                icon,
-                size: 28,
-                color: color,
-              ),
+              Icon(icon, size: 28, color: color),
               const SizedBox(height: 6),
               Text(
                 title,
@@ -215,10 +221,7 @@ class PracticeHubPage extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 description,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -241,17 +244,8 @@ class PracticeHubPage extends StatelessWidget {
     return Card(
       elevation: 1,
       child: ListTile(
-        leading: Icon(
-          icon,
-          color: Colors.deepPurple,
-          size: 28,
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        leading: Icon(icon, color: Colors.deepPurple, size: 28),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
         subtitle: Text(subtitle),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
         onTap: onTap,
@@ -269,11 +263,15 @@ class PracticeHubPage extends StatelessWidget {
   }
 
   /// Navigates to chord progression practice with a specific progression.
-  void _navigateToChordProgression(BuildContext context, ChordProgression progression) {
+  void _navigateToChordProgression(
+    BuildContext context,
+    ChordProgression progression,
+  ) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (context) => const PracticePage(
+        builder: (context) => PracticePage(
           initialMode: PracticeMode.chordProgressions,
+          initialChordProgression: progression,
         ),
       ),
     );
