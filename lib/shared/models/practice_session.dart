@@ -1,5 +1,6 @@
 import "package:flutter/foundation.dart";
 import "package:piano/piano.dart";
+import "package:piano_fitness/shared/models/chord_progression_type.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
 import "package:piano_fitness/shared/utils/chords.dart";
@@ -40,6 +41,9 @@ class PracticeSession {
   ArpeggioType _selectedArpeggioType = ArpeggioType.major;
   ArpeggioOctaves _selectedArpeggioOctaves = ArpeggioOctaves.one;
 
+  // Chord progression-specific state
+  ChordProgression? _selectedChordProgression;
+
   List<int> _currentSequence = [];
   int _currentNoteIndex = 0;
   bool _practiceActive = false;
@@ -65,6 +69,9 @@ class PracticeSession {
 
   /// The currently selected octave range for arpeggio exercises.
   ArpeggioOctaves get selectedArpeggioOctaves => _selectedArpeggioOctaves;
+
+  /// The currently selected chord progression type for chord progression exercises.
+  ChordProgression? get selectedChordProgression => _selectedChordProgression;
 
   /// The current sequence of MIDI note numbers for the active exercise.
   List<int> get currentSequence => _currentSequence;
@@ -141,6 +148,16 @@ class PracticeSession {
     _initializeSequence();
   }
 
+  /// Sets the chord progression type for chord progression exercises.
+  ///
+  /// Automatically stops any active practice session and regenerates
+  /// the chord progression sequence with the new progression type.
+  void setSelectedChordProgression(ChordProgression progression) {
+    _selectedChordProgression = progression;
+    _practiceActive = false;
+    _initializeSequence();
+  }
+
   void _initializeSequence() {
     if (_practiceMode == PracticeMode.scales) {
       final scale = music.ScaleDefinitions.getScale(
@@ -173,6 +190,36 @@ class PracticeSession {
       _currentSequence = arpeggio.getFullArpeggioSequence(4);
       _currentNoteIndex = 0;
       _updateHighlightedNotes();
+    } else if (_practiceMode == PracticeMode.chordProgressions) {
+      // For chord progressions, generate based on the selected progression
+      if (_selectedChordProgression != null) {
+        _currentChordProgression = _selectedChordProgression!.generateChords(
+          _selectedKey,
+        );
+        _currentSequence = _generateChordProgressionMidiSequence(
+          _currentChordProgression,
+          4,
+        );
+      } else {
+        // Default to I-V if no progression selected
+        final defaultProgression = ChordProgressionLibrary.getProgressionByName(
+          "I - V",
+        );
+        if (defaultProgression != null) {
+          _selectedChordProgression = defaultProgression;
+          _currentChordProgression = defaultProgression.generateChords(
+            _selectedKey,
+          );
+          _currentSequence = _generateChordProgressionMidiSequence(
+            _currentChordProgression,
+            4,
+          );
+        }
+      }
+      _currentNoteIndex = 0;
+      _currentChordIndex = 0;
+      _currentlyHeldChordNotes.clear();
+      _updateHighlightedNotes();
     }
   }
 
@@ -192,7 +239,8 @@ class PracticeSession {
         noteInfo.octave,
       );
       onHighlightedNotesChanged([notePosition]);
-    } else if (_practiceMode == PracticeMode.chords) {
+    } else if (_practiceMode == PracticeMode.chords ||
+        _practiceMode == PracticeMode.chordProgressions) {
       if (_currentChordIndex < _currentChordProgression.length) {
         final currentChord = _currentChordProgression[_currentChordIndex];
         final chordMidiNotes = currentChord.getMidiNotes(4);
@@ -223,7 +271,7 @@ class PracticeSession {
   /// Processes incoming MIDI note data and advances the exercise if the
   /// correct note is played. Behavior varies by practice mode:
   /// - Scales/Arpeggios: Expects sequential note playing
-  /// - Chords: Expects simultaneous chord notes to be held
+  /// - Chords/ChordProgressions: Expects simultaneous chord notes to be held
   ///
   /// The [midiNote] parameter should be the MIDI note number (0-127).
   void handleNotePressed(int midiNote) {
@@ -242,7 +290,8 @@ class PracticeSession {
           _updateHighlightedNotes();
         }
       }
-    } else if (_practiceMode == PracticeMode.chords) {
+    } else if (_practiceMode == PracticeMode.chords ||
+        _practiceMode == PracticeMode.chordProgressions) {
       if (_currentChordIndex < _currentChordProgression.length) {
         final currentChord = _currentChordProgression[_currentChordIndex];
         final expectedChordNotes = currentChord.getMidiNotes(4);
@@ -258,12 +307,14 @@ class PracticeSession {
   /// Handles MIDI note release events during chord practice.
   ///
   /// Removes the released note from the set of currently held chord notes.
-  /// This is primarily used in chord mode to track which notes are being
-  /// held simultaneously.
+  /// This is primarily used in chord and chord progression modes to track
+  /// which notes are being held simultaneously.
   ///
   /// The [midiNote] parameter should be the MIDI note number (0-127).
   void handleNoteReleased(int midiNote) {
-    if (_practiceMode == PracticeMode.chords && _practiceActive) {
+    if ((_practiceMode == PracticeMode.chords ||
+            _practiceMode == PracticeMode.chordProgressions) &&
+        _practiceActive) {
       _currentlyHeldChordNotes.remove(midiNote);
     }
   }
@@ -290,6 +341,24 @@ class PracticeSession {
     _practiceActive = false;
     onHighlightedNotesChanged([]);
     onExerciseCompleted();
+  }
+
+  /// Generates a MIDI note sequence from a list of ChordInfo objects.
+  ///
+  /// Returns a flattened list of MIDI note numbers representing all the notes
+  /// in the chord progression, starting from the specified octave.
+  List<int> _generateChordProgressionMidiSequence(
+    List<ChordInfo> chordProgression,
+    int startOctave,
+  ) {
+    final midiSequence = <int>[];
+
+    for (final chord in chordProgression) {
+      final chordMidi = chord.getMidiNotes(startOctave);
+      midiSequence.addAll(chordMidi);
+    }
+
+    return midiSequence;
   }
 
   /// Starts a new practice session with the current exercise configuration.

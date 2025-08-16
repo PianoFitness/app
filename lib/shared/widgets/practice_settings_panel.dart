@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:piano_fitness/shared/models/chord_progression_type.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
@@ -21,6 +22,7 @@ class PracticeSettingsPanel extends StatelessWidget {
     required this.selectedRootNote,
     required this.selectedArpeggioType,
     required this.selectedArpeggioOctaves,
+    required this.selectedChordProgression,
     required this.practiceActive,
     required this.onStartPractice,
     required this.onResetPractice,
@@ -30,6 +32,7 @@ class PracticeSettingsPanel extends StatelessWidget {
     required this.onRootNoteChanged,
     required this.onArpeggioTypeChanged,
     required this.onArpeggioOctavesChanged,
+    required this.onChordProgressionChanged,
     super.key,
   });
 
@@ -50,6 +53,9 @@ class PracticeSettingsPanel extends StatelessWidget {
 
   /// The selected octave range for arpeggio exercises.
   final ArpeggioOctaves selectedArpeggioOctaves;
+
+  /// The selected chord progression type for chord progression exercises.
+  final ChordProgression? selectedChordProgression;
 
   /// Whether a practice session is currently active.
   final bool practiceActive;
@@ -78,6 +84,9 @@ class PracticeSettingsPanel extends StatelessWidget {
   /// Callback fired when the user changes the arpeggio octave range.
   final ValueChanged<ArpeggioOctaves> onArpeggioOctavesChanged;
 
+  /// Callback fired when the user changes the chord progression type.
+  final ValueChanged<ChordProgression> onChordProgressionChanged;
+
   String _getPracticeModeString(PracticeMode mode) {
     switch (mode) {
       case PracticeMode.scales:
@@ -86,6 +95,8 @@ class PracticeSettingsPanel extends StatelessWidget {
         return "Chords";
       case PracticeMode.arpeggios:
         return "Arpeggios";
+      case PracticeMode.chordProgressions:
+        return "Chord Progressions";
     }
   }
 
@@ -144,6 +155,10 @@ class PracticeSettingsPanel extends StatelessWidget {
       case ArpeggioOctaves.two:
         return "2 Octaves";
     }
+  }
+
+  String _getChordProgressionString(ChordProgression? progression) {
+    return progression?.displayName ?? "Select Progression";
   }
 
   @override
@@ -307,6 +322,29 @@ class PracticeSettingsPanel extends StatelessWidget {
                   ),
                 ),
               ],
+            ),
+          ],
+          if (practiceMode == PracticeMode.chordProgressions) ...[
+            const SizedBox(height: 12),
+            DropdownButtonFormField<ChordProgression>(
+              value: selectedChordProgression,
+              decoration: const InputDecoration(
+                labelText: "Chord Progression",
+                border: OutlineInputBorder(),
+              ),
+              items: ChordProgressionLibrary.getAllProgressions().map((
+                progression,
+              ) {
+                return DropdownMenuItem(
+                  value: progression,
+                  child: Text(_getChordProgressionString(progression)),
+                );
+              }).toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  onChordProgressionChanged(value);
+                }
+              },
             ),
           ],
           const SizedBox(height: 16),

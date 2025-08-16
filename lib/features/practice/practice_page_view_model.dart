@@ -2,6 +2,7 @@ import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:piano/piano.dart";
+import "package:piano_fitness/shared/models/chord_progression_type.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/models/practice_session.dart";
@@ -161,6 +162,12 @@ class PracticePageViewModel extends ChangeNotifier {
   /// Changes the selected arpeggio octaves and updates the session.
   void setSelectedArpeggioOctaves(ArpeggioOctaves octaves) {
     _practiceSession?.setSelectedArpeggioOctaves(octaves);
+    notifyListeners();
+  }
+
+  /// Changes the selected chord progression type and updates the session.
+  void setSelectedChordProgression(ChordProgression progression) {
+    _practiceSession?.setSelectedChordProgression(progression);
     notifyListeners();
   }
 

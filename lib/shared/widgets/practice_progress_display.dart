@@ -6,7 +6,7 @@ import "package:piano_fitness/shared/utils/chords.dart";
 ///
 /// Shows different progress indicators based on the practice mode:
 /// - Scales/Arpeggios: Progress through note sequence with progress bar
-/// - Chords: Current chord in progression with chord name display
+/// - Chords/ChordProgressions: Current chord in progression with chord name display
 ///
 /// Only visible when a practice session is active.
 class PracticeProgressDisplay extends StatelessWidget {
@@ -54,7 +54,8 @@ class PracticeProgressDisplay extends StatelessWidget {
       ),
       child: Column(
         children: [
-          if (practiceMode == PracticeMode.scales) ...[
+          if (practiceMode == PracticeMode.scales ||
+              practiceMode == PracticeMode.arpeggios) ...[
             Text(
               "Progress: ${currentNoteIndex + 1}/${currentSequence.length}",
               style: const TextStyle(fontWeight: FontWeight.bold),
@@ -64,13 +65,18 @@ class PracticeProgressDisplay extends StatelessWidget {
               value: (currentNoteIndex + 1) / currentSequence.length,
               backgroundColor: Colors.blue.shade100,
               valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade600),
-              semanticsLabel: "Scale practice progress",
+              semanticsLabel: practiceMode == PracticeMode.scales
+                  ? "Scale practice progress"
+                  : "Arpeggio practice progress",
               semanticsValue:
                   "${currentNoteIndex + 1} of ${currentSequence.length}",
             ),
-          ] else if (practiceMode == PracticeMode.chords) ...[
+          ] else if (practiceMode == PracticeMode.chords ||
+              practiceMode == PracticeMode.chordProgressions) ...[
             Text(
-              "Chord ${currentChordIndex + 1}/${currentChordProgression.length}",
+              practiceMode == PracticeMode.chords
+                  ? "Chord ${currentChordIndex + 1}/${currentChordProgression.length}"
+                  : "Progression ${currentChordIndex + 1}/${currentChordProgression.length}",
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             if (currentChordIndex < currentChordProgression.length) ...[
@@ -89,7 +95,9 @@ class PracticeProgressDisplay extends StatelessWidget {
               value: (currentChordIndex + 1) / currentChordProgression.length,
               backgroundColor: Colors.blue.shade100,
               valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade600),
-              semanticsLabel: "Chord progression practice progress",
+              semanticsLabel: practiceMode == PracticeMode.chords
+                  ? "Chord practice progress"
+                  : "Chord progression practice progress",
               semanticsValue:
                   "${currentChordIndex + 1} of ${currentChordProgression.length}",
             ),

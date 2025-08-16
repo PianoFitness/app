@@ -2,9 +2,7 @@ import "package:flutter/material.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/midi_settings/midi_settings_page.dart";
 import "package:piano_fitness/features/play/play_page_view_model.dart";
-import "package:piano_fitness/features/practice/practice_page.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
-import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_range_utils.dart";
 import "package:provider/provider.dart";
@@ -133,13 +131,13 @@ class _PlayPageState extends State<PlayPage> {
                       child: Column(
                         children: [
                           const Icon(
-                            Icons.school,
+                            Icons.piano,
                             size: 32,
                             color: Colors.deepPurple,
                           ),
                           const SizedBox(height: 12),
                           const Text(
-                            "Piano Practice",
+                            "Free Play Mode",
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -148,67 +146,43 @@ class _PlayPageState extends State<PlayPage> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            "Practice scales, chords, and melodies using the interactive piano below. "
-                            "Connect a MIDI keyboard for enhanced learning or use the virtual keys.",
+                            "Explore and play freely with the interactive piano. "
+                            "Connect a MIDI keyboard for enhanced experience or use the virtual keys below.",
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.deepPurple.shade700,
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 12),
-                          Wrap(
-                            alignment: WrapAlignment.center,
-                            spacing: 8,
-                            children: [
-                              InkWell(
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute<void>(
-                                      builder: (context) =>
-                                          const PracticePage(),
-                                    ),
-                                  );
-                                },
-                                child: Chip(
-                                  label: const Text("Scales"),
-                                  backgroundColor: Colors.deepPurple.shade100,
-                                  labelStyle: const TextStyle(fontSize: 12),
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.deepPurple.shade200),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.info_outline,
+                                  size: 16,
+                                  color: Colors.deepPurple.shade600,
                                 ),
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute<void>(
-                                      builder: (context) => const PracticePage(
-                                        initialMode: PracticeMode.chords,
-                                      ),
+                                const SizedBox(width: 8),
+                                Flexible(
+                                  child: Text(
+                                    "Looking for structured practice? Visit the Practice tab!",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.deepPurple.shade600,
+                                      fontWeight: FontWeight.w500,
                                     ),
-                                  );
-                                },
-                                child: Chip(
-                                  label: const Text("Chords"),
-                                  backgroundColor: Colors.deepPurple.shade100,
-                                  labelStyle: const TextStyle(fontSize: 12),
+                                  ),
                                 ),
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute<void>(
-                                      builder: (context) => const PracticePage(
-                                        initialMode: PracticeMode.arpeggios,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: Chip(
-                                  label: const Text("Arpeggios"),
-                                  backgroundColor: Colors.deepPurple.shade100,
-                                  labelStyle: const TextStyle(fontSize: 12),
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ],
                       ),

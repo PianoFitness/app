@@ -2,17 +2,21 @@
 ///
 /// Each mode focuses on different aspects of piano technique:
 /// - [scales]: Practice major, minor, and modal scales
-/// - [chords]: Practice chord progressions and triads
+/// - [chords]: Practice individual chord triads and inversions
 /// - [arpeggios]: Practice broken chord patterns across octaves
+/// - [chordProgressions]: Practice chord progressions using roman numeral notation
 enum PracticeMode {
   /// Practice scales in various keys and modes
   scales,
 
-  /// Practice chord progressions and triads
+  /// Practice individual chord triads and inversions
   chords,
 
   /// Practice arpeggio patterns across multiple octaves
   arpeggios,
+
+  /// Practice chord progressions using roman numeral notation
+  chordProgressions,
 }
 
 /// Extension to provide JSON serialization support for [PracticeMode].

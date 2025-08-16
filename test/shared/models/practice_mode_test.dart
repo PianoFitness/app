@@ -4,10 +4,11 @@ import "package:piano_fitness/shared/models/practice_mode.dart";
 void main() {
   group("PracticeMode", () {
     test("should have all expected values", () {
-      expect(PracticeMode.values.length, equals(3));
+      expect(PracticeMode.values.length, equals(4));
       expect(PracticeMode.values, contains(PracticeMode.scales));
       expect(PracticeMode.values, contains(PracticeMode.chords));
       expect(PracticeMode.values, contains(PracticeMode.arpeggios));
+      expect(PracticeMode.values, contains(PracticeMode.chordProgressions));
     });
 
     test("should have stable name property for serialization", () {
@@ -15,13 +16,18 @@ void main() {
       expect(PracticeMode.scales.name, equals("scales"));
       expect(PracticeMode.chords.name, equals("chords"));
       expect(PracticeMode.arpeggios.name, equals("arpeggios"));
-      
+      expect(PracticeMode.chordProgressions.name, equals("chordProgressions"));
+
       // toString() includes type prefix, less ideal for serialization
       expect(PracticeMode.scales.toString(), equals("PracticeMode.scales"));
       expect(PracticeMode.chords.toString(), equals("PracticeMode.chords"));
       expect(
         PracticeMode.arpeggios.toString(),
         equals("PracticeMode.arpeggios"),
+      );
+      expect(
+        PracticeMode.chordProgressions.toString(),
+        equals("PracticeMode.chordProgressions"),
       );
     });
 
@@ -44,12 +50,18 @@ void main() {
             return "Chords";
           case PracticeMode.arpeggios:
             return "Arpeggios";
+          case PracticeMode.chordProgressions:
+            return "Chord Progressions";
         }
       }
 
       expect(getModeString(PracticeMode.scales), equals("Scales"));
       expect(getModeString(PracticeMode.chords), equals("Chords"));
       expect(getModeString(PracticeMode.arpeggios), equals("Arpeggios"));
+      expect(
+        getModeString(PracticeMode.chordProgressions),
+        equals("Chord Progressions"),
+      );
     });
 
     test("should serialize to and from JSON correctly", () {
@@ -57,6 +69,10 @@ void main() {
       expect(PracticeMode.scales.toJson(), equals("scales"));
       expect(PracticeMode.chords.toJson(), equals("chords"));
       expect(PracticeMode.arpeggios.toJson(), equals("arpeggios"));
+      expect(
+        PracticeMode.chordProgressions.toJson(),
+        equals("chordProgressions"),
+      );
 
       // Test fromJson() reconstructs correct enum values
       expect(PracticeModeJson.fromJson("scales"), equals(PracticeMode.scales));
@@ -64,6 +80,10 @@ void main() {
       expect(
         PracticeModeJson.fromJson("arpeggios"),
         equals(PracticeMode.arpeggios),
+      );
+      expect(
+        PracticeModeJson.fromJson("chordProgressions"),
+        equals(PracticeMode.chordProgressions),
       );
 
       // Test round-trip serialization

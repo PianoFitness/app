@@ -1,4 +1,5 @@
 import "package:piano/piano.dart";
+import "package:piano_fitness/shared/utils/scales.dart" as music;
 
 /// The twelve chromatic musical notes in Western music.
 ///
@@ -308,5 +309,33 @@ class NoteUtils {
   static String getCompactNoteName(int midiNumber) {
     final noteInfo = midiNumberToNote(midiNumber);
     return _noteToString[noteInfo.note]!;
+  }
+
+  /// Converts a musical Key to its corresponding MIDI note number in octave 4.
+  ///
+  /// This is useful for chord progression calculations where you need the root
+  /// note in a specific octave. The [key] parameter specifies which key to convert.
+  /// Returns the MIDI note number for that key in octave 4 (e.g., C4 = 60).
+  ///
+  /// Example: `keyToMidiNumber(music.Key.c)` returns 60 (middle C).
+  /// Example: `keyToMidiNumber(music.Key.fSharp)` returns 66 (F#4).
+  static int keyToMidiNumber(music.Key key) {
+    // Map keys to MIDI note numbers (octave 4)
+    const keyToMidi = {
+      music.Key.c: 60,
+      music.Key.cSharp: 61, // C#/Db
+      music.Key.d: 62,
+      music.Key.dSharp: 63, // D#/Eb
+      music.Key.e: 64,
+      music.Key.f: 65,
+      music.Key.fSharp: 66, // F#/Gb
+      music.Key.g: 67,
+      music.Key.gSharp: 68, // G#/Ab
+      music.Key.a: 69,
+      music.Key.aSharp: 70, // A#/Bb
+      music.Key.b: 71,
+    };
+
+    return keyToMidi[key] ?? 60; // Default to C if not found
   }
 }

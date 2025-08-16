@@ -140,6 +140,8 @@ class _PracticePageState extends State<PracticePage> {
                           selectedArpeggioType: session.selectedArpeggioType,
                           selectedArpeggioOctaves:
                               session.selectedArpeggioOctaves,
+                          selectedChordProgression:
+                              session.selectedChordProgression,
                           practiceActive: session.practiceActive,
                           onStartPractice: _startPractice,
                           onResetPractice: _resetPractice,
@@ -160,6 +162,9 @@ class _PracticePageState extends State<PracticePage> {
                           },
                           onArpeggioOctavesChanged: (octaves) {
                             _viewModel.setSelectedArpeggioOctaves(octaves);
+                          },
+                          onChordProgressionChanged: (progression) {
+                            _viewModel.setSelectedChordProgression(progression);
                           },
                         );
                       },
