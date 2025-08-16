@@ -5,34 +5,57 @@
 # Exit on any error
 set -e
 
-# Define commit types and their descriptions
-# Format: "type:description"
-COMMIT_TYPES="
-feat:new feature for the user
-fix:bug fix for the user
-docs:changes to documentation
-style:formatting, missing semi colons, etc; no code change
-refactor:refactoring production code
-perf:performance improvements
-test:adding missing tests, refactoring tests
-build:changes to build system or external dependencies
-ci:changes to CI configuration files and scripts
-chore:updating grunt tasks etc; no production code change
-revert:reverting a previous commit
-"
+# Function to get commit type at index
+get_commit_type() {
+    case $1 in
+        0) echo "feat" ;;
+        1) echo "fix" ;;
+        2) echo "docs" ;;
+        3) echo "style" ;;
+        4) echo "refactor" ;;
+        5) echo "perf" ;;
+        6) echo "test" ;;
+        7) echo "build" ;;
+        8) echo "ci" ;;
+        9) echo "chore" ;;
+        10) echo "revert" ;;
+        *) echo "" ;;
+    esac
+}
+
+# Function to get commit description at index
+get_commit_description() {
+    case $1 in
+        0) echo "new feature for the user" ;;
+        1) echo "bug fix for the user" ;;
+        2) echo "changes to documentation" ;;
+        3) echo "formatting, missing semi colons, etc; no code change" ;;
+        4) echo "refactoring production code" ;;
+        5) echo "performance improvements" ;;
+        6) echo "adding missing tests, refactoring tests" ;;
+        7) echo "changes to build system or external dependencies" ;;
+        8) echo "changes to CI configuration files and scripts" ;;
+        9) echo "updating grunt tasks etc; no production code change" ;;
+        10) echo "reverting a previous commit" ;;
+        *) echo "" ;;
+    esac
+}
 
 # Build regex pattern from commit types
 build_regex() {
     types=""
-    for line in $COMMIT_TYPES; do
-        if [ -n "$line" ]; then
-            type=$(echo "$line" | cut -d: -f1)
-            if [ -n "$types" ]; then
-                types="$types|$type"
-            else
-                types="$type"
-            fi
+    i=0
+    while true; do
+        type=$(get_commit_type $i)
+        if [ -z "$type" ]; then
+            break
         fi
+        if [ -n "$types" ]; then
+            types="$types|$type"
+        else
+            types="$type"
+        fi
+        i=$((i + 1))
     done
     echo "^($types)(\\(.+\\))?: .{1,50}"
 }
@@ -44,12 +67,15 @@ generate_help() {
     echo ""
     echo "Allowed types:"
     
-    for line in $COMMIT_TYPES; do
-        if [ -n "$line" ]; then
-            type=$(echo "$line" | cut -d: -f1)
-            desc=$(echo "$line" | cut -d: -f2-)
-            printf "   %-8s - %s\n" "$type" "$desc"
+    i=0
+    while true; do
+        type=$(get_commit_type $i)
+        desc=$(get_commit_description $i)
+        if [ -z "$type" ]; then
+            break
         fi
+        printf "   %-8s - %s\n" "$type" "$desc"
+        i=$((i + 1))
     done
     
     echo ""
