@@ -121,11 +121,6 @@ class _PracticePageState extends State<PracticePage> {
     });
   }
 
-  void _startPractice() {
-    // No-op: Practice now auto-starts on MIDI input
-    // This method kept for backward compatibility only
-  }
-
   void _resetPractice() {
     _viewModel.resetPractice();
   }
@@ -188,7 +183,6 @@ class _PracticePageState extends State<PracticePage> {
                           selectedChordProgression:
                               session.selectedChordProgression,
                           practiceActive: session.practiceActive,
-                          onStartPractice: _startPractice,
                           onResetPractice: _resetPractice,
                           onPracticeModeChanged: (mode) {
                             _viewModel.setPracticeMode(mode);

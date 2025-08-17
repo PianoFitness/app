@@ -11,7 +11,7 @@ import "package:piano_fitness/shared/utils/scales.dart" as music;
 /// musical keys, scale types, and other exercise-specific parameters. It adapts its
 /// interface based on the selected practice mode to show relevant options.
 class PracticeSettingsPanel extends StatelessWidget {
-  /// Creates a practice settings panel with all required configuration options.
+  /// Creates a practice settings panel with configuration options for practice sessions.
   ///
   /// All parameters are required to ensure the panel can properly display
   /// current settings and handle user interactions.
@@ -24,7 +24,6 @@ class PracticeSettingsPanel extends StatelessWidget {
     required this.selectedArpeggioOctaves,
     required this.selectedChordProgression,
     required this.practiceActive,
-    required this.onStartPractice,
     required this.onResetPractice,
     required this.onPracticeModeChanged,
     required this.onKeyChanged,
@@ -59,11 +58,6 @@ class PracticeSettingsPanel extends StatelessWidget {
 
   /// Whether a practice session is currently active.
   final bool practiceActive;
-
-  /// Callback fired when the user taps the Start button.
-  /// NOTE: Start button removed - practice auto-starts on MIDI input.
-  @Deprecated("Auto-start enabled - start button no longer needed")
-  final VoidCallback onStartPractice;
 
   /// Callback fired when the user taps the Reset button.
   final VoidCallback onResetPractice;

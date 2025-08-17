@@ -340,7 +340,6 @@ class PracticeSession {
 
   void _completeExercise() {
     _practiceActive = false;
-    onHighlightedNotesChanged([]);
     onExerciseCompleted();
 
     // Reset for immediate repetition - ready for next practice session
