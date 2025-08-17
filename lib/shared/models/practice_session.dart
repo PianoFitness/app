@@ -342,6 +342,12 @@ class PracticeSession {
     _practiceActive = false;
     onHighlightedNotesChanged([]);
     onExerciseCompleted();
+
+    // Reset for immediate repetition - ready for next practice session
+    _currentNoteIndex = 0;
+    _currentChordIndex = 0;
+    _currentlyHeldChordNotes.clear();
+    _updateHighlightedNotes();
   }
 
   /// Generates a MIDI note sequence from a list of ChordInfo objects.
@@ -378,6 +384,7 @@ class PracticeSession {
   ///
   /// Stops the active session and resets all progress indicators.
   /// The exercise configuration (mode, key, type) remains unchanged.
+  /// Ready for immediate repetition when next note is played.
   void resetPractice() {
     _practiceActive = false;
     _currentNoteIndex = 0;

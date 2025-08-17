@@ -80,7 +80,8 @@ class _PracticePageState extends State<PracticePage> {
   }
 
   void _startPractice() {
-    _viewModel.startPractice();
+    // No-op: Practice now auto-starts on MIDI input
+    // This method kept for backward compatibility only
   }
 
   void _resetPractice() {

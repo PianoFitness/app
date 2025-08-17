@@ -61,6 +61,8 @@ class PracticeSettingsPanel extends StatelessWidget {
   final bool practiceActive;
 
   /// Callback fired when the user taps the Start button.
+  /// NOTE: Start button removed - practice auto-starts on MIDI input.
+  @Deprecated("Auto-start enabled - start button no longer needed")
   final VoidCallback onStartPractice;
 
   /// Callback fired when the user taps the Reset button.
@@ -348,22 +350,55 @@ class PracticeSettingsPanel extends StatelessWidget {
             ),
           ],
           const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          // Show practice status and reset button
+          Column(
             children: [
-              ElevatedButton.icon(
-                onPressed: practiceActive ? null : onStartPractice,
-                icon: const Icon(Icons.play_arrow),
-                label: const Text("Start"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: practiceActive
+                      ? Colors.green.shade100
+                      : Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: practiceActive
+                        ? Colors.green.shade300
+                        : Colors.blue.shade200,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      practiceActive ? Icons.music_note : Icons.piano,
+                      color: practiceActive
+                          ? Colors.green.shade700
+                          : Colors.blue.shade700,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      practiceActive
+                          ? "Practice Active - Keep Playing!"
+                          : "Ready - Play Any Note to Start",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: practiceActive
+                            ? Colors.green.shade700
+                            : Colors.blue.shade700,
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(height: 12),
               ElevatedButton.icon(
                 onPressed: onResetPractice,
                 icon: const Icon(Icons.refresh),
-                label: const Text("Reset"),
+                label: const Text("Reset Exercise"),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,
