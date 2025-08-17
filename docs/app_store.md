@@ -18,7 +18,7 @@ This document contains all the promotional and descriptive content for the Piano
 
 ### Current Promotional Text
 
-🎹 Master piano fundamentals with our comprehensive Practice Hub! MIDI keyboard support, chord progressions, and adaptive piano interface.
+🎹 Auto-start practice, complete reference system, and MIDI integration! Practice begins instantly when you play - no buttons needed.
 
 ### Alternative Promotional Text Options
 
@@ -41,13 +41,26 @@ This document contains all the promotional and descriptive content for the Piano
 
 Piano Fitness is a piano practice app that combines MIDI keyboard integration with an interactive visual piano interface. Practice scales, chords, and arpeggios with real-time visual feedback and guided exercises designed to improve your technique.
 
-**🎹 MIDI Keyboard Integration**
+**🚀 Instant Auto-Start Practice (New in 0.2.0)**
+
+- Practice begins automatically the moment you play any note
+- Immediate exercise repetition for muscle memory building
+- Intelligent completion notifications that don't block the keyboard
+
+**📚 Complete Reference System (New in 0.2.0)**
+
+- Interactive scale reference with all major and minor scales
+- Comprehensive chord reference with triads and inversions
+- Single-octave display for clearer learning focus
+- Visual highlighting synchronized with your MIDI keyboard
+
+**🎹 Enhanced MIDI Integration**
 
 - Connect via Bluetooth or USB MIDI devices
-- Real-time note detection from your MIDI keyboard  
+- Real-time note detection with improved timing accuracy
 - Visual feedback showing played notes on the piano interface
 - Support for multiple MIDI channels and device types
-- Advanced MIDI message processing and display
+- Full flat key support (Db, Gb, Ab, Bb, Eb major)
 - Professional device testing and calibration tools
 
 **📚 Comprehensive Practice Hub**
@@ -55,8 +68,8 @@ Piano Fitness is a piano practice app that combines MIDI keyboard integration wi
 - Structured Practice Hub with organized exercise categories
 - Scales: Major, minor, dorian, and mixolydian scales in all keys
 - Chords: Individual triads and inversions with proper voice leading
-- Arpeggios: Major, minor, diminished, and 7th chord arpeggios (1-2 octaves)
 - Chord Progressions: Classical progressions with roman numeral notation (I-V, vi-IV, ii-V-I, and more)
+- Arpeggios: Major, minor, diminished, and 7th chord arpeggios (1-2 octaves)
 - Progressive difficulty levels (Beginner, Intermediate, Advanced)
 - Real-time progress tracking with visual progress bars
 - Exercise completion feedback and congratulations
@@ -256,5 +269,5 @@ piano, MIDI, practice app, chord progressions, music theory, scales, professiona
 
 ---
 
-*Last Updated: August 7, 2025*
-*Document Version: 1.1*
+*Last Updated: August 17, 2025*
+*Document Version: 1.2 - Piano Fitness 0.2.0 Release*
