@@ -9,8 +9,8 @@ import "package:piano_fitness/shared/widgets/main_navigation.dart";
 void main() {
   // Configure logging levels
   if (kDebugMode) {
-    // In debug mode, show info level and above
-    Logger.root.level = Level.INFO;
+    // In debug mode, show fine (and above) for detailed diagnostics
+    Logger.root.level = Level.FINE;
   } else {
     // In production, only show warnings and errors
     Logger.root.level = Level.WARNING;
@@ -19,12 +19,15 @@ void main() {
   // Set up logging output handler
   Logger.root.onRecord.listen((record) {
     // Only print logs in debug mode to avoid noise in production
-    if (kDebugMode) {
-      debugPrint(
-        "${record.level.name}: ${record.time}: "
-        "${record.loggerName}: ${record.message}",
-      );
-    }
+    if (!kDebugMode) return;
+    final errorSuffix = record.error != null ? " error: ${record.error}" : "";
+    final stackSuffix = record.stackTrace != null
+        ? "\n${record.stackTrace}"
+        : "";
+    debugPrint(
+      "${record.level.name}: ${record.time}: "
+      "${record.loggerName}: ${record.message}$errorSuffix$stackSuffix",
+    );
   });
 
   runApp(const MyApp());
