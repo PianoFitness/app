@@ -142,10 +142,10 @@ class _ReferencePageState extends State<ReferencePage> {
                 return ListenableBuilder(
                   listenable: _viewModel,
                   builder: (context, child) {
-                    // Convert local highlighted MIDI notes to NotePositions
+                    // Convert local highlighted MIDI notes to NotePositions using shared utility
                     final localHighlightedPositions = _viewModel
                         .localHighlightedNotes
-                        .map<NotePosition?>(_convertMidiToNotePosition)
+                        .map<NotePosition?>(NoteUtils.midiNumberToNotePosition)
                         .where((position) => position != null)
                         .cast<NotePosition>()
                         .toList();
@@ -450,69 +450,6 @@ class _ReferencePageState extends State<ReferencePage> {
         return "1st Inversion";
       case ChordInversion.second:
         return "2nd Inversion";
-    }
-  }
-
-  /// Converts a MIDI note number to a NotePosition for piano display.
-  NotePosition? _convertMidiToNotePosition(int midiNote) {
-    if (midiNote < 0 || midiNote > 127) return null;
-
-    final octave = (midiNote ~/ 12) - 1;
-    final noteInOctave = midiNote % 12;
-
-    Note note;
-    Accidental? accidental;
-
-    switch (noteInOctave) {
-      case 0:
-        note = Note.C;
-        break;
-      case 1:
-        note = Note.C;
-        accidental = Accidental.Sharp;
-        break;
-      case 2:
-        note = Note.D;
-        break;
-      case 3:
-        note = Note.D;
-        accidental = Accidental.Sharp;
-        break;
-      case 4:
-        note = Note.E;
-        break;
-      case 5:
-        note = Note.F;
-        break;
-      case 6:
-        note = Note.F;
-        accidental = Accidental.Sharp;
-        break;
-      case 7:
-        note = Note.G;
-        break;
-      case 8:
-        note = Note.G;
-        accidental = Accidental.Sharp;
-        break;
-      case 9:
-        note = Note.A;
-        break;
-      case 10:
-        note = Note.A;
-        accidental = Accidental.Sharp;
-        break;
-      case 11:
-        note = Note.B;
-        break;
-      default:
-        return null;
-    }
-
-    if (accidental != null) {
-      return NotePosition(note: note, octave: octave, accidental: accidental);
-    } else {
-      return NotePosition(note: note, octave: octave);
     }
   }
 }
