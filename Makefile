@@ -1,7 +1,11 @@
 # Piano Fitness - Development Makefile
 # Complete developer workflow commands for building, testing, and releasing
 
-.PHONY: help setup deps deps-upgrade clean \
+# Simulator defaults (overridable): use `make IPHONE_SIM="..."` to override
+IPHONE_SIM ?= iPhone 16 Pro Max
+IPAD_SIM   ?= iPad Pro 13-inch (M4)
+
+.PHONY: all help setup deps deps-upgrade clean \
 	build-ios build-macos build-ipa build-web \
 	test test-coverage test-watch lint format validate profile bundle-size \
 	screenshot-iphone screenshot-ipad \
@@ -10,6 +14,9 @@
 	release version changelog \
 	ios ipad web build \
 	help-first-time help-daily help-release
+
+# Conventional 'all' target for checkmake compliance
+all: help
 
 # Default target
 help:
@@ -24,8 +31,8 @@ help:
 	@echo "  web            - Launch on web (alias for run-web)"
 	@echo ""
 	@echo "📱 Simulators:"
-	@echo "  run-iphone     - Launch app on iPhone 16 Pro Max simulator"
-	@echo "  run-ipad       - Launch app on iPad Pro 13-inch simulator"
+	@echo "  run-iphone     - Launch app on $(IPHONE_SIM) simulator"
+	@echo "  run-ipad       - Launch app on $(IPAD_SIM) simulator"
 	@echo "  run-web        - Launch app in web browser"
 	@echo "  hot-reload     - Trigger hot reload (r key)"
 	@echo ""
@@ -112,24 +119,22 @@ hot-reload:
 
 # Simulator Management
 run-iphone: check-flutter
-	@echo "🚀 Launching iPhone 16 Pro Max simulator..."
+	@echo "🚀 Launching $(IPHONE_SIM) simulator..."
 	@open -a Simulator
-	@sleep 2
-	@xcrun simctl boot "iPhone 16 Pro Max" 2>/dev/null || true
-	@echo "⏳ Waiting for simulator to start..."
-	@sleep 3
+	@xcrun simctl boot "$(IPHONE_SIM)" 2>/dev/null || true
+	@echo "⏳ Waiting for simulator to fully boot..."
+	@xcrun simctl bootstatus "$(IPHONE_SIM)" -b
 	@echo "🎯 Launching app..."
-	@flutter run -d "iPhone 16 Pro Max" --debug
+	@flutter run -d "$(IPHONE_SIM)" --debug
 
 run-ipad: check-flutter
-	@echo "🚀 Launching iPad Pro 13-inch simulator..."
+	@echo "🚀 Launching $(IPAD_SIM) simulator..."
 	@open -a Simulator
-	@sleep 2
-	@xcrun simctl boot "iPad Pro 13-inch (M4)" 2>/dev/null || true
-	@echo "⏳ Waiting for simulator to start..."
-	@sleep 3
+	@xcrun simctl boot "$(IPAD_SIM)" 2>/dev/null || true
+	@echo "⏳ Waiting for simulator to fully boot..."
+	@xcrun simctl bootstatus "$(IPAD_SIM)" -b
 	@echo "🎯 Launching app..."
-	@flutter run -d "iPad Pro 13-inch (M4)" --debug
+	@flutter run -d "$(IPAD_SIM)" --debug
 
 run-web: check-flutter
 	@echo "🌐 Launching web version..."
@@ -157,7 +162,7 @@ screenshot-iphone:
 	@echo "📸 Taking iPhone screenshot..."
 	@mkdir -p screenshots
 	@FILE="screenshots/iphone-$$(date +%Y%m%d-%H%M%S).png" && \
-	 xcrun simctl io "iPhone 16 Pro Max" screenshot "$$FILE" && \
+	 xcrun simctl io "$(IPHONE_SIM)" screenshot "$$FILE" && \
 	 echo "✅ Screenshot saved: $$FILE" && \
 	 ls -la "$$FILE"
 
@@ -165,24 +170,24 @@ screenshot-ipad:
 	@echo "📸 Taking iPad screenshot..."
 	@mkdir -p screenshots
 	@FILE="screenshots/ipad-$$(date +%Y%m%d-%H%M%S).png" && \
-	 xcrun simctl io "iPad Pro 13-inch (M4)" screenshot "$$FILE" && \
+	 xcrun simctl io "$(IPAD_SIM)" screenshot "$$FILE" && \
 	 echo "✅ Screenshot saved: $$FILE" && \
 	 ls -la "$$FILE"
 
 # Building
-build-ipa: check-flutter
+build-ipa: check-flutter check-xcode
 	@echo "📦 Building release IPA for App Store..."
 	@echo "⏳ This may take several minutes..."
 	@flutter build ipa --release
 	@echo "✅ IPA built successfully!"
 	@ls -la build/ios/ipa/
 
-build-ios: check-flutter
+build-ios: check-flutter check-xcode
 	@echo "📦 Building iOS debug version..."
-	@flutter build ios --debug
+	@flutter build ios --debug --no-codesign
 	@echo "✅ iOS debug build complete"
 
-build-macos: check-flutter
+build-macos: check-flutter check-xcode
 	@echo "📦 Building macOS release version..."
 	@flutter build macos --release
 	@echo "✅ macOS release build complete"
@@ -252,7 +257,7 @@ version:
 changelog:
 	@echo "📝 Generating changelog..."
 	@echo "TODO: Implement changelog generation"
-	@echo "Manual: Update CHANGELOG.md with version $$(grep '^version:' pubspec.yaml | cut -d' ' -f2)"
+	@echo "Manual: Update CHANGELOG.md with version $$(awk -F': *' '/^version:/ {print $$2}' pubspec.yaml)"
 
 # Shorter Aliases
 ios: run-iphone
