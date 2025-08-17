@@ -1,6 +1,6 @@
 import "package:piano_fitness/shared/utils/chords.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
-import "package:piano_fitness/shared/utils/scales.dart";
+import "package:piano_fitness/shared/utils/scales.dart" as scales;
 
 /// Utility class for chord inversion calculations and MIDI note generation.
 ///
@@ -37,12 +37,12 @@ class ChordInversionUtils {
   /// For example, octaveSpan of 2 will include notes from the base octave
   /// and the next octave up.
   static Set<int> getScaleMidiNotes({
-    required Key key,
-    required ScaleType scaleType,
+    required scales.Key key,
+    required scales.ScaleType scaleType,
     required int baseOctave,
     int octaveSpan = 2,
   }) {
-    final scale = ScaleDefinitions.getScale(key, scaleType);
+    final scale = scales.ScaleDefinitions.getScale(key, scaleType);
     final scaleNotes = scale.getNotes();
     final midiNotes = <int>{};
 
@@ -132,31 +132,31 @@ class ChordInversionUtils {
   ///
   /// This is a utility method to bridge between the scales module
   /// and the chord/note utilities.
-  static MusicalNote keyToMusicalNote(Key key) {
+  static MusicalNote keyToMusicalNote(scales.Key key) {
     switch (key) {
-      case Key.c:
+      case scales.Key.c:
         return MusicalNote.c;
-      case Key.cSharp:
+      case scales.Key.cSharp:
         return MusicalNote.cSharp;
-      case Key.d:
+      case scales.Key.d:
         return MusicalNote.d;
-      case Key.dSharp:
+      case scales.Key.dSharp:
         return MusicalNote.dSharp;
-      case Key.e:
+      case scales.Key.e:
         return MusicalNote.e;
-      case Key.f:
+      case scales.Key.f:
         return MusicalNote.f;
-      case Key.fSharp:
+      case scales.Key.fSharp:
         return MusicalNote.fSharp;
-      case Key.g:
+      case scales.Key.g:
         return MusicalNote.g;
-      case Key.gSharp:
+      case scales.Key.gSharp:
         return MusicalNote.gSharp;
-      case Key.a:
+      case scales.Key.a:
         return MusicalNote.a;
-      case Key.aSharp:
+      case scales.Key.aSharp:
         return MusicalNote.aSharp;
-      case Key.b:
+      case scales.Key.b:
         return MusicalNote.b;
     }
   }
