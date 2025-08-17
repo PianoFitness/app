@@ -118,7 +118,6 @@ class PracticePageViewModel extends ChangeNotifier {
             // Auto-start practice on first MIDI note if not already active
             if (!_practiceSession!.practiceActive) {
               _practiceSession!.startPractice();
-              notifyListeners();
             }
             _practiceSession?.handleNotePressed(event.data1);
           }
@@ -200,7 +199,6 @@ class PracticePageViewModel extends ChangeNotifier {
     // Auto-start practice on virtual note if not already active
     if (!_practiceSession!.practiceActive) {
       _practiceSession!.startPractice();
-      notifyListeners();
     }
 
     await VirtualPianoUtils.playVirtualNote(
