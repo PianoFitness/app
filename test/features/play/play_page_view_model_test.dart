@@ -19,16 +19,14 @@ void main() {
       mockMidiState = MidiState();
       // Note: Play page now uses local MIDI state, so we don't set external state
 
-      // Wait for any async initialization to complete
-      await Future<void>.delayed(const Duration(milliseconds: 10));
+      // No delay needed; tests await specific async calls as required
     });
 
     tearDown(() async {
       viewModel.dispose();
       mockMidiState.dispose();
 
-      // Wait for any pending async operations to complete
-      await Future<void>.delayed(const Duration(milliseconds: 10));
+      // No delay needed here either
     });
 
     test("should initialize with correct MIDI channel", () {
