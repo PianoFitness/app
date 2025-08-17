@@ -36,8 +36,8 @@ class CommitValidator {
     final firstLine = message.split("\n").first.trim();
 
     final typePattern = commitTypes.keys.join("|");
-    // Allow longer descriptions (up to 100 chars) and optional scope
-    final regex = RegExp(r"^(" + typePattern + r")(\(.+\))?: .{1,100}$");
+    // Allow longer descriptions (up to 120 chars) and optional scope
+    final regex = RegExp(r"^(" + typePattern + r")(\(.+\))?: .{1,120}$");
     return regex.hasMatch(firstLine);
   }
 
