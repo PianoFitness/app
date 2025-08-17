@@ -158,17 +158,25 @@ install-certificates:
 	@echo "Manual: Open Xcode > Preferences > Accounts > Add Apple ID"
 
 # Screenshots
-screenshot-iphone:
+screenshot-iphone: check-xcode
 	@echo "📸 Taking iPhone screenshot..."
 	@mkdir -p screenshots
+	@open -a Simulator
+	@xcrun simctl boot "$(IPHONE_SIM)" 2>/dev/null || true
+	@echo "⏳ Waiting for simulator to fully boot..."
+	@xcrun simctl bootstatus "$(IPHONE_SIM)" -b
 	@FILE="screenshots/iphone-$$(date +%Y%m%d-%H%M%S).png" && \
 	 xcrun simctl io "$(IPHONE_SIM)" screenshot "$$FILE" && \
 	 echo "✅ Screenshot saved: $$FILE" && \
 	 ls -la "$$FILE"
 
-screenshot-ipad:
+screenshot-ipad: check-xcode
 	@echo "📸 Taking iPad screenshot..."
 	@mkdir -p screenshots
+	@open -a Simulator
+	@xcrun simctl boot "$(IPAD_SIM)" 2>/dev/null || true
+	@echo "⏳ Waiting for simulator to fully boot..."
+	@xcrun simctl bootstatus "$(IPAD_SIM)" -b
 	@FILE="screenshots/ipad-$$(date +%Y%m%d-%H%M%S).png" && \
 	 xcrun simctl io "$(IPAD_SIM)" screenshot "$$FILE" && \
 	 echo "✅ Screenshot saved: $$FILE" && \
