@@ -27,11 +27,8 @@ class _ReferencePageState extends State<ReferencePage> {
   void initState() {
     super.initState();
     _viewModel = ReferencePageViewModel();
-
-    // Activate the reference display when the page is initialized
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _viewModel.activateReferenceDisplay();
-    });
+    // Activate the reference display once during initialization
+    _viewModel.activateReferenceDisplay();
   }
 
   @override
@@ -44,10 +41,7 @@ class _ReferencePageState extends State<ReferencePage> {
 
   @override
   Widget build(BuildContext context) {
-    // Activate reference display when this widget builds (page becomes visible)
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _viewModel.activateReferenceDisplay();
-    });
+    // ...existing code...
 
     return Scaffold(
       appBar: AppBar(
