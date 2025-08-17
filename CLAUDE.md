@@ -1,4 +1,4 @@
-s# CLAUDE.md
+# CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -71,7 +71,7 @@ lefthook install
 ### Application Structure
 Piano Fitness is a Flutter app for piano practice with MIDI integration, following a feature-based MVVM architecture:
 
-- **lib/main.dart**: App entry point with Provider setup for global MidiState
+- **lib/main.dart**: App entry point; initializes app and navigation
 - **lib/features/**: Feature modules with page/view_model pairs
 - **lib/shared/**: Reusable components, models, services, and utilities
 
@@ -96,9 +96,10 @@ Bottom navigation with three main sections:
 2. **Practice** (`features/practice/`): Structured practice sessions
 3. **Reference** (`features/reference/`): Scale and chord reference
 
+
 #### MIDI Integration
-Centralized MIDI handling through:
-- **MidiState**: Global state for active notes, channel selection
+MIDI handling is managed locally within each page via page-scoped ViewModels/controllers:
+- **MidiState**: Local state for active notes, channel selection (instantiated per page/ViewModel)
 - **MidiConnectionService**: Device connection and data handling
 - **VirtualPianoUtils**: Note playback and interaction
 
@@ -124,13 +125,15 @@ Centralized MIDI handling through:
 - Conversion between MusicalNote enum, MIDI numbers, and piano positions
 - Integration with piano package for InteractivePiano widget
 
+
 ### State Management Strategy
 
-#### Global State (Provider)
-- **MidiState**: Active notes, channel selection, activity tracking
-- Provides highlightedNotePositions for piano visualization
+#### Local MIDI State (Per-Page ViewModel)
+- Each page or feature module manages its own `MidiState` via a dedicated ViewModel/controller
+- MIDI device connection, note events, and channel selection are isolated to the page context
+- UI updates and note highlighting are driven by the local MidiState instance
 
-#### Local State (ChangeNotifier ViewModels)
+#### Other Local State (ChangeNotifier ViewModels)
 - Feature-specific state management
 - Business logic separation from UI
 - Notification-based UI updates
@@ -150,29 +153,9 @@ Centralized MIDI handling through:
 - **Shared Mocks**: Centralized MIDI plugin mocking (`test/shared/midi_mocks.dart`)
 
 ### Key Testing Patterns
-```dart
-// Setup with MIDI mocks
-setUpAll(MidiMocks.setUp);
-tearDownAll(MidiMocks.tearDown);
 
-// ViewModel testing with MidiState
-setUp(() async {
-  viewModel = ReferencePageViewModel();
-  mockMidiState = MidiState();
-  viewModel.setMidiState(mockMidiState);
-  await Future<void>.delayed(const Duration(milliseconds: 10));
-});
-
-// Widget testing with Provider
-Widget createTestWidget() {
-  return MaterialApp(
-    home: ChangeNotifierProvider<MidiState>.value(
-      value: midiState,
-      child: const ReferencePage(),
-    ),
-  );
-}
-```
+- Set up MIDI mocks for tests
+- Use ChangeNotifierProvider for widget tests
 
 ## Code Style and Conventions
 
