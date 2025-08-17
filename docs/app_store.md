@@ -66,15 +66,6 @@ Complete Reference System
 - Single-octave display for clearer learning focus
 - Visual highlighting synchronized with your MIDI keyboard
 
-Enhanced MIDI Integration
-
-- Connect via Bluetooth or USB MIDI devices
-- Real-time note detection with improved timing accuracy
-- Visual feedback showing played notes on the piano interface
-- Support for multiple MIDI channels and device types
-- Full flat key support (Db, Gb, Ab, Bb, Eb major)
-- Professional device testing and calibration tools
-
 Comprehensive Practice Hub
 
 - Structured Practice Hub with organized exercise categories
@@ -88,7 +79,7 @@ Comprehensive Practice Hub
 
 Advanced Interactive Piano Interface
 
-- Dynamic 49-key piano keyboard with adaptive range
+- Dynamic on-screen keyboard (up to 49 keys) with adaptive range
 - Smart range calculation that centers on your practice exercise
 - Screen-responsive key sizing for optimal touch experience
 - Real-time note highlighting during practice sessions
@@ -106,12 +97,17 @@ Professional MIDI Integration
 - Real-time MIDI message monitoring and display
 - Connection troubleshooting tools and status indicators
 - Bluetooth permission management with user guidance
+- Real-time note detection with improved timing accuracy
+- Visual feedback showing played notes on the piano interface
+- Support for multiple MIDI channels and device types
+- Full flat key support (Db, Gb, Ab, Bb, Eb major)
+- Professional device testing and calibration tools
 
 Perfect for:
 
 - Piano students wanting structured, progressive practice sessions
 - Players with MIDI keyboards seeking visual feedback and guided exercises
-- Self-taught pianists looking for comprehensive practice curriculum
+- Self-taught pianists looking for a comprehensive practice curriculum
 - Music teachers needing organized practice tools for students
 - Anyone wanting to master scales, chords, arpeggios, and progressions
 - Musicians seeking to understand chord progressions and harmonic concepts
@@ -128,7 +124,7 @@ Start your comprehensive piano practice journey with Piano Fitness. Access struc
 ### Primary Keywords
 
 ```text
-piano, practice hub, MIDI, chord progressions, scales, arpeggios, music education, visual
+piano,practice hub,MIDI,chord progressions,scales,arpeggios,music education,visual
 ```
 
 ### Alternative Keyword Sets
@@ -136,19 +132,19 @@ piano, practice hub, MIDI, chord progressions, scales, arpeggios, music educatio
 **Option 1 - Educational Focus:**
 
 ```text
-piano practice, music education, chord progressions, scales, MIDI, visual feedback, hub
+piano practice,music education,chord progressions,scales,MIDI,visual feedback,hub
 ```
 
 **Option 2 - Feature Focus:**
 
 ```text
-piano, MIDI keyboard, practice hub, progressions, scales, arpeggios, visual, interactive
+piano,MIDI keyboard,practice hub,progressions,scales,arpeggios,visual,interactive
 ```
 
 **Option 3 - Professional Focus:**
 
 ```text
-piano, MIDI, practice app, chord progressions, music theory, scales, professional, hub
+piano,MIDI,practice app,chord progressions,music theory,scales,professional,hub
 ```
 
 ---
