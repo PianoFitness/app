@@ -347,45 +347,51 @@ class PracticeSettingsPanel extends StatelessWidget {
           // Show practice status and reset button
           Column(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 8,
-                  horizontal: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: practiceActive
-                      ? Colors.green.shade100
-                      : Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: practiceActive
-                        ? Colors.green.shade300
-                        : Colors.blue.shade200,
+              Semantics(
+                liveRegion: true,
+                label: practiceActive
+                    ? "Practice Active - Keep Playing!"
+                    : "Ready - Play Any Note to Start",
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 12,
                   ),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      practiceActive ? Icons.music_note : Icons.piano,
+                  decoration: BoxDecoration(
+                    color: practiceActive
+                        ? Colors.green.shade100
+                        : Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
                       color: practiceActive
-                          ? Colors.green.shade700
-                          : Colors.blue.shade700,
-                      size: 20,
+                          ? Colors.green.shade300
+                          : Colors.blue.shade200,
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      practiceActive
-                          ? "Practice Active - Keep Playing!"
-                          : "Ready - Play Any Note to Start",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w500,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        practiceActive ? Icons.music_note : Icons.piano,
                         color: practiceActive
                             ? Colors.green.shade700
                             : Colors.blue.shade700,
+                        size: 20,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 8),
+                      Text(
+                        practiceActive
+                            ? "Practice Active - Keep Playing!"
+                            : "Ready - Play Any Note to Start",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: practiceActive
+                              ? Colors.green.shade700
+                              : Colors.blue.shade700,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 12),
