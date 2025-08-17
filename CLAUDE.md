@@ -1,3 +1,52 @@
+## Directory and File Overview
+
+### Features Directory (`lib/features/`)
+
+- **device_controller/**
+	- `device_controller_page.dart`: UI for MIDI device management and connection
+	- `device_controller_view_model.dart`: Handles device selection, connection logic, and state
+- **midi_settings/**
+	- `midi_settings_page.dart`: UI for MIDI channel and device settings
+	- `midi_settings_view_model.dart`: Manages MIDI settings state and user actions
+- **play/**
+	- `play_page.dart`: Free play piano interface and visualization
+	- `play_page_view_model.dart`: Handles note events and play mode state
+- **practice/**
+	- `practice_hub_page.dart`: Entry point for practice modes and session selection
+	- `practice_page.dart`: Main practice session UI
+	- `practice_page_view_model.dart`: Manages practice session state and progress
+- **reference/**
+	- `reference_page.dart`: Scale and chord reference UI
+	- `reference_page_view_model.dart`: Handles reference selection and highlighted notes
+
+### Shared Directory (`lib/shared/`)
+
+- **models/**
+	- `chord_progression_type.dart`: Defines chord progression types for practice/reference
+	- `midi_state.dart`: MIDI note/channel state model (used by ViewModels)
+	- `practice_mode.dart`: Practice mode definitions and enums
+	- `practice_session.dart`: Practice session data and progress tracking
+- **services/**
+	- `midi_connection_service.dart`: Handles MIDI device connection and communication
+	- `midi_service.dart`: MIDI message handling and abstraction
+- **utils/**
+	- `arpeggios.dart`: Arpeggio generation and note utilities
+	- `chord_inversion_utils.dart`: Chord inversion logic and helpers
+	- `chords.dart`: Chord construction and MIDI note mapping
+	- `note_utils.dart`: Note conversion, mapping, and display helpers
+	- `piano_range_utils.dart`: Piano key range calculations and helpers
+	- `scales.dart`: Scale generation, intervals, and key logic
+	- `virtual_piano_utils.dart`: Utilities for virtual piano interaction and note playback
+- **widgets/**
+	- `main_navigation.dart`: Main navigation bar and routing
+	- `midi_controls.dart`: MIDI control widgets (channel, device, etc.)
+	- `midi_status_indicator.dart`: Displays MIDI connection status
+	- `practice_progress_display.dart`: Shows practice progress and feedback
+	- `practice_settings_panel.dart`: Practice session settings UI
+
+### General Guideline
+
+Pages and ViewModels should contain minimal business logic. Business logic and core algorithms should generally be implemented in shared utilities and models under `lib/shared/`. This ensures maintainability, testability, and code reuse across features.
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
@@ -84,7 +133,7 @@ Each feature follows MVVM pattern:
 - **Model**: Data classes and state management (MidiState, etc.)
 
 Example structure:
-```
+```text
 features/reference/
 ├── reference_page.dart          # View layer
 └── reference_page_view_model.dart   # ViewModel layer
