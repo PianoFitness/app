@@ -18,18 +18,29 @@ This document contains all the promotional and descriptive content for the Piano
 
 ### Current Promotional Text
 
-🎹 Auto-start practice, complete reference system, and MIDI integration! Practice begins instantly when you play - no buttons needed.
+```text
+Auto-start practice, complete reference system, and MIDI integration! Practice begins instantly when you play - no buttons needed.
+```
 
 ### Alternative Promotional Text Options
 
 **Option 1 - Feature Comprehensive (169 chars):**
-🎼 Complete piano practice app with Practice Hub, chord progressions, MIDI keyboard support, and adaptive interface for structured learning.
+
+```text
+Complete piano practice app with Practice Hub, chord progressions, MIDI keyboard support, and adaptive interface for structured learning.
+```
 
 **Option 2 - Education Focus (164 chars):**
-🎹 Learn piano systematically with guided exercises, chord progressions, scales, and real-time MIDI feedback. Practice Hub included!
+
+```text
+Learn piano systematically with guided exercises, chord progressions, scales, and real-time MIDI feedback. Practice Hub included!
+```
 
 **Option 3 - Professional Focus (169 chars):**
-🎵 Professional piano practice with MIDI integration, structured exercises, chord progressions, and adaptive interface. Master all fundamentals!
+
+```text
+Professional piano practice with MIDI integration, structured exercises, chord progressions, and adaptive interface. Master all fundamentals!
+```
 
 ---
 
@@ -37,24 +48,25 @@ This document contains all the promotional and descriptive content for the Piano
 
 ### Main Description
 
-**Practice Piano with MIDI Integration and Interactive Feedback**
+```text
+Practice Piano with MIDI Integration and Interactive Feedback
 
 Piano Fitness is a piano practice app that combines MIDI keyboard integration with an interactive visual piano interface. Practice scales, chords, and arpeggios with real-time visual feedback and guided exercises designed to improve your technique.
 
-**🚀 Instant Auto-Start Practice (New in 0.2.0)**
+Instant Auto-Start Practice (New in 0.2.0)
 
 - Practice begins automatically the moment you play any note
 - Immediate exercise repetition for muscle memory building
 - Intelligent completion notifications that don't block the keyboard
 
-**📚 Complete Reference System (New in 0.2.0)**
+Complete Reference System (New in 0.2.0)
 
 - Interactive scale reference with all major and minor scales
 - Comprehensive chord reference with triads and inversions
 - Single-octave display for clearer learning focus
 - Visual highlighting synchronized with your MIDI keyboard
 
-**🎹 Enhanced MIDI Integration**
+Enhanced MIDI Integration
 
 - Connect via Bluetooth or USB MIDI devices
 - Real-time note detection with improved timing accuracy
@@ -63,7 +75,7 @@ Piano Fitness is a piano practice app that combines MIDI keyboard integration wi
 - Full flat key support (Db, Gb, Ab, Bb, Eb major)
 - Professional device testing and calibration tools
 
-**📚 Comprehensive Practice Hub**
+Comprehensive Practice Hub
 
 - Structured Practice Hub with organized exercise categories
 - Scales: Major, minor, dorian, and mixolydian scales in all keys
@@ -74,7 +86,7 @@ Piano Fitness is a piano practice app that combines MIDI keyboard integration wi
 - Real-time progress tracking with visual progress bars
 - Exercise completion feedback and congratulations
 
-**🎨 Advanced Interactive Piano Interface**
+Advanced Interactive Piano Interface
 
 - Dynamic 49-key piano keyboard with adaptive range
 - Smart range calculation that centers on your practice exercise
@@ -84,7 +96,7 @@ Piano Fitness is a piano practice app that combines MIDI keyboard integration wi
 - Focused practice view that eliminates scrolling during exercises
 - MIDI activity indicator showing real-time connection status
 
-**⚙️ Professional MIDI Integration**
+Professional MIDI Integration
 
 - Comprehensive MIDI Settings page with device management
 - Scan and connect to Bluetooth and USB MIDI devices
@@ -95,7 +107,7 @@ Piano Fitness is a piano practice app that combines MIDI keyboard integration wi
 - Connection troubleshooting tools and status indicators
 - Bluetooth permission management with user guidance
 
-**Perfect for:**
+Perfect for:
 
 - Piano students wanting structured, progressive practice sessions
 - Players with MIDI keyboards seeking visual feedback and guided exercises
@@ -104,9 +116,10 @@ Piano Fitness is a piano practice app that combines MIDI keyboard integration wi
 - Anyone wanting to master scales, chords, arpeggios, and progressions
 - Musicians seeking to understand chord progressions and harmonic concepts
 
-**Requires:** For full functionality, a compatible MIDI keyboard is recommended. The app includes a comprehensive virtual piano mode for practice without external hardware, plus a dedicated Practice Hub for structured learning.
+Requires: For full functionality, a compatible MIDI keyboard is recommended. The app includes a comprehensive virtual piano mode for practice without external hardware, plus a dedicated Practice Hub for structured learning.
 
 Start your comprehensive piano practice journey with Piano Fitness. Access structured exercises through the Practice Hub, connect your MIDI keyboard for enhanced feedback, and master piano fundamentals with progressive difficulty levels. Begin improving your technique today!
+```
 
 ---
 
@@ -114,18 +127,29 @@ Start your comprehensive piano practice journey with Piano Fitness. Access struc
 
 ### Primary Keywords
 
+```text
 piano, practice hub, MIDI, chord progressions, scales, arpeggios, music education, visual
+```
 
 ### Alternative Keyword Sets
 
 **Option 1 - Educational Focus:**
+
+```text
 piano practice, music education, chord progressions, scales, MIDI, visual feedback, hub
+```
 
 **Option 2 - Feature Focus:**
+
+```text
 piano, MIDI keyboard, practice hub, progressions, scales, arpeggios, visual, interactive
+```
 
 **Option 3 - Professional Focus:**
+
+```text
 piano, MIDI, practice app, chord progressions, music theory, scales, professional, hub
+```
 
 ---
 
