@@ -1,6 +1,9 @@
 /// Library for validating conventional commit messages
 library;
 
+/// Maximum allowed length for commit message description
+const int maxDescriptionLength = 120;
+
 /// Conventional commit types with their descriptions
 const Map<String, String> commitTypes = {
   "feat": "new feature for the user",
@@ -27,6 +30,14 @@ const List<String> examples = [
 
 /// Utility class for validating conventional commit messages
 class CommitValidator {
+  /// Escapes regex metacharacters in a string
+  static String _escapeRegex(String input) {
+    return input.replaceAllMapped(
+      RegExp(r"[\\^$.*+?()[\]{}|]"),
+      (match) => "\\${match.group(0)}",
+    );
+  }
+
   /// Validates a commit message against conventional commit format
   /// Only validates the first line, allows multi-line messages
   static bool isValidCommitMessage(String message) {
@@ -35,16 +46,22 @@ class CommitValidator {
     // Get the first line of the commit message
     final firstLine = message.split("\n").first.trim();
 
-    final typePattern = commitTypes.keys.join("|");
-    // Allow longer descriptions (up to 120 chars) and optional scope
-    final regex = RegExp(r"^(" + typePattern + r")(\(.+\))?: .{1,120}$");
+    final typePattern = commitTypes.keys.map(_escapeRegex).join("|");
+    // Allow descriptions up to maxDescriptionLength chars with optional scope
+    final regex = RegExp(
+      r"^(" +
+          typePattern +
+          r")(\(.+\))?: .{1," +
+          maxDescriptionLength.toString() +
+          r"}$",
+    );
     return regex.hasMatch(firstLine);
   }
 
   /// Generates a regex pattern from available commit types
   static String buildRegexPattern() {
-    final typePattern = commitTypes.keys.join("|");
-    return "^($typePattern)(\\(.+\\))?: .{1,100}\$";
+    final typePattern = commitTypes.keys.map(_escapeRegex).join("|");
+    return "^($typePattern)(\\(.+\\))?: .{1,$maxDescriptionLength}\$";
   }
 
   /// Generates help text for invalid commit messages
@@ -57,7 +74,7 @@ class CommitValidator {
       ..writeln()
       ..writeln("Rules:")
       ..writeln(
-        "   - First line: type(scope): description (max 100 characters)",
+        "   - First line: type(scope): description (max $maxDescriptionLength characters)",
       )
       ..writeln("   - Additional lines: optional body and footer")
       ..writeln("   - Scope is optional: type: description")
