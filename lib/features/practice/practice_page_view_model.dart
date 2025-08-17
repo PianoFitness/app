@@ -112,17 +112,19 @@ class PracticePageViewModel extends ChangeNotifier {
 
   /// Handles incoming MIDI data and updates local state.
   void handleMidiData(Uint8List data) {
-    if (_practiceSession == null) return;
-
     MidiService.handleMidiData(data, (MidiEvent event) {
       switch (event.type) {
         case MidiEventType.noteOn:
           _localMidiState.noteOn(event.data1, event.data2, event.channel);
-          _practiceSession?.handleNotePressed(event.data1);
+          if (_practiceSession != null) {
+            _practiceSession?.handleNotePressed(event.data1);
+          }
           break;
         case MidiEventType.noteOff:
           _localMidiState.noteOff(event.data1, event.channel);
-          _practiceSession?.handleNoteReleased(event.data1);
+          if (_practiceSession != null) {
+            _practiceSession?.handleNoteReleased(event.data1);
+          }
           break;
         case MidiEventType.controlChange:
         case MidiEventType.programChange:
