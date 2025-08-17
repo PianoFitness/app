@@ -11,7 +11,7 @@ import "package:piano_fitness/shared/utils/scales.dart" as music;
 /// musical keys, scale types, and other exercise-specific parameters. It adapts its
 /// interface based on the selected practice mode to show relevant options.
 class PracticeSettingsPanel extends StatelessWidget {
-  /// Creates a practice settings panel with all required configuration options.
+  /// Creates a practice settings panel with configuration options for practice sessions.
   ///
   /// All parameters are required to ensure the panel can properly display
   /// current settings and handle user interactions.
@@ -24,7 +24,6 @@ class PracticeSettingsPanel extends StatelessWidget {
     required this.selectedArpeggioOctaves,
     required this.selectedChordProgression,
     required this.practiceActive,
-    required this.onStartPractice,
     required this.onResetPractice,
     required this.onPracticeModeChanged,
     required this.onKeyChanged,
@@ -59,9 +58,6 @@ class PracticeSettingsPanel extends StatelessWidget {
 
   /// Whether a practice session is currently active.
   final bool practiceActive;
-
-  /// Callback fired when the user taps the Start button.
-  final VoidCallback onStartPractice;
 
   /// Callback fired when the user taps the Reset button.
   final VoidCallback onResetPractice;
@@ -348,22 +344,61 @@ class PracticeSettingsPanel extends StatelessWidget {
             ),
           ],
           const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          // Show practice status and reset button
+          Column(
             children: [
-              ElevatedButton.icon(
-                onPressed: practiceActive ? null : onStartPractice,
-                icon: const Icon(Icons.play_arrow),
-                label: const Text("Start"),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green,
-                  foregroundColor: Colors.white,
+              Semantics(
+                liveRegion: true,
+                label: practiceActive
+                    ? "Practice Active - Keep Playing!"
+                    : "Ready - Play Any Note to Start",
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: practiceActive
+                        ? Colors.green.shade100
+                        : Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: practiceActive
+                          ? Colors.green.shade300
+                          : Colors.blue.shade200,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        practiceActive ? Icons.music_note : Icons.piano,
+                        color: practiceActive
+                            ? Colors.green.shade700
+                            : Colors.blue.shade700,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        practiceActive
+                            ? "Practice Active - Keep Playing!"
+                            : "Ready - Play Any Note to Start",
+                        style: TextStyle(
+                          fontWeight: FontWeight.w500,
+                          color: practiceActive
+                              ? Colors.green.shade700
+                              : Colors.blue.shade700,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
+              const SizedBox(height: 12),
               ElevatedButton.icon(
                 onPressed: onResetPractice,
                 icon: const Icon(Icons.refresh),
-                label: const Text("Reset"),
+                label: const Text("Reset Exercise"),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.orange,
                   foregroundColor: Colors.white,

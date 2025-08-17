@@ -115,6 +115,10 @@ class PracticePageViewModel extends ChangeNotifier {
         case MidiEventType.noteOn:
           _localMidiState.noteOn(event.data1, event.data2, event.channel);
           if (_practiceSession != null) {
+            // Auto-start practice on first MIDI note if not already active
+            if (!_practiceSession!.practiceActive) {
+              _practiceSession!.startPractice();
+            }
             _practiceSession?.handleNotePressed(event.data1);
           }
           break;
@@ -191,6 +195,11 @@ class PracticePageViewModel extends ChangeNotifier {
   /// Plays a virtual note through MIDI output and triggers practice session.
   Future<void> playVirtualNote(int note, {bool mounted = true}) async {
     if (_practiceSession == null) return;
+
+    // Auto-start practice on virtual note if not already active
+    if (!_practiceSession!.practiceActive) {
+      _practiceSession!.startPractice();
+    }
 
     await VirtualPianoUtils.playVirtualNote(
       note,
