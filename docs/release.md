@@ -196,15 +196,21 @@ Using **Transporter** app (Apple's upload tool):
 
 1. Open Transporter app
 2. Sign in with Apple Developer credentials
-3. Drag and drop the `.ipa` file (iOS) or `.app` bundle (macOS)
+3. Drag and drop the appropriate artifact:
+   - **iOS**: `.ipa` file (exported from Xcode Archive or found in `<DerivedData>/Build/Products/`)
+   - **macOS**: `.pkg` file (exported from Xcode Organizer > Archives)
 4. Click "Deliver" to upload
 
-Alternative using Xcode:
+**Note**: Raw `.app` bundles cannot be uploaded directly. For macOS, you must use Xcode to Archive the project first, then export a `.pkg` from the Xcode Organizer.
+
+Alternative using Xcode Organizer:
 
 ```bash
 # Archive and upload via Xcode
-# Open ios/Runner.xcworkspace in Xcode
+# iOS: Open ios/Runner.xcworkspace in Xcode
+# macOS: Open macos/Runner.xcworkspace in Xcode  
 # Product > Archive > Distribute App > App Store Connect
+# Or use Window > Organizer > Archives > Distribute App
 ```
 
 #### 6.2 Update App Store Connect
