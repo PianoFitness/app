@@ -1,3 +1,8 @@
+
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 ## Directory and File Overview
 
 ### Features Directory (`lib/features/`)
@@ -47,9 +52,6 @@
 ### General Guideline
 
 Pages and ViewModels should contain minimal business logic. Business logic and core algorithms should generally be implemented in shared utilities and models under `lib/shared/`. This ensures maintainability, testability, and code reuse across features.
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Development Commands
 
