@@ -79,6 +79,7 @@ class ReferencePageViewModel extends ChangeNotifier {
   /// Call this when the reference page becomes visible or active.
   void activateReferenceDisplay() {
     _updateLocalHighlightedNotes();
+    notifyListeners();
   }
 
   /// Clears the reference display, removing all highlighted notes.
@@ -202,7 +203,6 @@ class ReferencePageViewModel extends ChangeNotifier {
   void _updateLocalHighlightedNotes() {
     final highlightedMidiNotes = getHighlightedMidiNotes();
     _localHighlightedNotes = highlightedMidiNotes;
-    notifyListeners();
   }
 
   /// Plays a note through MIDI output.
