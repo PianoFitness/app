@@ -1,6 +1,7 @@
 import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
+import "package:logging/logging.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/shared/models/chord_progression_type.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
@@ -26,6 +27,8 @@ class PracticePageViewModel extends ChangeNotifier {
     _localMidiState.setSelectedChannel(_midiChannel);
     _setupMidiListener();
   }
+
+  static final _log = Logger("PracticePageViewModel");
 
   StreamSubscription<MidiPacket>? _midiDataSubscription;
   final MidiCommand _midiCommand = MidiCommand();
@@ -90,23 +93,19 @@ class PracticePageViewModel extends ChangeNotifier {
     if (midiDataStream != null) {
       _midiDataSubscription = midiDataStream.listen(
         (packet) {
-          if (kDebugMode) {
-            print("Received MIDI data: ${packet.data}");
-          }
+          _log.fine("Received MIDI data: ${packet.data}");
           try {
             handleMidiData(packet.data);
           } on Exception catch (e) {
-            if (kDebugMode) print("MIDI data handler error: $e");
+            _log.warning("MIDI data handler error: $e");
           }
         },
         onError: (Object error) {
-          if (kDebugMode) print("MIDI data stream error: $error");
+          _log.severe("MIDI data stream error: $error");
         },
       );
     } else {
-      if (kDebugMode) {
-        print("Warning: MIDI data stream is not available");
-      }
+      _log.warning("Warning: MIDI data stream is not available");
     }
   }
 

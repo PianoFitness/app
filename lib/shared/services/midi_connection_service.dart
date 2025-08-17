@@ -1,6 +1,7 @@
 import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
+import "package:logging/logging.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/services/midi_service.dart";
 
@@ -15,6 +16,8 @@ class MidiConnectionService {
 
   /// Private constructor for singleton implementation.
   MidiConnectionService._internal();
+
+  static final _log = Logger("MidiConnectionService");
 
   static final MidiConnectionService _instance =
       MidiConnectionService._internal();
@@ -42,48 +45,40 @@ class MidiConnectionService {
     if (midiDataStream != null) {
       _midiDataSubscription = midiDataStream.listen(
         (packet) {
-          if (kDebugMode) {
-            print("MIDI Connection Service received data: ${packet.data}");
-          }
+          _log.fine("MIDI Connection Service received data: ${packet.data}");
 
           // Distribute MIDI data to all registered handlers
           for (final handler in _dataHandlers) {
             try {
               handler(packet.data);
             } on Exception catch (e) {
-              if (kDebugMode) {
-                print("Error in MIDI data handler: $e");
-              }
+              _log.warning("Error in MIDI data handler: $e");
             }
           }
         },
         onError: (Object error) {
           final errorMessage = "MIDI data stream error: $error";
-          if (kDebugMode) print(errorMessage);
+          _log.severe(errorMessage);
 
           // Notify all error handlers
           for (final errorHandler in _errorHandlers) {
             try {
               errorHandler(errorMessage);
             } on Exception catch (e) {
-              if (kDebugMode) {
-                print("Error in MIDI error handler: $e");
-              }
+              _log.warning("Error in MIDI error handler: $e");
             }
           }
         },
       );
     } else {
       const warningMessage = "Warning: MIDI data stream is not available";
-      if (kDebugMode) print(warningMessage);
+      _log.warning(warningMessage);
 
       for (final errorHandler in _errorHandlers) {
         try {
           errorHandler(warningMessage);
         } on Exception catch (e) {
-          if (kDebugMode) {
-            print("Error in MIDI error handler: $e");
-          }
+          _log.warning("Error in MIDI error handler: $e");
         }
       }
     }

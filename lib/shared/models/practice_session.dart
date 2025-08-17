@@ -1,4 +1,5 @@
 import "package:flutter/foundation.dart";
+import "package:logging/logging.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/shared/models/chord_progression_type.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
@@ -22,6 +23,8 @@ class PracticeSession {
     required this.onExerciseCompleted,
     required this.onHighlightedNotesChanged,
   });
+
+  static final _log = Logger("PracticeSession");
 
   /// Callback fired when a practice exercise is completed successfully.
   final VoidCallback onExerciseCompleted;
@@ -246,11 +249,9 @@ class PracticeSession {
         final chordMidiNotes = currentChord.getMidiNotes(4);
         final highlightedPositions = <NotePosition>[];
 
-        if (kDebugMode) {
-          print(
-            "Highlighting chord ${_currentChordIndex + 1}: ${currentChord.name} with MIDI notes: $chordMidiNotes",
-          );
-        }
+        _log.fine(
+          "Highlighting chord ${_currentChordIndex + 1}: ${currentChord.name} with MIDI notes: $chordMidiNotes",
+        );
 
         for (final midiNote in chordMidiNotes) {
           final noteInfo = NoteUtils.midiNumberToNote(midiNote);

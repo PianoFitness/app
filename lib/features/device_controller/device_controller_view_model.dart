@@ -2,6 +2,7 @@ import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_midi_command/flutter_midi_command_messages.dart";
+import "package:logging/logging.dart";
 import "package:piano_fitness/shared/services/midi_connection_service.dart";
 import "package:piano_fitness/shared/services/midi_service.dart";
 
@@ -14,6 +15,8 @@ class DeviceControllerViewModel extends ChangeNotifier {
   DeviceControllerViewModel({required MidiDevice device}) : _device = device {
     _setupMidiListener();
   }
+
+  static final _log = Logger("DeviceControllerViewModel");
 
   final MidiDevice _device;
   final MidiConnectionService _midiService = MidiConnectionService();
@@ -122,9 +125,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
         value: _ccValue,
       ).send();
     } on Exception catch (e) {
-      if (kDebugMode) {
-        print("Error sending CC: $e");
-      }
+      _log.warning("Error sending CC: $e");
     }
   }
 
@@ -133,9 +134,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
     try {
       PCMessage(channel: _selectedChannel, program: _programNumber).send();
     } on Exception catch (e) {
-      if (kDebugMode) {
-        print("Error sending PC: $e");
-      }
+      _log.warning("Error sending PC: $e");
     }
   }
 
@@ -144,9 +143,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
     try {
       PitchBendMessage(channel: _selectedChannel, bend: _pitchBend).send();
     } on Exception catch (e) {
-      if (kDebugMode) {
-        print("Error sending pitch bend: $e");
-      }
+      _log.warning("Error sending pitch bend: $e");
     }
   }
 
@@ -164,9 +161,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
         sendNoteOff(midiNote);
       });
     } on Exception catch (e) {
-      if (kDebugMode) {
-        print("Error sending note: $e");
-      }
+      _log.warning("Error sending note: $e");
     }
   }
 
@@ -175,9 +170,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
     try {
       NoteOffMessage(channel: _selectedChannel, note: midiNote).send();
     } on Exception catch (e) {
-      if (kDebugMode) {
-        print("Error sending note off: $e");
-      }
+      _log.warning("Error sending note off: $e");
     }
   }
 
