@@ -56,10 +56,7 @@ void main() {
       final viewModelWithLocalState = PlayPageViewModel();
 
       // Should not crash and should work with local MIDI state
-      await expectLater(
-        () async => viewModelWithLocalState.playVirtualNote(60),
-        completes,
-      );
+      await expectLater(viewModelWithLocalState.playVirtualNote(60), completes);
 
       // Verify the note was processed in local state
       expect(

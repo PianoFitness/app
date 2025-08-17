@@ -1,8 +1,11 @@
+import "package:logging/logging.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/shared/utils/chords.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/chord_inversion_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart";
+
+final log = Logger("ChordInversionUtilsTest");
 
 /// Test to demonstrate and fix chord inversion issues.
 ///
@@ -32,9 +35,9 @@ void main() {
       final firstMidi = cMajorFirst.getMidiNotes(4);
       final secondMidi = cMajorSecond.getMidiNotes(4);
 
-      print("C Major root: $rootMidi");
-      print("C Major 1st: $firstMidi");
-      print("C Major 2nd: $secondMidi");
+      log.info("C Major root: $rootMidi");
+      log.info("C Major 1st: $firstMidi");
+      log.info("C Major 2nd: $secondMidi");
 
       // Verify proper ascending order
       expect(rootMidi, equals([60, 64, 67])); // C4-E4-G4
@@ -128,7 +131,7 @@ void main() {
               "$chordName: 1st->2nd should progress left-to-right (${firstMidi.first} -> ${secondMidi.first})",
         );
 
-        print("$chordName: Root $rootMidi, 1st $firstMidi, 2nd $secondMidi");
+        log.info("$chordName: Root $rootMidi, 1st $firstMidi, 2nd $secondMidi");
       }
     });
 
@@ -246,7 +249,9 @@ void main() {
           reason: "1st->2nd should progress left-to-right",
         );
 
-        print("${rootNote.name} ${chordType.name}: $root -> $first -> $second");
+        log.info(
+          "${rootNote.name} ${chordType.name}: $root -> $first -> $second",
+        );
       }
     });
 
