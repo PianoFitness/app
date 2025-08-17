@@ -2,6 +2,7 @@ import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_midi_command/flutter_midi_command_messages.dart";
+import "package:logging/logging.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 
 /// Utility class for playing virtual piano notes through MIDI output.
@@ -10,6 +11,7 @@ import "package:piano_fitness/shared/models/midi_state.dart";
 /// on-screen piano keyboard. It handles MIDI message sending, timing,
 /// and automatic note-off events with proper resource cleanup.
 class VirtualPianoUtils {
+  static final _log = Logger("VirtualPianoUtils");
   static final Map<String, Timer> _noteOffTimers = {};
   static final MidiCommand _midiCommand = MidiCommand();
 
@@ -47,9 +49,9 @@ class VirtualPianoUtils {
         "Virtual Note ON: $note (Ch: ${selectedChannel + 1}, Vel: 64)",
       );
 
-      if (kDebugMode) {
-        print("Sent virtual note on: $note on channel ${selectedChannel + 1}");
-      }
+      _log.fine(
+        "Sent virtual note on: $note on channel ${selectedChannel + 1}",
+      );
 
       // Create a unique key for this note and channel combination
       final noteKey = "${note}_$selectedChannel";
@@ -64,15 +66,11 @@ class VirtualPianoUtils {
               await Future.microtask(() {
                 NoteOffMessage(channel: selectedChannel, note: note).send();
               });
-              if (kDebugMode) {
-                print(
-                  "Sent virtual note off: $note on channel ${selectedChannel + 1}",
-                );
-              }
+              _log.fine(
+                "Sent virtual note off: $note on channel ${selectedChannel + 1}",
+              );
             } on Exception catch (e) {
-              if (kDebugMode) {
-                print("Error sending note off: $e");
-              }
+              _log.warning("Error sending note off: $e");
             }
             // Remove the timer from the map once it's completed
             _noteOffTimers.remove(noteKey);
@@ -80,9 +78,7 @@ class VirtualPianoUtils {
         },
       );
     } on Exception catch (e) {
-      if (kDebugMode) {
-        print("Error playing virtual note: $e");
-      }
+      _log.warning("Error playing virtual note: $e");
       try {
         await Future.microtask(() {
           final noteOnData = Uint8List.fromList([
@@ -120,9 +116,7 @@ class VirtualPianoUtils {
           },
         );
       } on Exception catch (fallbackError) {
-        if (kDebugMode) {
-          print("Fallback MIDI send also failed: $fallbackError");
-        }
+        _log.severe("Fallback MIDI send also failed: $fallbackError");
       }
     }
 
@@ -149,13 +143,11 @@ class VirtualPianoUtils {
         ]);
         _midiCommand.sendData(allNotesOffData);
 
-        if (kDebugMode) {
-          print("Sent All Notes Off on channel ${channel + 1}");
-        }
+        _log.fine("Sent All Notes Off on channel ${channel + 1}");
       } on Exception catch (e) {
-        if (kDebugMode) {
-          print("Error sending All Notes Off on channel ${channel + 1}: $e");
-        }
+        _log.warning(
+          "Error sending All Notes Off on channel ${channel + 1}: $e",
+        );
       }
     }
 

@@ -3,6 +3,7 @@ import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
+import "package:logging/logging.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/services/midi_connection_service.dart";
 import "package:piano_fitness/shared/services/midi_service.dart";
@@ -17,6 +18,8 @@ class MidiSettingsViewModel extends ChangeNotifier {
     : _selectedChannel = initialChannel {
     _setupMidi();
   }
+
+  static final _log = Logger("MidiSettingsViewModel");
 
   StreamSubscription<String>? _setupSubscription;
   StreamSubscription<BluetoothState>? _bluetoothStateSubscription;
@@ -111,34 +114,30 @@ class MidiSettingsViewModel extends ChangeNotifier {
     try {
       _setupSubscription = _midiCommand.onMidiSetupChanged?.listen(
         (data) async {
-          if (kDebugMode) {
-            print("MIDI setup changed: $data");
-          }
+          _log.info("MIDI setup changed: $data");
           try {
             await updateDeviceList();
           } on Exception catch (e) {
-            if (kDebugMode) print("Setup subscription error: $e");
+            _log.warning("Setup subscription error: $e");
           }
         },
         onError: (Object error) {
-          if (kDebugMode) print("Setup stream error: $error");
+          _log.severe("Setup stream error: $error");
         },
       );
 
       _bluetoothStateSubscription = _midiCommand.onBluetoothStateChanged.listen(
         (state) {
-          if (kDebugMode) {
-            print("Bluetooth state changed: $state");
-          }
+          _log.info("Bluetooth state changed: $state");
           try {
             _midiStatus = "Bluetooth state: $state";
             notifyListeners();
           } on Exception catch (e) {
-            if (kDebugMode) print("Bluetooth state subscription error: $e");
+            _log.warning("Bluetooth state subscription error: $e");
           }
         },
         onError: (Object error) {
-          if (kDebugMode) print("Bluetooth stream error: $error");
+          _log.severe("Bluetooth stream error: $error");
         },
       );
 
@@ -155,9 +154,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
       _midiStatus =
           "Error initializing MIDI: $e\n\nNote: MIDI/Bluetooth may not work on simulators. Try a physical device.";
       notifyListeners();
-      if (kDebugMode) {
-        print("MIDI setup error: $e");
-      }
+      _log.warning("MIDI setup error: $e");
     }
   }
 
@@ -168,21 +165,17 @@ class MidiSettingsViewModel extends ChangeNotifier {
       _devices = devices ?? [];
       notifyListeners();
     } on Exception catch (e) {
-      if (kDebugMode) {
-        print("Error updating device list: $e");
-      }
+      _log.warning("Error updating device list: $e");
     }
   }
 
   /// Handles incoming MIDI data bytes from the connection service.
   void _handleMidiDataBytes(Uint8List data) {
-    if (kDebugMode) {
-      print("Received MIDI data: $data");
-    }
+    _log.fine("Received MIDI data: $data");
     try {
       handleMidiData(data.toList());
     } on Exception catch (e) {
-      if (kDebugMode) print("MIDI data handler error: $e");
+      _log.warning("MIDI data handler error: $e");
     }
   }
 
@@ -223,25 +216,19 @@ class MidiSettingsViewModel extends ChangeNotifier {
     try {
       await showPermissionDialog();
 
-      if (kDebugMode) {
-        print("Starting Bluetooth central");
-      }
+      _log.info("Starting Bluetooth central");
 
       await _midiCommand.startBluetoothCentral().catchError((Object err) {
         showSnackBar("Bluetooth error: $err", Colors.red);
         throw Exception(err);
       });
 
-      if (kDebugMode) {
-        print("Waiting for Bluetooth initialization");
-      }
+      _log.info("Waiting for Bluetooth initialization");
 
       await _midiCommand.waitUntilBluetoothIsInitialized().timeout(
         const Duration(seconds: 5),
         onTimeout: () {
-          if (kDebugMode) {
-            print("Failed to initialize Bluetooth in time");
-          }
+          _log.warning("Failed to initialize Bluetooth in time");
         },
       );
 
@@ -252,9 +239,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
         await _midiCommand.startScanningForBluetoothDevices().catchError((
           Object err,
         ) {
-          if (kDebugMode) {
-            print("Scanning error: $err");
-          }
+          _log.warning("Scanning error: $err");
           throw Exception(err);
         });
 
@@ -290,9 +275,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
       _midiStatus = errorMessage;
       notifyListeners();
 
-      if (kDebugMode) {
-        print("Scan error: $e");
-      }
+      _log.warning("Scan error: $e");
     } finally {
       _isScanning = false;
       notifyListeners();
@@ -330,9 +313,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
       try {
         _midiCommand.stopScanningForBluetoothDevices();
       } on Exception catch (e) {
-        if (kDebugMode) {
-          print("Error stopping Bluetooth scan: $e");
-        }
+        _log.warning("Error stopping Bluetooth scan: $e");
       }
       _isScanning = false;
     }
@@ -345,15 +326,11 @@ class MidiSettingsViewModel extends ChangeNotifier {
   ) async {
     try {
       if (device.connected) {
-        if (kDebugMode) {
-          print("Disconnecting from ${device.name}");
-        }
+        _log.info("Disconnecting from ${device.name}");
         _midiCommand.disconnectDevice(device);
         showSnackBar("Disconnected from ${device.name}");
       } else {
-        if (kDebugMode) {
-          print("Connecting to ${device.name}");
-        }
+        _log.info("Connecting to ${device.name}");
         await _midiCommand.connectToDevice(device);
         showSnackBar("Connected to ${device.name}", Colors.green);
       }
@@ -446,9 +423,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
   void dispose() {
     // Use the cleanup helper method to ensure consistent resource cleanup
     _cleanupResources().catchError((Object e) {
-      if (kDebugMode) {
-        print("Error during disposal cleanup: $e");
-      }
+      _log.warning("Error during disposal cleanup: $e");
     });
     super.dispose();
   }

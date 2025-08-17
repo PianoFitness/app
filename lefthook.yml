@@ -2,24 +2,39 @@
 # Git hooks for code quality and consistency
 
 pre-commit:
-  parallel: true
   commands:
-    # Auto-fix Dart code issues
-    fix:
+    # Step 1: Apply automatic fixes and format (only for Dart files)
+    dart-fixes:
       glob: "*.dart"
-      run: dart fix --apply
+      run: |
+        echo "🔧 Applying automatic Dart fixes..."
+        dart fix --apply
+        echo "🎨 Formatting Dart code..."
+        dart format {staged_files}
+        echo "📋 Re-staging fixed files..."
+        git add {staged_files}
       stage_fixed: true
 
-    # Format Dart code
-    format:
-      glob: "*.dart"
-      run: dart format {staged_files}
+    # Step 2: Fix and lint markdown files
+    markdown-lint:
+      glob: "*.md"
+      run: |
+        echo "📝 Fixing and linting markdown files..."
+        markdownlint --fix {staged_files}
+        echo "📋 Re-staging fixed markdown files..."
+        git add {staged_files}
       stage_fixed: true
 
-    # Analyze Dart code for issues
-    analyze:
-      run: flutter analyze --no-fatal-infos
-      fail_text: "Flutter analyze found warnings or errors. Please fix them before committing."
+    # Step 3: Run analysis after fixes (only for Dart files)
+    dart-analyze:
+      glob: "*.dart"
+      run: |
+        echo "🔍 Analyzing Dart code..."
+        flutter analyze --no-fatal-infos
+      fail_text: |
+        ❌ Flutter analyze found issues that cannot be auto-fixed.
+        Please review and fix the remaining warnings/errors before committing.
+        Run 'flutter analyze' to see details.
 
 pre-push:
   commands:

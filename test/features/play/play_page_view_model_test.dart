@@ -17,23 +17,21 @@ void main() {
     setUp(() async {
       viewModel = PlayPageViewModel(initialChannel: 5);
       mockMidiState = MidiState();
-      viewModel.setMidiState(mockMidiState);
+      // Note: Play page now uses local MIDI state, so we don't set external state
 
-      // Wait for any async initialization to complete
-      await Future<void>.delayed(const Duration(milliseconds: 10));
+      // No delay needed; tests await specific async calls as required
     });
 
     tearDown(() async {
       viewModel.dispose();
       mockMidiState.dispose();
 
-      // Wait for any pending async operations to complete
-      await Future<void>.delayed(const Duration(milliseconds: 10));
+      // No delay needed here either
     });
 
     test("should initialize with correct MIDI channel", () {
       expect(viewModel.midiChannel, equals(5));
-      expect(mockMidiState.selectedChannel, equals(5));
+      expect(viewModel.localMidiState.selectedChannel, equals(5));
     });
 
     test("should handle virtual note playing", () async {
@@ -43,23 +41,28 @@ void main() {
       // In a real implementation, this would trigger MIDI output
       await viewModel.playVirtualNote(testNote);
 
-      // Verify the last note message was set (if MIDI state is available)
+      // Verify the last note message was set in local MIDI state
       expect(
-        mockMidiState.lastNote.contains("Virtual Note ON: $testNote"),
+        viewModel.localMidiState.lastNote.contains(
+          "Virtual Note ON: $testNote",
+        ),
         isTrue,
       );
     });
 
-    test("should handle cases with no MIDI state set", () {
-      final viewModelWithoutState = PlayPageViewModel();
+    test("should handle virtual note playing with local MIDI state", () async {
+      final viewModelWithLocalState = PlayPageViewModel();
 
-      // Should not crash when no MIDI state is set
+      // Should not crash and should work with local MIDI state
+      await expectLater(viewModelWithLocalState.playVirtualNote(60), completes);
+
+      // Verify the note was processed in local state
       expect(
-        () async => viewModelWithoutState.playVirtualNote(60),
-        returnsNormally,
+        viewModelWithLocalState.localMidiState.lastNote.contains("Virtual"),
+        isTrue,
       );
 
-      viewModelWithoutState.dispose();
+      viewModelWithLocalState.dispose();
     });
 
     group("MIDI Data Processing Integration", () {

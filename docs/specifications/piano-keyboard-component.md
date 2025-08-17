@@ -7,12 +7,14 @@ The PianoKeyboard component is a Flutter widget that renders an interactive pian
 ## Key Features
 
 ### Visual Layout
+
 - **49-key keyboard layout** - Standard 49-key MIDI keyboard configuration
 - **Centered around middle C** - Keys arranged with middle C (C4/C60) as the central reference point
 - **Black and white key differentiation** - Traditional piano key color scheme and positioning
 - **Responsive design** - Adapts to different screen sizes while maintaining proper proportions
 
 ### MIDI Integration
+
 - **Real-time MIDI event listening** - Responds to MIDI note on/off messages
 - **Key press visualization** - Highlights keys while they are held down
 - **Multi-touch support** - Multiple keys can be highlighted simultaneously
@@ -21,17 +23,20 @@ The PianoKeyboard component is a Flutter widget that renders an interactive pian
 ## Technical Requirements
 
 ### Key Range
+
 - **Total keys**: 49 keys
 - **Key range**: C2 to C6 (MIDI notes 36-84)
 - **Octaves**: 4 complete octaves plus one additional C
 - **Middle C position**: Centered in the keyboard layout
 
 ### Key Layout Details
+
 - **White keys**: 29 keys (C, D, E, F, G, A, B pattern)
 - **Black keys**: 20 keys (C#, D#, F#, G#, A# pattern)
 - **Key arrangement**: Standard piano layout with black keys positioned between appropriate white keys
 
 ### MIDI Event Handling
+
 - **Note On events**: Trigger key highlighting for visual feedback only
 - **Note Off events**: Remove key highlighting
 - **Velocity support**: Optional support for velocity-based visual effects
@@ -39,6 +44,7 @@ The PianoKeyboard component is a Flutter widget that renders an interactive pian
 - **Input-only design**: Component receives MIDI input for display purposes only
 
 ### Visual States
+
 - **Default state**: Normal key appearance
 - **Pressed state**: Highlighted/pressed key appearance  
 - **Target state**: Keys that should be pressed (exercise guidance)
@@ -48,6 +54,7 @@ The PianoKeyboard component is a Flutter widget that renders an interactive pian
 ## Component Interface
 
 ### Properties
+
 ```dart
 class PianoKeyboard extends StatefulWidget {
   final Set<int> pressedKeys;
@@ -68,6 +75,7 @@ class PianoKeyboard extends StatefulWidget {
 ```
 
 ### Key Properties
+
 - `pressedKeys`: Set of currently pressed MIDI note numbers (from MIDI input)
 - `targetKeys`: Set of keys that should be pressed (exercise guidance)
 - `correctKeys`: Set of correctly played keys (positive feedback)
@@ -86,23 +94,27 @@ class PianoKeyboard extends StatefulWidget {
 ## Implementation Guidelines
 
 ### Widget Structure
+
 - Use `CustomPainter` or `Canvas` for efficient key rendering
 - Display-only component (no touch interaction required)
 - Ensure smooth animations for key press/release states
 - Support multiple simultaneous key states
 
 ### Performance Considerations
+
 - Optimize for 60fps rendering during MIDI playback
 - Minimize rebuilds by using appropriate state management
 - Implement efficient key lookup mechanisms
 
 ### Accessibility
+
 - Provide semantic labels for screen readers describing key states
 - Support high contrast modes for visual clarity
 - Implement appropriate contrast ratios for all key states
 - Ensure finger numbers are readable with sufficient contrast
 
 ### Platform Support
+
 - iOS: Core MIDI integration
 - Android: USB MIDI and Bluetooth MIDI support
 - Web: Web MIDI API integration
@@ -111,28 +123,33 @@ class PianoKeyboard extends StatefulWidget {
 ## Dependencies
 
 ### Required Packages
+
 - `flutter_midi_command`: MIDI input/output handling
 - `flutter/material.dart`: UI components and theming
 
 ### Optional Packages
+
 - `provider`: State management (if using Provider pattern)
 - `bloc`: State management (if using BLoC pattern)
 
 ## Testing Requirements
 
 ### Unit Tests
+
 - Key mapping logic (MIDI note number to key position)
 - State management (multiple key state tracking)
 - Visual state transitions
 - Finger number mapping and display
 
 ### Widget Tests  
+
 - Key rendering and positioning
 - Visual state changes for all key states
 - Finger number overlay rendering
 - Color theme application
 
 ### Integration Tests
+
 - MIDI device connectivity
 - Real-time event processing
 - Multi-key press scenarios
@@ -140,12 +157,14 @@ class PianoKeyboard extends StatefulWidget {
 ## Future Enhancements
 
 ### Phase 2 Features
+
 - **Keyboard size options**: 25, 37, 61, 76, 88 key layouts
 - **Custom key labeling**: Note names, scale degrees, chord symbols
 - **Recording capability**: MIDI sequence recording and playback
 - **Visual effects**: Velocity-based colors, trailing effects
 
 ### Phase 3 Features
+
 - **Split keyboard**: Different sounds/channels per keyboard section
 - **Transpose functionality**: Key transposition controls
 - **Scale highlighting**: Visual scale and chord overlays

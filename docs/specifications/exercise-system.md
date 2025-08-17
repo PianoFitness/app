@@ -7,6 +7,7 @@ The Exercise System is the core component of Piano Fitness that provides structu
 ## Exercise Categories
 
 ### 1. Scales
+
 - **Major Scales**: All 12 major scales in standard fingering patterns
 - **Natural Minor Scales**: All 12 natural minor scales
 - **Harmonic Minor Scales**: All 12 harmonic minor scales with raised 7th degree
@@ -16,7 +17,9 @@ The Exercise System is the core component of Piano Fitness that provides structu
 - **Fingering**: Standard fingering patterns with visual indicators
 
 ### 2. Chords
+
 #### Diatonic Triads
+
 - **Root Position**: I, ii, iii, IV, V, vi, vii° in all major keys
 - **First Inversion**: All triads in first inversion
 - **Second Inversion**: All triads in second inversion
@@ -26,6 +29,7 @@ The Exercise System is the core component of Piano Fitness that provides structu
   - Alberti bass patterns
 
 #### Chord Types
+
 - Major triads
 - Minor triads  
 - Diminished triads
@@ -33,6 +37,7 @@ The Exercise System is the core component of Piano Fitness that provides structu
 - Extended chords (7ths, 9ths, etc.)
 
 ### 3. Arpeggios
+
 - **Diatonic Arpeggios**: Based on scale degrees in all keys
 - **Range Options**:
   - One octave
@@ -45,7 +50,9 @@ The Exercise System is the core component of Piano Fitness that provides structu
   - Alternating patterns
 
 ### 4. Chord Progressions
+
 #### Common Progressions
+
 - **I-IV-V-I**: Primary progression in all keys
 - **ii-V-I**: Jazz progression in all keys
 - **vi-IV-I-V**: Pop progression pattern
@@ -53,6 +60,7 @@ The Exercise System is the core component of Piano Fitness that provides structu
 - **Custom Progression Builder**: User-defined progressions
 
 #### Practice Variations
+
 - Block chord style
 - Arpeggiated style
 - Bass line accompaniment
@@ -61,6 +69,7 @@ The Exercise System is the core component of Piano Fitness that provides structu
 ## Exercise Configuration
 
 ### Key Selection
+
 - **All Major Keys**: C, G, D, A, E, B, F#, C#, F, Bb, Eb, Ab
 - **All Minor Keys**: Natural, harmonic, and melodic variants
 - **Relative/Parallel**: Toggle between relative and parallel minor
@@ -68,6 +77,7 @@ The Exercise System is the core component of Piano Fitness that provides structu
 - **Random Selection**: Automated key rotation
 
 ### Tempo Settings
+
 - **Range**: 40-208 BPM
 - **Increment**: 1 BPM steps for fine control
 - **Preset Tempos**: Common practice tempos (60, 72, 84, 96, 108, 120, 132, 144, 160, 176, 192)
@@ -75,6 +85,7 @@ The Exercise System is the core component of Piano Fitness that provides structu
 - **Gradual Acceleration**: Automatic tempo increase during practice
 
 ### Practice Modes
+
 - **Hands Separate**: Left hand only, right hand only
 - **Hands Together**: Simultaneous execution
 - **Custom Hand Patterns**:
@@ -84,7 +95,8 @@ The Exercise System is the core component of Piano Fitness that provides structu
   - Parallel motion
 
 ### Difficulty Levels
-- **Beginner**: 
+
+- **Beginner**:
   - Single octave
   - Slower tempos (40-80 BPM)
   - Basic fingering patterns
@@ -103,6 +115,7 @@ The Exercise System is the core component of Piano Fitness that provides structu
 ## Exercise Data Structure
 
 ### Note-Fingering Element
+
 The fundamental building block combining a musical note with its fingering instruction.
 
 ```dart
@@ -127,6 +140,7 @@ enum Hand { left, right }
 ```
 
 ### Note Group
+
 Represents one or more notes to be played simultaneously (single notes, intervals, chords).
 
 ```dart
@@ -157,6 +171,7 @@ class NoteGroup {
 ```
 
 ### Exercise Step
+
 Represents a single step in an exercise sequence. Steps are automatically numbered by list index.
 
 ```dart
@@ -177,6 +192,7 @@ class ExerciseStep {
 ```
 
 ### Exercise Source Attribution
+
 Tracks where exercises come from for proper attribution and licensing.
 
 ```dart
@@ -242,6 +258,7 @@ enum SourceType {
 ```
 
 ### Exercise Definition
+
 The complete exercise structure with sequential steps.
 
 ```dart
@@ -506,26 +523,31 @@ final cMajorArpeggio = ExerciseDefinition(
 ## Benefits of This Simplified Model
 
 ### 1. **MVP-Focused Design**
+
 - Essential fields only - no over-engineering for initial version
 - Simple step-by-step progression using list indexes
 - Clear note-to-finger mapping without complexity
 
 ### 2. **Easy Exercise Creation**
+
 - Straightforward structure for scales, chords, arpeggios
 - No need to calculate step numbers or complex timing
 - Focus on the core: what notes to play and which fingers to use
 
 ### 3. **Student-Centered Learning**
+
 - System highlights expected notes and waits for student input
 - Success is simply playing the correct notes
 - Visual feedback managed automatically by the system
 
 ### 4. **Flexible Timing**
+
 - Student controls tempo via metronome
 - System measures timing accuracy against metronome beats
 - No complex duration calculations needed
 
 ### 5. **Source Attribution**
+
 - Proper credit for exercise sources (books, videos, etc.)
 - Clean separation of exercise content and attribution
 - Supports various content types and licensing
@@ -533,18 +555,21 @@ final cMajorArpeggio = ExerciseDefinition(
 ## Exercise Generation
 
 ### Scale Generation
+
 - **Pattern Recognition**: Whole and half step patterns
 - **Key Signature**: Automatic sharp/flat application
 - **Octave Expansion**: Generate multi-octave patterns
 - **Modal Variations**: Generate modes from parent scales
 
 ### Chord Generation
+
 - **Interval Calculation**: Third-based chord construction
 - **Inversion Logic**: Root, 1st, 2nd inversion patterns
 - **Voice Leading**: Smooth transitions between chords
 - **Harmonic Context**: Diatonic relationships
 
 ### Progression Generation
+
 - **Roman Numeral Analysis**: Chord function identification
 - **Voice Leading**: Smooth chord transitions
 - **Cadence Patterns**: Authentic, plagal, deceptive cadences
@@ -553,12 +578,14 @@ final cMajorArpeggio = ExerciseDefinition(
 ## Exercise Validation
 
 ### Note Accuracy
+
 - **Pitch Matching**: Compare played notes to expected notes
 - **Timing Tolerance**: Acceptable deviation from beat
 - **Chord Recognition**: Simultaneous note validation
 - **Sequence Verification**: Correct note order
 
 ### Technique Assessment
+
 - **Fingering Compliance**: Match recommended fingering
 - **Legato Consistency**: Smooth connection between notes
 - **Rhythm Accuracy**: Adherence to tempo and timing
@@ -567,12 +594,14 @@ final cMajorArpeggio = ExerciseDefinition(
 ## Exercise Progression
 
 ### Adaptive Difficulty
+
 - **Performance Tracking**: Success rate monitoring
 - **Automatic Advancement**: Move to next level based on accuracy
 - **Remedial Practice**: Return to easier variations if needed
 - **Personalized Pacing**: Individual progression speed
 
 ### Mastery Criteria
+
 - **Accuracy Threshold**: 90% note accuracy
 - **Tempo Achievement**: Target tempo reached
 - **Consistency**: Multiple successful attempts
@@ -581,12 +610,14 @@ final cMajorArpeggio = ExerciseDefinition(
 ## Exercise Customization
 
 ### User-Defined Exercises
+
 - **Custom Scales**: User-created scale patterns
 - **Custom Progressions**: Personal chord sequences
 - **Practice Variations**: Modified practice patterns
 - **Goal Setting**: Personal targets and objectives
 
 ### Exercise Libraries
+
 - **Classical Repertoire**: Exercises from method books
 - **Jazz Standards**: Jazz-specific progressions and scales
 - **Popular Music**: Contemporary chord patterns
@@ -595,18 +626,21 @@ final cMajorArpeggio = ExerciseDefinition(
 ## Integration Points
 
 ### MIDI Integration
+
 - **Real-time Input**: Live MIDI note detection
 - **Exercise Playback**: Demonstration of exercises
 - **Metronome Sync**: Coordinated timing with metronome
 - **Multi-device**: Support for various MIDI controllers
 
 ### Progress Tracking
+
 - **Session Data**: Exercise completion and accuracy
 - **Historical Trends**: Progress over time
 - **Achievement System**: Milestone recognition
 - **Analytics**: Performance metrics and insights
 
 ### Visual Feedback
+
 - **Piano Keyboard**: Real-time key highlighting
 - **Sheet Music**: Optional notation display
 - **Fingering Guides**: Visual finger number indicators
@@ -615,12 +649,14 @@ final cMajorArpeggio = ExerciseDefinition(
 ## Performance Requirements
 
 ### Responsiveness
+
 - **Real-time Processing**: &lt; 20ms MIDI input latency
 - **Exercise Loading**: &lt; 500ms exercise initialization
 - **Smooth Playback**: 60fps visual updates
 - **Battery Efficiency**: Optimized for mobile devices
 
 ### Scalability
+
 - **Exercise Library**: Support for 1000+ exercises
 - **Concurrent Processing**: Multiple exercise types
 - **Memory Management**: Efficient exercise caching
@@ -629,12 +665,14 @@ final cMajorArpeggio = ExerciseDefinition(
 ## Future Enhancements
 
 ### Phase 2 Features
+
 - **AI-Generated Exercises**: Machine learning-based exercise creation
 - **Sight-reading Integration**: Reading exercises with exercise practice
 - **Collaborative Practice**: Multi-user exercise sessions
 - **Advanced Analytics**: Machine learning performance analysis
 
 ### Phase 3 Features
+
 - **Video Integration**: Video lessons with exercises
 - **Gamification**: Points, badges, and competition
 - **Social Features**: Sharing and community challenges

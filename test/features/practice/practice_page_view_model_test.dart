@@ -27,16 +27,15 @@ void main() {
       exerciseCompletedCalled = false;
       receivedHighlightedNotes = [];
 
-      viewModel
-        ..setMidiState(mockMidiState)
-        ..initializePracticeSession(
-          onExerciseCompleted: () {
-            exerciseCompletedCalled = true;
-          },
-          onHighlightedNotesChanged: (notes) {
-            receivedHighlightedNotes = notes;
-          },
-        );
+      // Note: Practice page now uses local MIDI state, so we don't set external state
+      viewModel.initializePracticeSession(
+        onExerciseCompleted: () {
+          exerciseCompletedCalled = true;
+        },
+        onHighlightedNotesChanged: (notes) {
+          receivedHighlightedNotes = notes;
+        },
+      );
     });
 
     tearDown(() {
@@ -46,7 +45,7 @@ void main() {
 
     test("should initialize with correct MIDI channel", () {
       expect(viewModel.midiChannel, equals(3));
-      expect(mockMidiState.selectedChannel, equals(3));
+      expect(viewModel.localMidiState.selectedChannel, equals(3));
     });
 
     test("should initialize practice session correctly", () {
@@ -63,22 +62,25 @@ void main() {
 
       viewModel.handleMidiData(midiData);
 
-      expect(mockMidiState.activeNotes.contains(60), isTrue);
-      expect(mockMidiState.lastNote, "Note ON: 60 (Ch: 1, Vel: 100)");
-      expect(mockMidiState.hasRecentActivity, isTrue);
+      expect(viewModel.localMidiState.activeNotes.contains(60), isTrue);
+      expect(
+        viewModel.localMidiState.lastNote,
+        "Note ON: 60 (Ch: 1, Vel: 100)",
+      );
+      expect(viewModel.localMidiState.hasRecentActivity, isTrue);
     });
 
     test("should handle MIDI data and update state for note off events", () {
-      // First add a note
-      mockMidiState.noteOn(60, 100, 1);
-      expect(mockMidiState.activeNotes.contains(60), isTrue);
+      // First add a note to local MIDI state
+      viewModel.localMidiState.noteOn(60, 100, 1);
+      expect(viewModel.localMidiState.activeNotes.contains(60), isTrue);
 
       final midiData = Uint8List.fromList([0x80, 60, 0]);
 
       viewModel.handleMidiData(midiData);
 
-      expect(mockMidiState.activeNotes.contains(60), isFalse);
-      expect(mockMidiState.lastNote, "Note OFF: 60 (Ch: 1)");
+      expect(viewModel.localMidiState.activeNotes.contains(60), isFalse);
+      expect(viewModel.localMidiState.lastNote, "Note OFF: 60 (Ch: 1)");
     });
 
     test("should start and reset practice sessions", () {
@@ -157,17 +159,18 @@ void main() {
       receivedHighlightedNotes = testNotes;
       viewModel.practiceSession!.onHighlightedNotesChanged(testNotes);
 
-      final result = viewModel.getDisplayHighlightedNotes(mockMidiState);
+      final result = viewModel.getDisplayHighlightedNotes();
       expect(result, equals(testNotes));
 
-      // Test when ViewModel has no highlighted notes, falls back to MidiState
+      // Test when ViewModel has no highlighted notes, falls back to local MidiState
       viewModel.practiceSession!.onHighlightedNotesChanged([]);
-      mockMidiState.noteOn(60, 100, 1);
+      viewModel.localMidiState.noteOn(60, 100, 1);
 
-      final fallbackResult = viewModel.getDisplayHighlightedNotes(
-        mockMidiState,
+      final fallbackResult = viewModel.getDisplayHighlightedNotes();
+      expect(
+        fallbackResult,
+        equals(viewModel.localMidiState.highlightedNotePositions),
       );
-      expect(fallbackResult, equals(mockMidiState.highlightedNotePositions));
     });
 
     test("should calculate practice range correctly", () {
@@ -253,7 +256,10 @@ void main() {
 
         viewModel.handleMidiData(midiData);
 
-        expect(mockMidiState.lastNote, "CC: Controller 7 = 100 (Ch: 1)");
+        expect(
+          viewModel.localMidiState.lastNote,
+          "CC: Controller 7 = 100 (Ch: 1)",
+        );
       });
 
       test("should handle program change messages", () {
@@ -261,7 +267,7 @@ void main() {
 
         viewModel.handleMidiData(midiData);
 
-        expect(mockMidiState.lastNote, "Program Change: 42 (Ch: 1)");
+        expect(viewModel.localMidiState.lastNote, "Program Change: 42 (Ch: 1)");
       });
 
       test("should handle pitch bend messages", () {
@@ -269,7 +275,10 @@ void main() {
 
         viewModel.handleMidiData(midiData);
 
-        expect(mockMidiState.lastNote.contains("Pitch Bend"), isTrue);
+        expect(
+          viewModel.localMidiState.lastNote.contains("Pitch Bend"),
+          isTrue,
+        );
       });
 
       test("should filter out clock and active sense messages", () {

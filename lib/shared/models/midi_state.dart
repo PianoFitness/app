@@ -114,6 +114,17 @@ class MidiState extends ChangeNotifier {
     }
   }
 
+  /// Sets which notes should be highlighted on the piano (for reference mode).
+  ///
+  /// This replaces the active notes with the provided set of MIDI note numbers.
+  /// Used for displaying scales, chords, and other reference materials.
+  void setHighlightedNotes(Set<int> midiNotes) {
+    _activeNotes
+      ..clear()
+      ..addAll(midiNotes);
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     _activityTimer?.cancel();

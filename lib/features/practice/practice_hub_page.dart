@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:piano_fitness/features/practice/practice_page.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/models/chord_progression_type.dart";
+import "package:piano_fitness/shared/widgets/midi_controls.dart";
 
 /// Hub page for organized practice sessions.
 ///
@@ -25,6 +26,7 @@ class PracticeHubPage extends StatelessWidget {
             Text("Practice Hub"),
           ],
         ),
+        actions: const [MidiControls()],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
