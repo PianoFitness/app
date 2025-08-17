@@ -118,7 +118,7 @@ hot-reload:
 	@echo "Or use your IDE's hot reload button"
 
 # Simulator Management
-run-iphone: check-flutter
+run-iphone: check-flutter check-xcode
 	@echo "🚀 Launching $(IPHONE_SIM) simulator..."
 	@open -a Simulator
 	@xcrun simctl boot "$(IPHONE_SIM)" 2>/dev/null || true
@@ -127,7 +127,7 @@ run-iphone: check-flutter
 	@echo "🎯 Launching app..."
 	@flutter run -d "$(IPHONE_SIM)" --debug
 
-run-ipad: check-flutter
+run-ipad: check-flutter check-xcode
 	@echo "🚀 Launching $(IPAD_SIM) simulator..."
 	@open -a Simulator
 	@xcrun simctl boot "$(IPAD_SIM)" 2>/dev/null || true
@@ -140,7 +140,7 @@ run-web: check-flutter
 	@echo "🌐 Launching web version..."
 	@flutter run -d chrome --debug
 
-devices:
+devices: check-xcode
 	@echo "📱 Available simulators:"
 	@xcrun simctl list devices available
 	@echo ""
