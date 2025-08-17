@@ -7,6 +7,7 @@ The Piano Fitness Design System provides a comprehensive visual language and com
 ## Design Principles
 
 ### Educational Focus
+
 - **Clarity**: Visual elements support learning without distraction
 - **Hierarchy**: Clear information architecture guides practice flow
 - **Feedback**: Immediate and clear visual responses to user actions
@@ -14,6 +15,7 @@ The Piano Fitness Design System provides a comprehensive visual language and com
 - **Accessibility**: Inclusive design for diverse learning needs
 
 ### Musical Context
+
 - **Timing Precision**: Visual elements sync with musical timing
 - **Traditional References**: Familiar piano and music notation elements
 - **Performance Ready**: Suitable for extended practice sessions
@@ -21,6 +23,7 @@ The Piano Fitness Design System provides a comprehensive visual language and com
 - **Professional Appearance**: Builds confidence in learning tool
 
 ### Technical Excellence
+
 - **Responsive Design**: Consistent across all device sizes
 - **Performance Optimized**: 60fps smooth interactions
 - **Platform Consistency**: Native feel on each platform
@@ -30,6 +33,7 @@ The Piano Fitness Design System provides a comprehensive visual language and com
 ## Color System
 
 ### Primary Color Palette
+
 ```dart
 class PianoFitnessColors {
   // Primary Brand Colors
@@ -51,6 +55,7 @@ class PianoFitnessColors {
 ```
 
 ### Semantic Color System
+
 ```dart
 class SemanticColors {
   // Success States (Correct Notes/Actions)
@@ -81,6 +86,7 @@ class SemanticColors {
 ```
 
 ### Musical Context Colors
+
 ```dart
 class MusicalColors {
   // Hand Differentiation
@@ -106,6 +112,7 @@ class MusicalColors {
 ```
 
 ### Dark Mode Support
+
 ```dart
 class DarkModeColors {
   // Background Colors
@@ -125,6 +132,7 @@ class DarkModeColors {
 ```
 
 ### Accessibility Color Considerations
+
 - **Contrast Ratios**: All color combinations meet WCAG AA standards (4.5:1 minimum)
 - **Color Blindness**: Alternative indicators beyond color (patterns, shapes, text)
 - **High Contrast Mode**: Enhanced contrast options for visual impairments
@@ -133,6 +141,7 @@ class DarkModeColors {
 ## Typography System
 
 ### Font Family Selection
+
 ```dart
 class PianoFitnessTypography {
   // Primary Font - Inter (Clean, readable, musical context appropriate)
@@ -147,6 +156,7 @@ class PianoFitnessTypography {
 ```
 
 ### Type Scale and Hierarchy
+
 ```dart
 class TextStyles {
   // Display Text (Large headings, app title)
@@ -252,6 +262,7 @@ class TextStyles {
 ```
 
 ### Musical Typography
+
 ```dart
 class MusicalTextStyles {
   // Finger Numbers (Large, clear numbers over piano keys)
@@ -301,6 +312,7 @@ class MusicalTextStyles {
 ```
 
 ### Responsive Typography
+
 ```dart
 class ResponsiveTextStyles {
   static TextStyle getResponsiveStyle(BuildContext context, TextStyle baseStyle) {
@@ -324,6 +336,7 @@ class ResponsiveTextStyles {
 ## Spacing and Layout
 
 ### Spacing Scale
+
 ```dart
 class Spacing {
   static const double xs = 4.0;      // Minimal spacing
@@ -342,6 +355,7 @@ class Spacing {
 ```
 
 ### Layout Grid System
+
 ```dart
 class LayoutGrid {
   // Grid breakpoints
@@ -362,6 +376,7 @@ class LayoutGrid {
 ```
 
 ### Component Dimensions
+
 ```dart
 class ComponentDimensions {
   // Piano Keyboard
@@ -394,6 +409,7 @@ class ComponentDimensions {
 ## Component Library
 
 ### Button System
+
 ```dart
 class PianoFitnessButtons {
   // Primary Button (Main actions)
@@ -442,6 +458,7 @@ class PianoFitnessButtons {
 ```
 
 ### Card Components
+
 ```dart
 class PianoFitnessCards {
   static BoxDecoration standardCard = BoxDecoration(
@@ -485,6 +502,7 @@ class PianoFitnessCards {
 ```
 
 ### Input Components
+
 ```dart
 class PianoFitnessInputs {
   static InputDecoration standardInput = InputDecoration(
@@ -520,24 +538,28 @@ class PianoFitnessInputs {
 ## Accessibility Standards
 
 ### Color Accessibility
+
 - **WCAG AA Compliance**: 4.5:1 contrast ratio minimum
 - **WCAG AAA Compliance**: 7:1 contrast ratio for enhanced readability
 - **Color Blindness Support**: Pattern/shape alternatives to color coding
 - **High Contrast Mode**: System-level high contrast support
 
 ### Typography Accessibility
+
 - **Minimum Font Size**: 12sp for body text, 14sp for UI elements
 - **Line Height**: 1.5x font size minimum for body text
 - **Character Spacing**: Adequate spacing for readability
 - **Font Weight**: Appropriate contrast for text hierarchy
 
 ### Interactive Accessibility
+
 - **Touch Targets**: 44dp minimum (iOS), 48dp recommended
 - **Focus Indicators**: Clear visual focus states for keyboard navigation
 - **Screen Reader Support**: Semantic markup and proper labeling
 - **Voice Control**: Voice navigation compatibility
 
 ### Musical Context Accessibility
+
 ```dart
 class MusicAccessibility {
   // Finger number accessibility
@@ -569,12 +591,14 @@ class MusicAccessibility {
 ## Animation and Motion
 
 ### Animation Principles
+
 - **Purposeful Motion**: Animations support user understanding
 - **Consistent Timing**: Standard durations across similar interactions
 - **Respectful Motion**: Reduced motion support for accessibility
 - **Performance First**: 60fps smooth animations on target devices
 
 ### Animation Durations
+
 ```dart
 class AnimationDurations {
   static const Duration instant = Duration(milliseconds: 0);
@@ -593,6 +617,7 @@ class AnimationDurations {
 ```
 
 ### Animation Curves
+
 ```dart
 class AnimationCurves {
   static const Curve standardEasing = Curves.easeInOut;
@@ -611,6 +636,7 @@ class AnimationCurves {
 ## Theme Configuration
 
 ### Light Theme
+
 ```dart
 class PianoFitnessTheme {
   static ThemeData lightTheme = ThemeData(
@@ -651,6 +677,7 @@ class PianoFitnessTheme {
 ```
 
 ### Dark Theme
+
 ```dart
 static ThemeData darkTheme = ThemeData(
   useMaterial3: true,
@@ -667,7 +694,8 @@ static ThemeData darkTheme = ThemeData(
 ## Implementation Guidelines
 
 ### Code Organization
-```
+
+```text
 lib/
   design_system/
     colors/
@@ -692,6 +720,7 @@ lib/
 ```
 
 ### Usage Examples
+
 ```dart
 // Using design system colors
 Container(
@@ -724,6 +753,7 @@ PianoKey(
 ## Testing and Validation
 
 ### Design System Testing
+
 - **Visual Regression Tests**: Automated screenshot comparison
 - **Accessibility Audits**: Regular WCAG compliance testing  
 - **Color Contrast Validation**: Automated contrast ratio checking
@@ -731,6 +761,7 @@ PianoKey(
 - **Dark Mode Compatibility**: Ensure all components work in dark mode
 
 ### Performance Testing
+
 - **Animation Performance**: 60fps validation on target devices
 - **Memory Usage**: Design system component memory footprint
 - **Rendering Performance**: Large list and complex UI performance
@@ -739,12 +770,14 @@ PianoKey(
 ## Documentation and Maintenance
 
 ### Design Token Documentation
+
 - **Token Catalog**: Comprehensive design token reference
 - **Usage Guidelines**: When and how to use each token
 - **Migration Guides**: Updating between design system versions
 - **Platform Variations**: iOS/Android/Web specific adaptations
 
 ### Component Documentation
+
 - **Component Catalog**: Visual component library
 - **Usage Examples**: Code examples for each component
 - **Accessibility Notes**: Specific accessibility considerations
@@ -753,12 +786,14 @@ PianoKey(
 ## Future Enhancements
 
 ### Phase 2 Features
+
 - **Dynamic Theming**: User-customizable color schemes
 - **Advanced Animations**: Complex musical timing visualizations
 - **Accessibility Enhancements**: Additional assistive technology support
 - **Cultural Adaptations**: Internationalization and localization support
 
 ### Phase 3 Features
+
 - **AI-Powered Personalization**: Adaptive UI based on user behavior
 - **Advanced Typography**: Variable fonts and responsive typography
 - **3D Design Elements**: Three-dimensional visual components

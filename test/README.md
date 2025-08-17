@@ -109,7 +109,7 @@ test('should handle error states gracefully', () async {
 
 ## File Organization
 
-```
+```text
 test/
 ├── shared/           # Shared utilities
 │   └── midi_mocks.dart

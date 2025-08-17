@@ -7,23 +7,27 @@ To create professional App Store screenshots that meet Apple's requirements, fol
 ### iPad Screenshots (Required: 13-inch display)
 
 1. **List available iPad simulators**:
+
    ```bash
    xcrun simctl list devices available | grep -i "ipad.*13"
    ```
 
 2. **Boot the iPad Pro 13-inch (M4) simulator**:
+
    ```bash
    # Find the device ID from the list above, then boot it
    xcrun simctl boot "DEVICE-ID-HERE"
    ```
 
 3. **Open the simulator**:
+
    ```bash
    # Replace DEVICE-ID-HERE with the actual device ID
    open -a Simulator --args -CurrentDeviceUDID DEVICE-ID-HERE
    ```
 
 4. **Launch the app on iPad 13-inch**:
+
    ```bash
    # Verify the device is available
    flutter devices
@@ -39,17 +43,20 @@ To create professional App Store screenshots that meet Apple's requirements, fol
 ### iPhone Screenshots (Required: 6.9-inch display)
 
 1. **List available iPhone simulators**:
+
    ```bash
    xcrun simctl list devices available | grep -i "iphone.*pro max"
    ```
 
 2. **Boot iPhone 16 Pro Max simulator** (6.9-inch display):
+
    ```bash
    # Find the iPhone 16 Pro Max device ID, then boot it
    xcrun simctl boot "IPHONE-DEVICE-ID-HERE"
    ```
 
 3. **Launch the app on iPhone**:
+
    ```bash
    flutter run -d "IPHONE-DEVICE-ID-HERE"
    ```

@@ -7,6 +7,7 @@ The Metronome component is a precision timing tool essential for piano practice.
 ## Critical Timing Requirements
 
 ### Precision Standards
+
 - **Timing Accuracy**: ±1ms deviation maximum from target interval
 - **Timing Consistency**: &lt;0.5ms jitter between beats
 - **Long-term Stability**: No drift over extended periods (60+ minutes)
@@ -14,6 +15,7 @@ The Metronome component is a precision timing tool essential for piano practice.
 - **Background Operation**: Maintain timing when app is backgrounded
 
 ### Musical Timing Context
+
 - **Human Perception**: Musicians notice timing variations >3ms
 - **Professional Standards**: Recording studios require &lt;1ms accuracy
 - **Practice Effectiveness**: Inconsistent timing disrupts muscle memory
@@ -23,6 +25,7 @@ The Metronome component is a precision timing tool essential for piano practice.
 ## Architecture Design
 
 ### Isolation Strategy
+
 The metronome must run independently from Flutter's render loop to avoid timing corruption from UI updates, animations, or garbage collection.
 
 ```dart
@@ -62,6 +65,7 @@ class PrecisionMetronome {
 ```
 
 ### Isolate Implementation
+
 ```dart
 // Isolate entry point - runs on separate thread
 static void _metronomeIsolateEntry(SendPort mainSendPort) {
@@ -109,6 +113,7 @@ static void _metronomeIsolateEntry(SendPort mainSendPort) {
 ## Timing Implementation
 
 ### ReliableIntervalTimer Integration
+
 ```dart
 class MetronomeTimer {
   ReliableIntervalTimer? _timer;
@@ -142,6 +147,7 @@ class MetronomeTimer {
 ```
 
 ### BPM Calculation and Conversion
+
 ```dart
 class TempoCalculator {
   static Duration bpmToInterval(int bpm) {
@@ -178,6 +184,7 @@ enum NoteValue {
 ## Beat Pattern Management
 
 ### Time Signature Support
+
 ```dart
 class TimeSignature {
   final int numerator;
@@ -226,6 +233,7 @@ enum BeatEmphasis {
 ```
 
 ### Beat Tracking and Accent Patterns
+
 ```dart
 class BeatTracker {
   TimeSignature _timeSignature;
@@ -272,6 +280,7 @@ class BeatInfo {
 ## Audio System
 
 ### Sound Generation
+
 ```dart
 class MetronomeAudioEngine {
   late AudioPlayer _audioPlayer;
@@ -312,6 +321,7 @@ enum MetronomeSound {
 ```
 
 ### Low-Latency Audio Requirements
+
 - **Audio Buffer Size**: Minimize to reduce latency (&lt;128 samples)
 - **Sample Rate**: Use 44.1kHz or 48kHz for quality
 - **Preloading**: Cache all sound files in memory
@@ -321,6 +331,7 @@ enum MetronomeSound {
 ## Visual Synchronization
 
 ### Beat Indicator
+
 ```dart
 class MetronomeBeatIndicator extends StatefulWidget {
   final Stream<BeatInfo> beatStream;
@@ -376,6 +387,7 @@ class _MetronomeBeatIndicatorState extends State<MetronomeBeatIndicator>
 ```
 
 ### Timing Validation and Drift Detection
+
 ```dart
 class TimingValidator {
   final List<Duration> _beatIntervals = [];
@@ -445,6 +457,7 @@ class TimingAnalysis {
 ## Exercise Integration
 
 ### Timing Reference for Practice
+
 ```dart
 class ExerciseMetronome extends PrecisionMetronome {
   final Function(BeatInfo) onExerciseBeat;
@@ -475,6 +488,7 @@ class ExerciseMetronome extends PrecisionMetronome {
 ```
 
 ### MIDI Timing Validation
+
 ```dart
 class MidiTimingValidator {
   final PrecisionMetronome metronome;
@@ -526,18 +540,21 @@ class MidiTimingEvent {
 ## Platform Considerations
 
 ### iOS Implementation
+
 - **Core Audio**: Use Audio Units for lowest latency
 - **CADisplayLink**: Precise timing synchronization
 - **Background Audio**: Maintain timing when backgrounded
 - **Audio Session**: Configure for low-latency playback
 
 ### Android Implementation
+
 - **AAudio/OpenSL ES**: Low-latency audio APIs
 - **Choreographer**: Frame timing synchronization
 - **AudioTrack**: Direct audio buffer management
 - **Foreground Service**: Maintain timing in background
 
 ### Flutter/Dart Considerations
+
 - **Isolate Overhead**: Account for message passing latency
 - **Garbage Collection**: Minimize allocations in timing-critical code  
 - **Platform Channels**: Use for native audio integration
@@ -546,6 +563,7 @@ class MidiTimingEvent {
 ## Testing and Validation
 
 ### Precision Testing
+
 ```dart
 class MetronomeTimingTest {
   static Future<void> testTimingAccuracy() async {
@@ -570,6 +588,7 @@ class MetronomeTimingTest {
 ```
 
 ### Performance Benchmarks
+
 - **Timing Accuracy**: &lt;1ms deviation under normal load
 - **Timing Consistency**: &lt;0.5ms jitter
 - **CPU Usage**: &lt;2% on modern devices
@@ -579,6 +598,7 @@ class MetronomeTimingTest {
 ## Dependencies
 
 ### Required Packages
+
 ```yaml
 dependencies:
   # Precise interval timing
@@ -595,6 +615,7 @@ dependencies:
 ```
 
 ### Platform-Specific Dependencies
+
 - **iOS**: Core Audio framework integration
 - **Android**: AAudio/OpenSL ES integration
 - **Web**: Web Audio API (with limitations)
@@ -603,12 +624,14 @@ dependencies:
 ## Future Enhancements
 
 ### Phase 2 Features
+
 - **Polyrhythm Support**: Multiple simultaneous beat patterns
 - **Swing Timing**: Jazz-style beat subdivision
 - **Accelerando/Ritardando**: Gradual tempo changes
 - **MIDI Clock Sync**: External device synchronization
 
 ### Phase 3 Features
+
 - **Network Synchronization**: Multi-user synchronized practice
 - **Adaptive Timing**: AI-adjusted tempo based on performance
 - **Biometric Integration**: Heart rate synchronized timing

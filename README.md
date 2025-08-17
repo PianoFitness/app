@@ -21,12 +21,14 @@ Too many piano students practice scales and technical exercises without understa
 ### Core Features
 
 #### 🎹 **Interactive Piano Keyboard**
+
 - 49-key visual keyboard with real-time MIDI input
 - Multiple key states: pressed, target, correct, incorrect
 - Finger number indicators for proper technique
 - Hand differentiation (left/right) with color coding
 
 #### 📚 **Comprehensive Exercise System**
+
 - **Scales**: Major, minor (natural, harmonic, melodic), and modal scales
 - **Chords**: Triads, inversions, and progressions in all keys
 - **Arpeggios**: One to three octaves with various patterns
@@ -34,12 +36,14 @@ Too many piano students practice scales and technical exercises without understa
 - **Custom Exercises**: User and teacher-created practice routines
 
 #### ⏱️ **Precision Practice Tools**
+
 - **High-accuracy metronome** using `ReliableIntervalTimer` for consistent timing
 - **Session timer** with practice goals and intelligent break suggestions
 - **Practice planning** with structured session templates
 - **Break management** to prevent overexertion and maintain focus
 
 #### 📊 **Advanced Progress Tracking**
+
 - **Real-time performance metrics**: accuracy, timing, legato quality
 - **Historical trend analysis** with detailed analytics dashboard
 - **Achievement system** with badges and milestones
@@ -47,6 +51,7 @@ Too many piano students practice scales and technical exercises without understa
 - **Goal setting** with adaptive recommendations
 
 #### 👨‍🏫 **Teacher Integration**
+
 - **Student progress monitoring** with detailed performance insights
 - **Exercise assignment** system with completion tracking
 - **Class management** tools for multiple students
@@ -55,18 +60,21 @@ Too many piano students practice scales and technical exercises without understa
 ### Technical Excellence
 
 #### 🎵 **Precision MIDI Integration**
+
 - **Sub-millisecond timing accuracy** for professional-grade practice
 - **Real-time note detection** with velocity and timing analysis
 - **Multiple MIDI device support** (USB, Bluetooth, network)
 - **Cross-platform compatibility** (iOS, Android, Desktop)
 
 #### ☁️ **Cloud-Native Architecture**
+
 - **Firebase backend** with real-time synchronization
 - **Cross-device continuity** - practice on any device
 - **Offline-first design** with automatic sync when connected
 - **Secure authentication** with multiple login options
 
 #### 🎨 **Music Education Design System**
+
 - **Accessibility-first** design following WCAG guidelines
 - **Dark mode support** for comfortable extended practice
 - **Responsive layout** optimized for phones, tablets, and desktop
@@ -75,18 +83,21 @@ Too many piano students practice scales and technical exercises without understa
 ## 🔧 Technical Architecture
 
 ### Frontend
+
 - **Flutter** - Cross-platform UI framework
 - **flutter_midi_command** - Precise MIDI input/output handling
 - **ReliableIntervalTimer** - High-accuracy timing for metronome
 - **Custom paint widgets** - Optimized piano keyboard rendering
 
 ### Backend
+
 - **Firebase Authentication** - Multi-method user authentication
 - **Cloud Firestore** - Real-time database with offline support
 - **Firebase Security Rules** - Data protection and privacy
 - **Cloud Functions** - Server-side processing and analytics
 
 ### Data Models
+
 - **Practice session tracking** with detailed MIDI event capture
 - **Exercise progress monitoring** with mastery detection
 - **Daily/weekly analytics** with trend analysis
@@ -96,14 +107,18 @@ Too many piano students practice scales and technical exercises without understa
 ## 🎓 Educational Philosophy
 
 ### Evidence-Based Practice
+
 Piano Fitness is built on established pedagogical principles:
+
 - **Deliberate practice** with specific, measurable goals
 - **Immediate feedback** for faster skill acquisition
 - **Spaced repetition** for long-term retention
 - **Progressive difficulty** to maintain optimal challenge
 
 ### Supporting Traditional Instruction
+
 Piano Fitness enhances rather than replaces traditional piano lessons:
+
 - **Complements repertoire work** with technical foundation building
 - **Provides objective data** for teacher-student discussions
 - **Enables efficient practice** between lessons
@@ -111,7 +126,7 @@ Piano Fitness enhances rather than replaces traditional piano lessons:
 
 ## 🏗️ Project Structure
 
-```
+```text
 piano-fitness/
 ├── app/                           # Flutter application
 │   ├── lib/
@@ -148,18 +163,21 @@ Piano Fitness is currently in the **specification and design phase**. We're buil
 ## 🎼 Why Piano Fitness Matters
 
 ### For Students
+
 - **Accelerated skill development** through data-driven practice
 - **Motivation through progress visualization** and achievement systems
 - **Consistent practice habits** with goal setting and streak tracking
 - **Objective feedback** independent of teacher availability
 
 ### For Teachers
+
 - **Data-driven instruction** with detailed student progress analytics
 - **Efficient lesson time** focusing on interpretation rather than technical issues
 - **Remote monitoring** of student practice between lessons
 - **Standardized assessment** tools for technique evaluation
 
 ### For Institutions
+
 - **Scalable music education** supporting hundreds of students
 - **Progress tracking** across years of study
 - **Assessment tools** for placement and advancement
@@ -180,6 +198,7 @@ We'd love to have you involved! Check out our [specifications](docs/specificatio
 ## 📚 Documentation
 
 ### Technical Specifications
+
 - [Piano Keyboard Component](docs/specifications/piano-keyboard-component.md)
 - [Exercise System](docs/specifications/exercise-system.md)
 - [Practice Tools](docs/specifications/practice-tools.md)
@@ -191,7 +210,9 @@ We'd love to have you involved! Check out our [specifications](docs/specificatio
 - [Firebase Data Models](docs/specifications/firebase-data-models.md)
 
 ### Getting Started
+
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/yourusername/piano-fitness.git
    cd piano-fitness
@@ -202,11 +223,17 @@ We'd love to have you involved! Check out our [specifications](docs/specificatio
    - Set up your preferred IDE (VS Code, Android Studio, IntelliJ)
 
 3. **Install development dependencies**
+
    ```bash
    # Install lefthook globally for git hooks
    brew install lefthook  # macOS
    # or
    npm install -g lefthook  # Cross-platform
+   
+   # Install markdownlint for markdown linting and formatting
+   brew install markdownlint-cli  # macOS
+   # or
+   npm install -g markdownlint-cli  # Cross-platform
    
    # Install and initialize lefthook in the project
    cd app
@@ -214,17 +241,21 @@ We'd love to have you involved! Check out our [specifications](docs/specificatio
    ```
 
 4. **Install Flutter dependencies**
+
    ```bash
    flutter pub get
    ```
 
 5. **Run the app**
+
    ```bash
    flutter run
    ```
 
 ### Development Dependencies
+
 - **lefthook** - Git hooks manager for automated linting and formatting
+- **markdownlint-cli** - Markdown linting and formatting tool
 
 ## 🎵 The Future of Piano Practice
 

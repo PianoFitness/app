@@ -7,7 +7,8 @@ This specification defines the comprehensive data models for Piano Fitness appli
 ## Database Architecture
 
 ### Collection Structure Overview
-```
+
+```text
 Firestore Database
 ├── users/{uid}/                          # User profiles and settings
 ├── exercises/{exerciseId}/                # Master exercise definitions
@@ -20,6 +21,7 @@ Firestore Database
 ## Core Data Models
 
 ### User Profile Model
+
 ```dart
 // Firestore: users/{uid}
 class UserProfileModel {
@@ -77,6 +79,7 @@ class UserProfileModel {
 ```
 
 ### Practice Session Model
+
 ```dart
 // Firestore: users/{uid}/practiceData/sessions/{sessionId}
 class PracticeSessionModel {
@@ -229,6 +232,7 @@ enum MidiEventType { noteOn, noteOff, controlChange, pitchBend }
 ```
 
 ### Exercise Progress Model
+
 ```dart
 // Firestore: users/{uid}/practiceData/exercises/{exerciseId}
 class ExerciseProgressModel {
@@ -327,6 +331,7 @@ class PerformanceRecordModel {
 ```
 
 ### Daily Statistics Model
+
 ```dart
 // Firestore: users/{uid}/practiceData/dailyStats/{date}
 class DailyStatsModel {
@@ -389,6 +394,7 @@ class DailyStatsModel {
 ```
 
 ### Achievement Model
+
 ```dart
 // Firestore: users/{uid}/progress/achievements/{achievementId}
 class AchievementModel {
@@ -469,6 +475,7 @@ enum AchievementRarity {
 ```
 
 ### Learning Goal Model
+
 ```dart
 // Firestore: users/{uid}/progress/goals/{goalId}
 class LearningGoalModel {
@@ -548,6 +555,7 @@ enum GoalType {
 ## Master Exercise Definitions
 
 ### Exercise Definition Model
+
 ```dart
 // Firestore: exercises/{exerciseId}
 class ExerciseDefinitionModel {
@@ -659,6 +667,7 @@ enum PracticeMode {
 ## Teacher-Student Models
 
 ### Teacher Profile Model
+
 ```dart
 // Firestore: teacherStudents/{teacherId}
 class TeacherProfileModel {
@@ -712,6 +721,7 @@ class StudentConnectionModel {
 ## Data Aggregation Models
 
 ### Weekly Summary Model
+
 ```dart
 // Firestore: users/{uid}/practiceData/weeklySummaries/{weekId}
 class WeeklySummaryModel {
@@ -757,6 +767,7 @@ class WeeklySummaryModel {
 ## Offline Data Models
 
 ### Local Database Schema
+
 ```dart
 // SQLite Local Database Models
 class LocalPracticeSession {
@@ -815,6 +826,7 @@ class SyncQueueItem {
 ## Data Query Patterns
 
 ### Common Queries
+
 ```dart
 class FirestoreQueries {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -885,6 +897,7 @@ class FirestoreQueries {
 ## Data Migration and Versioning
 
 ### Schema Version Management
+
 ```dart
 class SchemaVersion {
   static const int currentVersion = 1;
@@ -934,6 +947,7 @@ class SchemaVersion {
 ## Performance Optimization
 
 ### Data Indexing Strategy
+
 ```javascript
 // Firestore Indexes (firestore.indexes.json)
 {
@@ -976,6 +990,7 @@ class SchemaVersion {
 ```
 
 ### Data Size Optimization
+
 - **Batch Operations**: Use Firestore batch writes for multiple updates
 - **Pagination**: Implement cursor-based pagination for large result sets
 - **Data Aggregation**: Pre-calculate summary statistics to reduce query complexity
@@ -985,12 +1000,14 @@ class SchemaVersion {
 ## Security and Privacy
 
 ### Data Encryption
+
 - **Field-Level Encryption**: Sensitive data encrypted before storage
 - **Key Management**: User-specific encryption keys
 - **PII Protection**: Personal information anonymized in analytics
 - **Data Minimization**: Only store necessary data for functionality
 
 ### Audit Trail
+
 ```dart
 class AuditLogModel {
   final String id;

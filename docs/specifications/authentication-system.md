@@ -9,17 +9,20 @@ The Piano Fitness authentication system provides secure user management and data
 ### Supported Authentication Methods
 
 #### Primary Methods
+
 - **Email/Password**: Traditional account creation with email verification
 - **Google Sign-In**: Streamlined authentication using Google accounts
 - **Apple Sign-In**: Required for iOS App Store compliance
 - **Guest Mode**: Limited functionality without account creation
 
 #### Future Authentication Methods
+
 - **Microsoft Azure AD**: For educational institution integration
 - **SAML/SSO**: Enterprise and school district authentication
 - **Magic Links**: Passwordless authentication via email
 
 ### Authentication Architecture
+
 ```dart
 class AuthenticationService {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
@@ -48,6 +51,7 @@ class AuthenticationService {
 ## User Profile Management
 
 ### User Data Model
+
 ```dart
 class UserProfile {
   final String uid;
@@ -88,6 +92,7 @@ enum AccountType {
 ```
 
 ### User Preferences
+
 ```dart
 class UserPreferences {
   final String preferredLanguage;
@@ -146,6 +151,7 @@ enum DataRetentionPeriod {
 ```
 
 ### Learning Profile
+
 ```dart
 class LearningProfile {
   final SkillLevel currentSkillLevel;
@@ -207,7 +213,8 @@ enum GoalType {
 ## Firebase Data Architecture
 
 ### Firestore Database Structure
-```
+
+```text
 users/{uid}
 ├── profile/
 │   ├── email: string
@@ -254,6 +261,7 @@ users/{uid}
 ```
 
 ### Security Rules
+
 ```javascript
 // Firestore Security Rules
 rules_version = '2';
@@ -299,6 +307,7 @@ service cloud.firestore {
 ## Data Synchronization
 
 ### Real-time Synchronization Service
+
 ```dart
 class DataSyncService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -410,6 +419,7 @@ class DataSyncService {
 ```
 
 ### Offline Data Handling
+
 ```dart
 class OfflineDataManager {
   final LocalDatabase _localDb;
@@ -461,6 +471,7 @@ class OfflineDataManager {
 ## Teacher-Student Integration
 
 ### Teacher Dashboard Access
+
 ```dart
 class TeacherService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -559,6 +570,7 @@ class StudentSummary {
 ## Privacy and Security
 
 ### Data Privacy Implementation
+
 ```dart
 class PrivacyManager {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -644,6 +656,7 @@ class PrivacyManager {
 ```
 
 ### Security Best Practices
+
 - **Authentication Required**: All user data access requires valid authentication
 - **Data Ownership**: Users can only access their own data
 - **Encrypted Storage**: Sensitive data encrypted at rest and in transit
@@ -654,6 +667,7 @@ class PrivacyManager {
 ## Account Management
 
 ### Account Lifecycle
+
 ```dart
 class AccountManager {
   final AuthenticationService _authService;
@@ -735,6 +749,7 @@ class AccountManager {
 ## Testing and Validation
 
 ### Authentication Testing
+
 ```dart
 class AuthenticationTest {
   static Future<void> testEmailSignUp() async {
@@ -776,12 +791,14 @@ class AuthenticationTest {
 ## Future Enhancements
 
 ### Phase 2 Features
+
 - **Multi-factor Authentication**: SMS and authenticator app support
 - **Social Login**: Facebook, Twitter, and other social providers
 - **Single Sign-On**: Integration with school and organization systems
 - **Biometric Authentication**: Fingerprint and Face ID support
 
 ### Phase 3 Features
+
 - **Blockchain Identity**: Decentralized identity verification
 - **Zero-Knowledge Proofs**: Privacy-preserving authentication
 - **Advanced Analytics**: AI-powered user behavior analysis

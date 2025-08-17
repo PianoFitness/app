@@ -7,6 +7,7 @@ The Visual Feedback System provides real-time visual guidance and information du
 ## Key Press Visualization
 
 ### Real-time Key Highlighting
+
 - **Pressed Keys**: Immediate visual feedback for MIDI input
 - **Color Coding**: Distinct colors for different key states
 - **Intensity Variation**: Velocity-based visual intensity
@@ -14,6 +15,7 @@ The Visual Feedback System provides real-time visual guidance and information du
 - **Hand Differentiation**: Left/right hand color distinction
 
 ### Key State Management
+
 - **Active State**: Currently pressed keys
 - **Target State**: Keys that should be pressed
 - **Correct State**: Properly executed keys
@@ -21,6 +23,7 @@ The Visual Feedback System provides real-time visual guidance and information du
 - **Neutral State**: Default key appearance
 
 ### Visual Effects
+
 - **Press Animation**: Smooth key depression effects
 - **Release Animation**: Gradual return to normal state
 - **Glow Effects**: Subtle highlighting for target keys
@@ -28,6 +31,7 @@ The Visual Feedback System provides real-time visual guidance and information du
 - **Trail Effects**: Note sequence visualization
 
 ### Key Visualization Class Structure
+
 ```dart
 class KeyVisualization {
   Map<int, KeyState> keyStates; // MIDI note -> state
@@ -68,6 +72,7 @@ class KeyVisualSettings {
 ## Finger Number Indicators
 
 ### Finger Numbering System
+
 - **Standard Numbering**: 1-5 for each hand (thumb to pinky)
 - **Hand Designation**: L/R prefix for left/right hands
 - **Color Coding**: Distinct colors for each hand
@@ -75,6 +80,7 @@ class KeyVisualSettings {
 - **Dynamic Updates**: Real-time fingering adjustments
 
 ### Fingering Display Options
+
 - **Always Visible**: Continuous fingering display
 - **Exercise Mode**: Show only during exercises
 - **Hint Mode**: Display on request or difficulty
@@ -82,6 +88,7 @@ class KeyVisualSettings {
 - **Custom Mode**: User-defined display preferences
 
 ### Hand Coordination
+
 - **Split Display**: Separate left/right hand sections
 - **Unified Display**: Combined hand visualization
 - **Hand Independence**: Separate timing and feedback
@@ -89,6 +96,7 @@ class KeyVisualSettings {
 - **Cross-hand Patterns**: Special notation for hand crossings
 
 ### Fingering Class Structure
+
 ```dart
 class FingeringIndicator {
   Map<int, FingerNumber> keyFingerings; // MIDI note -> finger
@@ -129,6 +137,7 @@ enum FingeringDisplayMode {
 ## Information Display Area
 
 ### Exercise Information Panel
+
 - **Current Exercise**: Name and description display
 - **Technical Concept**: Educational information
 - **Instructions**: Step-by-step guidance
@@ -136,6 +145,7 @@ enum FingeringDisplayMode {
 - **Difficulty Level**: Current challenge rating
 
 ### Dynamic Content Updates
+
 - **Real-time Updates**: Live information changes
 - **Context Sensitivity**: Relevant information display
 - **Progressive Disclosure**: Information revealed as needed
@@ -143,6 +153,7 @@ enum FingeringDisplayMode {
 - **Customizable Layout**: User-defined information priority
 
 ### Information Categories
+
 - **Exercise Details**: Name, type, description
 - **Technical Focus**: Skills being developed
 - **Performance Metrics**: Current accuracy and tempo
@@ -150,6 +161,7 @@ enum FingeringDisplayMode {
 - **Goal Status**: Progress toward objectives
 
 ### Information Display Class Structure
+
 ```dart
 class InformationDisplay {
   String currentExercise;
@@ -181,6 +193,7 @@ class Exercise {
 ## Target Key Highlighting
 
 ### Exercise Guidance
+
 - **Next Key Indicator**: Upcoming note highlights
 - **Sequence Visualization**: Multi-note pattern display
 - **Timing Indicators**: Rhythmic spacing visualization
@@ -188,6 +201,7 @@ class Exercise {
 - **Learning Support**: Visual learning aids
 
 ### Highlight Patterns
+
 - **Sequential Highlighting**: One-by-one note indication
 - **Chord Highlighting**: Simultaneous multi-key targets
 - **Pattern Highlighting**: Recurring sequence emphasis
@@ -195,6 +209,7 @@ class Exercise {
 - **Arpeggio Highlighting**: Broken chord visualization
 
 ### Adaptive Highlighting
+
 - **Skill-based Adaptation**: Difficulty-appropriate highlighting
 - **Performance-based**: Error-responsive highlighting
 - **Learning Stage**: Beginner vs. advanced highlighting
@@ -204,6 +219,7 @@ class Exercise {
 ## Visual Themes and Customization
 
 ### Color Schemes
+
 - **Default Theme**: Standard color palette
 - **High Contrast**: Accessibility-focused colors
 - **Dark Mode**: Low-light practice environment
@@ -211,6 +227,7 @@ class Exercise {
 - **Colorblind Support**: Alternative color combinations
 
 ### Visual Style Options
+
 - **Modern Style**: Clean, minimal interface
 - **Classic Style**: Traditional piano appearance
 - **Gamified Style**: Playful, engaging visuals
@@ -218,6 +235,7 @@ class Exercise {
 - **Custom Style**: User-created visual themes
 
 ### Accessibility Features
+
 - **Large Text**: Readable finger numbers
 - **High Contrast**: Clear visual distinction
 - **Color Alternatives**: Non-color-dependent indicators
@@ -227,6 +245,7 @@ class Exercise {
 ## Animation and Transitions
 
 ### Key Press Animations
+
 - **Press Depression**: Realistic key movement
 - **Velocity Mapping**: Intensity-based animations
 - **Spring Physics**: Natural key behavior
@@ -234,6 +253,7 @@ class Exercise {
 - **Performance Optimized**: 60fps animation targets
 
 ### Feedback Animations
+
 - **Success Indicators**: Positive reinforcement animations
 - **Error Indicators**: Clear mistake notifications
 - **Achievement Animations**: Milestone celebrations
@@ -241,6 +261,7 @@ class Exercise {
 - **Attention Grabbers**: Important information highlights
 
 ### Performance Considerations
+
 - **Frame Rate**: Consistent 60fps performance
 - **Battery Efficiency**: Optimized animation cycles
 - **Resource Management**: Efficient animation cleanup
@@ -248,6 +269,7 @@ class Exercise {
 - **Customizable Performance**: User-adjustable animation levels
 
 ### Animation System Class Structure
+
 ```dart
 class AnimationSystem {
   List<KeyAnimation> activeAnimations;
@@ -289,6 +311,7 @@ enum AnimationType {
 ## Integration with Piano Keyboard
 
 ### Keyboard Component Integration
+
 - **State Synchronization**: Real-time key state updates
 - **Event Handling**: MIDI input processing
 - **Layout Adaptation**: Responsive keyboard sizing
@@ -296,6 +319,7 @@ enum AnimationType {
 - **Performance Optimization**: Efficient update cycles
 
 ### MIDI Event Processing
+
 - **Note On Events**: Key press visualization triggers
 - **Note Off Events**: Key release visualization triggers
 - **Velocity Mapping**: Visual intensity calculation
@@ -303,6 +327,7 @@ enum AnimationType {
 - **Timing Precision**: Accurate event timestamping
 
 ### Visual Layer Management
+
 - **Base Layer**: Piano keyboard rendering
 - **Highlight Layer**: Key state visualization  
 - **Fingering Layer**: Number indicator overlay
@@ -312,6 +337,7 @@ enum AnimationType {
 ## Real-time Performance Requirements
 
 ### Latency Requirements
+
 - **Visual Response**: &lt;16ms from MIDI input to display
 - **Animation Updates**: 60fps smooth rendering
 - **State Changes**: Immediate visual feedback
@@ -319,6 +345,7 @@ enum AnimationType {
 - **User Interaction**: &lt;50ms response time
 
 ### Resource Optimization
+
 - **Memory Usage**: Efficient visual resource management
 - **CPU Usage**: Optimized rendering pipeline
 - **GPU Usage**: Hardware-accelerated animations
@@ -326,6 +353,7 @@ enum AnimationType {
 - **Network Usage**: Minimal or offline operation
 
 ### Quality Standards
+
 - **Visual Clarity**: Sharp, readable displays
 - **Color Accuracy**: Consistent color representation
 - **Animation Smoothness**: Fluid motion graphics
@@ -335,6 +363,7 @@ enum AnimationType {
 ## Educational Features
 
 ### Learning Support
+
 - **Skill Progression**: Visual skill development indicators
 - **Concept Illustration**: Technical concept visualization
 - **Pattern Recognition**: Visual pattern emphasis
@@ -342,6 +371,7 @@ enum AnimationType {
 - **Error Analysis**: Visual mistake identification
 
 ### Teaching Tools
+
 - **Demonstration Mode**: Visual exercise examples
 - **Practice Guidance**: Step-by-step visual instruction
 - **Progress Visualization**: Learning curve display
@@ -349,6 +379,7 @@ enum AnimationType {
 - **Feedback Mechanisms**: Educational response systems
 
 ### Adaptive Learning
+
 - **Difficulty Adjustment**: Visual complexity adaptation
 - **Personal Pace**: Individual learning speed support
 - **Learning Style**: Visual learning preference accommodation
@@ -358,6 +389,7 @@ enum AnimationType {
 ## Future Enhancements
 
 ### Phase 2 Features
+
 - **3D Visualization**: Three-dimensional keyboard rendering
 - **Augmented Reality**: AR-based piano overlay
 - **Hand Tracking**: Visual hand position guidance
@@ -365,6 +397,7 @@ enum AnimationType {
 - **Advanced Analytics**: Visual performance analysis
 
 ### Phase 3 Features
+
 - **Holographic Display**: Advanced 3D projection
 - **Brain-Computer Interface**: Thought-based visual control
 - **Gesture Recognition**: Hand gesture visual interpretation

@@ -15,7 +15,17 @@ pre-commit:
         git add {staged_files}
       stage_fixed: true
 
-    # Step 2: Run analysis after fixes (only for Dart files)
+    # Step 2: Fix and lint markdown files
+    markdown-lint:
+      glob: "*.md"
+      run: |
+        echo "📝 Fixing and linting markdown files..."
+        markdownlint --fix {staged_files}
+        echo "📋 Re-staging fixed markdown files..."
+        git add {staged_files}
+      stage_fixed: true
+
+    # Step 3: Run analysis after fixes (only for Dart files)
     dart-analyze:
       glob: "*.dart"
       run: |

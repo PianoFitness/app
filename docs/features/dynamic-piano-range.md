@@ -7,6 +7,7 @@ This feature automatically adjusts the interactive piano keyboard's visible rang
 ## Recent Enhancements (Chord Progression Improvements)
 
 ### Smooth Chord Progression Sequence
+
 The chord progression practice now uses an improved sequence designed for natural hand movement:
 
 **Previous sequence:** Root → 1st inv → 2nd inv → Root → 1st inv → 2nd inv...
@@ -15,12 +16,14 @@ The chord progression practice now uses an improved sequence designed for natura
 This creates a smoother flow where inversions naturally progress rightward, then guide the hands back left in preparation for the next chord.
 
 ### Extended Octave Range
+
 - **Removed artificial octave limits** that caused confusing downward jumps during inversion practice
 - **Supports full 88-key range** for natural progression to higher octaves
 - **Intelligent octave management** prevents large downward jumps while maintaining musical coherence
 - **MIDI range compliance** ensures all generated notes stay within valid MIDI range (0-127)
 
 ### Benefits for Students
+
 - **Natural Hand Movement**: Inversions flow smoothly across the keyboard
 - **Reduced Confusion**: No unexpected octave jumps during practice
 - **Better Muscle Memory**: Consistent directional patterns help build proper technique
@@ -62,23 +65,27 @@ The `lib/utils/piano_range_utils.dart` file provides intelligent range calculati
 ### Integration Points
 
 #### Practice Page (`practice_page.dart`)
+
 - Uses `calculateRangeForChordProgression()` when in chord progression mode for optimal inversion visibility
 - Uses `calculateRangeForExercise()` when an exercise is active for other modes
 - Falls back to `calculateOptimalRange()` for individual highlighted notes
 - Provides the best experience for structured exercises with mode-aware optimization
 
 #### Play Page (`play_page.dart`)
+
 - Uses `calculateOptimalRange()` for real-time note highlighting
 - Optimizes for immediate MIDI input feedback
 
 ## Benefits
 
 ### For Students
+
 - **Seamless Practice Flow**: No need to scroll during exercises
 - **Better Focus**: All relevant keys are always visible
 - **Reduced Cognitive Load**: Students can focus on playing rather than navigation
 
 ### For Exercises
+
 - **Scales**: Entire scale range visible from start to finish
 - **Arpeggios**: All notes in the arpeggio pattern are visible
 - **Chords**: Individual chord notes fit within the visible range
@@ -127,12 +134,14 @@ Comprehensive test coverage in `test/utils/piano_range_utils_test.dart`:
 ## Future Enhancements
 
 ### Planned Improvements
+
 - **User Preferences**: Allow users to customize buffer size and range limits
 - **Context Awareness**: Different optimization strategies for different exercise types
 - **Animation**: Smooth transitions when range changes
 - **Memory**: Remember preferred ranges for specific exercises
 
 ### Advanced Features
+
 - **Adaptive Learning**: Learn user preferences over time
 - **Exercise-Specific Profiles**: Custom range settings per exercise type
 - **Teacher Controls**: Allow teachers to set range constraints for students
