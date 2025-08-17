@@ -1,4 +1,3 @@
-import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:logging/logging.dart";
@@ -7,6 +6,7 @@ import "package:piano_fitness/shared/models/chord_progression_type.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/models/practice_session.dart";
+import "package:piano_fitness/shared/services/midi_connection_service.dart";
 import "package:piano_fitness/shared/services/midi_service.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
@@ -25,15 +25,16 @@ class PracticePageViewModel extends ChangeNotifier {
     : _midiChannel = initialChannel {
     _localMidiState = MidiState();
     _localMidiState.setSelectedChannel(_midiChannel);
-    _setupMidiListener();
+    _setupMidiHandlers();
   }
 
   static final _log = Logger("PracticePageViewModel");
 
-  StreamSubscription<MidiPacket>? _midiDataSubscription;
-  final MidiCommand _midiCommand = MidiCommand();
+  final MidiConnectionService _midiConnectionService = MidiConnectionService();
   final int _midiChannel;
   late final MidiState _localMidiState;
+  late final void Function(Uint8List) _dataHandler;
+  late final void Function(String) _errorHandler;
 
   PracticeSession? _practiceSession;
   List<NotePosition> _highlightedNotes = [];
@@ -45,7 +46,7 @@ class PracticePageViewModel extends ChangeNotifier {
   int get midiChannel => _midiChannel;
 
   /// MIDI command instance for low-level operations.
-  MidiCommand get midiCommand => _midiCommand;
+  MidiCommand get midiCommand => _midiConnectionService.midiCommand;
 
   /// Practice session instance for exercise management.
   PracticeSession? get practiceSession => _practiceSession;
@@ -87,26 +88,24 @@ class PracticePageViewModel extends ChangeNotifier {
     }
   }
 
-  /// Sets up MIDI listener for incoming data.
-  void _setupMidiListener() {
-    final midiDataStream = _midiCommand.onMidiDataReceived;
-    if (midiDataStream != null) {
-      _midiDataSubscription = midiDataStream.listen(
-        (packet) {
-          _log.fine("Received MIDI data: ${packet.data}");
-          try {
-            handleMidiData(packet.data);
-          } on Exception catch (e) {
-            _log.warning("MIDI data handler error: $e");
-          }
-        },
-        onError: (Object error) {
-          _log.severe("MIDI data stream error: $error");
-        },
-      );
-    } else {
-      _log.warning("Warning: MIDI data stream is not available");
-    }
+  /// Sets up MIDI handlers through MidiConnectionService.
+  void _setupMidiHandlers() {
+    _dataHandler = (Uint8List data) {
+      _log.fine("Received MIDI data: $data");
+      try {
+        handleMidiData(data);
+      } on Exception catch (e) {
+        _log.warning("MIDI data handler error: $e");
+      }
+    };
+
+    _errorHandler = (String error) {
+      _log.severe("MIDI connection error: $error");
+    };
+
+    _midiConnectionService.registerDataHandler(_dataHandler);
+    _midiConnectionService.registerErrorHandler(_errorHandler);
+    _midiConnectionService.connect();
   }
 
   /// Handles incoming MIDI data and updates local state.
@@ -217,7 +216,8 @@ class PracticePageViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _midiDataSubscription?.cancel();
+    _midiConnectionService.unregisterDataHandler(_dataHandler);
+    _midiConnectionService.unregisterErrorHandler(_errorHandler);
     VirtualPianoUtils.dispose();
     // Dispose local MIDI state
     _localMidiState.dispose();
