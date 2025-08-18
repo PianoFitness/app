@@ -291,11 +291,11 @@ void main() {
       await tester.pumpAndSettle();
 
       // Navigate to reference page
-      await tester.tap(find.text("Reference"));
+      await tester.tap(find.text("Reference"), warnIfMissed: false);
       await tester.pumpAndSettle();
 
       // Switch to chords mode
-      await tester.tap(find.text("Chords"));
+      await tester.tap(find.text("Chords"), warnIfMissed: false);
       await tester.pumpAndSettle();
 
       final stopwatch = Stopwatch()..start();
@@ -313,8 +313,12 @@ void main() {
       // Should complete efficiently
       expect(stopwatch.elapsedMilliseconds, lessThan(500));
 
-      // Should have functional UI - check for reference page
-      expect(find.text("Reference"), findsOneWidget);
+      // Should have functional UI - check for reference page AppBar title only
+      final appBarTitleFinder = find.descendant(
+        of: find.byType(AppBar),
+        matching: find.text("Reference"),
+      );
+      expect(appBarTitleFinder, findsOneWidget);
     });
   });
 }
