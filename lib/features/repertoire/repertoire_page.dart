@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:flutter/semantics.dart";
 import "package:piano_fitness/features/repertoire/repertoire_page_view_model.dart";
 import "package:url_launcher/url_launcher.dart";
 
@@ -142,48 +143,262 @@ class _RepertoirePageState extends State<RepertoirePage> {
               ),
               const SizedBox(height: 16),
 
-              // Practice Timer Section (Placeholder for Phase 2)
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade300),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.timer, color: Colors.grey.shade600),
-                        const SizedBox(width: 8),
-                        Text(
-                          "Practice Timer",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey.shade700,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      "Practice timer coming in the next update! This will help you time your repertoire sessions.",
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey.shade600,
-                        fontStyle: FontStyle.italic,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
+              // Practice Timer Section
+              ListenableBuilder(
+                listenable: _viewModel,
+                builder: (context, child) {
+                  return _buildTimerSection();
+                },
               ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildTimerSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.orange.shade50,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.orange.shade100),
+      ),
+      child: Column(
+        children: [
+          // Timer Header
+          Row(
+            children: [
+              Icon(Icons.timer, color: Colors.orange.shade700),
+              const SizedBox(width: 8),
+              Text(
+                "Practice Timer",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange.shade700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Duration Selection
+          Text(
+            "Select Duration",
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Colors.orange.shade700,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: RepertoirePageViewModel.timerDurations.map((duration) {
+              final isSelected = _viewModel.selectedDurationMinutes == duration;
+              return Semantics(
+                label: "$duration minutes",
+                selected: isSelected,
+                child: FilterChip(
+                  label: Text("${duration}m"),
+                  selected: isSelected,
+                  onSelected: _viewModel.canStart
+                      ? (selected) {
+                          if (selected) {
+                            _viewModel.setDuration(duration);
+                            SemanticsService.announce(
+                              "$duration minutes selected",
+                              TextDirection.ltr,
+                            );
+                          }
+                        }
+                      : null,
+                  selectedColor: Colors.orange.shade100,
+                  checkmarkColor: Colors.orange.shade700,
+                ),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 20),
+
+          // Timer Display
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.orange.shade200),
+            ),
+            child: Column(
+              children: [
+                // Progress Indicator
+                SizedBox(
+                  width: 120,
+                  height: 120,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CircularProgressIndicator(
+                        value: _viewModel.progress,
+                        strokeWidth: 8,
+                        backgroundColor: Colors.orange.shade100,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Colors.orange.shade600,
+                        ),
+                      ),
+                      Semantics(
+                        label:
+                            "Timer display: ${_viewModel.formattedTime} remaining",
+                        liveRegion: true,
+                        child: Text(
+                          _viewModel.formattedTime,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.orange.shade700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Timer Status
+                Semantics(
+                  label: _getTimerStatusDescription(),
+                  liveRegion: true,
+                  child: Text(
+                    _getTimerStatusText(),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.orange.shade600,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Timer Controls
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              // Start/Resume Button
+              if (_viewModel.canStart || _viewModel.canResume)
+                Semantics(
+                  button: true,
+                  label: _viewModel.canStart ? "Start timer" : "Resume timer",
+                  child: ElevatedButton.icon(
+                    onPressed: _viewModel.canStart
+                        ? () {
+                            _viewModel.startTimer();
+                            SemanticsService.announce(
+                              "Timer started",
+                              TextDirection.ltr,
+                            );
+                          }
+                        : () {
+                            _viewModel.resumeTimer();
+                            SemanticsService.announce(
+                              "Timer resumed",
+                              TextDirection.ltr,
+                            );
+                          },
+                    icon: Icon(
+                      _viewModel.canStart ? Icons.play_arrow : Icons.play_arrow,
+                    ),
+                    label: Text(_viewModel.canStart ? "Start" : "Resume"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange.shade600,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+
+              // Pause Button
+              if (_viewModel.canPause)
+                Semantics(
+                  button: true,
+                  label: "Pause timer",
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      _viewModel.pauseTimer();
+                      SemanticsService.announce(
+                        "Timer paused",
+                        TextDirection.ltr,
+                      );
+                    },
+                    icon: const Icon(Icons.pause),
+                    label: const Text("Pause"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange.shade600,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ),
+
+              // Reset Button
+              if (_viewModel.canReset)
+                Semantics(
+                  button: true,
+                  label: "Reset timer",
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      _viewModel.resetTimer();
+                      SemanticsService.announce(
+                        "Timer reset to ${_viewModel.selectedDurationMinutes} minutes",
+                        TextDirection.ltr,
+                      );
+                    },
+                    icon: const Icon(Icons.refresh),
+                    label: const Text("Reset"),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: Colors.orange.shade700,
+                      side: BorderSide(color: Colors.orange.shade300),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Instructions
+          Text(
+            "Set your timer, then switch to your repertoire app or sheet music for focused practice.",
+            style: TextStyle(
+              fontSize: 14,
+              color: Colors.orange.shade600,
+              fontStyle: FontStyle.italic,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getTimerStatusText() {
+    if (_viewModel.isRunning && !_viewModel.isPaused) {
+      return "Timer Running";
+    } else if (_viewModel.isPaused) {
+      return "Timer Paused";
+    } else if (_viewModel.remainingSeconds == 0) {
+      return "Session Complete!";
+    } else {
+      return "Ready to Start";
+    }
+  }
+
+  String _getTimerStatusDescription() {
+    final status = _getTimerStatusText();
+    final time = _viewModel.formattedTime;
+    return "$status. $time remaining.";
   }
 
   Widget _buildAppRecommendation({
