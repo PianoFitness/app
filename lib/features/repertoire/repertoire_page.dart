@@ -125,6 +125,15 @@ class _RepertoirePageState extends State<RepertoirePage> {
                                     ).withValues(alpha: 0.7),
                                   ),
                                 ),
+                              const SizedBox(height: 8),
+                              Text(
+                                "Switch to your repertoire app for focused practice",
+                                style: TextStyle(
+                                  fontSize: isSmallHeight ? 11 : 12,
+                                  color: Colors.orange.shade600,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -187,15 +196,6 @@ class _RepertoirePageState extends State<RepertoirePage> {
                             selectedDurationMinutes:
                                 _viewModel.selectedDurationMinutes,
                             isCompact: isSmallHeight,
-                          ),
-                          instructions: Text(
-                            "Switch to your repertoire app for focused practice",
-                            style: TextStyle(
-                              fontSize: isSmallHeight ? 10 : 11,
-                              color: Colors.orange.shade600,
-                              fontStyle: FontStyle.italic,
-                            ),
-                            textAlign: TextAlign.center,
                           ),
                         );
                       },
