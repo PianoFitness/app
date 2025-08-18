@@ -5,11 +5,14 @@ PODS:
   - universal_ble (0.0.1):
     - Flutter
     - FlutterMacOS
+  - url_launcher_ios (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_midi_command (from `.symlinks/plugins/flutter_midi_command/ios`)
   - universal_ble (from `.symlinks/plugins/universal_ble/darwin`)
+  - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
 EXTERNAL SOURCES:
   Flutter:
@@ -18,11 +21,14 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_midi_command/ios"
   universal_ble:
     :path: ".symlinks/plugins/universal_ble/darwin"
+  url_launcher_ios:
+    :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_midi_command: 28d867d5701407d94917c4c35ca0172d362e1611
   universal_ble: ff19787898040d721109c6324472e5dd4bc86adc
+  url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
 
 PODFILE CHECKSUM: 20e260c9bb3f61194c661a4ba028da86e4f3ed96
 

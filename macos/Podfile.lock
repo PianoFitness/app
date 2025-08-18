@@ -5,11 +5,14 @@ PODS:
   - universal_ble (0.0.1):
     - Flutter
     - FlutterMacOS
+  - url_launcher_macos (0.0.1):
+    - FlutterMacOS
 
 DEPENDENCIES:
   - flutter_midi_command (from `Flutter/ephemeral/.symlinks/plugins/flutter_midi_command/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - universal_ble (from `Flutter/ephemeral/.symlinks/plugins/universal_ble/darwin`)
+  - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
 
 EXTERNAL SOURCES:
   flutter_midi_command:
@@ -18,11 +21,14 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral
   universal_ble:
     :path: Flutter/ephemeral/.symlinks/plugins/universal_ble/darwin
+  url_launcher_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos
 
 SPEC CHECKSUMS:
   flutter_midi_command: c7517347a1acc8e4c7d4e9fa9809b3e87bbfd2b8
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   universal_ble: ff19787898040d721109c6324472e5dd4bc86adc
+  url_launcher_macos: 0fba8ddabfc33ce0a9afe7c5fef5aab3d8d2d673
 
 PODFILE CHECKSUM: 7eb978b976557c8c1cd717d8185ec483fd090a82
 
