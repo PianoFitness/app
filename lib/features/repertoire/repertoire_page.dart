@@ -60,37 +60,97 @@ class _RepertoirePageState extends State<RepertoirePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Info Button (Compact)
-                  Row(
-                    children: [
-                      Text(
-                        "Repertoire Practice",
-                        style: TextStyle(
-                          fontSize: isSmallHeight ? 14 : 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.orange.shade700,
-                        ),
+                  // Enhanced Header
+                  Container(
+                    padding: EdgeInsets.all(isSmallHeight ? 12 : 16),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          const Color(0xFF6366F1).withValues(alpha: 0.1),
+                          const Color(0xFF8B5CF6).withValues(alpha: 0.1),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
                       ),
-                      const SizedBox(width: 8),
-                      Semantics(
-                        button: true,
-                        label: "About repertoire practice and recommended apps",
-                        child: IconButton(
-                          onPressed: () => _showRepertoireInfoModal(context),
-                          icon: Icon(
-                            Icons.info_outline,
-                            color: Colors.orange.shade700,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: const Color(0xFF6366F1).withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(
+                                  0xFF6366F1,
+                                ).withValues(alpha: 0.1),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Icon(
+                            Icons.library_music,
+                            color: const Color(0xFF6366F1),
                             size: isSmallHeight ? 20 : 24,
                           ),
-                          tooltip: "About repertoire practice",
-                          padding: const EdgeInsets.all(4),
-                          constraints: const BoxConstraints(
-                            minWidth: 32,
-                            minHeight: 32,
+                        ),
+                        SizedBox(width: isSmallHeight ? 8 : 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Repertoire Practice",
+                                style: TextStyle(
+                                  fontSize: isSmallHeight ? 16 : 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color(0xFF6366F1),
+                                  letterSpacing: -0.3,
+                                ),
+                              ),
+                              if (!isSmallHeight)
+                                Text(
+                                  "Build your musical repertoire",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: const Color(
+                                      0xFF6366F1,
+                                    ).withValues(alpha: 0.7),
+                                  ),
+                                ),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
+                        Material(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          elevation: 2,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(20),
+                            onTap: () => _showRepertoireInfoModal(context),
+                            child: Semantics(
+                              button: true,
+                              label:
+                                  "About repertoire practice and recommended apps",
+                              child: Padding(
+                                padding: const EdgeInsets.all(8),
+                                child: Icon(
+                                  Icons.help_outline,
+                                  color: const Color(0xFF6366F1),
+                                  size: isSmallHeight ? 18 : 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                   SizedBox(height: sectionSpacing),
 
@@ -139,7 +199,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                     children: [
                       Icon(
                         Icons.library_music,
-                        color: Colors.orange.shade700,
+                        color: const Color(0xFF6366F1),
                         size: 24,
                       ),
                       const SizedBox(width: 8),
@@ -148,7 +208,8 @@ class _RepertoirePageState extends State<RepertoirePage> {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: Colors.orange.shade700,
+                          color: const Color(0xFF6366F1),
+                          letterSpacing: -0.3,
                         ),
                       ),
                       const Spacer(),
@@ -293,95 +354,60 @@ class _RepertoirePageState extends State<RepertoirePage> {
 
   Widget _buildCompactTimerSection(bool isSmallHeight, bool isLandscape) {
     // Responsive sizing
-    final containerPadding = isSmallHeight ? 8.0 : 10.0;
-    final headerSpacing = isSmallHeight ? 6.0 : 10.0;
-    final sectionSpacing = isSmallHeight ? 8.0 : 12.0;
-    final fontSize = isSmallHeight ? 14.0 : 15.0;
-    final chipFontSize = isSmallHeight ? 10.0 : 11.0;
-    final labelFontSize = isSmallHeight ? 12.0 : 13.0;
+    final containerPadding = isSmallHeight ? 12.0 : 16.0;
+    final headerSpacing = isSmallHeight ? 8.0 : 12.0;
+    final sectionSpacing = isSmallHeight ? 12.0 : 16.0;
+    final fontSize = isSmallHeight ? 15.0 : 16.0;
 
     return Container(
       padding: EdgeInsets.all(containerPadding),
       decoration: BoxDecoration(
-        color: Colors.orange.shade50,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: Colors.orange.shade100),
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFF6366F1).withValues(alpha: 0.05),
+            const Color(0xFF8B5CF6).withValues(alpha: 0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         children: [
           // Timer Header
           Row(
             children: [
-              Icon(Icons.timer, color: Colors.orange.shade700, size: 18),
-              const SizedBox(width: 6),
+              Icon(
+                Icons.schedule,
+                color: const Color(0xFF6366F1),
+                size: isSmallHeight ? 18 : 20,
+              ),
+              const SizedBox(width: 8),
               Text(
                 "Practice Timer",
                 style: TextStyle(
                   fontSize: fontSize,
                   fontWeight: FontWeight.bold,
-                  color: Colors.orange.shade700,
+                  color: const Color(0xFF6366F1),
+                  letterSpacing: -0.2,
                 ),
               ),
             ],
           ),
           SizedBox(height: headerSpacing),
 
-          // Duration Selection (Compact)
-          Row(
-            children: [
-              Text(
-                "Duration:",
-                style: TextStyle(
-                  fontSize: labelFontSize,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.orange.shade700,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Wrap(
-                  spacing: 4,
-                  runSpacing: 4,
-                  children: RepertoirePageViewModel.timerDurations.map((
-                    duration,
-                  ) {
-                    final isSelected =
-                        _viewModel.selectedDurationMinutes == duration;
-                    return Semantics(
-                      label: "$duration minutes",
-                      selected: isSelected,
-                      child: FilterChip(
-                        label: Text(
-                          "${duration}m",
-                          style: TextStyle(fontSize: chipFontSize),
-                        ),
-                        selected: isSelected,
-                        onSelected: _viewModel.canStart
-                            ? (selected) {
-                                if (selected) {
-                                  _viewModel.setDuration(duration);
-                                  SemanticsService.announce(
-                                    "$duration minutes selected",
-                                    TextDirection.ltr,
-                                  );
-                                }
-                              }
-                            : null,
-                        selectedColor: Colors.orange.shade100,
-                        checkmarkColor: Colors.orange.shade700,
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        visualDensity: VisualDensity.compact,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ],
-          ),
+          // Enhanced Duration Selector
+          _buildEnhancedDurationSelector(isSmallHeight),
           SizedBox(height: sectionSpacing),
 
           // Responsive Timer Display
@@ -427,52 +453,138 @@ class _RepertoirePageState extends State<RepertoirePage> {
                       ? MainAxisSize.min
                       : MainAxisSize.max,
                   children: [
-                    // Progress Indicator (Responsive)
-                    SizedBox(
-                      width: circleSize,
-                      height: circleSize,
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          CircularProgressIndicator(
-                            value: _viewModel.progress,
-                            strokeWidth: isVeryConstrained
-                                ? 3
-                                : (isSmallHeight ? 4 : 5),
-                            backgroundColor: Colors.orange.shade100,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Colors.orange.shade600,
-                            ),
-                          ),
-                          Semantics(
-                            label:
-                                "Timer display: ${_viewModel.formattedTime} remaining",
-                            liveRegion: true,
-                            child: Text(
-                              _viewModel.formattedTime,
-                              style: TextStyle(
-                                fontSize: timerFontSize,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.orange.shade700,
-                              ),
-                            ),
+                    // Enhanced Timer Display with Musical Elements
+                    Container(
+                      width: circleSize + 16,
+                      height: circleSize + 16,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [Colors.white, const Color(0xFFF8FAFC)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(
+                              0xFF6366F1,
+                            ).withValues(alpha: 0.1),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
                           ),
                         ],
+                      ),
+                      child: Center(
+                        child: SizedBox(
+                          width: circleSize,
+                          height: circleSize,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Gradient Progress Ring
+                              CircularProgressIndicator(
+                                value: _viewModel.progress,
+                                strokeWidth: isVeryConstrained ? 4 : 6,
+                                backgroundColor: const Color(
+                                  0xFF6366F1,
+                                ).withValues(alpha: 0.1),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  _viewModel.isRunning
+                                      ? const Color(
+                                          0xFF10B981,
+                                        ) // Green when running
+                                      : const Color(
+                                          0xFF6366F1,
+                                        ), // Indigo when paused/stopped
+                                ),
+                              ),
+                              // Inner gradient circle
+                              Container(
+                                width: circleSize - 20,
+                                height: circleSize - 20,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: RadialGradient(
+                                    colors: [
+                                      Colors.white,
+                                      const Color(
+                                        0xFF6366F1,
+                                      ).withValues(alpha: 0.05),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              // Time Display
+                              Semantics(
+                                label:
+                                    "Timer display: ${_viewModel.formattedTime} remaining",
+                                liveRegion: true,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    if (!isVeryConstrained)
+                                      Icon(
+                                        Icons.music_note,
+                                        size: timerFontSize * 0.8,
+                                        color: _viewModel.isRunning
+                                            ? const Color(0xFF10B981)
+                                            : const Color(0xFF6366F1),
+                                      ),
+                                    Text(
+                                      _viewModel.formattedTime,
+                                      style: TextStyle(
+                                        fontSize: timerFontSize,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFF6366F1),
+                                        letterSpacing: -0.5,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                     SizedBox(height: verticalSpacing1),
 
-                    // Timer Status (Responsive)
-                    Semantics(
-                      label: _getTimerStatusDescription(),
-                      liveRegion: true,
-                      child: Text(
-                        _getTimerStatusText(),
-                        style: TextStyle(
-                          fontSize: statusFontSize,
-                          color: Colors.orange.shade600,
-                          fontWeight: FontWeight.w500,
+                    // Enhanced Timer Status with Better Feedback
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isVeryConstrained ? 8 : 12,
+                        vertical: isVeryConstrained ? 4 : 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _getStatusColor().withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: _getStatusColor().withValues(alpha: 0.3),
                         ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            _getStatusIcon(),
+                            size: statusFontSize,
+                            color: _getStatusColor(),
+                          ),
+                          const SizedBox(width: 4),
+                          Semantics(
+                            label: _getTimerStatusDescription(),
+                            liveRegion: true,
+                            child: Text(
+                              _getTimerStatusText(),
+                              style: TextStyle(
+                                fontSize: statusFontSize,
+                                color: _getStatusColor(),
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: -0.1,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     SizedBox(height: verticalSpacing2),
@@ -482,106 +594,171 @@ class _RepertoirePageState extends State<RepertoirePage> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Start/Resume Button
+                        // Enhanced Start/Resume Button
                         if (_viewModel.canStart || _viewModel.canResume)
                           Semantics(
                             button: true,
                             label: _viewModel.canStart
                                 ? "Start timer"
                                 : "Resume timer",
-                            child: ElevatedButton(
-                              onPressed: _viewModel.canStart
-                                  ? () {
-                                      _viewModel.startTimer();
-                                      SemanticsService.announce(
-                                        "Timer started",
-                                        TextDirection.ltr,
-                                      );
-                                    }
-                                  : () {
-                                      _viewModel.resumeTimer();
-                                      SemanticsService.announce(
-                                        "Timer resumed",
-                                        TextDirection.ltr,
-                                      );
-                                    },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.orange.shade600,
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.all(
-                                  isVeryConstrained
-                                      ? 6
-                                      : (isSmallHeight ? 10 : 12),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF10B981),
+                                    Color(0xFF059669),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
                                 ),
-                                minimumSize: Size(buttonSize, buttonSize),
-                                shape: const CircleBorder(),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFF10B981,
+                                    ).withValues(alpha: 0.3),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
                               ),
-                              child: Icon(
-                                _viewModel.canStart
-                                    ? Icons.play_arrow
-                                    : Icons.play_arrow,
-                                size: iconSize,
+                              child: ElevatedButton(
+                                onPressed: _viewModel.canStart
+                                    ? () {
+                                        _viewModel.startTimer();
+                                        SemanticsService.announce(
+                                          "Timer started",
+                                          TextDirection.ltr,
+                                        );
+                                      }
+                                    : () {
+                                        _viewModel.resumeTimer();
+                                        SemanticsService.announce(
+                                          "Timer resumed",
+                                          TextDirection.ltr,
+                                        );
+                                      },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  foregroundColor: Colors.white,
+                                  shadowColor: Colors.transparent,
+                                  padding: EdgeInsets.all(
+                                    isVeryConstrained
+                                        ? 6
+                                        : (isSmallHeight ? 10 : 12),
+                                  ),
+                                  minimumSize: Size(buttonSize, buttonSize),
+                                  shape: const CircleBorder(),
+                                ),
+                                child: Icon(
+                                  _viewModel.canStart
+                                      ? Icons.play_arrow
+                                      : Icons.play_arrow,
+                                  size: iconSize,
+                                ),
                               ),
                             ),
                           ),
 
                         SizedBox(width: buttonSpacing),
 
-                        // Pause Button
+                        // Enhanced Pause Button
                         if (_viewModel.canPause)
                           Semantics(
                             button: true,
                             label: "Pause timer",
-                            child: ElevatedButton(
-                              onPressed: () {
-                                _viewModel.pauseTimer();
-                                SemanticsService.announce(
-                                  "Timer paused",
-                                  TextDirection.ltr,
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.orange.shade600,
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.all(
-                                  isVeryConstrained
-                                      ? 6
-                                      : (isSmallHeight ? 10 : 12),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFFF59E0B),
+                                    Color(0xFFD97706),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
                                 ),
-                                minimumSize: Size(buttonSize, buttonSize),
-                                shape: const CircleBorder(),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFFF59E0B,
+                                    ).withValues(alpha: 0.3),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
                               ),
-                              child: Icon(Icons.pause, size: iconSize),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  _viewModel.pauseTimer();
+                                  SemanticsService.announce(
+                                    "Timer paused",
+                                    TextDirection.ltr,
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  foregroundColor: Colors.white,
+                                  shadowColor: Colors.transparent,
+                                  padding: EdgeInsets.all(
+                                    isVeryConstrained
+                                        ? 6
+                                        : (isSmallHeight ? 10 : 12),
+                                  ),
+                                  minimumSize: Size(buttonSize, buttonSize),
+                                  shape: const CircleBorder(),
+                                ),
+                                child: Icon(Icons.pause, size: iconSize),
+                              ),
                             ),
                           ),
 
                         SizedBox(width: buttonSpacing),
 
-                        // Reset Button
+                        // Enhanced Reset Button
                         if (_viewModel.canReset)
                           Semantics(
                             button: true,
                             label: "Reset timer",
-                            child: OutlinedButton(
-                              onPressed: () {
-                                _viewModel.resetTimer();
-                                SemanticsService.announce(
-                                  "Timer reset to ${_viewModel.selectedDurationMinutes} minutes",
-                                  TextDirection.ltr,
-                                );
-                              },
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.orange.shade700,
-                                side: BorderSide(color: Colors.orange.shade300),
-                                padding: EdgeInsets.all(
-                                  isVeryConstrained
-                                      ? 6
-                                      : (isSmallHeight ? 10 : 12),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: const Color(0xFF6366F1),
+                                  width: 2,
                                 ),
-                                minimumSize: Size(buttonSize, buttonSize),
-                                shape: const CircleBorder(),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(
+                                      0xFF6366F1,
+                                    ).withValues(alpha: 0.2),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
                               ),
-                              child: Icon(Icons.refresh, size: iconSize),
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  _viewModel.resetTimer();
+                                  SemanticsService.announce(
+                                    "Timer reset to ${_viewModel.selectedDurationMinutes} minutes",
+                                    TextDirection.ltr,
+                                  );
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: const Color(0xFF6366F1),
+                                  backgroundColor: Colors.white,
+                                  side: BorderSide.none,
+                                  padding: EdgeInsets.all(
+                                    isVeryConstrained
+                                        ? 6
+                                        : (isSmallHeight ? 10 : 12),
+                                  ),
+                                  minimumSize: Size(buttonSize, buttonSize),
+                                  shape: const CircleBorder(),
+                                ),
+                                child: Icon(Icons.refresh, size: iconSize),
+                              ),
                             ),
                           ),
                       ],
@@ -629,6 +806,164 @@ class _RepertoirePageState extends State<RepertoirePage> {
     final status = _getTimerStatusText();
     final time = _viewModel.formattedTime;
     return "$status. $time remaining.";
+  }
+
+  Color _getStatusColor() {
+    if (_viewModel.isRunning && !_viewModel.isPaused) {
+      return const Color(0xFF10B981); // Green for running
+    } else if (_viewModel.isPaused) {
+      return const Color(0xFFF59E0B); // Amber for paused
+    } else if (_viewModel.remainingSeconds == 0) {
+      return const Color(0xFF8B5CF6); // Purple for completed
+    } else {
+      return const Color(0xFF6366F1); // Indigo for ready
+    }
+  }
+
+  IconData _getStatusIcon() {
+    if (_viewModel.isRunning && !_viewModel.isPaused) {
+      return Icons.play_circle_filled;
+    } else if (_viewModel.isPaused) {
+      return Icons.pause_circle_filled;
+    } else if (_viewModel.remainingSeconds == 0) {
+      return Icons.celebration;
+    } else {
+      return Icons.schedule;
+    }
+  }
+
+  Widget _buildEnhancedDurationSelector(bool isSmallHeight) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF6366F1).withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.access_time,
+                color: const Color(0xFF6366F1),
+                size: isSmallHeight ? 16 : 18,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                "Practice Duration",
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: isSmallHeight ? 13 : 14,
+                  color: const Color(0xFF6366F1),
+                  letterSpacing: -0.1,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: RepertoirePageViewModel.timerDurations.map((duration) {
+              final isSelected = _viewModel.selectedDurationMinutes == duration;
+              final isRecommended = duration == 15;
+
+              return Semantics(
+                label:
+                    "$duration minutes${isRecommended ? ', recommended' : ''}",
+                selected: isSelected,
+                child: Material(
+                  elevation: isSelected ? 4 : 1,
+                  borderRadius: BorderRadius.circular(20),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(20),
+                    onTap: _viewModel.canStart
+                        ? () {
+                            _viewModel.setDuration(duration);
+                            SemanticsService.announce(
+                              "$duration minutes selected",
+                              TextDirection.ltr,
+                            );
+                          }
+                        : null,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isSmallHeight ? 12 : 16,
+                        vertical: isSmallHeight ? 6 : 8,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: isSelected
+                            ? const LinearGradient(
+                                colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                              )
+                            : null,
+                        color: isSelected ? null : const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(20),
+                        border: isRecommended && !isSelected
+                            ? Border.all(
+                                color: const Color(0xFFF59E0B),
+                                width: 2,
+                              )
+                            : null,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            "${duration}m",
+                            style: TextStyle(
+                              color: isSelected
+                                  ? Colors.white
+                                  : const Color(0xFF6366F1),
+                              fontWeight: FontWeight.w600,
+                              fontSize: isSmallHeight ? 12 : 13,
+                            ),
+                          ),
+                          if (isRecommended) ...[
+                            const SizedBox(width: 4),
+                            Icon(
+                              Icons.star,
+                              size: isSmallHeight ? 10 : 12,
+                              color: isSelected
+                                  ? Colors.white
+                                  : const Color(0xFFF59E0B),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          if (_viewModel.selectedDurationMinutes == 15)
+            Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                "⭐ Recommended for focused practice",
+                style: TextStyle(
+                  fontSize: isSmallHeight ? 11 : 12,
+                  color: const Color(0xFFF59E0B),
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
   Widget _buildCompactAppRecommendation({
