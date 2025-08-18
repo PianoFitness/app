@@ -211,6 +211,11 @@ class _RepertoirePageState extends State<RepertoirePage> {
   }
 
   void _showRepertoireInfoModal(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final isLandscape = mediaQuery.size.width > mediaQuery.size.height;
+    final isTablet =
+        mediaQuery.size.width >= 768 || mediaQuery.size.height >= 768;
+
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -219,9 +224,9 @@ class _RepertoirePageState extends State<RepertoirePage> {
       ),
       builder: (BuildContext context) {
         return DraggableScrollableSheet(
-          initialChildSize: 0.7,
-          maxChildSize: 0.9,
-          minChildSize: 0.5,
+          initialChildSize: isLandscape ? 0.9 : (isTablet ? 0.8 : 0.75),
+          maxChildSize: 0.95,
+          minChildSize: isLandscape ? 0.6 : 0.5,
           expand: false,
           builder: (context, scrollController) {
             return Padding(
@@ -282,25 +287,17 @@ class _RepertoirePageState extends State<RepertoirePage> {
                                       color: Colors.orange.shade700,
                                     ),
                                     const SizedBox(width: 8),
-                                    Text(
-                                      "Complete Practice Routine",
-                                      style: TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.orange.shade700,
+                                    Expanded(
+                                      child: Text(
+                                        "Piano Fitness builds technical skills, but repertoire practice completes your musical journey. Use these apps for interactive sheet music and guided learning:",
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          color: Colors.orange.shade700,
+                                          height: 1.3,
+                                        ),
                                       ),
                                     ),
                                   ],
-                                ),
-                                const SizedBox(height: 12),
-                                const Text(
-                                  "Piano Fitness focuses on technical skills—scales, chords, and arpeggios that build your musical foundation. But a complete practice routine also includes repertoire: learning and performing actual pieces of music.",
-                                  style: TextStyle(fontSize: 16, height: 1.4),
-                                ),
-                                const SizedBox(height: 12),
-                                const Text(
-                                  "For repertoire study, we recommend using dedicated apps that excel at interactive sheet music and guided learning:",
-                                  style: TextStyle(fontSize: 16, height: 1.4),
                                 ),
                               ],
                             ),
