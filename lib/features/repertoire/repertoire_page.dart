@@ -35,17 +35,20 @@ class _RepertoirePageState extends State<RepertoirePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Semantics(
           header: true,
-          child: const Row(
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.library_music, color: Colors.orange),
-              SizedBox(width: 8),
-              Text("Repertoire"),
+              Icon(Icons.library_music, color: colorScheme.primary),
+              const SizedBox(width: 8),
+              const Text("Repertoire"),
             ],
           ),
         ),
@@ -72,15 +75,15 @@ class _RepertoirePageState extends State<RepertoirePage> {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            const Color(0xFF6366F1).withValues(alpha: 0.1),
-                            const Color(0xFF8B5CF6).withValues(alpha: 0.1),
+                            colorScheme.primary.withValues(alpha: 0.1),
+                            colorScheme.secondary.withValues(alpha: 0.1),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: const Color(0xFF6366F1).withValues(alpha: 0.2),
+                          color: colorScheme.primary.withValues(alpha: 0.2),
                         ),
                       ),
                       child: Row(
@@ -88,13 +91,13 @@ class _RepertoirePageState extends State<RepertoirePage> {
                           Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: colorScheme.surface,
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(
-                                    0xFF6366F1,
-                                  ).withValues(alpha: 0.1),
+                                  color: colorScheme.primary.withValues(
+                                    alpha: 0.1,
+                                  ),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
@@ -102,7 +105,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                             ),
                             child: Icon(
                               Icons.library_music,
-                              color: const Color(0xFF6366F1),
+                              color: colorScheme.primary,
                               size: isSmallHeight ? 20 : 24,
                             ),
                           ),
@@ -116,7 +119,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                                   style: TextStyle(
                                     fontSize: isSmallHeight ? 16 : 18,
                                     fontWeight: FontWeight.bold,
-                                    color: const Color(0xFF6366F1),
+                                    color: colorScheme.primary,
                                     letterSpacing: -0.3,
                                   ),
                                 ),
@@ -125,9 +128,9 @@ class _RepertoirePageState extends State<RepertoirePage> {
                                     "Build your musical repertoire",
                                     style: TextStyle(
                                       fontSize: 14,
-                                      color: const Color(
-                                        0xFF6366F1,
-                                      ).withValues(alpha: 0.7),
+                                      color: colorScheme.primary.withValues(
+                                        alpha: 0.7,
+                                      ),
                                     ),
                                   ),
                                 const SizedBox(height: 8),
@@ -135,7 +138,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                                   "Switch to your repertoire app for focused practice",
                                   style: TextStyle(
                                     fontSize: isSmallHeight ? 11 : 12,
-                                    color: Colors.orange.shade600,
+                                    color: colorScheme.tertiary,
                                     fontStyle: FontStyle.italic,
                                   ),
                                 ),
@@ -143,7 +146,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                             ),
                           ),
                           Material(
-                            color: Colors.white,
+                            color: colorScheme.surface,
                             borderRadius: BorderRadius.circular(20),
                             elevation: 2,
                             child: InkWell(
@@ -159,7 +162,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                                   padding: const EdgeInsets.all(8),
                                   child: Icon(
                                     Icons.help_outline,
-                                    color: const Color(0xFF6366F1),
+                                    color: colorScheme.primary,
                                     size: isSmallHeight ? 18 : 20,
                                   ),
                                 ),
@@ -231,6 +234,9 @@ class _RepertoirePageState extends State<RepertoirePage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (BuildContext context) {
+        final theme = Theme.of(context);
+        final colorScheme = theme.colorScheme;
+
         return DraggableScrollableSheet(
           initialChildSize: isLandscape ? 0.9 : (isTablet ? 0.8 : 0.75),
           maxChildSize: 0.95,
@@ -247,7 +253,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                     children: [
                       Icon(
                         Icons.library_music,
-                        color: const Color(0xFF6366F1),
+                        color: colorScheme.primary,
                         size: 24,
                       ),
                       const SizedBox(width: 8),
@@ -256,7 +262,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF6366F1),
+                          color: colorScheme.primary,
                           letterSpacing: -0.3,
                         ),
                       ),
@@ -288,10 +294,14 @@ class _RepertoirePageState extends State<RepertoirePage> {
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: Colors.orange.shade50,
+                                color: colorScheme.tertiary.withValues(
+                                  alpha: 0.1,
+                                ),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: Colors.orange.shade100,
+                                  color: colorScheme.tertiary.withValues(
+                                    alpha: 0.2,
+                                  ),
                                 ),
                               ),
                               child: Column(
@@ -301,7 +311,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                                     children: [
                                       Icon(
                                         Icons.info_outline,
-                                        color: Colors.orange.shade700,
+                                        color: colorScheme.tertiary,
                                       ),
                                       const SizedBox(width: 8),
                                       Expanded(
@@ -309,7 +319,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                                           "Piano Fitness builds technical skills, but repertoire practice completes your musical journey. Use these apps for interactive sheet music and guided learning:",
                                           style: TextStyle(
                                             fontSize: 15,
-                                            color: Colors.orange.shade700,
+                                            color: colorScheme.tertiary,
                                             height: 1.3,
                                           ),
                                         ),
@@ -330,7 +340,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.blue.shade700,
+                                color: colorScheme.primary,
                               ),
                             ),
                           ),
@@ -362,9 +372,15 @@ class _RepertoirePageState extends State<RepertoirePage> {
                             child: Container(
                               padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
-                                color: Colors.blue.shade50,
+                                color: colorScheme.primary.withValues(
+                                  alpha: 0.1,
+                                ),
                                 borderRadius: BorderRadius.circular(12),
-                                border: Border.all(color: Colors.blue.shade100),
+                                border: Border.all(
+                                  color: colorScheme.primary.withValues(
+                                    alpha: 0.2,
+                                  ),
+                                ),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -373,7 +389,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                                     children: [
                                       Icon(
                                         Icons.timer,
-                                        color: Colors.blue.shade700,
+                                        color: colorScheme.primary,
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
@@ -381,7 +397,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                                         style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors.blue.shade700,
+                                          color: colorScheme.primary,
                                         ),
                                       ),
                                     ],
@@ -415,12 +431,14 @@ class _RepertoirePageState extends State<RepertoirePage> {
     required IconData icon,
     required Color color,
   }) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Semantics(
       container: true,
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colorScheme.surface,
           borderRadius: BorderRadius.circular(6),
           border: Border.all(color: color.withValues(alpha: 0.3)),
         ),

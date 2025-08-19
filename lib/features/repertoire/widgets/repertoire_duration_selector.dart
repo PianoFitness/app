@@ -30,6 +30,9 @@ class RepertoireDurationSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         // Determine if we're in a very constrained space
@@ -69,7 +72,7 @@ class RepertoireDurationSelector extends StatelessWidget {
               children: [
                 Icon(
                   Icons.access_time,
-                  color: const Color(0xFF6366F1),
+                  color: colorScheme.primary,
                   size: iconSize,
                 ),
                 const SizedBox(width: 6),
@@ -79,7 +82,7 @@ class RepertoireDurationSelector extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: fontSize,
-                      color: const Color(0xFF6366F1),
+                      color: colorScheme.primary,
                       letterSpacing: -0.1,
                     ),
                   ),
@@ -133,16 +136,16 @@ class RepertoireDurationSelector extends StatelessWidget {
                             padding: buttonPadding,
                             decoration: BoxDecoration(
                               gradient: isSelected
-                                  ? const LinearGradient(
+                                  ? LinearGradient(
                                       colors: [
-                                        Color(0xFF6366F1),
-                                        Color(0xFF8B5CF6),
+                                        colorScheme.primary,
+                                        colorScheme.secondary,
                                       ],
                                     )
                                   : null,
                               color: isSelected
                                   ? null
-                                  : const Color(0xFFF8FAFC),
+                                  : colorScheme.surfaceContainerHighest,
                               borderRadius: BorderRadius.circular(
                                 isVeryConstrained
                                     ? 14
@@ -150,7 +153,7 @@ class RepertoireDurationSelector extends StatelessWidget {
                               ),
                               border: isRecommended && !isSelected
                                   ? Border.all(
-                                      color: const Color(0xFFF59E0B),
+                                      color: colorScheme.tertiary,
                                       width: isVeryConstrained ? 1 : 2,
                                     )
                                   : null,
@@ -162,8 +165,8 @@ class RepertoireDurationSelector extends StatelessWidget {
                                   "${duration}m",
                                   style: TextStyle(
                                     color: isSelected
-                                        ? Colors.white
-                                        : const Color(0xFF6366F1),
+                                        ? colorScheme.onPrimary
+                                        : colorScheme.primary,
                                     fontWeight: FontWeight.w600,
                                     fontSize: buttonFontSize,
                                   ),
@@ -174,8 +177,8 @@ class RepertoireDurationSelector extends StatelessWidget {
                                     Icons.star,
                                     size: starSize,
                                     color: isSelected
-                                        ? Colors.white
-                                        : const Color(0xFFF59E0B),
+                                        ? colorScheme.onPrimary
+                                        : colorScheme.tertiary,
                                   ),
                                 ],
                               ],
@@ -199,7 +202,7 @@ class RepertoireDurationSelector extends StatelessWidget {
                       : "", // Empty text maintains space
                   style: TextStyle(
                     fontSize: isCompact ? 11 : 12,
-                    color: const Color(0xFFF59E0B),
+                    color: colorScheme.tertiary,
                     fontStyle: FontStyle.italic,
                   ),
                 ),
@@ -210,14 +213,14 @@ class RepertoireDurationSelector extends StatelessWidget {
         return Container(
           padding: EdgeInsets.all(padding),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colorScheme.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+              color: colorScheme.outline.withValues(alpha: 0.3),
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF6366F1).withValues(alpha: 0.05),
+                color: colorScheme.shadow.withValues(alpha: 0.1),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),

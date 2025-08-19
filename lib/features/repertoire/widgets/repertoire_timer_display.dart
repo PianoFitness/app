@@ -70,6 +70,9 @@ class RepertoireTimerDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         // Responsive sizing based on available space
@@ -124,13 +127,16 @@ class RepertoireTimerDisplay extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: LinearGradient(
-              colors: [Colors.white, const Color(0xFFF8FAFC)],
+              colors: [
+                colorScheme.surface,
+                colorScheme.surfaceContainerHighest,
+              ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                color: colorScheme.shadow.withValues(alpha: 0.1),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -147,15 +153,12 @@ class RepertoireTimerDisplay extends StatelessWidget {
                   CircularProgressIndicator(
                     value: progress,
                     strokeWidth: isVeryConstrained ? 4 : 6,
-                    backgroundColor: const Color(
-                      0xFF6366F1,
-                    ).withValues(alpha: 0.1),
+                    backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
                     valueColor: AlwaysStoppedAnimation<Color>(
                       isRunning
-                          ? const Color(0xFF10B981) // Green when running
-                          : const Color(
-                              0xFF6366F1,
-                            ), // Indigo when paused/stopped
+                          ? colorScheme
+                                .tertiary // Green when running
+                          : colorScheme.primary, // Primary when paused/stopped
                     ),
                   ),
                   // Inner gradient circle
@@ -166,8 +169,8 @@ class RepertoireTimerDisplay extends StatelessWidget {
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          Colors.white,
-                          const Color(0xFF6366F1).withValues(alpha: 0.05),
+                          colorScheme.surface,
+                          colorScheme.primary.withValues(alpha: 0.05),
                         ],
                       ),
                     ),
@@ -184,15 +187,15 @@ class RepertoireTimerDisplay extends StatelessWidget {
                             Icons.music_note,
                             size: timerFontSize * 0.8,
                             color: isRunning
-                                ? const Color(0xFF10B981)
-                                : const Color(0xFF6366F1),
+                                ? colorScheme.tertiary
+                                : colorScheme.primary,
                           ),
                         Text(
                           formattedTime,
                           style: TextStyle(
                             fontSize: timerFontSize,
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF6366F1),
+                            color: colorScheme.primary,
                             letterSpacing: -0.5,
                           ),
                         ),
@@ -215,16 +218,19 @@ class RepertoireTimerDisplay extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFF10B981), Color(0xFF059669)],
+                  gradient: LinearGradient(
+                    colors: [
+                      colorScheme.tertiary,
+                      colorScheme.tertiary.withValues(alpha: 0.8),
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(
-                        0xFF10B981,
-                      ).withValues(alpha: isLandscape ? 0.2 : 0.3),
+                      color: colorScheme.tertiary.withValues(
+                        alpha: isLandscape ? 0.2 : 0.3,
+                      ),
                       blurRadius: isLandscape ? 6 : 8,
                       offset: Offset(0, isLandscape ? 2 : 4),
                     ),
@@ -248,7 +254,7 @@ class RepertoireTimerDisplay extends StatelessWidget {
                         },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
-                    foregroundColor: Colors.white,
+                    foregroundColor: colorScheme.onTertiary,
                     shadowColor: Colors.transparent,
                     padding: EdgeInsets.all(
                       isExtremelyConstrained
@@ -271,16 +277,19 @@ class RepertoireTimerDisplay extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
+                  gradient: LinearGradient(
+                    colors: [
+                      colorScheme.secondary,
+                      colorScheme.secondary.withValues(alpha: 0.8),
+                    ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(
-                        0xFFF59E0B,
-                      ).withValues(alpha: isLandscape ? 0.2 : 0.3),
+                      color: colorScheme.secondary.withValues(
+                        alpha: isLandscape ? 0.2 : 0.3,
+                      ),
                       blurRadius: isLandscape ? 6 : 8,
                       offset: Offset(0, isLandscape ? 2 : 4),
                     ),
@@ -296,7 +305,7 @@ class RepertoireTimerDisplay extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,
-                    foregroundColor: Colors.white,
+                    foregroundColor: colorScheme.onSecondary,
                     shadowColor: Colors.transparent,
                     padding: EdgeInsets.all(
                       isExtremelyConstrained
@@ -319,12 +328,12 @@ class RepertoireTimerDisplay extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: const Color(0xFF6366F1), width: 2),
+                  border: Border.all(color: colorScheme.primary, width: 2),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(
-                        0xFF6366F1,
-                      ).withValues(alpha: isLandscape ? 0.15 : 0.2),
+                      color: colorScheme.primary.withValues(
+                        alpha: isLandscape ? 0.15 : 0.2,
+                      ),
                       blurRadius: isLandscape ? 4 : 6,
                       offset: Offset(0, isLandscape ? 1 : 2),
                     ),
@@ -339,8 +348,8 @@ class RepertoireTimerDisplay extends StatelessWidget {
                     );
                   },
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF6366F1),
-                    backgroundColor: Colors.white,
+                    foregroundColor: colorScheme.primary,
+                    backgroundColor: colorScheme.surface,
                     side: BorderSide.none,
                     padding: EdgeInsets.all(
                       isExtremelyConstrained
@@ -498,14 +507,15 @@ class RepertoireTimerDisplay extends StatelessWidget {
   }
 
   Color _getStatusColor() {
+    // Use hardcoded colors in helper methods since we don't have access to context
     if (isRunning && !isPaused) {
-      return const Color(0xFF10B981); // Green for running
+      return const Color(0xFF4CAF50); // Green for running
     } else if (isPaused) {
-      return const Color(0xFFF59E0B); // Amber for paused
+      return const Color(0xFFFF9800); // Amber for paused
     } else if (remainingSeconds == 0) {
-      return const Color(0xFF8B5CF6); // Purple for completed
+      return const Color(0xFF9C27B0); // Purple for completed
     } else {
-      return const Color(0xFF6366F1); // Indigo for ready
+      return const Color(0xFF3F51B5); // Indigo for ready
     }
   }
 
