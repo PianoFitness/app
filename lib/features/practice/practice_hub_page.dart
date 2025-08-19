@@ -177,9 +177,7 @@ class PracticeHubPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Expanded(
-                      child: Container(), // Empty placeholder for symmetry
-                    ),
+                    const Spacer(),
                   ],
                 ),
               ),
