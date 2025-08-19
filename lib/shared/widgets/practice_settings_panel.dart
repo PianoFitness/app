@@ -269,6 +269,7 @@ class PracticeSettingsPanel extends StatelessWidget {
                           labelText: "Chord Type",
                           border: OutlineInputBorder(),
                         ),
+                        isExpanded: true,
                         items: ChordType.values.map((type) {
                           return DropdownMenuItem(
                             value: type,
