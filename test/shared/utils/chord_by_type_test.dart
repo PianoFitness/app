@@ -75,9 +75,9 @@ void main() {
 
       // Should include both natural and sharp/flat notes
       final rootNotes = chords.map((chord) => chord.rootNote).toSet();
-      expect(rootNotes.contains(MusicalNote.c), isTrue);
-      expect(rootNotes.contains(MusicalNote.cSharp), isTrue);
-      expect(rootNotes.contains(MusicalNote.fSharp), isTrue);
+      expect(rootNotes, contains(MusicalNote.c));
+      expect(rootNotes, contains(MusicalNote.cSharp));
+      expect(rootNotes, contains(MusicalNote.fSharp));
     });
 
     test("should generate MIDI sequence for chord planing practice", () {
