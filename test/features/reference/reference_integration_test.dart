@@ -291,11 +291,13 @@ void main() {
       await tester.pumpAndSettle();
 
       // Navigate to reference page
-      await tester.tap(find.text("Reference"), warnIfMissed: false);
+      expect(find.text("Reference"), findsOneWidget);
+      await tester.tap(find.text("Reference"));
       await tester.pumpAndSettle();
 
       // Switch to chords mode
-      await tester.tap(find.text("Chords"), warnIfMissed: false);
+      expect(find.text("Chords"), findsOneWidget);
+      await tester.tap(find.text("Chords"));
       await tester.pumpAndSettle();
 
       final stopwatch = Stopwatch()..start();
