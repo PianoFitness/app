@@ -6,7 +6,7 @@ void main() {
     test("should have all expected values", () {
       expect(PracticeMode.values.length, equals(4));
       expect(PracticeMode.values, contains(PracticeMode.scales));
-      expect(PracticeMode.values, contains(PracticeMode.chords));
+      expect(PracticeMode.values, contains(PracticeMode.chordsByKey));
       expect(PracticeMode.values, contains(PracticeMode.arpeggios));
       expect(PracticeMode.values, contains(PracticeMode.chordProgressions));
     });
@@ -14,13 +14,16 @@ void main() {
     test("should have stable name property for serialization", () {
       // Prefer .name over .toString() for stability and serialization
       expect(PracticeMode.scales.name, equals("scales"));
-      expect(PracticeMode.chords.name, equals("chords"));
+      expect(PracticeMode.chordsByKey.name, equals("chordsByKey"));
       expect(PracticeMode.arpeggios.name, equals("arpeggios"));
       expect(PracticeMode.chordProgressions.name, equals("chordProgressions"));
 
       // toString() includes type prefix, less ideal for serialization
       expect(PracticeMode.scales.toString(), equals("PracticeMode.scales"));
-      expect(PracticeMode.chords.toString(), equals("PracticeMode.chords"));
+      expect(
+        PracticeMode.chordsByKey.toString(),
+        equals("PracticeMode.chordsByKey"),
+      );
       expect(
         PracticeMode.arpeggios.toString(),
         equals("PracticeMode.arpeggios"),
@@ -33,11 +36,11 @@ void main() {
 
     test("should support equality comparison", () {
       expect(PracticeMode.scales, equals(PracticeMode.scales));
-      expect(PracticeMode.chords, equals(PracticeMode.chords));
+      expect(PracticeMode.chordsByKey, equals(PracticeMode.chordsByKey));
       expect(PracticeMode.arpeggios, equals(PracticeMode.arpeggios));
 
-      expect(PracticeMode.scales, isNot(equals(PracticeMode.chords)));
-      expect(PracticeMode.chords, isNot(equals(PracticeMode.arpeggios)));
+      expect(PracticeMode.scales, isNot(equals(PracticeMode.chordsByKey)));
+      expect(PracticeMode.chordsByKey, isNot(equals(PracticeMode.arpeggios)));
       expect(PracticeMode.arpeggios, isNot(equals(PracticeMode.scales)));
     });
 
@@ -46,7 +49,7 @@ void main() {
         switch (mode) {
           case PracticeMode.scales:
             return "Scales";
-          case PracticeMode.chords:
+          case PracticeMode.chordsByKey:
             return "Chords";
           case PracticeMode.arpeggios:
             return "Arpeggios";
@@ -56,7 +59,7 @@ void main() {
       }
 
       expect(getModeString(PracticeMode.scales), equals("Scales"));
-      expect(getModeString(PracticeMode.chords), equals("Chords"));
+      expect(getModeString(PracticeMode.chordsByKey), equals("Chords"));
       expect(getModeString(PracticeMode.arpeggios), equals("Arpeggios"));
       expect(
         getModeString(PracticeMode.chordProgressions),
@@ -67,7 +70,7 @@ void main() {
     test("should serialize to and from JSON correctly", () {
       // Test toJson() returns expected string values
       expect(PracticeMode.scales.toJson(), equals("scales"));
-      expect(PracticeMode.chords.toJson(), equals("chords"));
+      expect(PracticeMode.chordsByKey.toJson(), equals("chordsByKey"));
       expect(PracticeMode.arpeggios.toJson(), equals("arpeggios"));
       expect(
         PracticeMode.chordProgressions.toJson(),
@@ -76,7 +79,10 @@ void main() {
 
       // Test fromJson() reconstructs correct enum values
       expect(PracticeModeJson.fromJson("scales"), equals(PracticeMode.scales));
-      expect(PracticeModeJson.fromJson("chords"), equals(PracticeMode.chords));
+      expect(
+        PracticeModeJson.fromJson("chordsByKey"),
+        equals(PracticeMode.chordsByKey),
+      );
       expect(
         PracticeModeJson.fromJson("arpeggios"),
         equals(PracticeMode.arpeggios),

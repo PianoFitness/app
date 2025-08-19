@@ -110,12 +110,14 @@ class PracticeHubPage extends StatelessWidget {
                     Expanded(
                       child: _buildPracticeModeCard(
                         context,
-                        title: "Chords",
+                        title: "Chords by Key",
                         icon: Icons.piano,
                         description: "Individual chord triads and inversions",
                         color: Colors.green,
-                        onTap: () =>
-                            _navigateToPractice(context, PracticeMode.chords),
+                        onTap: () => _navigateToPractice(
+                          context,
+                          PracticeMode.chordsByKey,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),

@@ -87,8 +87,8 @@ class PracticeSettingsPanel extends StatelessWidget {
     switch (mode) {
       case PracticeMode.scales:
         return "Scales";
-      case PracticeMode.chords:
-        return "Chords";
+      case PracticeMode.chordsByKey:
+        return "Chords by Key";
       case PracticeMode.arpeggios:
         return "Arpeggios";
       case PracticeMode.chordProgressions:

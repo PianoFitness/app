@@ -99,11 +99,11 @@ void main() {
         ..addListener(() {
           notificationReceived = true;
         })
-        ..setPracticeMode(PracticeMode.chords);
+        ..setPracticeMode(PracticeMode.chordsByKey);
 
       expect(
         viewModel.practiceSession!.practiceMode,
-        equals(PracticeMode.chords),
+        equals(PracticeMode.chordsByKey),
       );
       expect(notificationReceived, isTrue);
     });
@@ -299,7 +299,7 @@ void main() {
       test("should handle all practice mode changes", () {
         final modes = [
           PracticeMode.scales,
-          PracticeMode.chords,
+          PracticeMode.chordsByKey,
           PracticeMode.arpeggios,
         ];
 

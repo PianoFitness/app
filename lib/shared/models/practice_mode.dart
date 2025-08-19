@@ -2,7 +2,7 @@
 ///
 /// Each mode focuses on different aspects of piano technique:
 /// - [scales]: Practice major, minor, and modal scales
-/// - [chords]: Practice individual chord triads and inversions
+/// - [chordsByKey]: Practice individual chord triads and inversions
 /// - [arpeggios]: Practice broken chord patterns across octaves
 /// - [chordProgressions]: Practice chord progressions using roman numeral notation
 enum PracticeMode {
@@ -10,7 +10,7 @@ enum PracticeMode {
   scales,
 
   /// Practice individual chord triads and inversions
-  chords,
+  chordsByKey,
 
   /// Practice arpeggio patterns across multiple octaves
   arpeggios,
@@ -27,7 +27,7 @@ enum PracticeMode {
 extension PracticeModeJson on PracticeMode {
   /// Converts the enum value to its string name for JSON serialization.
   ///
-  /// Returns the enum name (e.g., "scales", "chords", "arpeggios").
+  /// Returns the enum name (e.g., "scales", "chordsByKey", "arpeggios").
   String toJson() => name;
 
   /// Creates a [PracticeMode] from a JSON string value.

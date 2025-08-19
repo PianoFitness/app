@@ -47,7 +47,7 @@ void main() {
       // Check that practice mode cards are present
       expect(find.text("Practice Modes"), findsOneWidget);
       expect(find.text("Scales"), findsOneWidget);
-      expect(find.text("Chords"), findsOneWidget);
+      expect(find.text("Chords by Key"), findsOneWidget);
       expect(find.text("Arpeggios"), findsOneWidget);
       expect(find.text("Chord Progressions"), findsOneWidget);
 

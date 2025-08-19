@@ -170,7 +170,7 @@ class PracticeSession {
       _currentSequence = scale.getFullScaleSequence(4);
       _currentNoteIndex = 0;
       _updateHighlightedNotes();
-    } else if (_practiceMode == PracticeMode.chords) {
+    } else if (_practiceMode == PracticeMode.chordsByKey) {
       _currentChordProgression = ChordDefinitions.getSmoothKeyTriadProgression(
         _selectedKey,
         _selectedScaleType,
@@ -242,7 +242,7 @@ class PracticeSession {
         noteInfo.octave,
       );
       onHighlightedNotesChanged([notePosition]);
-    } else if (_practiceMode == PracticeMode.chords ||
+    } else if (_practiceMode == PracticeMode.chordsByKey ||
         _practiceMode == PracticeMode.chordProgressions) {
       if (_currentChordIndex < _currentChordProgression.length) {
         final currentChord = _currentChordProgression[_currentChordIndex];
@@ -291,7 +291,7 @@ class PracticeSession {
           _updateHighlightedNotes();
         }
       }
-    } else if (_practiceMode == PracticeMode.chords ||
+    } else if (_practiceMode == PracticeMode.chordsByKey ||
         _practiceMode == PracticeMode.chordProgressions) {
       if (_currentChordIndex < _currentChordProgression.length) {
         final currentChord = _currentChordProgression[_currentChordIndex];
@@ -313,7 +313,7 @@ class PracticeSession {
   ///
   /// The [midiNote] parameter should be the MIDI note number (0-127).
   void handleNoteReleased(int midiNote) {
-    if ((_practiceMode == PracticeMode.chords ||
+    if ((_practiceMode == PracticeMode.chordsByKey ||
             _practiceMode == PracticeMode.chordProgressions) &&
         _practiceActive) {
       _currentlyHeldChordNotes.remove(midiNote);
