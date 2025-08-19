@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:piano_fitness/features/play/play_page.dart";
 import "package:piano_fitness/features/practice/practice_hub_page.dart";
 import "package:piano_fitness/features/reference/reference_page.dart";
+import "package:piano_fitness/features/repertoire/repertoire_page.dart";
 
 /// Main navigation wrapper that provides bottom navigation between core app sections.
 ///
@@ -23,6 +24,7 @@ class _MainNavigationState extends State<MainNavigation> {
     const PlayPage(),
     const PracticeHubPage(),
     const ReferencePage(),
+    const RepertoirePage(),
   ];
 
   /// Handles bottom navigation item taps.
@@ -43,6 +45,10 @@ class _MainNavigationState extends State<MainNavigation> {
           BottomNavigationBarItem(
             icon: Icon(Icons.library_books),
             label: "Reference",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.library_music),
+            label: "Repertoire",
           ),
         ],
         currentIndex: _selectedIndex,

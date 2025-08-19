@@ -191,7 +191,7 @@ class PracticeSettingsPanel extends StatelessWidget {
             children: [
               Expanded(
                 child: DropdownButtonFormField<PracticeMode>(
-                  value: practiceMode,
+                  initialValue: practiceMode,
                   decoration: const InputDecoration(
                     labelText: "Practice Mode",
                     border: OutlineInputBorder(),
@@ -213,7 +213,7 @@ class PracticeSettingsPanel extends StatelessWidget {
               Expanded(
                 child: practiceMode == PracticeMode.arpeggios
                     ? DropdownButtonFormField<MusicalNote>(
-                        value: selectedRootNote,
+                        initialValue: selectedRootNote,
                         decoration: const InputDecoration(
                           labelText: "Root Note",
                           border: OutlineInputBorder(),
@@ -231,7 +231,7 @@ class PracticeSettingsPanel extends StatelessWidget {
                         },
                       )
                     : DropdownButtonFormField<music.Key>(
-                        value: selectedKey,
+                        initialValue: selectedKey,
                         decoration: const InputDecoration(
                           labelText: "Key",
                           border: OutlineInputBorder(),
@@ -254,7 +254,7 @@ class PracticeSettingsPanel extends StatelessWidget {
           if (practiceMode == PracticeMode.scales) ...[
             const SizedBox(height: 12),
             DropdownButtonFormField<music.ScaleType>(
-              value: selectedScaleType,
+              initialValue: selectedScaleType,
               decoration: const InputDecoration(
                 labelText: "Scale Type",
                 border: OutlineInputBorder(),
@@ -278,7 +278,7 @@ class PracticeSettingsPanel extends StatelessWidget {
               children: [
                 Expanded(
                   child: DropdownButtonFormField<ArpeggioType>(
-                    value: selectedArpeggioType,
+                    initialValue: selectedArpeggioType,
                     decoration: const InputDecoration(
                       labelText: "Arpeggio Type",
                       border: OutlineInputBorder(),
@@ -299,7 +299,7 @@ class PracticeSettingsPanel extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: DropdownButtonFormField<ArpeggioOctaves>(
-                    value: selectedArpeggioOctaves,
+                    initialValue: selectedArpeggioOctaves,
                     decoration: const InputDecoration(
                       labelText: "Octaves",
                       border: OutlineInputBorder(),
@@ -323,7 +323,7 @@ class PracticeSettingsPanel extends StatelessWidget {
           if (practiceMode == PracticeMode.chordProgressions) ...[
             const SizedBox(height: 12),
             DropdownButtonFormField<ChordProgression>(
-              value: selectedChordProgression,
+              initialValue: selectedChordProgression,
               decoration: const InputDecoration(
                 labelText: "Chord Progression",
                 border: OutlineInputBorder(),
