@@ -480,10 +480,8 @@ class RepertoireTimerDisplay extends StatelessWidget {
           );
         }
 
-        // Use scrollable view for very constrained spaces
-        return isVeryConstrained
-            ? SingleChildScrollView(child: content)
-            : content;
+        // Return content directly, relying on existing compact sizing logic
+        return content;
       },
     );
   }
