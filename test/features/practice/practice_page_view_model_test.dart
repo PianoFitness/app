@@ -285,13 +285,13 @@ void main() {
         final clockMessage = Uint8List.fromList([0xF8]); // MIDI Clock
         final activeSenseMessage = Uint8List.fromList([0xFE]); // Active Sense
 
-        mockMidiState.setLastNote("Previous message");
+        viewModel.localMidiState.setLastNote("Previous message");
 
         viewModel.handleMidiData(clockMessage);
-        expect(mockMidiState.lastNote, equals("Previous message"));
+        expect(viewModel.localMidiState.lastNote, equals("Previous message"));
 
         viewModel.handleMidiData(activeSenseMessage);
-        expect(mockMidiState.lastNote, equals("Previous message"));
+        expect(viewModel.localMidiState.lastNote, equals("Previous message"));
       });
     });
 
@@ -300,6 +300,7 @@ void main() {
         final modes = [
           PracticeMode.scales,
           PracticeMode.chordsByKey,
+          PracticeMode.chordsByType,
           PracticeMode.arpeggios,
         ];
 
