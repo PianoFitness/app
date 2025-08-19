@@ -18,7 +18,7 @@ The Repertoire page represents our design system's core values: clean gradients,
 - **Purple**: `#8B5CF6` - Secondary accent for gradients and visual interest
 - **Orange**: `#F59E0B` - Accent color for highlights, recommendations, and guidance text
 - **Green**: `#10B981` - Success states, active timers, and positive feedback
-- **Amber**: `#F59E0B` - Warning states, paused timers, and attention-drawing elements
+- **Amber**: `#FFC107` - Warning states, paused timers, and attention-drawing elements
 
 **Supporting Colors:**
 
@@ -56,7 +56,7 @@ The Repertoire page represents our design system's core values: clean gradients,
 - **Buttons**: Circular for actions, rounded rectangles for selections
 - **Elevation**: 1-4px for depth hierarchy
 - **Gradients**: Used for primary actions and selected states
-- **Touch Targets**: Minimum 32x32px for accessibility
+- **Touch Targets**: Platform standards take precedence (44x44pt for iOS, 48x48dp for Android). For web accessibility, use a minimum of 44x44px
 
 **Iconography:**
 
