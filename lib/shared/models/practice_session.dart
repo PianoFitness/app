@@ -234,7 +234,10 @@ class PracticeSession {
         includeInversions: _includeInversions,
       );
       _currentChordProgression = _selectedChordByType!.generateChordSequence();
-      _currentSequence = _selectedChordByType!.getMidiSequence(4);
+      _currentSequence = _selectedChordByType!.getMidiSequenceFrom(
+        _currentChordProgression,
+        4,
+      );
       _currentNoteIndex = 0;
       _currentChordIndex = 0;
       _currentlyHeldChordNotes.clear();

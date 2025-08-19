@@ -451,6 +451,15 @@ class ChordByType {
 
     return midiSequence;
   }
+
+  /// Convenience: builds MIDI from a provided chord sequence to avoid recomputation.
+  List<int> getMidiSequenceFrom(List<ChordInfo> chords, int startOctave) {
+    final midiSequence = <int>[];
+    for (final chord in chords) {
+      midiSequence.addAll(chord.getMidiNotes(startOctave));
+    }
+    return midiSequence;
+  }
 }
 
 /// Provides static definitions and factory methods for creating chord planing exercises.
