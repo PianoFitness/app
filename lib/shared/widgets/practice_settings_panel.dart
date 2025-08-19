@@ -39,6 +39,77 @@ class PracticeSettingsPanel extends StatelessWidget {
     required this.onIncludeInversionsChanged,
     super.key,
   });
+  Widget _buildRootNoteDropdown() {
+    return DropdownButtonFormField<MusicalNote>(
+      initialValue: selectedRootNote,
+      decoration: const InputDecoration(
+        labelText: "Root Note",
+        border: OutlineInputBorder(),
+      ),
+      items: MusicalNote.values.map((note) {
+        return DropdownMenuItem(
+          value: note,
+          child: Text(_getRootNoteString(note)),
+        );
+      }).toList(),
+      onChanged: (value) {
+        if (value != null) {
+          onRootNoteChanged(value);
+        }
+      },
+    );
+  }
+
+  Widget _buildChordTypeDropdown() {
+    return DropdownButtonFormField<ChordType>(
+      initialValue: selectedChordType,
+      decoration: const InputDecoration(
+        labelText: "Chord Type",
+        border: OutlineInputBorder(),
+      ),
+      isExpanded: true,
+      items: ChordType.values.map((type) {
+        return DropdownMenuItem(
+          value: type,
+          child: Text(_getChordTypeString(type)),
+        );
+      }).toList(),
+      onChanged: (value) {
+        if (value != null) {
+          onChordTypeChanged(value);
+        }
+      },
+    );
+  }
+
+  Widget _buildKeyDropdown() {
+    return DropdownButtonFormField<music.Key>(
+      initialValue: selectedKey,
+      decoration: const InputDecoration(
+        labelText: "Key",
+        border: OutlineInputBorder(),
+      ),
+      items: music.Key.values.map((key) {
+        return DropdownMenuItem(value: key, child: Text(_getKeyString(key)));
+      }).toList(),
+      onChanged: (value) {
+        if (value != null) {
+          onKeyChanged(value);
+        }
+      },
+    );
+  }
+
+  Widget _buildSecondarySelector(BuildContext context) {
+    switch (practiceMode) {
+      case PracticeMode.arpeggios:
+        return _buildRootNoteDropdown();
+      case PracticeMode.chordsByType:
+        return _buildChordTypeDropdown();
+      default:
+        return _buildKeyDropdown();
+    }
+  }
 
   /// The currently selected practice mode (scales, chords, or arpeggios).
   final PracticeMode practiceMode;
@@ -242,65 +313,7 @@ class PracticeSettingsPanel extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              Expanded(
-                child: practiceMode == PracticeMode.arpeggios
-                    ? DropdownButtonFormField<MusicalNote>(
-                        initialValue: selectedRootNote,
-                        decoration: const InputDecoration(
-                          labelText: "Root Note",
-                          border: OutlineInputBorder(),
-                        ),
-                        items: MusicalNote.values.map((note) {
-                          return DropdownMenuItem(
-                            value: note,
-                            child: Text(_getRootNoteString(note)),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          if (value != null) {
-                            onRootNoteChanged(value);
-                          }
-                        },
-                      )
-                    : practiceMode == PracticeMode.chordsByType
-                    ? DropdownButtonFormField<ChordType>(
-                        initialValue: selectedChordType,
-                        decoration: const InputDecoration(
-                          labelText: "Chord Type",
-                          border: OutlineInputBorder(),
-                        ),
-                        isExpanded: true,
-                        items: ChordType.values.map((type) {
-                          return DropdownMenuItem(
-                            value: type,
-                            child: Text(_getChordTypeString(type)),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          if (value != null) {
-                            onChordTypeChanged(value);
-                          }
-                        },
-                      )
-                    : DropdownButtonFormField<music.Key>(
-                        initialValue: selectedKey,
-                        decoration: const InputDecoration(
-                          labelText: "Key",
-                          border: OutlineInputBorder(),
-                        ),
-                        items: music.Key.values.map((key) {
-                          return DropdownMenuItem(
-                            value: key,
-                            child: Text(_getKeyString(key)),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          if (value != null) {
-                            onKeyChanged(value);
-                          }
-                        },
-                      ),
-              ),
+              Expanded(child: _buildSecondarySelector(context)),
             ],
           ),
           if (practiceMode == PracticeMode.scales) ...[
