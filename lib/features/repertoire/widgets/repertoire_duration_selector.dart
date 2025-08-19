@@ -124,7 +124,7 @@ class RepertoireDurationSelector extends StatelessWidget {
                                   onDurationChanged(duration);
                                   SemanticsService.announce(
                                     "$duration minutes selected",
-                                    TextDirection.ltr,
+                                    Directionality.of(context),
                                   );
                                 }
                               : null,

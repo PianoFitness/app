@@ -236,14 +236,14 @@ class RepertoireTimerDisplay extends StatelessWidget {
                           onStart();
                           SemanticsService.announce(
                             "Timer started",
-                            TextDirection.ltr,
+                            Directionality.of(context),
                           );
                         }
                       : () {
                           onResume();
                           SemanticsService.announce(
                             "Timer resumed",
-                            TextDirection.ltr,
+                            Directionality.of(context),
                           );
                         },
                   style: ElevatedButton.styleFrom(
@@ -291,7 +291,7 @@ class RepertoireTimerDisplay extends StatelessWidget {
                     onPause();
                     SemanticsService.announce(
                       "Timer paused",
-                      TextDirection.ltr,
+                      Directionality.of(context),
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -335,7 +335,7 @@ class RepertoireTimerDisplay extends StatelessWidget {
                     onReset();
                     SemanticsService.announce(
                       "Timer reset to $selectedDurationMinutes minutes",
-                      TextDirection.ltr,
+                      Directionality.of(context),
                     );
                   },
                   style: OutlinedButton.styleFrom(
