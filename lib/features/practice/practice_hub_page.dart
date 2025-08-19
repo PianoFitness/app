@@ -91,6 +91,7 @@ class PracticeHubPage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
+              // First row of practice modes
               IntrinsicHeight(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -124,6 +125,31 @@ class PracticeHubPage extends StatelessWidget {
                     Expanded(
                       child: _buildPracticeModeCard(
                         context,
+                        title: "Chords by Type",
+                        icon: Icons.library_music,
+                        description:
+                            "Major, minor, diminished, augmented chords",
+                        color: Colors.teal,
+                        onTap: () => _navigateToPractice(
+                          context,
+                          PracticeMode.chordsByType,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // Second row of practice modes
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: _buildPracticeModeCard(
+                        context,
                         title: "Arpeggios",
                         icon: Icons.swap_vert,
                         description:
@@ -149,6 +175,10 @@ class PracticeHubPage extends StatelessWidget {
                           PracticeMode.chordProgressions,
                         ),
                       ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Container(), // Empty placeholder for symmetry
                     ),
                   ],
                 ),

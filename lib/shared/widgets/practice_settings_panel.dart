@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:piano_fitness/shared/models/chord_progression_type.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
+import "package:piano_fitness/shared/utils/chords.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as music;
 
@@ -23,6 +24,8 @@ class PracticeSettingsPanel extends StatelessWidget {
     required this.selectedArpeggioType,
     required this.selectedArpeggioOctaves,
     required this.selectedChordProgression,
+    required this.selectedChordType,
+    required this.includeInversions,
     required this.practiceActive,
     required this.onResetPractice,
     required this.onPracticeModeChanged,
@@ -32,6 +35,8 @@ class PracticeSettingsPanel extends StatelessWidget {
     required this.onArpeggioTypeChanged,
     required this.onArpeggioOctavesChanged,
     required this.onChordProgressionChanged,
+    required this.onChordTypeChanged,
+    required this.onIncludeInversionsChanged,
     super.key,
   });
 
@@ -55,6 +60,12 @@ class PracticeSettingsPanel extends StatelessWidget {
 
   /// The selected chord progression type for chord progression exercises.
   final ChordProgression? selectedChordProgression;
+
+  /// The selected chord type for chord type exercises.
+  final ChordType selectedChordType;
+
+  /// Whether to include inversions in chord type exercises.
+  final bool includeInversions;
 
   /// Whether a practice session is currently active.
   final bool practiceActive;
@@ -83,12 +94,20 @@ class PracticeSettingsPanel extends StatelessWidget {
   /// Callback fired when the user changes the chord progression type.
   final ValueChanged<ChordProgression> onChordProgressionChanged;
 
+  /// Callback fired when the user changes the chord type.
+  final ValueChanged<ChordType> onChordTypeChanged;
+
+  /// Callback fired when the user changes the inversion setting.
+  final ValueChanged<bool> onIncludeInversionsChanged;
+
   String _getPracticeModeString(PracticeMode mode) {
     switch (mode) {
       case PracticeMode.scales:
         return "Scales";
       case PracticeMode.chordsByKey:
         return "Chords by Key";
+      case PracticeMode.chordsByType:
+        return "Chords by Type";
       case PracticeMode.arpeggios:
         return "Arpeggios";
       case PracticeMode.chordProgressions:
@@ -155,6 +174,19 @@ class PracticeSettingsPanel extends StatelessWidget {
 
   String _getChordProgressionString(ChordProgression? progression) {
     return progression?.displayName ?? "Select Progression";
+  }
+
+  String _getChordTypeString(ChordType type) {
+    switch (type) {
+      case ChordType.major:
+        return "Major";
+      case ChordType.minor:
+        return "Minor";
+      case ChordType.diminished:
+        return "Diminished";
+      case ChordType.augmented:
+        return "Augmented";
+    }
   }
 
   @override
@@ -227,6 +259,25 @@ class PracticeSettingsPanel extends StatelessWidget {
                         onChanged: (value) {
                           if (value != null) {
                             onRootNoteChanged(value);
+                          }
+                        },
+                      )
+                    : practiceMode == PracticeMode.chordsByType
+                    ? DropdownButtonFormField<ChordType>(
+                        initialValue: selectedChordType,
+                        decoration: const InputDecoration(
+                          labelText: "Chord Type",
+                          border: OutlineInputBorder(),
+                        ),
+                        items: ChordType.values.map((type) {
+                          return DropdownMenuItem(
+                            value: type,
+                            child: Text(_getChordTypeString(type)),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            onChordTypeChanged(value);
                           }
                         },
                       )
@@ -341,6 +392,20 @@ class PracticeSettingsPanel extends StatelessWidget {
                   onChordProgressionChanged(value);
                 }
               },
+            ),
+          ],
+          if (practiceMode == PracticeMode.chordsByType) ...[
+            const SizedBox(height: 12),
+            CheckboxListTile(
+              title: const Text("Include Inversions"),
+              subtitle: const Text("Add 1st and 2nd inversions"),
+              value: includeInversions,
+              onChanged: (value) {
+                if (value != null) {
+                  onIncludeInversionsChanged(value);
+                }
+              },
+              controlAffinity: ListTileControlAffinity.leading,
             ),
           ],
           const SizedBox(height: 16),

@@ -47,6 +47,11 @@ class PracticeSession {
   // Chord progression-specific state
   ChordProgression? _selectedChordProgression;
 
+  // Chord type-specific state
+  ChordType _selectedChordType = ChordType.major;
+  bool _includeInversions = true;
+  ChordByType? _selectedChordByType;
+
   List<int> _currentSequence = [];
   int _currentNoteIndex = 0;
   bool _practiceActive = false;
@@ -75,6 +80,15 @@ class PracticeSession {
 
   /// The currently selected chord progression type for chord progression exercises.
   ChordProgression? get selectedChordProgression => _selectedChordProgression;
+
+  /// The currently selected chord type for chord type exercises.
+  ChordType get selectedChordType => _selectedChordType;
+
+  /// Whether to include inversions in chord type exercises.
+  bool get includeInversions => _includeInversions;
+
+  /// The currently selected chord by type exercise.
+  ChordByType? get selectedChordByType => _selectedChordByType;
 
   /// The current sequence of MIDI note numbers for the active exercise.
   List<int> get currentSequence => _currentSequence;
@@ -161,6 +175,26 @@ class PracticeSession {
     _initializeSequence();
   }
 
+  /// Sets the chord type for chord type exercises.
+  ///
+  /// Automatically stops any active practice session and regenerates
+  /// the chord type sequence with the new type.
+  void setSelectedChordType(ChordType type) {
+    _selectedChordType = type;
+    _practiceActive = false;
+    _initializeSequence();
+  }
+
+  /// Sets whether to include inversions in chord type exercises.
+  ///
+  /// Automatically stops any active practice session and regenerates
+  /// the chord sequence with the new inversion setting.
+  void setIncludeInversions(bool includeInversions) {
+    _includeInversions = includeInversions;
+    _practiceActive = false;
+    _initializeSequence();
+  }
+
   void _initializeSequence() {
     if (_practiceMode == PracticeMode.scales) {
       final scale = music.ScaleDefinitions.getScale(
@@ -192,6 +226,18 @@ class PracticeSession {
       );
       _currentSequence = arpeggio.getFullArpeggioSequence(4);
       _currentNoteIndex = 0;
+      _updateHighlightedNotes();
+    } else if (_practiceMode == PracticeMode.chordsByType) {
+      // Generate chord type exercise - always use all 12 keys for chord planing
+      _selectedChordByType = ChordByTypeDefinitions.getChordTypeExercise(
+        _selectedChordType,
+        includeInversions: _includeInversions,
+      );
+      _currentChordProgression = _selectedChordByType!.generateChordSequence();
+      _currentSequence = _selectedChordByType!.getMidiSequence(4);
+      _currentNoteIndex = 0;
+      _currentChordIndex = 0;
+      _currentlyHeldChordNotes.clear();
       _updateHighlightedNotes();
     } else if (_practiceMode == PracticeMode.chordProgressions) {
       // For chord progressions, generate based on the selected progression
@@ -243,6 +289,7 @@ class PracticeSession {
       );
       onHighlightedNotesChanged([notePosition]);
     } else if (_practiceMode == PracticeMode.chordsByKey ||
+        _practiceMode == PracticeMode.chordsByType ||
         _practiceMode == PracticeMode.chordProgressions) {
       if (_currentChordIndex < _currentChordProgression.length) {
         final currentChord = _currentChordProgression[_currentChordIndex];
@@ -292,6 +339,7 @@ class PracticeSession {
         }
       }
     } else if (_practiceMode == PracticeMode.chordsByKey ||
+        _practiceMode == PracticeMode.chordsByType ||
         _practiceMode == PracticeMode.chordProgressions) {
       if (_currentChordIndex < _currentChordProgression.length) {
         final currentChord = _currentChordProgression[_currentChordIndex];
@@ -314,6 +362,7 @@ class PracticeSession {
   /// The [midiNote] parameter should be the MIDI note number (0-127).
   void handleNoteReleased(int midiNote) {
     if ((_practiceMode == PracticeMode.chordsByKey ||
+            _practiceMode == PracticeMode.chordsByType ||
             _practiceMode == PracticeMode.chordProgressions) &&
         _practiceActive) {
       _currentlyHeldChordNotes.remove(midiNote);

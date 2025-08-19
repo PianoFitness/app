@@ -72,9 +72,12 @@ class PracticeProgressDisplay extends StatelessWidget {
                   "${currentNoteIndex + 1} of ${currentSequence.length}",
             ),
           ] else if (practiceMode == PracticeMode.chordsByKey ||
+              practiceMode == PracticeMode.chordsByType ||
               practiceMode == PracticeMode.chordProgressions) ...[
             Text(
               practiceMode == PracticeMode.chordsByKey
+                  ? "Chord ${currentChordIndex + 1}/${currentChordProgression.length}"
+                  : practiceMode == PracticeMode.chordsByType
                   ? "Chord ${currentChordIndex + 1}/${currentChordProgression.length}"
                   : "Progression ${currentChordIndex + 1}/${currentChordProgression.length}",
               style: const TextStyle(fontWeight: FontWeight.bold),
@@ -97,6 +100,8 @@ class PracticeProgressDisplay extends StatelessWidget {
               valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade600),
               semanticsLabel: practiceMode == PracticeMode.chordsByKey
                   ? "Chord practice progress"
+                  : practiceMode == PracticeMode.chordsByType
+                  ? "Chord type practice progress"
                   : "Chord progression practice progress",
               semanticsValue:
                   "${currentChordIndex + 1} of ${currentChordProgression.length}",

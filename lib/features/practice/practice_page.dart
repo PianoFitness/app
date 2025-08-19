@@ -182,6 +182,8 @@ class _PracticePageState extends State<PracticePage> {
                               session.selectedArpeggioOctaves,
                           selectedChordProgression:
                               session.selectedChordProgression,
+                          selectedChordType: session.selectedChordType,
+                          includeInversions: session.includeInversions,
                           practiceActive: session.practiceActive,
                           onResetPractice: _resetPractice,
                           onPracticeModeChanged: (mode) {
@@ -204,6 +206,12 @@ class _PracticePageState extends State<PracticePage> {
                           },
                           onChordProgressionChanged: (progression) {
                             _viewModel.setSelectedChordProgression(progression);
+                          },
+                          onChordTypeChanged: (type) {
+                            _viewModel.setSelectedChordType(type);
+                          },
+                          onIncludeInversionsChanged: (include) {
+                            _viewModel.setIncludeInversions(include);
                           },
                         );
                       },

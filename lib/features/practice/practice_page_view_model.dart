@@ -9,6 +9,7 @@ import "package:piano_fitness/shared/models/practice_session.dart";
 import "package:piano_fitness/shared/services/midi_connection_service.dart";
 import "package:piano_fitness/shared/services/midi_service.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
+import "package:piano_fitness/shared/utils/chords.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_range_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as music;
@@ -189,6 +190,18 @@ class PracticePageViewModel extends ChangeNotifier {
   /// Changes the selected chord progression type and updates the session.
   void setSelectedChordProgression(ChordProgression progression) {
     _practiceSession?.setSelectedChordProgression(progression);
+    notifyListeners();
+  }
+
+  /// Changes the selected chord type and updates the session.
+  void setSelectedChordType(ChordType type) {
+    _practiceSession?.setSelectedChordType(type);
+    notifyListeners();
+  }
+
+  /// Changes the include inversions setting and updates the session.
+  void setIncludeInversions(bool includeInversions) {
+    _practiceSession?.setIncludeInversions(includeInversions);
     notifyListeners();
   }
 

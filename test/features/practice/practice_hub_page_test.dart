@@ -48,6 +48,7 @@ void main() {
       expect(find.text("Practice Modes"), findsOneWidget);
       expect(find.text("Scales"), findsOneWidget);
       expect(find.text("Chords by Key"), findsOneWidget);
+      expect(find.text("Chords by Type"), findsOneWidget);
       expect(find.text("Arpeggios"), findsOneWidget);
       expect(find.text("Chord Progressions"), findsOneWidget);
 
