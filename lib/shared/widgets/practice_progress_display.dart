@@ -75,11 +75,7 @@ class PracticeProgressDisplay extends StatelessWidget {
               practiceMode == PracticeMode.chordsByType ||
               practiceMode == PracticeMode.chordProgressions) ...[
             Text(
-              practiceMode == PracticeMode.chordsByKey
-                  ? "Chord ${currentChordIndex + 1}/${currentChordProgression.length}"
-                  : practiceMode == PracticeMode.chordsByType
-                  ? "Chord ${currentChordIndex + 1}/${currentChordProgression.length}"
-                  : "Progression ${currentChordIndex + 1}/${currentChordProgression.length}",
+              "${practiceMode == PracticeMode.chordProgressions ? "Progression" : "Chord"} ${currentChordIndex + 1}/${currentChordProgression.length}",
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             if (currentChordIndex < currentChordProgression.length) ...[
