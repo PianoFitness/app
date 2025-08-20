@@ -46,6 +46,7 @@ class PracticeSettingsPanel extends StatelessWidget {
         labelText: "Root Note",
         border: OutlineInputBorder(),
       ),
+      isExpanded: true,
       items: MusicalNote.values.map((note) {
         return DropdownMenuItem(
           value: note,
@@ -89,6 +90,7 @@ class PracticeSettingsPanel extends StatelessWidget {
         labelText: "Key",
         border: OutlineInputBorder(),
       ),
+      isExpanded: true,
       items: music.Key.values.map((key) {
         return DropdownMenuItem(value: key, child: Text(_getKeyString(key)));
       }).toList(),
