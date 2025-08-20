@@ -67,7 +67,7 @@ class PracticeSession {
   int _currentChordIndex = 0;
   final Set<int> _currentlyHeldChordNotes = {};
 
-  /// The currently selected practice mode (scales, chords, or arpeggios).
+  /// The currently selected practice mode (scales, chords by key, chords by type, arpeggios, or chord progressions).
   PracticeMode get practiceMode => _practiceMode;
 
   /// The currently selected musical key for scale and chord exercises.
@@ -117,9 +117,7 @@ class PracticeSession {
   /// Automatically stops any active practice session and generates
   /// a new exercise sequence based on the selected mode.
   void setPracticeMode(PracticeMode mode) {
-    _practiceMode = mode;
-    _practiceActive = false;
-    _initializeSequence();
+    _applyConfigChange(() => _practiceMode = mode);
   }
 
   /// Sets the musical key for scale and chord exercises.
@@ -127,9 +125,7 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the exercise sequence in the new key.
   void setSelectedKey(music.Key key) {
-    _selectedKey = key;
-    _practiceActive = false;
-    _initializeSequence();
+    _applyConfigChange(() => _selectedKey = key);
   }
 
   /// Sets the scale type for scale exercises.
@@ -137,9 +133,7 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the scale sequence with the new type (major, minor, modal, etc.).
   void setSelectedScaleType(music.ScaleType type) {
-    _selectedScaleType = type;
-    _practiceActive = false;
-    _initializeSequence();
+    _applyConfigChange(() => _selectedScaleType = type);
   }
 
   /// Sets the root note for arpeggio exercises.
@@ -147,9 +141,7 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the arpeggio sequence starting from the new root note.
   void setSelectedRootNote(MusicalNote rootNote) {
-    _selectedRootNote = rootNote;
-    _practiceActive = false;
-    _initializeSequence();
+    _applyConfigChange(() => _selectedRootNote = rootNote);
   }
 
   /// Sets the arpeggio type (major, minor, diminished, etc.).
@@ -157,9 +149,7 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the arpeggio sequence with the new chord quality.
   void setSelectedArpeggioType(ArpeggioType type) {
-    _selectedArpeggioType = type;
-    _practiceActive = false;
-    _initializeSequence();
+    _applyConfigChange(() => _selectedArpeggioType = type);
   }
 
   /// Sets the octave range for arpeggio exercises.
@@ -167,9 +157,7 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the arpeggio sequence to span the specified number of octaves.
   void setSelectedArpeggioOctaves(ArpeggioOctaves octaves) {
-    _selectedArpeggioOctaves = octaves;
-    _practiceActive = false;
-    _initializeSequence();
+    _applyConfigChange(() => _selectedArpeggioOctaves = octaves);
   }
 
   /// Sets the chord progression type for chord progression exercises.
@@ -177,9 +165,7 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the chord progression sequence with the new progression type.
   void setSelectedChordProgression(ChordProgression progression) {
-    _selectedChordProgression = progression;
-    _practiceActive = false;
-    _initializeSequence();
+    _applyConfigChange(() => _selectedChordProgression = progression);
   }
 
   /// Sets the chord type for chord type exercises.
@@ -385,7 +371,8 @@ class PracticeSession {
           .getMidiNotes(DEFAULT_START_OCTAVE)
           .toSet();
 
-      if (_currentlyHeldChordNotes.containsAll(expectedChordNotes)) {
+      // Require exactly the expected notes to be held (no extras)
+      if (setEquals(_currentlyHeldChordNotes, expectedChordNotes)) {
         _currentChordIndex++;
         _currentlyHeldChordNotes.clear();
 
