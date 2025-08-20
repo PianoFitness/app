@@ -225,12 +225,129 @@ MIDI handling is managed locally within each page via page-scoped ViewModels/con
 - Set up MIDI mocks for tests
 - Use ChangeNotifierProvider for widget tests
 
+## Code Quality and Architecture Principles
+
+### SOLID Principles Enforcement
+
+**Single Responsibility Principle (SRP)**
+
+- Each widget, class, and function should have one clear purpose
+- Large constructors (>5-8 parameters) indicate SRP violations
+- Conditional UI logic based on multiple states suggests need for separation
+- Break complex widgets into focused, composable components
+
+**Open/Closed Principle**
+
+- Prefer composition over inheritance for extending functionality
+- Use abstract base classes and interfaces for extensible designs
+- Avoid modifying existing classes when adding new features
+
+**Liskov Substitution Principle (LSP)**
+
+- Subtypes must be substitutable for their base types without breaking functionality
+- Don't override methods in ways that violate parent class expectations
+- If behavior differs significantly, prefer composition over inheritance
+- Avoid extending Flutter's built-in widgets (ElevatedButton, etc.) - use composition instead
+
+**Interface Segregation Principle (ISP)**
+
+- Split large interfaces into smaller, focused contracts
+- Classes should only implement methods they actually need
+- Prefer many small interfaces over one large interface
+- Design role-based abstractions (e.g., CanValidateEmail, CanSaveData)
+
+**Dependency Inversion**
+
+- Depend on abstractions (interfaces) not concrete implementations
+- Use dependency injection for services and external dependencies
+- Keep business logic separate from UI components
+
+### Common Code Smells to Avoid
+
+**General Software Development**
+
+- **God Classes**: Classes with >300 lines or too many responsibilities
+- **Long Parameter Lists**: Methods/constructors with >5 parameters
+- **Feature Envy**: Classes accessing data from other classes excessively
+- **Primitive Obsession**: Using primitives instead of value objects
+- **Shotgun Surgery**: Changes requiring modifications in many classes
+
+**Dart/Flutter Specific**
+
+- **Massive Widgets**: Build methods with >100 lines of code
+- **Nested Ternary Operators**: Use proper conditional widgets instead
+- **Stateful Widget Abuse**: Use StatefulWidget only when state is needed
+- **Missing Keys**: Always provide keys for list items and conditional widgets
+- **Ignoring Lifecycle**: Not disposing resources in dispose() methods
+- **Widget Inheritance Abuse**: Extending built-in widgets instead of composition
+- **Fat Interfaces**: Large abstract classes forcing unused method implementations
+- **Broken Substitution**: Subclasses that can't replace parent without breaking code
+
+**MVVM Architecture Specific**
+
+- **Fat ViewModels**: ViewModels with >200 lines or multiple concerns
+- **UI Logic in Models**: Business models should not contain UI-specific code
+- **Direct Model Access**: Views should interact only with ViewModels
+- **Missing Notifications**: Forgetting to call notifyListeners() after state changes
+- **Synchronous Heavy Operations**: Use async/await for long-running tasks
+
+### Widget Composition Best Practices
+
+**Prefer Composition Over Large Widgets**
+
+- Break widgets into smaller, focused components when they exceed ~50-100 lines
+- Create reusable widgets in `/shared/widgets/` for cross-feature use
+- Create feature-specific widgets in `/features/<feature>/widgets/` for local use
+- Each widget should have a single, clear responsibility
+
+**Widget Organization Structure**
+
+```
+features/practice/
+├── practice_page.dart              # Main page widget
+├── practice_page_view_model.dart   # ViewModel
+└── widgets/                        # Feature-specific widgets
+    ├── scale_settings_panel.dart
+    ├── arpeggio_settings_panel.dart
+    └── practice_status_indicator.dart
+
+shared/widgets/                     # Reusable across features
+├── base_settings_panel.dart
+├── musical_key_selector.dart
+└── note_selector_dropdown.dart
+```
+
+**Widget Decomposition Guidelines**
+
+- Extract repeated UI patterns into reusable widgets
+- Separate layout widgets from business logic widgets
+- Use composition to build complex UIs from simple parts
+- Prefer many small widgets over few large ones
+- Create custom widgets using composition, not inheritance from built-in widgets
+- Design focused interfaces - split large abstract classes into role-based contracts
+
+### Flutter Performance Best Practices
+
+**Widget Efficiency**
+
+- Use `const` constructors wherever possible
+- Implement proper `shouldRebuild` logic for expensive widgets
+- Avoid creating widgets in build methods
+- Use `Builder` widgets to limit rebuild scope
+
+**State Management**
+
+- Minimize the scope of `setState()` calls
+- Use `AnimatedBuilder` for targeted updates
+- Prefer local state over global state when possible
+- Dispose of streams, controllers, and listeners properly
+
 ## Code Style and Conventions
 
 ### Naming and Organization
 
 - Feature-based directory structure
-- Snake_case for files, PascalCase for classes
+- Snake_case for files, PascalCase for classes  
 - Double quotes for strings (analysis_options.yaml enforced)
 - Comprehensive documentation with /// comments
 
@@ -289,10 +406,30 @@ import "package:piano_fitness/shared/models/midi_state.dart";
 ## Development Workflow
 
 1. **Feature Development**: Create feature directory with page/viewmodel pair
-2. **Testing**: Write comprehensive unit, widget, and integration tests
-3. **Code Quality**: Automatic formatting, linting via git hooks
-4. **MIDI Integration**: Use MidiState for note visualization and interaction
-5. **Musical Theory**: Leverage existing scale/chord utilities for consistency
+2. **Widget Composition**: Break large widgets into smaller, focused components
+3. **Testing**: Write comprehensive unit, widget, and integration tests
+4. **Code Quality**: Automatic formatting, linting via git hooks
+5. **Architecture Review**: Check for SRP violations and code smells before committing
+6. **MIDI Integration**: Use MidiState for note visualization and interaction
+7. **Musical Theory**: Leverage existing scale/chord utilities for consistency
+
+### Code Review Checklist
+
+**Before Committing Changes**
+
+- [ ] No constructors with >8 parameters
+- [ ] No build methods with >100 lines
+- [ ] No classes with >300 lines
+- [ ] Widgets follow single responsibility principle
+- [ ] Complex widgets are broken into smaller components
+- [ ] Reusable widgets are properly organized in `/shared/widgets/` or `/features/<feature>/widgets/`
+- [ ] All resources are properly disposed in dispose() methods
+- [ ] ViewModels call notifyListeners() after state changes
+- [ ] Tests pass and cover new functionality
+
+**Build and Quality Requirements**
 
 - Always build the app with macOS, iOS, or web targets. We don't have the Android tooling installed, so can't compile APK.
 - Always run the analysis and lint checks on code changes and fix any errors, otherwise we can't commit the changes.
+- Use `flutter analyze` to catch potential issues before committing
+- Consider refactoring if any code smells are detected
