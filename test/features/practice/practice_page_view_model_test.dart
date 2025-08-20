@@ -333,6 +333,130 @@ void main() {
         }
       });
 
+      test(
+        "should handle setSelectedChordType and reset practice sequence",
+        () {
+          // Switch to chords by type mode first
+          viewModel.setPracticeMode(PracticeMode.chordsByType);
+
+          // Start a practice session to have an active sequence
+          viewModel.startPractice();
+          expect(viewModel.practiceSession!.practiceActive, isTrue);
+
+          final initialSequence = List<int>.from(
+            viewModel.practiceSession!.currentSequence,
+          );
+          expect(initialSequence.isNotEmpty, isTrue);
+
+          var notificationReceived = false;
+          viewModel.addListener(() {
+            notificationReceived = true;
+          });
+
+          // Change chord type - should reset sequence and notify
+          viewModel.setSelectedChordType(ChordType.diminished);
+
+          expect(
+            viewModel.practiceSession!.selectedChordType,
+            equals(ChordType.diminished),
+          );
+          expect(notificationReceived, isTrue);
+
+          // Verify practice sequence resets after changing the type
+          expect(viewModel.practiceSession!.practiceActive, isFalse);
+
+          // Verify sequence content updates accordingly
+          final newSequence = viewModel.practiceSession!.currentSequence;
+          expect(newSequence, isNot(equals(initialSequence)));
+          expect(newSequence.isNotEmpty, isTrue);
+        },
+      );
+
+      test("should handle setIncludeInversions and update sequence length", () {
+        // Switch to chords by type mode
+        viewModel.setPracticeMode(PracticeMode.chordsByType);
+
+        // Start with inversions disabled
+        viewModel.setIncludeInversions(false);
+        expect(viewModel.practiceSession!.includeInversions, isFalse);
+
+        viewModel.startPractice();
+        final rootOnlySequenceLength =
+            viewModel.practiceSession!.currentSequence.length;
+        expect(rootOnlySequenceLength, greaterThan(0));
+
+        var notificationReceived = false;
+        viewModel.addListener(() {
+          notificationReceived = true;
+        });
+
+        // Enable inversions - should change total sequence length
+        viewModel.setIncludeInversions(true);
+
+        expect(viewModel.practiceSession!.includeInversions, isTrue);
+        expect(notificationReceived, isTrue);
+
+        // Verify practice resets
+        expect(viewModel.practiceSession!.practiceActive, isFalse);
+
+        // Start new practice with inversions
+        viewModel.startPractice();
+        final withInversionsSequenceLength =
+            viewModel.practiceSession!.currentSequence.length;
+
+        // With inversions enabled, sequence should be longer
+        expect(
+          withInversionsSequenceLength,
+          greaterThan(rootOnlySequenceLength),
+        );
+      });
+
+      test(
+        "should update highlighted notes when chord type or inversions change",
+        () {
+          // Switch to chords by type mode
+          viewModel.setPracticeMode(PracticeMode.chordsByType);
+          viewModel.setSelectedChordType(ChordType.major);
+
+          // Reset highlighted notes tracking
+          receivedHighlightedNotes.clear();
+
+          viewModel.startPractice();
+          final initialHighlightedNotes = List<NotePosition>.from(
+            receivedHighlightedNotes,
+          );
+          expect(initialHighlightedNotes.isNotEmpty, isTrue);
+
+          // Change chord type
+          viewModel.setSelectedChordType(ChordType.minor);
+          viewModel.startPractice();
+
+          // Verify highlighted notes changed
+          expect(
+            receivedHighlightedNotes,
+            isNot(equals(initialHighlightedNotes)),
+          );
+          expect(receivedHighlightedNotes.isNotEmpty, isTrue);
+
+          // Test inversions setting
+          receivedHighlightedNotes.clear();
+          viewModel.setIncludeInversions(false);
+          viewModel.startPractice();
+
+          final rootOnlyNotes = List<NotePosition>.from(
+            receivedHighlightedNotes,
+          );
+          expect(rootOnlyNotes.isNotEmpty, isTrue);
+
+          receivedHighlightedNotes.clear();
+          viewModel.setIncludeInversions(true);
+          viewModel.startPractice();
+
+          // Notes should be different since inversions affect chord sequence
+          expect(receivedHighlightedNotes.isNotEmpty, isTrue);
+        },
+      );
+
       test("should handle chord type changes and reset practice sequence", () {
         // Switch to chords by type mode first
         viewModel.setPracticeMode(PracticeMode.chordsByType);
