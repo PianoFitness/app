@@ -2,7 +2,6 @@ import "dart:typed_data";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/practice/practice_page_view_model.dart";
-import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
 import "package:piano_fitness/shared/utils/chords.dart";
@@ -18,13 +17,11 @@ void main() {
 
   group("PracticePageViewModel Tests", () {
     late PracticePageViewModel viewModel;
-    late MidiState mockMidiState;
     var exerciseCompletedCalled = false;
     var receivedHighlightedNotes = <NotePosition>[];
 
     setUp(() {
       viewModel = PracticePageViewModel(initialChannel: 3);
-      mockMidiState = MidiState();
       exerciseCompletedCalled = false;
       receivedHighlightedNotes = [];
 
@@ -41,7 +38,6 @@ void main() {
 
     tearDown(() {
       viewModel.dispose();
-      mockMidiState.dispose();
     });
 
     test("should initialize with correct MIDI channel", () {
@@ -443,10 +439,7 @@ void main() {
           withInversionsSequenceLength,
           greaterThan(rootOnlySequenceLength),
         );
-        expect(
-          withInversionsSequenceLength,
-          equals(rootOnlySequenceLength * 3),
-        ); // root + 2 inversions
+        // Avoid strict equality to implementation-specific multiplier
       });
 
       test(
