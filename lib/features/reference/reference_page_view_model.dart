@@ -14,7 +14,7 @@ enum ReferenceMode {
   scales,
 
   /// Display chords on the piano
-  chords,
+  chordsByKey,
 }
 
 /// ViewModel for managing reference page state and logic.

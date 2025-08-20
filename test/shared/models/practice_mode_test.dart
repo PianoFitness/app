@@ -57,7 +57,7 @@ void main() {
           case PracticeMode.scales:
             return "Scales";
           case PracticeMode.chordsByKey:
-            return "Chords";
+            return "Chords by Key";
           case PracticeMode.chordsByType:
             return "Chord Types";
           case PracticeMode.arpeggios:
@@ -68,7 +68,7 @@ void main() {
       }
 
       expect(getModeString(PracticeMode.scales), equals("Scales"));
-      expect(getModeString(PracticeMode.chordsByKey), equals("Chords"));
+      expect(getModeString(PracticeMode.chordsByKey), equals("Chords by Key"));
       expect(getModeString(PracticeMode.chordsByType), equals("Chord Types"));
       expect(getModeString(PracticeMode.arpeggios), equals("Arpeggios"));
       expect(
