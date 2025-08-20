@@ -19,6 +19,37 @@ enum ChordType {
   augmented,
 }
 
+/// Extension methods for ChordType to provide consistent display names.
+extension ChordTypeDisplay on ChordType {
+  /// Returns the short display name for the chord type (e.g., "Major").
+  String get shortName {
+    switch (this) {
+      case ChordType.major:
+        return "Major";
+      case ChordType.minor:
+        return "Minor";
+      case ChordType.diminished:
+        return "Diminished";
+      case ChordType.augmented:
+        return "Augmented";
+    }
+  }
+
+  /// Returns the long display name for the chord type (e.g., "Major Chords").
+  String get longName {
+    switch (this) {
+      case ChordType.major:
+        return "Major Chords";
+      case ChordType.minor:
+        return "Minor Chords";
+      case ChordType.diminished:
+        return "Diminished Chords";
+      case ChordType.augmented:
+        return "Augmented Chords";
+    }
+  }
+}
+
 /// The different inversions available for chord practice.
 ///
 /// Inversions change the bass note of the chord while preserving
@@ -468,14 +499,6 @@ class ChordByType {
 /// 12 chromatic root notes. This complements key-based chord practice by emphasizing
 /// intervallic patterns, chord quality recognition, and consistent fingering across keys.
 class ChordByTypeDefinitions {
-  /// Common chord type names for display purposes.
-  static const Map<ChordType, String> _typeDisplayNames = {
-    ChordType.major: "Major Chords",
-    ChordType.minor: "Minor Chords",
-    ChordType.diminished: "Diminished Chords",
-    ChordType.augmented: "Augmented Chords",
-  };
-
   /// All 12 chromatic root notes for chord planing practice.
   static const List<MusicalNote> _chromaticRootNotes = [
     MusicalNote.c,
@@ -504,7 +527,7 @@ class ChordByTypeDefinitions {
     ChordType type, {
     bool includeInversions = true,
   }) {
-    final typeName = _typeDisplayNames[type]!;
+    final typeName = type.longName;
     final inversionSuffix = includeInversions ? " (with inversions)" : "";
 
     return ChordByType(
@@ -566,6 +589,6 @@ class ChordByTypeDefinitions {
 
   /// Returns the display name for a chord type.
   static String getChordTypeDisplayName(ChordType type) {
-    return _typeDisplayNames[type] ?? "Unknown Chord Type";
+    return type.longName;
   }
 }
