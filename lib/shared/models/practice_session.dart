@@ -27,6 +27,12 @@ class PracticeSession {
 
   static final _log = Logger("PracticeSession");
 
+  /// Helper getter to check if current practice mode is any chord-based mode.
+  bool get _isChordMode =>
+      _practiceMode == PracticeMode.chordsByKey ||
+      _practiceMode == PracticeMode.chordsByType ||
+      _practiceMode == PracticeMode.chordProgressions;
+
   /// Callback fired when a practice exercise is completed successfully.
   final VoidCallback onExerciseCompleted;
 
@@ -181,9 +187,7 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the chord type sequence with the new type.
   void setSelectedChordType(ChordType type) {
-    _selectedChordType = type;
-    _practiceActive = false;
-    _initializeSequence();
+    _applyConfigChange(() => _selectedChordType = type);
   }
 
   /// Sets whether to include inversions in chord type exercises.
@@ -191,8 +195,13 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the chord sequence with the new inversion setting.
   void setIncludeInversions(bool includeInversions) {
-    _includeInversions = includeInversions;
+    _applyConfigChange(() => _includeInversions = includeInversions);
+  }
+
+  /// Applies a config mutation, then resets practice state and rebuilds the sequence.
+  void _applyConfigChange(void Function() update) {
     _practiceActive = false;
+    update();
     _initializeSequence();
   }
 
@@ -230,12 +239,13 @@ class PracticeSession {
       _updateHighlightedNotes();
     } else if (_practiceMode == PracticeMode.chordsByType) {
       // Generate chord type exercise - always use all 12 keys for chord planing
-      _selectedChordByType = ChordByTypeDefinitions.getChordTypeExercise(
+      final exercise = ChordByTypeDefinitions.getChordTypeExercise(
         _selectedChordType,
         includeInversions: _includeInversions,
       );
-      _currentChordProgression = _selectedChordByType!.generateChordSequence();
-      _currentSequence = _selectedChordByType!.getMidiSequenceFrom(
+      _selectedChordByType = exercise;
+      _currentChordProgression = exercise.generateChordSequence();
+      _currentSequence = exercise.getMidiSequenceFrom(
         _currentChordProgression,
         DEFAULT_START_OCTAVE,
       );
@@ -292,9 +302,7 @@ class PracticeSession {
         noteInfo.octave,
       );
       onHighlightedNotesChanged([notePosition]);
-    } else if (_practiceMode == PracticeMode.chordsByKey ||
-        _practiceMode == PracticeMode.chordsByType ||
-        _practiceMode == PracticeMode.chordProgressions) {
+    } else if (_isChordMode) {
       if (_currentChordIndex < _currentChordProgression.length) {
         final currentChord = _currentChordProgression[_currentChordIndex];
         final chordMidiNotes = currentChord.getMidiNotes(DEFAULT_START_OCTAVE);
@@ -342,9 +350,7 @@ class PracticeSession {
           _updateHighlightedNotes();
         }
       }
-    } else if (_practiceMode == PracticeMode.chordsByKey ||
-        _practiceMode == PracticeMode.chordsByType ||
-        _practiceMode == PracticeMode.chordProgressions) {
+    } else if (_isChordMode) {
       if (_currentChordIndex < _currentChordProgression.length) {
         final currentChord = _currentChordProgression[_currentChordIndex];
         final expectedChordNotes = currentChord.getMidiNotes(
@@ -367,10 +373,7 @@ class PracticeSession {
   ///
   /// The [midiNote] parameter should be the MIDI note number (0-127).
   void handleNoteReleased(int midiNote) {
-    if ((_practiceMode == PracticeMode.chordsByKey ||
-            _practiceMode == PracticeMode.chordsByType ||
-            _practiceMode == PracticeMode.chordProgressions) &&
-        _practiceActive) {
+    if (_isChordMode && _practiceActive) {
       _currentlyHeldChordNotes.remove(midiNote);
     }
   }
