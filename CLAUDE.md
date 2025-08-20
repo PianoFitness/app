@@ -236,7 +236,7 @@ MIDI handling is managed locally within each page via page-scoped ViewModels/con
 - **Layer Separation**: UI rendering, data fetching, and navigation should be in different classes
 - **Constructor Warning**: Large constructors (>5-8 parameters) indicate SRP violations
 - **Conditional Logic**: Complex conditional UI logic suggests need for component separation
-- **God Widget Prevention**: Break widgets doing multiple responsibilities into focused components
+- **Break widgets doing multiple responsibilities into focused components**
 
 **Open/Closed Principle (OCP)**
 
@@ -245,7 +245,7 @@ MIDI handling is managed locally within each page via page-scoped ViewModels/con
 - **Future-Proof Design**: Use abstractions so new features don't require modifying existing classes
 - **Composition Over Inheritance**: Prefer composition for extending functionality
 - **Interface-Based Extensions**: Use abstract base classes and interfaces for extensible designs
-- **Example**: Instead of adding new payment types to a switch statement, implement PaymentMethod interface
+- **Implement abstractions for extensibility**: Instead of adding new payment types to a switch statement, implement PaymentMethod interface
 
 **Liskov Substitution Principle (LSP)**
 
@@ -411,7 +411,7 @@ import "package:piano_fitness/shared/models/midi_state.dart";
 
 - Primary development: macOS (no Android tooling installed)
 - Supported platforms: macOS, iOS, web
-- Flutter 3.8.1+ with null safety
+- Flutter >= 3.22.0, Dart >= 3.8.1
 
 ## Development Workflow
 
