@@ -248,16 +248,7 @@ class PracticeSettingsPanel extends StatelessWidget {
   }
 
   String _getChordTypeString(ChordType type) {
-    switch (type) {
-      case ChordType.major:
-        return "Major";
-      case ChordType.minor:
-        return "Minor";
-      case ChordType.diminished:
-        return "Diminished";
-      case ChordType.augmented:
-        return "Augmented";
-    }
+    return type.shortName;
   }
 
   @override
@@ -410,16 +401,19 @@ class PracticeSettingsPanel extends StatelessWidget {
           ],
           if (practiceMode == PracticeMode.chordsByType) ...[
             const SizedBox(height: 12),
-            CheckboxListTile(
-              title: const Text("Include Inversions"),
-              subtitle: const Text("Add 1st and 2nd inversions"),
-              value: includeInversions,
-              onChanged: (value) {
-                if (value != null) {
-                  onIncludeInversionsChanged(value);
-                }
-              },
-              controlAffinity: ListTileControlAffinity.leading,
+            Semantics(
+              label: "Include 1st and 2nd inversions in chord exercises",
+              child: CheckboxListTile(
+                title: const Text("Include Inversions"),
+                subtitle: const Text("Add 1st and 2nd inversions"),
+                value: includeInversions,
+                onChanged: (value) {
+                  if (value != null) {
+                    onIncludeInversionsChanged(value);
+                  }
+                },
+                controlAffinity: ListTileControlAffinity.leading,
+              ),
             ),
           ],
           const SizedBox(height: 16),
