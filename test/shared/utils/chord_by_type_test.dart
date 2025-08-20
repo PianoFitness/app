@@ -165,4 +165,68 @@ void main() {
       },
     );
   });
+
+  group("ChordByType sequence size invariants", () {
+    test(
+      "generateChordSequence count equals rootNotes.length * (includeInversions ? 3 : 1)",
+      () {
+        final withInversions = ChordByTypeDefinitions.getChordTypeExercise(
+          ChordType.minor,
+        );
+        final withoutInversions = ChordByTypeDefinitions.getChordTypeExercise(
+          ChordType.minor,
+          includeInversions: false,
+        );
+
+        final chordsWithInversions = withInversions.generateChordSequence();
+        final chordsWithoutInversions = withoutInversions
+            .generateChordSequence();
+
+        // With inversions: 12 keys * 3 positions each = 36
+        expect(
+          chordsWithInversions.length,
+          equals(withInversions.rootNotes.length * 3),
+        );
+        expect(chordsWithInversions.length, equals(36));
+
+        // Without inversions: 12 keys * 1 position each = 12
+        expect(
+          chordsWithoutInversions.length,
+          equals(withoutInversions.rootNotes.length * 1),
+        );
+        expect(chordsWithoutInversions.length, equals(12));
+      },
+    );
+
+    test(
+      "getMidiSequence length equals generateChordSequence.length * 3 (triads)",
+      () {
+        final exercise = ChordByTypeDefinitions.getChordTypeExercise(
+          ChordType.minor,
+        );
+        final chords = exercise.generateChordSequence();
+        final midiSequence = exercise.getMidiSequence(4);
+
+        // Each chord has 3 notes (triads), so MIDI sequence should be 3x chord count
+        expect(midiSequence.length, equals(chords.length * 3));
+        expect(midiSequence.length, equals(36 * 3)); // 108 total notes
+      },
+    );
+
+    test(
+      "display name includes inversion suffix when includeInversions == true",
+      () {
+        final withInversions = ChordByTypeDefinitions.getChordTypeExercise(
+          ChordType.augmented,
+        );
+        final withoutInversions = ChordByTypeDefinitions.getChordTypeExercise(
+          ChordType.augmented,
+          includeInversions: false,
+        );
+
+        expect(withInversions.name.contains("with inversions"), isTrue);
+        expect(withoutInversions.name.contains("with inversions"), isFalse);
+      },
+    );
+  });
 }
