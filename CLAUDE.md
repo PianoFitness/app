@@ -231,16 +231,21 @@ MIDI handling is managed locally within each page via page-scoped ViewModels/con
 
 **Single Responsibility Principle (SRP)**
 
-- Each widget, class, and function should have one clear purpose
-- Large constructors (>5-8 parameters) indicate SRP violations
-- Conditional UI logic based on multiple states suggests need for separation
-- Break complex widgets into focused, composable components
+- **One Reason to Change**: Each widget, class, and function should have only one reason to change
+- **Flutter-Specific Rule**: Widgets ≠ Services ≠ Business Logic - always separate them
+- **Layer Separation**: UI rendering, data fetching, and navigation should be in different classes
+- **Constructor Warning**: Large constructors (>5-8 parameters) indicate SRP violations
+- **Conditional Logic**: Complex conditional UI logic suggests need for component separation
+- **God Widget Prevention**: Break widgets doing multiple responsibilities into focused components
 
-**Open/Closed Principle**
+**Open/Closed Principle (OCP)**
 
-- Prefer composition over inheritance for extending functionality
-- Use abstract base classes and interfaces for extensible designs
-- Avoid modifying existing classes when adding new features
+- **Open for Extension, Closed for Modification**: Add new functionality without changing existing code
+- **Avoid If-Else Chains**: Replace conditional logic with abstract classes or interfaces
+- **Future-Proof Design**: Use abstractions so new features don't require modifying existing classes
+- **Composition Over Inheritance**: Prefer composition for extending functionality
+- **Interface-Based Extensions**: Use abstract base classes and interfaces for extensible designs
+- **Example**: Instead of adding new payment types to a switch statement, implement PaymentMethod interface
 
 **Liskov Substitution Principle (LSP)**
 
@@ -274,7 +279,9 @@ MIDI handling is managed locally within each page via page-scoped ViewModels/con
 
 **Dart/Flutter Specific**
 
+- **God Widgets**: Widgets handling UI + networking + navigation + business logic
 - **Massive Widgets**: Build methods with >100 lines of code
+- **Mixed Responsibilities**: Widgets containing service calls, navigation logic, and UI rendering
 - **Nested Ternary Operators**: Use proper conditional widgets instead
 - **Stateful Widget Abuse**: Use StatefulWidget only when state is needed
 - **Missing Keys**: Always provide keys for list items and conditional widgets
@@ -282,6 +289,7 @@ MIDI handling is managed locally within each page via page-scoped ViewModels/con
 - **Widget Inheritance Abuse**: Extending built-in widgets instead of composition
 - **Fat Interfaces**: Large abstract classes forcing unused method implementations
 - **Broken Substitution**: Subclasses that can't replace parent without breaking code
+- **If-Else Feature Addition**: Adding new features via conditional statements instead of abstractions
 
 **MVVM Architecture Specific**
 
@@ -302,7 +310,7 @@ MIDI handling is managed locally within each page via page-scoped ViewModels/con
 
 **Widget Organization Structure**
 
-```
+```text
 features/practice/
 ├── practice_page.dart              # Main page widget
 ├── practice_page_view_model.dart   # ViewModel
@@ -319,12 +327,14 @@ shared/widgets/                     # Reusable across features
 
 **Widget Decomposition Guidelines**
 
-- Extract repeated UI patterns into reusable widgets
-- Separate layout widgets from business logic widgets
-- Use composition to build complex UIs from simple parts
-- Prefer many small widgets over few large ones
-- Create custom widgets using composition, not inheritance from built-in widgets
-- Design focused interfaces - split large abstract classes into role-based contracts
+- **Single Purpose Widgets**: Each widget should have one clear responsibility (UI only)
+- **Layer Separation**: Keep UI, data fetching, navigation, and business logic in separate classes
+- **Service Injection**: Pass services to widgets rather than making network calls inside build methods
+- **Extract Repeated Patterns**: Create reusable widgets for common UI patterns
+- **Composition Over Size**: Use composition to build complex UIs from simple, focused parts
+- **Avoid God Widgets**: Break widgets that handle multiple concerns (UI + API + navigation)
+- **Interface Segregation**: Split large abstract classes into focused, role-based contracts
+- **Extension via Abstraction**: Use interfaces/abstractions to add features without modifying existing code
 
 ### Flutter Performance Best Practices
 
@@ -417,11 +427,14 @@ import "package:piano_fitness/shared/models/midi_state.dart";
 
 **Before Committing Changes**
 
-- [ ] No constructors with >8 parameters
-- [ ] No build methods with >100 lines
-- [ ] No classes with >300 lines
-- [ ] Widgets follow single responsibility principle
-- [ ] Complex widgets are broken into smaller components
+- [ ] No constructors with >8 parameters (SRP violation indicator)
+- [ ] No build methods with >100 lines (God Widget indicator)  
+- [ ] No classes with >300 lines (God Class indicator)
+- [ ] Widgets only handle UI rendering (no networking, navigation, or business logic)
+- [ ] Services are injected into widgets rather than created inside build methods
+- [ ] Complex conditional logic is extracted into separate components or abstractions
+- [ ] New features added via interfaces/abstractions, not if-else modifications
+- [ ] Complex widgets are broken into smaller, focused components
 - [ ] Reusable widgets are properly organized in `/shared/widgets/` or `/features/<feature>/widgets/`
 - [ ] All resources are properly disposed in dispose() methods
 - [ ] ViewModels call notifyListeners() after state changes
