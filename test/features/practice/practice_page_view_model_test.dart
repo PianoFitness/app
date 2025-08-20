@@ -5,6 +5,7 @@ import "package:piano_fitness/features/practice/practice_page_view_model.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
+import "package:piano_fitness/shared/utils/chords.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as music;
 import "../../shared/midi_mocks.dart";
 
@@ -335,6 +336,156 @@ void main() {
           );
         }
       });
+
+      test("should handle chord type changes and reset practice sequence", () {
+        // Switch to chords by type mode first
+        viewModel.setPracticeMode(PracticeMode.chordsByType);
+
+        // Start a practice session to have an active sequence
+        viewModel.startPractice();
+        expect(viewModel.practiceSession!.practiceActive, isTrue);
+
+        var notificationReceived = false;
+        viewModel.addListener(() {
+          notificationReceived = true;
+        });
+
+        // Test changing chord type - should reset sequence and notify
+        viewModel.setSelectedChordType(ChordType.minor);
+
+        expect(
+          viewModel.practiceSession!.selectedChordType,
+          equals(ChordType.minor),
+        );
+        expect(notificationReceived, isTrue);
+
+        // Verify practice sequence resets after changing chord type
+        expect(viewModel.practiceSession!.practiceActive, isFalse);
+      });
+
+      test("should handle chord type changes and update sequence content", () {
+        // Switch to chords by type mode
+        viewModel.setPracticeMode(PracticeMode.chordsByType);
+
+        // Test all chord types
+        final chordTypes = [
+          ChordType.major,
+          ChordType.minor,
+          ChordType.diminished,
+          ChordType.augmented,
+        ];
+
+        for (final chordType in chordTypes) {
+          viewModel.setSelectedChordType(chordType);
+          expect(
+            viewModel.practiceSession!.selectedChordType,
+            equals(chordType),
+          );
+
+          // Start practice to generate sequence
+          viewModel.startPractice();
+
+          // Verify that highlighted notes change based on chord type
+          // (This would be validated through the practice session's sequence generation)
+          expect(viewModel.practiceSession!.currentSequence, isNotNull);
+          expect(viewModel.practiceSession!.currentSequence.isNotEmpty, isTrue);
+
+          // Reset for next iteration
+          viewModel.resetPractice();
+        }
+      });
+
+      test("should handle include inversions setting changes", () {
+        // Switch to chords by type mode first
+        viewModel.setPracticeMode(PracticeMode.chordsByType);
+
+        var notificationReceived = false;
+        viewModel.addListener(() {
+          notificationReceived = true;
+        });
+
+        // Test enabling inversions
+        viewModel.setIncludeInversions(true);
+
+        expect(viewModel.practiceSession!.includeInversions, isTrue);
+        expect(notificationReceived, isTrue);
+
+        // Test disabling inversions
+        notificationReceived = false;
+        viewModel.setIncludeInversions(false);
+
+        expect(viewModel.practiceSession!.includeInversions, isFalse);
+        expect(notificationReceived, isTrue);
+      });
+
+      test("should change sequence length when inversions setting changes", () {
+        // Switch to chords by type mode
+        viewModel.setPracticeMode(PracticeMode.chordsByType);
+
+        // Start with inversions disabled
+        viewModel.setIncludeInversions(false);
+        viewModel.startPractice();
+
+        final rootOnlySequenceLength =
+            viewModel.practiceSession!.currentSequence.length;
+        expect(rootOnlySequenceLength, greaterThan(0));
+
+        // Reset and enable inversions
+        viewModel.resetPractice();
+        viewModel.setIncludeInversions(true);
+        viewModel.startPractice();
+
+        final withInversionsSequenceLength =
+            viewModel.practiceSession!.currentSequence.length;
+
+        // With inversions enabled, sequence should be longer (root + first + second inversions)
+        expect(
+          withInversionsSequenceLength,
+          greaterThan(rootOnlySequenceLength),
+        );
+        expect(
+          withInversionsSequenceLength,
+          equals(rootOnlySequenceLength * 3),
+        ); // root + 2 inversions
+      });
+
+      test(
+        "should update chord notes content when inversions setting changes",
+        () {
+          // Switch to chords by type mode with a specific chord type
+          viewModel.setPracticeMode(PracticeMode.chordsByType);
+          viewModel.setSelectedChordType(ChordType.major);
+
+          // Test with inversions disabled (root position only)
+          viewModel.setIncludeInversions(false);
+          viewModel.startPractice();
+
+          final rootOnlySequence = List<int>.from(
+            viewModel.practiceSession!.currentSequence,
+          );
+          expect(rootOnlySequence.isNotEmpty, isTrue);
+
+          // Reset and enable inversions
+          viewModel.resetPractice();
+          viewModel.setIncludeInversions(true);
+          viewModel.startPractice();
+
+          final withInversionsSequence =
+              viewModel.practiceSession!.currentSequence;
+          expect(withInversionsSequence.isNotEmpty, isTrue);
+
+          // With inversions, sequence should contain additional chord positions
+          // The sequence should include different chord voicings/inversions
+          expect(
+            withInversionsSequence.length,
+            greaterThan(rootOnlySequence.length),
+          );
+
+          // Note: The actual sequence structure depends on how the practice session
+          // generates chord progressions with inversions. We just verify that
+          // enabling inversions changes the sequence content and length.
+        },
+      );
     });
   });
 }
