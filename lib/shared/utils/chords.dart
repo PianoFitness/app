@@ -1,3 +1,4 @@
+import "package:piano_fitness/shared/constants/musical_constants.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart";
 
@@ -254,13 +255,17 @@ class ChordDefinitions {
         scaleNotes[(i + 4) % 7],
       );
 
-      if (firstInterval == 4 && secondInterval == 3) {
+      if (firstInterval == MusicalConstants.majorThird &&
+          secondInterval == MusicalConstants.minorThird) {
         chords.add(ChordType.major);
-      } else if (firstInterval == 3 && secondInterval == 4) {
+      } else if (firstInterval == MusicalConstants.minorThird &&
+          secondInterval == MusicalConstants.majorThird) {
         chords.add(ChordType.minor);
-      } else if (firstInterval == 3 && secondInterval == 3) {
+      } else if (firstInterval == MusicalConstants.minorThird &&
+          secondInterval == MusicalConstants.minorThird) {
         chords.add(ChordType.diminished);
-      } else if (firstInterval == 4 && secondInterval == 4) {
+      } else if (firstInterval == MusicalConstants.majorThird &&
+          secondInterval == MusicalConstants.majorThird) {
         chords.add(ChordType.augmented);
       } else {
         chords.add(ChordType.major);

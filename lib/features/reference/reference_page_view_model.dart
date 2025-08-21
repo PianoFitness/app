@@ -1,5 +1,6 @@
 import "dart:async";
 import "package:flutter/foundation.dart";
+import "package:piano_fitness/shared/constants/musical_constants.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/services/midi_connection_service.dart";
 import "package:piano_fitness/shared/utils/virtual_piano_utils.dart";
@@ -45,7 +46,7 @@ class ReferencePageViewModel extends ChangeNotifier {
   // Local reference highlighting state (separate from shared MIDI state)
   Set<int> _localHighlightedNotes = <int>{};
 
-  /// The currently selected reference mode (scales or chords).
+  /// The currently selected reference mode (scales or chords by key).
   ReferenceMode get selectedMode => _selectedMode;
 
   /// The currently selected musical key.
@@ -153,9 +154,9 @@ class ReferencePageViewModel extends ChangeNotifier {
     final midiNotes = <int>{};
 
     // Show the scale in only one octave for cleaner learning
-    // Use octave 4 (middle octave) for consistency
+    // Use base octave (middle octave) for consistency
     // Only include the 7 scale degrees (not the octave)
-    const startOctave = 4;
+    const startOctave = MusicalConstants.baseOctave;
     var currentOctave = startOctave;
 
     // The scale.getNotes() returns 8 notes (including octave),
@@ -188,7 +189,7 @@ class ReferencePageViewModel extends ChangeNotifier {
       rootNote: rootNote,
       chordType: _selectedChordType,
       inversion: _selectedChordInversion,
-      octave: 4, // Base octave for chord display
+      octave: MusicalConstants.baseOctave, // Base octave for chord display
     );
 
     return midiNotes.toSet();

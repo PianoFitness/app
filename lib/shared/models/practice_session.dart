@@ -1,6 +1,7 @@
 import "package:flutter/foundation.dart";
 import "package:logging/logging.dart";
 import "package:piano/piano.dart";
+import "package:piano_fitness/shared/constants/musical_constants.dart";
 import "package:piano_fitness/shared/models/chord_progression_type.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
@@ -23,7 +24,7 @@ class PracticeSession {
     required this.onExerciseCompleted,
     required this.onHighlightedNotesChanged,
   });
-  static const int DEFAULT_START_OCTAVE = 4;
+  static const int DEFAULT_START_OCTAVE = MusicalConstants.baseOctave;
 
   static final _log = Logger("PracticeSession");
 
