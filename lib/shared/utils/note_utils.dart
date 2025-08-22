@@ -1,4 +1,5 @@
 import "package:piano/piano.dart";
+import "package:piano_fitness/shared/constants/musical_constants.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as music;
 
 /// The twelve chromatic musical notes in Western music.
@@ -231,19 +232,19 @@ class NoteUtils {
     int noteOffset;
     switch (position.note) {
       case Note.C:
-        noteOffset = 0;
+        noteOffset = MusicalConstants.cOffset;
       case Note.D:
-        noteOffset = 2;
+        noteOffset = MusicalConstants.dOffset;
       case Note.E:
-        noteOffset = 4;
+        noteOffset = MusicalConstants.eOffset;
       case Note.F:
-        noteOffset = 5;
+        noteOffset = MusicalConstants.fOffset;
       case Note.G:
-        noteOffset = 7;
+        noteOffset = MusicalConstants.gOffset;
       case Note.A:
-        noteOffset = 9;
+        noteOffset = MusicalConstants.aOffset;
       case Note.B:
-        noteOffset = 11;
+        noteOffset = MusicalConstants.bOffset;
     }
 
     if (position.accidental == Accidental.Sharp) {
@@ -311,16 +312,16 @@ class NoteUtils {
     return _noteToString[noteInfo.note]!;
   }
 
-  /// Converts a musical Key to its corresponding MIDI note number in octave 4.
+  /// Converts a musical Key to its corresponding MIDI note number in the base octave.
   ///
   /// This is useful for chord progression calculations where you need the root
   /// note in a specific octave. The [key] parameter specifies which key to convert.
-  /// Returns the MIDI note number for that key in octave 4 (e.g., C4 = 60).
+  /// Returns the MIDI note number for that key in the base octave (e.g., C4 = 60).
   ///
   /// Example: `keyToMidiNumber(music.Key.c)` returns 60 (middle C).
   /// Example: `keyToMidiNumber(music.Key.fSharp)` returns 66 (F#4).
   static int keyToMidiNumber(music.Key key) {
-    // Map keys to MIDI note numbers (octave 4)
+    // Map keys to MIDI note numbers (base octave)
     const keyToMidi = {
       music.Key.c: 60,
       music.Key.cSharp: 61, // C#/Db

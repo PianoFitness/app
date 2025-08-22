@@ -1,5 +1,6 @@
 import "package:piano/piano.dart";
 
+import "package:piano_fitness/shared/constants/musical_constants.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 
 /// Utility class for calculating optimal piano keyboard ranges
@@ -31,15 +32,19 @@ class PianoRangeUtils {
   /// Octave conversion constants
 
   /// Number of semitones in one octave.
-  static const int semitonesPerOctave = 12;
+  static const int semitonesPerOctave = MusicalConstants.semitonesPerOctave;
 
   /// Number of semitones in two octaves.
-  static const int twoOctavesSemitones = 24; // 2 * semitonesPerOctave
+  static const int twoOctavesSemitones =
+      2 * MusicalConstants.semitonesPerOctave;
+
   /// Number of semitones in four octaves.
-  static const int fourOctavesSemitones = 48; // 4 * semitonesPerOctave
+  static const int fourOctavesSemitones =
+      4 * MusicalConstants.semitonesPerOctave;
 
   /// Buffer notes to add on each side of the highlighted range
-  static const int bufferSemitones = semitonesPerOctave; // One octave buffer
+  static const int bufferSemitones =
+      MusicalConstants.semitonesPerOctave; // One octave buffer
 
   /// Configuration for piano key width based on range size
   static const double defaultKeyWidth = 45;
@@ -409,7 +414,8 @@ class PianoRangeUtils {
 
     // Estimate based on typical chord progression ranges
     // Most chord progressions span 3-5 octaves
-    const double estimatedChordProgressionRange = 48; // 4 octaves in semitones
+    const double estimatedChordProgressionRange =
+        4.0 * MusicalConstants.semitonesPerOctave; // 4 octaves in semitones
 
     if (estimatedChordProgressionRange >= veryNarrowKeyThreshold) {
       return veryNarrowKeyWidth;

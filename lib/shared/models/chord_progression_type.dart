@@ -1,3 +1,4 @@
+import "package:piano_fitness/shared/constants/musical_constants.dart";
 import "package:piano_fitness/shared/utils/chords.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as music;
@@ -120,7 +121,9 @@ class IntervalBasedChordInfo implements ChordInfo {
   @override
   List<int> getMidiNotes(int octave) {
     // Adjust the pre-calculated MIDI notes to the desired octave
-    final octaveOffset = (octave - 4) * 12; // Our base is octave 4
+    final octaveOffset =
+        (octave - MusicalConstants.baseOctave) *
+        MusicalConstants.semitonesPerOctave; // Our base is the base octave
     return midiNotes.map((note) => note + octaveOffset).toList();
   }
 

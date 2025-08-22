@@ -91,6 +91,7 @@ class PracticeHubPage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
+              // First row of practice modes
               IntrinsicHeight(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -110,15 +111,42 @@ class PracticeHubPage extends StatelessWidget {
                     Expanded(
                       child: _buildPracticeModeCard(
                         context,
-                        title: "Chords",
+                        title: "Chords by Key",
                         icon: Icons.piano,
                         description: "Individual chord triads and inversions",
                         color: Colors.green,
-                        onTap: () =>
-                            _navigateToPractice(context, PracticeMode.chords),
+                        onTap: () => _navigateToPractice(
+                          context,
+                          PracticeMode.chordsByKey,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildPracticeModeCard(
+                        context,
+                        title: "Chords by Type",
+                        icon: Icons.library_music,
+                        description:
+                            "Major, minor, diminished, augmented chords",
+                        color: Colors.teal,
+                        onTap: () => _navigateToPractice(
+                          context,
+                          PracticeMode.chordsByType,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // Second row of practice modes
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
                     Expanded(
                       child: _buildPracticeModeCard(
                         context,
@@ -148,6 +176,8 @@ class PracticeHubPage extends StatelessWidget {
                         ),
                       ),
                     ),
+                    const SizedBox(width: 8),
+                    const Spacer(),
                   ],
                 ),
               ),

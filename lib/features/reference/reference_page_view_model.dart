@@ -1,5 +1,6 @@
 import "dart:async";
 import "package:flutter/foundation.dart";
+import "package:piano_fitness/shared/constants/musical_constants.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/services/midi_connection_service.dart";
 import "package:piano_fitness/shared/utils/virtual_piano_utils.dart";
@@ -14,7 +15,7 @@ enum ReferenceMode {
   scales,
 
   /// Display chords on the piano
-  chords,
+  chordsByKey,
 }
 
 /// ViewModel for managing reference page state and logic.
@@ -28,8 +29,7 @@ class ReferencePageViewModel extends ChangeNotifier {
   ReferencePageViewModel() {
     _localMidiState = MidiState();
     _initializeMidiConnection();
-    // Initialize with default selection (C Major scale)
-    _updateLocalHighlightedNotes();
+    _initializeState();
   }
 
   final MidiConnectionService _midiConnectionService = MidiConnectionService();
@@ -45,7 +45,7 @@ class ReferencePageViewModel extends ChangeNotifier {
   // Local reference highlighting state (separate from shared MIDI state)
   Set<int> _localHighlightedNotes = <int>{};
 
-  /// The currently selected reference mode (scales or chords).
+  /// The currently selected reference mode (scales or chords by key).
   ReferenceMode get selectedMode => _selectedMode;
 
   /// The currently selected musical key.
@@ -92,45 +92,35 @@ class ReferencePageViewModel extends ChangeNotifier {
   /// Sets the selected reference mode and updates the display.
   void setSelectedMode(ReferenceMode mode) {
     if (_selectedMode != mode) {
-      _selectedMode = mode;
-      _updateLocalHighlightedNotes();
-      notifyListeners();
+      _applyConfigChange(() => _selectedMode = mode);
     }
   }
 
   /// Sets the selected key and updates the display.
   void setSelectedKey(scales.Key key) {
     if (_selectedKey != key) {
-      _selectedKey = key;
-      _updateLocalHighlightedNotes();
-      notifyListeners();
+      _applyConfigChange(() => _selectedKey = key);
     }
   }
 
   /// Sets the selected scale type and updates the display.
   void setSelectedScaleType(scales.ScaleType type) {
     if (_selectedScaleType != type) {
-      _selectedScaleType = type;
-      _updateLocalHighlightedNotes();
-      notifyListeners();
+      _applyConfigChange(() => _selectedScaleType = type);
     }
   }
 
   /// Sets the selected chord type and updates the display.
   void setSelectedChordType(ChordType type) {
     if (_selectedChordType != type) {
-      _selectedChordType = type;
-      _updateLocalHighlightedNotes();
-      notifyListeners();
+      _applyConfigChange(() => _selectedChordType = type);
     }
   }
 
   /// Sets the selected chord inversion and updates the display.
   void setSelectedChordInversion(ChordInversion inversion) {
     if (_selectedChordInversion != inversion) {
-      _selectedChordInversion = inversion;
-      _updateLocalHighlightedNotes();
-      notifyListeners();
+      _applyConfigChange(() => _selectedChordInversion = inversion);
     }
   }
 
@@ -153,9 +143,9 @@ class ReferencePageViewModel extends ChangeNotifier {
     final midiNotes = <int>{};
 
     // Show the scale in only one octave for cleaner learning
-    // Use octave 4 (middle octave) for consistency
+    // Use base octave (middle octave) for consistency
     // Only include the 7 scale degrees (not the octave)
-    const startOctave = 4;
+    const startOctave = MusicalConstants.baseOctave;
     var currentOctave = startOctave;
 
     // The scale.getNotes() returns 8 notes (including octave),
@@ -188,7 +178,7 @@ class ReferencePageViewModel extends ChangeNotifier {
       rootNote: rootNote,
       chordType: _selectedChordType,
       inversion: _selectedChordInversion,
-      octave: 4, // Base octave for chord display
+      octave: MusicalConstants.baseOctave, // Base octave for chord display
     );
 
     return midiNotes.toSet();
@@ -197,6 +187,18 @@ class ReferencePageViewModel extends ChangeNotifier {
   /// Handles incoming MIDI data and updates state.
   void _handleMidiData(Uint8List data) {
     MidiConnectionService.handleStandardMidiData(data, _localMidiState);
+  }
+
+  /// Applies a config mutation, then resets/stops any ongoing operations and rebuilds the display.
+  void _applyConfigChange(void Function() update) {
+    update();
+    _updateLocalHighlightedNotes();
+    notifyListeners();
+  }
+
+  /// Initializes the state with default values through the centralized config flow.
+  void _initializeState() {
+    _updateLocalHighlightedNotes();
   }
 
   /// Updates the local highlighted notes based on current selections.

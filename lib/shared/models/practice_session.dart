@@ -1,6 +1,7 @@
 import "package:flutter/foundation.dart";
 import "package:logging/logging.dart";
 import "package:piano/piano.dart";
+import "package:piano_fitness/shared/constants/musical_constants.dart";
 import "package:piano_fitness/shared/models/chord_progression_type.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
@@ -23,8 +24,15 @@ class PracticeSession {
     required this.onExerciseCompleted,
     required this.onHighlightedNotesChanged,
   });
+  static const int DEFAULT_START_OCTAVE = MusicalConstants.baseOctave;
 
   static final _log = Logger("PracticeSession");
+
+  /// Helper getter to check if current practice mode is any chord-based mode.
+  bool get _isChordMode =>
+      _practiceMode == PracticeMode.chordsByKey ||
+      _practiceMode == PracticeMode.chordsByType ||
+      _practiceMode == PracticeMode.chordProgressions;
 
   /// Callback fired when a practice exercise is completed successfully.
   final VoidCallback onExerciseCompleted;
@@ -47,6 +55,11 @@ class PracticeSession {
   // Chord progression-specific state
   ChordProgression? _selectedChordProgression;
 
+  // Chord type-specific state
+  ChordType _selectedChordType = ChordType.major;
+  bool _includeInversions = true;
+  ChordByType? _selectedChordByType;
+
   List<int> _currentSequence = [];
   int _currentNoteIndex = 0;
   bool _practiceActive = false;
@@ -55,7 +68,7 @@ class PracticeSession {
   int _currentChordIndex = 0;
   final Set<int> _currentlyHeldChordNotes = {};
 
-  /// The currently selected practice mode (scales, chords, or arpeggios).
+  /// The currently selected practice mode (scales, chords by key, chords by type, arpeggios, or chord progressions).
   PracticeMode get practiceMode => _practiceMode;
 
   /// The currently selected musical key for scale and chord exercises.
@@ -75,6 +88,15 @@ class PracticeSession {
 
   /// The currently selected chord progression type for chord progression exercises.
   ChordProgression? get selectedChordProgression => _selectedChordProgression;
+
+  /// The currently selected chord type for chord type exercises.
+  ChordType get selectedChordType => _selectedChordType;
+
+  /// Whether to include inversions in chord type exercises.
+  bool get includeInversions => _includeInversions;
+
+  /// The currently selected chord by type exercise.
+  ChordByType? get selectedChordByType => _selectedChordByType;
 
   /// The current sequence of MIDI note numbers for the active exercise.
   List<int> get currentSequence => _currentSequence;
@@ -96,9 +118,7 @@ class PracticeSession {
   /// Automatically stops any active practice session and generates
   /// a new exercise sequence based on the selected mode.
   void setPracticeMode(PracticeMode mode) {
-    _practiceMode = mode;
-    _practiceActive = false;
-    _initializeSequence();
+    _applyConfigChange(() => _practiceMode = mode);
   }
 
   /// Sets the musical key for scale and chord exercises.
@@ -106,9 +126,7 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the exercise sequence in the new key.
   void setSelectedKey(music.Key key) {
-    _selectedKey = key;
-    _practiceActive = false;
-    _initializeSequence();
+    _applyConfigChange(() => _selectedKey = key);
   }
 
   /// Sets the scale type for scale exercises.
@@ -116,9 +134,7 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the scale sequence with the new type (major, minor, modal, etc.).
   void setSelectedScaleType(music.ScaleType type) {
-    _selectedScaleType = type;
-    _practiceActive = false;
-    _initializeSequence();
+    _applyConfigChange(() => _selectedScaleType = type);
   }
 
   /// Sets the root note for arpeggio exercises.
@@ -126,9 +142,7 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the arpeggio sequence starting from the new root note.
   void setSelectedRootNote(MusicalNote rootNote) {
-    _selectedRootNote = rootNote;
-    _practiceActive = false;
-    _initializeSequence();
+    _applyConfigChange(() => _selectedRootNote = rootNote);
   }
 
   /// Sets the arpeggio type (major, minor, diminished, etc.).
@@ -136,9 +150,7 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the arpeggio sequence with the new chord quality.
   void setSelectedArpeggioType(ArpeggioType type) {
-    _selectedArpeggioType = type;
-    _practiceActive = false;
-    _initializeSequence();
+    _applyConfigChange(() => _selectedArpeggioType = type);
   }
 
   /// Sets the octave range for arpeggio exercises.
@@ -146,9 +158,7 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the arpeggio sequence to span the specified number of octaves.
   void setSelectedArpeggioOctaves(ArpeggioOctaves octaves) {
-    _selectedArpeggioOctaves = octaves;
-    _practiceActive = false;
-    _initializeSequence();
+    _applyConfigChange(() => _selectedArpeggioOctaves = octaves);
   }
 
   /// Sets the chord progression type for chord progression exercises.
@@ -156,8 +166,29 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the chord progression sequence with the new progression type.
   void setSelectedChordProgression(ChordProgression progression) {
-    _selectedChordProgression = progression;
+    _applyConfigChange(() => _selectedChordProgression = progression);
+  }
+
+  /// Sets the chord type for chord type exercises.
+  ///
+  /// Automatically stops any active practice session and regenerates
+  /// the chord type sequence with the new type.
+  void setSelectedChordType(ChordType type) {
+    _applyConfigChange(() => _selectedChordType = type);
+  }
+
+  /// Sets whether to include inversions in chord type exercises.
+  ///
+  /// Automatically stops any active practice session and regenerates
+  /// the chord sequence with the new inversion setting.
+  void setIncludeInversions(bool includeInversions) {
+    _applyConfigChange(() => _includeInversions = includeInversions);
+  }
+
+  /// Applies a config mutation, then resets practice state and rebuilds the sequence.
+  void _applyConfigChange(void Function() update) {
     _practiceActive = false;
+    update();
     _initializeSequence();
   }
 
@@ -167,10 +198,10 @@ class PracticeSession {
         _selectedKey,
         _selectedScaleType,
       );
-      _currentSequence = scale.getFullScaleSequence(4);
+      _currentSequence = scale.getFullScaleSequence(DEFAULT_START_OCTAVE);
       _currentNoteIndex = 0;
       _updateHighlightedNotes();
-    } else if (_practiceMode == PracticeMode.chords) {
+    } else if (_practiceMode == PracticeMode.chordsByKey) {
       _currentChordProgression = ChordDefinitions.getSmoothKeyTriadProgression(
         _selectedKey,
         _selectedScaleType,
@@ -178,7 +209,7 @@ class PracticeSession {
       _currentSequence = ChordDefinitions.getSmoothChordProgressionMidiSequence(
         _selectedKey,
         _selectedScaleType,
-        4,
+        DEFAULT_START_OCTAVE,
       );
       _currentNoteIndex = 0;
       _currentChordIndex = 0;
@@ -190,8 +221,24 @@ class PracticeSession {
         _selectedArpeggioType,
         _selectedArpeggioOctaves,
       );
-      _currentSequence = arpeggio.getFullArpeggioSequence(4);
+      _currentSequence = arpeggio.getFullArpeggioSequence(DEFAULT_START_OCTAVE);
       _currentNoteIndex = 0;
+      _updateHighlightedNotes();
+    } else if (_practiceMode == PracticeMode.chordsByType) {
+      // Generate chord type exercise - always use all 12 keys for chord planing
+      final exercise = ChordByTypeDefinitions.getChordTypeExercise(
+        _selectedChordType,
+        includeInversions: _includeInversions,
+      );
+      _selectedChordByType = exercise;
+      _currentChordProgression = exercise.generateChordSequence();
+      _currentSequence = exercise.getMidiSequenceFrom(
+        _currentChordProgression,
+        DEFAULT_START_OCTAVE,
+      );
+      _currentNoteIndex = 0;
+      _currentChordIndex = 0;
+      _currentlyHeldChordNotes.clear();
       _updateHighlightedNotes();
     } else if (_practiceMode == PracticeMode.chordProgressions) {
       // For chord progressions, generate based on the selected progression
@@ -201,7 +248,7 @@ class PracticeSession {
         );
         _currentSequence = _generateChordProgressionMidiSequence(
           _currentChordProgression,
-          4,
+          DEFAULT_START_OCTAVE,
         );
       } else {
         // Default to I-V if no progression selected
@@ -215,7 +262,7 @@ class PracticeSession {
           );
           _currentSequence = _generateChordProgressionMidiSequence(
             _currentChordProgression,
-            4,
+            DEFAULT_START_OCTAVE,
           );
         }
       }
@@ -242,11 +289,10 @@ class PracticeSession {
         noteInfo.octave,
       );
       onHighlightedNotesChanged([notePosition]);
-    } else if (_practiceMode == PracticeMode.chords ||
-        _practiceMode == PracticeMode.chordProgressions) {
+    } else if (_isChordMode) {
       if (_currentChordIndex < _currentChordProgression.length) {
         final currentChord = _currentChordProgression[_currentChordIndex];
-        final chordMidiNotes = currentChord.getMidiNotes(4);
+        final chordMidiNotes = currentChord.getMidiNotes(DEFAULT_START_OCTAVE);
         final highlightedPositions = <NotePosition>[];
 
         _log.fine(
@@ -291,11 +337,12 @@ class PracticeSession {
           _updateHighlightedNotes();
         }
       }
-    } else if (_practiceMode == PracticeMode.chords ||
-        _practiceMode == PracticeMode.chordProgressions) {
+    } else if (_isChordMode) {
       if (_currentChordIndex < _currentChordProgression.length) {
         final currentChord = _currentChordProgression[_currentChordIndex];
-        final expectedChordNotes = currentChord.getMidiNotes(4);
+        final expectedChordNotes = currentChord.getMidiNotes(
+          DEFAULT_START_OCTAVE,
+        );
 
         if (expectedChordNotes.contains(midiNote)) {
           _currentlyHeldChordNotes.add(midiNote);
@@ -313,9 +360,7 @@ class PracticeSession {
   ///
   /// The [midiNote] parameter should be the MIDI note number (0-127).
   void handleNoteReleased(int midiNote) {
-    if ((_practiceMode == PracticeMode.chords ||
-            _practiceMode == PracticeMode.chordProgressions) &&
-        _practiceActive) {
+    if (_isChordMode && _practiceActive) {
       _currentlyHeldChordNotes.remove(midiNote);
     }
   }
@@ -323,9 +368,12 @@ class PracticeSession {
   void _checkChordCompletion() {
     if (_currentChordIndex < _currentChordProgression.length) {
       final currentChord = _currentChordProgression[_currentChordIndex];
-      final expectedChordNotes = currentChord.getMidiNotes(4).toSet();
+      final expectedChordNotes = currentChord
+          .getMidiNotes(DEFAULT_START_OCTAVE)
+          .toSet();
 
-      if (_currentlyHeldChordNotes.containsAll(expectedChordNotes)) {
+      // Require exactly the expected notes to be held (no extras)
+      if (setEquals(_currentlyHeldChordNotes, expectedChordNotes)) {
         _currentChordIndex++;
         _currentlyHeldChordNotes.clear();
 

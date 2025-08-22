@@ -51,7 +51,7 @@ void main() {
       // Should now be on reference page
       expect(find.text("Reference Mode"), findsOneWidget);
       expect(find.text("Scales"), findsOneWidget);
-      expect(find.text("Chords"), findsOneWidget);
+      expect(find.text("Chords by Key"), findsOneWidget);
     });
 
     testWidgets("should maintain reference page state when switching tabs", (
@@ -65,7 +65,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Change to chords mode
-      await tester.tap(find.text("Chords"));
+      await tester.tap(find.text("Chords by Key"));
       await tester.pumpAndSettle();
 
       // Select F# key
@@ -128,7 +128,7 @@ void main() {
 
       // Rapidly switch between modes
       for (int i = 0; i < 5; i++) {
-        await tester.tap(find.text("Chords"));
+        await tester.tap(find.text("Chords by Key"));
         await tester.pump(const Duration(milliseconds: 100));
 
         await tester.tap(find.text("Scales"));
@@ -184,7 +184,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Switch to chords mode
-      await tester.tap(find.text("Chords"));
+      await tester.tap(find.text("Chords by Key"));
       await tester.pumpAndSettle();
 
       // Test a few key combinations
@@ -296,8 +296,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Switch to chords mode
-      expect(find.text("Chords"), findsOneWidget);
-      await tester.tap(find.text("Chords"));
+      expect(find.text("Chords by Key"), findsOneWidget);
+      await tester.tap(find.text("Chords by Key"));
       await tester.pumpAndSettle();
 
       final stopwatch = Stopwatch()..start();
