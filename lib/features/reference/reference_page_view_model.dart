@@ -91,27 +91,37 @@ class ReferencePageViewModel extends ChangeNotifier {
 
   /// Sets the selected reference mode and updates the display.
   void setSelectedMode(ReferenceMode mode) {
-    _applyConfigChange(() => _selectedMode = mode);
+    if (_selectedMode != mode) {
+      _applyConfigChange(() => _selectedMode = mode);
+    }
   }
 
   /// Sets the selected key and updates the display.
   void setSelectedKey(scales.Key key) {
-    _applyConfigChange(() => _selectedKey = key);
+    if (_selectedKey != key) {
+      _applyConfigChange(() => _selectedKey = key);
+    }
   }
 
   /// Sets the selected scale type and updates the display.
   void setSelectedScaleType(scales.ScaleType type) {
-    _applyConfigChange(() => _selectedScaleType = type);
+    if (_selectedScaleType != type) {
+      _applyConfigChange(() => _selectedScaleType = type);
+    }
   }
 
   /// Sets the selected chord type and updates the display.
   void setSelectedChordType(ChordType type) {
-    _applyConfigChange(() => _selectedChordType = type);
+    if (_selectedChordType != type) {
+      _applyConfigChange(() => _selectedChordType = type);
+    }
   }
 
   /// Sets the selected chord inversion and updates the display.
   void setSelectedChordInversion(ChordInversion inversion) {
-    _applyConfigChange(() => _selectedChordInversion = inversion);
+    if (_selectedChordInversion != inversion) {
+      _applyConfigChange(() => _selectedChordInversion = inversion);
+    }
   }
 
   /// Returns the MIDI note numbers that should be highlighted on the piano.
