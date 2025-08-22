@@ -29,8 +29,7 @@ class ReferencePageViewModel extends ChangeNotifier {
   ReferencePageViewModel() {
     _localMidiState = MidiState();
     _initializeMidiConnection();
-    // Initialize with default selection (C Major scale)
-    _updateLocalHighlightedNotes();
+    _initializeState();
   }
 
   final MidiConnectionService _midiConnectionService = MidiConnectionService();
@@ -92,47 +91,27 @@ class ReferencePageViewModel extends ChangeNotifier {
 
   /// Sets the selected reference mode and updates the display.
   void setSelectedMode(ReferenceMode mode) {
-    if (_selectedMode != mode) {
-      _selectedMode = mode;
-      _updateLocalHighlightedNotes();
-      notifyListeners();
-    }
+    _applyConfigChange(() => _selectedMode = mode);
   }
 
   /// Sets the selected key and updates the display.
   void setSelectedKey(scales.Key key) {
-    if (_selectedKey != key) {
-      _selectedKey = key;
-      _updateLocalHighlightedNotes();
-      notifyListeners();
-    }
+    _applyConfigChange(() => _selectedKey = key);
   }
 
   /// Sets the selected scale type and updates the display.
   void setSelectedScaleType(scales.ScaleType type) {
-    if (_selectedScaleType != type) {
-      _selectedScaleType = type;
-      _updateLocalHighlightedNotes();
-      notifyListeners();
-    }
+    _applyConfigChange(() => _selectedScaleType = type);
   }
 
   /// Sets the selected chord type and updates the display.
   void setSelectedChordType(ChordType type) {
-    if (_selectedChordType != type) {
-      _selectedChordType = type;
-      _updateLocalHighlightedNotes();
-      notifyListeners();
-    }
+    _applyConfigChange(() => _selectedChordType = type);
   }
 
   /// Sets the selected chord inversion and updates the display.
   void setSelectedChordInversion(ChordInversion inversion) {
-    if (_selectedChordInversion != inversion) {
-      _selectedChordInversion = inversion;
-      _updateLocalHighlightedNotes();
-      notifyListeners();
-    }
+    _applyConfigChange(() => _selectedChordInversion = inversion);
   }
 
   /// Returns the MIDI note numbers that should be highlighted on the piano.
@@ -198,6 +177,18 @@ class ReferencePageViewModel extends ChangeNotifier {
   /// Handles incoming MIDI data and updates state.
   void _handleMidiData(Uint8List data) {
     MidiConnectionService.handleStandardMidiData(data, _localMidiState);
+  }
+
+  /// Applies a config mutation, then resets/stops any ongoing operations and rebuilds the display.
+  void _applyConfigChange(void Function() update) {
+    update();
+    _updateLocalHighlightedNotes();
+    notifyListeners();
+  }
+
+  /// Initializes the state with default values through the centralized config flow.
+  void _initializeState() {
+    _updateLocalHighlightedNotes();
   }
 
   /// Updates the local highlighted notes based on current selections.
