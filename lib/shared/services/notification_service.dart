@@ -180,7 +180,10 @@ class NotificationService {
     String? payload,
   }) async {
     if (!_isInitialized) {
-      throw StateError("NotificationService must be initialized first");
+      _log.warning(
+        "NotificationService not initialized, cannot show instant notification",
+      );
+      return;
     }
 
     try {
@@ -222,7 +225,10 @@ class NotificationService {
     String? payload,
   }) async {
     if (!_isInitialized) {
-      throw StateError("NotificationService must be initialized first");
+      _log.warning(
+        "NotificationService not initialized, cannot schedule notification",
+      );
+      return;
     }
 
     if (scheduledTime.isBefore(DateTime.now())) {
@@ -279,7 +285,10 @@ class NotificationService {
     String? payload,
   }) async {
     if (!_isInitialized) {
-      throw StateError("NotificationService must be initialized first");
+      _log.warning(
+        "NotificationService not initialized, cannot schedule daily notification",
+      );
+      return;
     }
 
     try {
