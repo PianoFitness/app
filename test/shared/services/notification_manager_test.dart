@@ -504,7 +504,10 @@ void main() {
         tester,
       ) async {
         final scheduledTime = DateTime.now().add(const Duration(hours: 1));
-        final longString = "A" * 1000; // 1000 character string
+        final longString = List.filled(
+          1000,
+          "A",
+        ).join(); // 1000 character string
 
         await NotificationManager.saveScheduledNotification(
           999,
