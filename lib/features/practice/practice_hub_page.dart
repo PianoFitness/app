@@ -216,9 +216,13 @@ class PracticeHubPage extends StatelessWidget {
     required Color color,
     required VoidCallback onTap,
   }) {
+    // Create a key based on the title for test reliability
+    final keyName = title.toLowerCase().replaceAll(" ", "_");
+
     return Card(
       elevation: 2,
       child: InkWell(
+        key: Key("practice_mode_$keyName"),
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
         child: Padding(
@@ -259,9 +263,13 @@ class PracticeHubPage extends StatelessWidget {
     required IconData icon,
     required VoidCallback onTap,
   }) {
+    // Create a key based on the title for test reliability
+    final keyName = title.toLowerCase().replaceAll(" ", "_");
+
     return Card(
       elevation: 1,
       child: ListTile(
+        key: Key("quick_start_$keyName"),
         leading: Icon(icon, color: Colors.deepPurple, size: 28),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
         subtitle: Text(subtitle),
