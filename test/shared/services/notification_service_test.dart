@@ -74,7 +74,7 @@ void main() {
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     pluginSpy = NotificationPluginSpy();
-    NotificationService.setPluginForTesting(pluginSpy as dynamic);
+    NotificationService.setPluginForTesting(pluginSpy);
   });
 
   tearDown(() async {
@@ -157,13 +157,8 @@ void main() {
       await NotificationService.cancelNotification(1);
       await NotificationService.cancelAllNotifications();
 
-      // Only sync method should have been called during setup
-      expect(
-        pluginSpy.methodCalls
-            .where((call) => call != "pendingNotificationRequests")
-            .isEmpty,
-        true,
-      );
+      // No plugin methods should have been called
+      expect(pluginSpy.methodCalls.isEmpty, true);
     },
   );
 
@@ -214,6 +209,37 @@ void main() {
 
         expect(notification["isRecurring"], true);
         expect(notification["title"], "Daily Reminder");
+      },
+    );
+
+    test(
+      "scheduleDailyNotification schedules plugin and persists recurring metadata",
+      () async {
+        await NotificationService.initialize();
+        final now = DateTime.now();
+        final todayAtNextMinute = DateTime(
+          now.year,
+          now.month,
+          now.day,
+          now.hour,
+          (now.minute + 1) % 60,
+        );
+
+        await NotificationService.scheduleDailyNotification(
+          title: "Daily Reminder",
+          body: "Practice time!",
+          time: todayAtNextMinute,
+        );
+
+        expect(
+          pluginSpy.methodCalls,
+          contains("zonedSchedule(1001, Daily Reminder)"),
+        );
+
+        final stored = await NotificationManager.getScheduledNotifications();
+        final rec =
+            stored[NotificationService.dailyReminderNotificationId.toString()]!;
+        expect(rec["isRecurring"], true);
       },
     );
   });
