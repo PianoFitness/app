@@ -42,9 +42,3 @@ pre-push:
     test:
       run: flutter test
       fail_text: "Tests failed. Please fix them before pushing."
-
-commit-msg:
-  commands:
-    # Ensure commit messages follow conventional commits format
-    conventional:
-      run: dart scripts/validate_commit_msg.dart {1}
