@@ -394,9 +394,7 @@ class NotificationService {
 
       // Get actually pending notifications from plugin
       final pendingRequests = await _plugin.pendingNotificationRequests();
-      final pendingIds = pendingRequests
-          .map((req) => req.id.toString())
-          .toSet();
+      final pendingIds = pendingRequests.map((req) => req.id).toSet();
 
       _log.info(
         "Found ${storedNotifications.length} stored notifications, ${pendingRequests.length} pending",
@@ -406,10 +404,11 @@ class NotificationService {
       final staleNotifications = <String>[];
 
       for (final entry in storedNotifications.entries) {
-        final storedId = entry.key;
+        final storedIdStr = entry.key;
         final storedData = entry.value as Map<String, dynamic>;
+        final storedId = int.tryParse(storedIdStr);
 
-        if (!pendingIds.contains(storedId)) {
+        if (storedId == null || !pendingIds.contains(storedId)) {
           // Check if this notification is in the past
           final scheduledTime = DateTime.parse(
             storedData["scheduledTime"] as String,
@@ -418,7 +417,7 @@ class NotificationService {
           if (scheduledTime.isBefore(DateTime.now()) &&
               !(storedData["isRecurring"] as bool? ?? false)) {
             // Non-recurring notification that already fired - remove from storage
-            staleNotifications.add(storedId);
+            staleNotifications.add(storedIdStr);
             _log.info(
               "Removing completed notification from storage: $storedId",
             );
