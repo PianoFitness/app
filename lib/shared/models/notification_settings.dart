@@ -51,6 +51,7 @@ class NotificationSettings {
   NotificationSettings clearDailyReminderTime() {
     return NotificationSettings(
       practiceRemindersEnabled: practiceRemindersEnabled,
+      // The argument dailyReminderTime: null, in the constructor is not redundant—it's necessary to explicitly clear the daily reminder time.
       // ignore: avoid_redundant_argument_values
       dailyReminderTime: null,
       timerCompletionEnabled: timerCompletionEnabled,
