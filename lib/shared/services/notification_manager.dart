@@ -94,6 +94,10 @@ class NotificationManager {
       final prefs = await SharedPreferences.getInstance();
       final scheduledNotifications = await _loadScheduledNotifications();
 
+      if (scheduledNotifications.containsKey(id.toString())) {
+        _log.warning("Overwriting existing scheduled notification with ID $id");
+      }
+
       scheduledNotifications[id.toString()] = {
         "id": id,
         "title": title,
