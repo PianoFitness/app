@@ -179,7 +179,33 @@ class NotificationManager {
 
   /// Converts JSON format back to TimeOfDay.
   static TimeOfDay _timeFromJson(Map<String, dynamic> json) {
-    return TimeOfDay(hour: json["hour"] as int, minute: json["minute"] as int);
+    final parsed = _validateAndParseTimeJson(json);
+    return TimeOfDay(hour: parsed[0], minute: parsed[1]);
+  }
+
+  /// Validates and parses a JSON map to [hour, minute].
+  /// Throws FormatException if input is missing or invalid.
+  static List<int> _validateAndParseTimeJson(Map<String, dynamic> json) {
+    final hourRaw = json["hour"];
+    final minuteRaw = json["minute"];
+    final hour = hourRaw is int
+        ? hourRaw
+        : int.tryParse(hourRaw?.toString() ?? "");
+    final minute = minuteRaw is int
+        ? minuteRaw
+        : int.tryParse(minuteRaw?.toString() ?? "");
+    if (hour == null || minute == null) {
+      throw FormatException(
+        "Missing or non-integer 'hour' or 'minute' in JSON: $json",
+      );
+    }
+    if (hour < 0 || hour > 23) {
+      throw FormatException("Hour value out of range (0..23): $hour");
+    }
+    if (minute < 0 || minute > 59) {
+      throw FormatException("Minute value out of range (0..59): $minute");
+    }
+    return [hour, minute];
   }
 
   /// Clears all stored notification data.
