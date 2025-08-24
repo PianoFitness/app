@@ -135,6 +135,7 @@ class NotificationsPageViewModel extends ChangeNotifier {
       _log.severe("Failed to set practice reminders enabled: $e");
       _errorMessage = "Failed to update practice reminder settings";
       notifyListeners();
+      rethrow;
     }
   }
 
