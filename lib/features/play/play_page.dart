@@ -70,6 +70,7 @@ class _PlayPageState extends State<PlayPage> {
                           const SizedBox(height: 12),
                           const Text(
                             "Free Play Mode",
+                            key: Key("playPageTitle"),
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,

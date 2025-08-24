@@ -33,7 +33,7 @@ void main() {
 
       // Verify PlayPage is rendered
       expect(find.byType(PlayPage), findsOneWidget);
-      expect(find.text("Free Play Mode"), findsOneWidget);
+      expect(find.byKey(const Key("playPageTitle")), findsOneWidget);
       expect(
         find.byIcon(Icons.piano),
         findsWidgets,
@@ -53,7 +53,7 @@ void main() {
 
       // Verify the page renders correctly (MIDI channel is internal to ViewModel now)
       expect(find.byType(PlayPage), findsOneWidget);
-      expect(find.text("Free Play Mode"), findsOneWidget);
+      expect(find.byKey(const Key("playPageTitle")), findsOneWidget);
     });
 
     testWidgets("should display educational content for free play", (
