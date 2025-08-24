@@ -251,12 +251,11 @@ void main() {
 
         // Simulate timer completion - should not throw despite the error
         await expectLater(
-          () async =>
-              await testViewModel.simulateTimerCompletionWithNotification(
-                timerCompletionEnabled: true,
-                permissionGranted: true,
-              ),
-          returnsNormally,
+          testViewModel.simulateTimerCompletionWithNotification(
+            timerCompletionEnabled: true,
+            permissionGranted: true,
+          ),
+          completes,
         );
 
         // Reset error state
