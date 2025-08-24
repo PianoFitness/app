@@ -12,8 +12,6 @@ import "package:timezone/timezone.dart" as tz;
 /// on supported platforms (macOS, iOS, limited web support).
 class NotificationService {
   NotificationService._internal();
-  static final NotificationService _instance = NotificationService._internal();
-  static NotificationService get instance => _instance;
 
   static final _log = Logger("NotificationService");
   static dynamic _plugin = FlutterLocalNotificationsPlugin();
@@ -215,6 +213,7 @@ class NotificationService {
     required String title,
     required String body,
     String? payload,
+    int? id,
   }) async {
     if (!_isInitialized) {
       _log.warning(
@@ -237,7 +236,7 @@ class NotificationService {
       );
 
       await _plugin.show(
-        timerCompletionNotificationId,
+        id ?? DateTime.now().millisecondsSinceEpoch.remainder(0x7FFFFFFF),
         title,
         body,
         platformChannelSpecifics,
@@ -459,9 +458,16 @@ class NotificationService {
 
         if (storedId == null || !pendingIds.contains(storedId)) {
           // Check if this notification is in the past
-          final scheduledTime = DateTime.parse(
-            storedData["scheduledTime"] as String,
-          );
+          DateTime? scheduledTime;
+          try {
+            scheduledTime = DateTime.parse(
+              storedData["scheduledTime"] as String,
+            );
+          } catch (e) {
+            _log.warning("Invalid scheduledTime for id=$storedIdStr: $e");
+            staleNotifications.add(storedIdStr);
+            continue;
+          }
 
           final isRecurring = storedData["isRecurring"] as bool? ?? false;
           if (scheduledTime.isBefore(DateTime.now()) && !isRecurring) {
