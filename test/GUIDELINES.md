@@ -45,9 +45,13 @@ test/
 
 1. **Robustness**: Tests won't break when UI text changes
 2. **Precision**: Exact targeting of specific UI elements  
-3. **Accessibility**: Keys provide semantic meaning for screen readers
+3. **Internationalization**: Keys decouple UI text from tests and support localized strings
 4. **Performance**: Key-based finders are more efficient than text searches
 5. **Maintainability**: Clear intent in test code about what element is being tested
+
+---
+
+**Note:** Keys are used for widget identity and testing—they do not affect assistive technologies or screen readers. For accessibility concerns, use the [Semantics API](https://api.flutter.dev/flutter/widgets/Semantics-class.html) and refer to Flutter's accessibility documentation.
 
 ### Key Naming Conventions
 
