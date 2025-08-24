@@ -426,6 +426,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
     final granted = await _requestPermissions(context, viewModel);
     if (granted) {
       onPermissionGranted();
+    } else if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Notification permission is required for this feature"),
+          duration: Duration(seconds: 2),
+        ),
+      );
     }
   }
 
