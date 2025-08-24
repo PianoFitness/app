@@ -38,7 +38,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Initially should be on play page
-      expect(find.text("Free Play"), findsWidgets);
+      expect(find.text("Free Play Mode"), findsOneWidget);
 
       // Verify we have the Reference navigation item in the bottom navigation
       expect(find.text("Reference"), findsWidgets);
@@ -115,7 +115,7 @@ void main() {
       expect(midiState.activeNotes.isEmpty, isTrue);
 
       // Switch to play page
-      await tester.tap(find.text("Free Play"));
+      await tester.tap(find.text("Free Play Mode"));
       await tester.pumpAndSettle();
 
       // The MIDI state should still be clean (no interference from reference page)
@@ -230,7 +230,7 @@ void main() {
         await tester.tap(find.text("Practice"));
         await tester.pump(const Duration(milliseconds: 100));
 
-        await tester.tap(find.text("Free Play"));
+        await tester.tap(find.text("Free Play Mode"));
         await tester.pump(const Duration(milliseconds: 100));
       }
 
