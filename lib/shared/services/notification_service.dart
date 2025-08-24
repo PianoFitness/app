@@ -1,5 +1,4 @@
 import "dart:io";
-import "package:flutter/foundation.dart";
 import "package:flutter_local_notifications/flutter_local_notifications.dart";
 import "package:logging/logging.dart";
 import "package:piano_fitness/shared/services/notification_manager.dart";
@@ -16,8 +15,13 @@ class NotificationService {
   static NotificationService get instance => _instance;
 
   static final _log = Logger("NotificationService");
-  static final FlutterLocalNotificationsPlugin _plugin =
-      FlutterLocalNotificationsPlugin();
+  static dynamic _plugin = FlutterLocalNotificationsPlugin();
+
+  /// Sets a custom plugin instance (for testing only)
+  static void setPluginForTesting(dynamic plugin) {
+    _plugin = plugin;
+    _isInitialized = false;
+  }
 
   static bool _isInitialized = false;
 
@@ -98,30 +102,23 @@ class NotificationService {
         return false;
       }
     }
-
     try {
-      if (kIsWeb) {
-        _log.info("Web platform detected - permissions handled by browser");
-        return true;
-      }
-
+      // Only check for iOS/macOS permissions, otherwise assume granted
       if (Platform.isIOS || Platform.isMacOS) {
         _log.info("Requesting iOS/macOS notification permissions");
-        final IOSFlutterLocalNotificationsPlugin? iosImplementation = _plugin
-            .resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin
-            >();
-
+        final IOSFlutterLocalNotificationsPlugin? iosImplementation =
+            (_plugin as FlutterLocalNotificationsPlugin?)
+                ?.resolvePlatformSpecificImplementation<
+                  IOSFlutterLocalNotificationsPlugin
+                >();
         final bool? granted = await iosImplementation?.requestPermissions(
           alert: true,
           badge: true,
           sound: true,
         );
-
         _log.info("Permission request result: $granted");
         return granted ?? false;
       }
-
       // Other platforms (Android, etc.) - assume granted
       return true;
     } catch (e) {
@@ -144,25 +141,19 @@ class NotificationService {
         return false;
       }
     }
-
     try {
-      if (kIsWeb) {
-        return true; // Web permissions are handled differently
-      }
-
+      // Only check for iOS/macOS permissions, otherwise assume granted
       if (Platform.isIOS || Platform.isMacOS) {
-        final IOSFlutterLocalNotificationsPlugin? iosImplementation = _plugin
-            .resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin
-            >();
-
+        final IOSFlutterLocalNotificationsPlugin? iosImplementation =
+            (_plugin as FlutterLocalNotificationsPlugin?)
+                ?.resolvePlatformSpecificImplementation<
+                  IOSFlutterLocalNotificationsPlugin
+                >();
         final bool? enabled = await iosImplementation?.checkPermissions().then(
           (settings) => settings?.isEnabled,
         );
-
         return enabled ?? false;
       }
-
       return true; // Assume granted on other platforms
     } catch (e) {
       _log.warning("Failed to check permissions: $e");
@@ -402,8 +393,11 @@ class NotificationService {
           await NotificationManager.getScheduledNotifications();
 
       // Get actually pending notifications from plugin
-      final pendingRequests = await _plugin.pendingNotificationRequests();
-      final pendingIds = pendingRequests.map((req) => req.id).toSet();
+      final pendingRequests = await (_plugin as FlutterLocalNotificationsPlugin)
+          .pendingNotificationRequests();
+      final pendingIds = pendingRequests
+          .map((PendingNotificationRequest req) => req.id)
+          .toSet();
 
       _log.info(
         "Found ${storedNotifications.length} stored notifications, ${pendingRequests.length} pending",
@@ -423,8 +417,8 @@ class NotificationService {
             storedData["scheduledTime"] as String,
           );
 
-          if (scheduledTime.isBefore(DateTime.now()) &&
-              !(storedData["isRecurring"] as bool? ?? false)) {
+          final isRecurring = storedData["isRecurring"] as bool? ?? false;
+          if (scheduledTime.isBefore(DateTime.now()) && !isRecurring) {
             // Non-recurring notification that already fired - remove from storage
             staleNotifications.add(storedIdStr);
             _log.info(
@@ -491,4 +485,7 @@ class NotificationService {
       _log.warning("Failed to reschedule notification: $e");
     }
   }
+
+  /// Returns whether the service is initialized (for testing only).
+  static bool get isInitialized => _isInitialized;
 }
