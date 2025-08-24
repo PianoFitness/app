@@ -77,15 +77,22 @@ class _ReferencePageState extends State<ReferencePage> {
                             listenable: _viewModel,
                             builder: (context, child) {
                               return SegmentedButton<ReferenceMode>(
+                                key: const Key("reference_mode_selector"),
                                 segments: const [
                                   ButtonSegment<ReferenceMode>(
                                     value: ReferenceMode.scales,
-                                    label: Text("Scales"),
+                                    label: Text(
+                                      "Scales",
+                                      key: Key("scales_mode_button"),
+                                    ),
                                     icon: Icon(Icons.keyboard_arrow_up),
                                   ),
                                   ButtonSegment<ReferenceMode>(
                                     value: ReferenceMode.chordTypes,
-                                    label: Text("Chord Types"),
+                                    label: Text(
+                                      "Chord Types",
+                                      key: Key("chord_types_mode_button"),
+                                    ),
                                     icon: Icon(Icons.piano),
                                   ),
                                 ],
@@ -138,6 +145,7 @@ class _ReferencePageState extends State<ReferencePage> {
                         .toList();
 
                     return InteractivePiano(
+                      key: const Key("reference_piano"),
                       highlightedNotes: localHighlightedPositions,
                       keyWidth: dynamicKeyWidth.clamp(
                         PianoRangeUtils.minKeyWidth,
@@ -174,6 +182,7 @@ class _ReferencePageState extends State<ReferencePage> {
       children: [
         // Key Selection
         Container(
+          key: const Key("scales_key_selection"),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.blue.shade50,
@@ -198,6 +207,7 @@ class _ReferencePageState extends State<ReferencePage> {
                 children: scales.Key.values.map((scales.Key key) {
                   final isSelected = _viewModel.selectedKey == key;
                   return FilterChip(
+                    key: Key("scales_key_${key.name}"),
                     label: Text(key.displayName),
                     selected: isSelected,
                     onSelected: (selected) {
@@ -217,6 +227,7 @@ class _ReferencePageState extends State<ReferencePage> {
 
         // Scale Type Selection
         Container(
+          key: const Key("scales_type_selection"),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.blue.shade50,
@@ -241,6 +252,7 @@ class _ReferencePageState extends State<ReferencePage> {
                 children: scales.ScaleType.values.map((scales.ScaleType type) {
                   final isSelected = _viewModel.selectedScaleType == type;
                   return FilterChip(
+                    key: Key("scales_type_${type.name}"),
                     label: Text(_getScaleTypeName(type)),
                     selected: isSelected,
                     onSelected: (selected) {
@@ -265,6 +277,7 @@ class _ReferencePageState extends State<ReferencePage> {
       children: [
         // Key Selection
         Container(
+          key: const Key("chords_root_selection"),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.green.shade50,
@@ -289,6 +302,7 @@ class _ReferencePageState extends State<ReferencePage> {
                 children: scales.Key.values.map((scales.Key key) {
                   final isSelected = _viewModel.selectedKey == key;
                   return FilterChip(
+                    key: Key("chords_root_${key.name}"),
                     label: Text(key.displayName),
                     selected: isSelected,
                     onSelected: (selected) {
@@ -308,6 +322,7 @@ class _ReferencePageState extends State<ReferencePage> {
 
         // Chord Type Selection
         Container(
+          key: const Key("chords_type_selection"),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.green.shade50,
@@ -332,6 +347,7 @@ class _ReferencePageState extends State<ReferencePage> {
                 children: ChordType.values.map((type) {
                   final isSelected = _viewModel.selectedChordType == type;
                   return FilterChip(
+                    key: Key("chords_type_${type.name}"),
                     label: Text(_getChordTypeName(type)),
                     selected: isSelected,
                     onSelected: (selected) {
@@ -351,6 +367,7 @@ class _ReferencePageState extends State<ReferencePage> {
 
         // Chord Inversion Selection
         Container(
+          key: const Key("chords_inversion_selection"),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.green.shade50,
@@ -376,6 +393,7 @@ class _ReferencePageState extends State<ReferencePage> {
                   final isSelected =
                       _viewModel.selectedChordInversion == inversion;
                   return FilterChip(
+                    key: Key("chords_inversion_${inversion.name}"),
                     label: Text(_getChordInversionName(inversion)),
                     selected: isSelected,
                     onSelected: (selected) {

@@ -68,12 +68,12 @@ void main() {
       await tester.tap(find.text("Reference"));
       await tester.pumpAndSettle();
 
-      // Change to chords mode
-      await tester.tap(find.text("Chord Types"));
+      // Change to chords mode using semantic key
+      await tester.tap(find.byKey(const Key("chord_types_mode_button")));
       await tester.pumpAndSettle();
 
-      // Select F# key
-      await tester.tap(find.text("G♭"));
+      // Select F# key using semantic key
+      await tester.tap(find.byKey(const Key("chords_root_fSharp")));
       await tester.pumpAndSettle();
 
       // Switch to another tab and back
