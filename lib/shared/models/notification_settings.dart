@@ -72,7 +72,7 @@ class NotificationSettings {
   @override
   int get hashCode =>
       practiceRemindersEnabled.hashCode ^
-      dailyReminderTime.hashCode ^
+      (dailyReminderTime?.hashCode ?? 0) ^
       timerCompletionEnabled.hashCode ^
       permissionGranted.hashCode;
 
