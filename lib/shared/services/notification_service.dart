@@ -1,4 +1,5 @@
 import "dart:io";
+import "package:device_info_plus/device_info_plus.dart";
 import "package:flutter_local_notifications/flutter_local_notifications.dart";
 import "package:logging/logging.dart";
 import "package:piano_fitness/shared/services/notification_manager.dart";
@@ -103,7 +104,6 @@ class NotificationService {
       }
     }
     try {
-      // Only check for iOS/macOS permissions, otherwise assume granted
       if (Platform.isIOS || Platform.isMacOS) {
         _log.info("Requesting iOS/macOS notification permissions");
         final IOSFlutterLocalNotificationsPlugin? iosImplementation =
@@ -118,8 +118,34 @@ class NotificationService {
         );
         _log.info("Permission request result: $granted");
         return granted ?? false;
+      } else if (Platform.isAndroid) {
+        _log.info("Requesting Android notification permissions");
+        final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
+            (_plugin as FlutterLocalNotificationsPlugin?)
+                ?.resolvePlatformSpecificImplementation<
+                  AndroidFlutterLocalNotificationsPlugin
+                >();
+
+        // Check Android SDK version
+        final deviceInfo = DeviceInfoPlugin();
+        final androidInfo = await deviceInfo.androidInfo;
+        final sdkInt = androidInfo.version.sdkInt;
+
+        _log.info("Android SDK version: $sdkInt");
+
+        if (sdkInt >= 33) {
+          // Android 13+ requires POST_NOTIFICATIONS permission
+          final bool? granted = await androidImplementation
+              ?.requestNotificationsPermission();
+          _log.info("Android permission request result: $granted");
+          return granted ?? false;
+        } else {
+          // Pre-Android 13, no explicit permission needed
+          _log.info("Android SDK < 33, assuming permissions granted");
+          return true;
+        }
       }
-      // Other platforms (Android, etc.) - assume granted
+      // Other platforms - assume granted
       return true;
     } catch (e) {
       _log.warning("Failed to request permissions: $e");
@@ -142,7 +168,6 @@ class NotificationService {
       }
     }
     try {
-      // Only check for iOS/macOS permissions, otherwise assume granted
       if (Platform.isIOS || Platform.isMacOS) {
         final IOSFlutterLocalNotificationsPlugin? iosImplementation =
             (_plugin as FlutterLocalNotificationsPlugin?)
@@ -153,6 +178,27 @@ class NotificationService {
           (settings) => settings?.isEnabled,
         );
         return enabled ?? false;
+      } else if (Platform.isAndroid) {
+        final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
+            (_plugin as FlutterLocalNotificationsPlugin?)
+                ?.resolvePlatformSpecificImplementation<
+                  AndroidFlutterLocalNotificationsPlugin
+                >();
+
+        // Check Android SDK version
+        final deviceInfo = DeviceInfoPlugin();
+        final androidInfo = await deviceInfo.androidInfo;
+        final sdkInt = androidInfo.version.sdkInt;
+
+        if (sdkInt >= 33) {
+          // Android 13+ requires POST_NOTIFICATIONS permission
+          final bool? granted = await androidImplementation
+              ?.areNotificationsEnabled();
+          return granted ?? false;
+        } else {
+          // Pre-Android 13, assume granted
+          return true;
+        }
       }
       return true; // Assume granted on other platforms
     } catch (e) {
