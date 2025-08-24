@@ -12,6 +12,21 @@ class PracticeHubPage extends StatelessWidget {
   /// Creates the practice hub page.
   const PracticeHubPage({super.key});
 
+  /// Normalize titles into predictable, ASCII-only keys (e.g., "C Major  Scale!" -> "c_major_scale")
+  String _slugify(String s) {
+    final slug = s
+        .toLowerCase()
+        .replaceAll(
+          RegExp(r"[^a-z0-9]+"),
+          "_",
+        ) // collapse non-alnum into underscores
+        .replaceAll(RegExp(r"_+"), "_"); // squeeze duplicate underscores
+    return slug.replaceAll(
+      RegExp(r"^_+|_+$"),
+      "",
+    ); // trim leading/trailing underscores
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -217,7 +232,7 @@ class PracticeHubPage extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     // Create a key based on the title for test reliability
-    final keyName = title.toLowerCase().replaceAll(" ", "_");
+    final keyName = _slugify(title);
 
     return Card(
       elevation: 2,
@@ -264,7 +279,7 @@ class PracticeHubPage extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     // Create a key based on the title for test reliability
-    final keyName = title.toLowerCase().replaceAll(" ", "_");
+    final keyName = _slugify(title);
 
     return Card(
       elevation: 1,
