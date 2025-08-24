@@ -40,7 +40,7 @@ void main() {
       // Check that mode selection is present
       expect(find.text("Reference Mode"), findsOneWidget);
       expect(find.text("Scales"), findsOneWidget);
-      expect(find.text("Chords by Key"), findsOneWidget);
+      expect(find.text("Chord Types"), findsOneWidget);
 
       // Initially should show scales mode
       expect(find.text("Key"), findsOneWidget);
@@ -56,7 +56,7 @@ void main() {
       expect(find.text("Chord Type"), findsNothing);
 
       // Tap on Chords button
-      await tester.tap(find.text("Chords by Key"));
+      await tester.tap(find.text("Chord Types"));
       await tester.pumpAndSettle();
 
       // Should now show chords mode
@@ -98,7 +98,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Switch to chords mode
-      await tester.tap(find.text("Chords by Key"));
+      await tester.tap(find.text("Chord Types"));
       await tester.pumpAndSettle();
 
       // Check that all chord types are displayed
@@ -171,7 +171,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Switch to chords mode
-      await tester.tap(find.text("Chords by Key"));
+      await tester.tap(find.text("Chord Types"));
       await tester.pumpAndSettle();
 
       // Tap on Minor chord type
@@ -192,7 +192,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Switch to chords mode
-      await tester.tap(find.text("Chords by Key"));
+      await tester.tap(find.text("Chord Types"));
       await tester.pumpAndSettle();
 
       // Tap on 1st Inversion
@@ -252,7 +252,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Switch to chords mode
-      await tester.tap(find.text("Chords by Key"));
+      await tester.tap(find.text("Chord Types"));
       await tester.pumpAndSettle();
 
       // Change to a different chord type
@@ -286,7 +286,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Switch to chords mode
-      await tester.tap(find.text("Chords by Key"));
+      await tester.tap(find.text("Chord Types"));
       await tester.pumpAndSettle();
 
       // Chords mode container should be present

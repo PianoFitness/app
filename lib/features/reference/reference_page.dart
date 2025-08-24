@@ -84,8 +84,8 @@ class _ReferencePageState extends State<ReferencePage> {
                                     icon: Icon(Icons.keyboard_arrow_up),
                                   ),
                                   ButtonSegment<ReferenceMode>(
-                                    value: ReferenceMode.chordsByKey,
-                                    label: Text("Chords by Key"),
+                                    value: ReferenceMode.chordTypes,
+                                    label: Text("Chord Types"),
                                     icon: Icon(Icons.piano),
                                   ),
                                 ],

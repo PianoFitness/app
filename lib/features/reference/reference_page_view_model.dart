@@ -14,8 +14,8 @@ enum ReferenceMode {
   /// Display scales on the piano
   scales,
 
-  /// Display chords on the piano
-  chordsByKey,
+  /// Display chord types and inversions on the piano
+  chordTypes,
 }
 
 /// ViewModel for managing reference page state and logic.
@@ -45,7 +45,7 @@ class ReferencePageViewModel extends ChangeNotifier {
   // Local reference highlighting state (separate from shared MIDI state)
   Set<int> _localHighlightedNotes = <int>{};
 
-  /// The currently selected reference mode (scales or chords by key).
+  /// The currently selected reference mode (scales or chord types).
   ReferenceMode get selectedMode => _selectedMode;
 
   /// The currently selected musical key.
