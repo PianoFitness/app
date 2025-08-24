@@ -213,13 +213,18 @@ class NotificationsPageViewModel extends ChangeNotifier {
     try {
       // Create a DateTime for today at the specified time
       final now = DateTime.now();
-      final scheduledTime = DateTime(
+      var scheduledTime = DateTime(
         now.year,
         now.month,
         now.day,
         time.hour,
         time.minute,
       );
+
+      // If the scheduled time is before now, schedule for tomorrow
+      if (scheduledTime.isBefore(now)) {
+        scheduledTime = scheduledTime.add(const Duration(days: 1));
+      }
 
       await NotificationService.scheduleDailyNotification(
         title: "Time to Practice Piano! 🎹",
@@ -228,7 +233,9 @@ class NotificationsPageViewModel extends ChangeNotifier {
         payload: "daily_practice_reminder",
       );
 
-      _log.info("Scheduled daily reminder for ${time.format}");
+      _log.info(
+        "Scheduled daily reminder for ${scheduledTime.toIso8601String()}",
+      );
     } catch (e) {
       _log.severe("Failed to schedule daily reminder: $e");
       rethrow;
