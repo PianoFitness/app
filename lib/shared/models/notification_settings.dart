@@ -50,6 +50,9 @@ class NotificationSettings {
   /// Creates a NotificationSettings instance with daily reminder time cleared.
   NotificationSettings clearDailyReminderTime() {
     return NotificationSettings(
+      practiceRemindersEnabled: practiceRemindersEnabled,
+      // ignore: avoid_redundant_argument_values
+      dailyReminderTime: null,
       timerCompletionEnabled: timerCompletionEnabled,
       permissionGranted: permissionGranted,
     );
