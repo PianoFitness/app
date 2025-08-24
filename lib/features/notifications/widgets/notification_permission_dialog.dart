@@ -19,7 +19,12 @@ class NotificationPermissionDialog extends StatelessWidget {
       backgroundColor: colorScheme.surface,
       title: Row(
         children: [
-          Icon(Icons.notifications_off, color: Colors.orange, size: 24),
+          Icon(
+            Icons.notifications_off,
+            color: colorScheme.tertiary,
+            size: 24,
+            semanticLabel: "Notifications are disabled",
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -32,61 +37,49 @@ class NotificationPermissionDialog extends StatelessWidget {
           ),
         ],
       ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Notifications were not enabled. To use notification features:",
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: colorScheme.onSurface,
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Notifications were not enabled. To use notification features:",
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: colorScheme.onSurface,
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(8),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildStep(context, "1.", "Open your device Settings"),
+                  const SizedBox(height: 8),
+                  _buildStep(
+                    context,
+                    "2.",
+                    "Find Piano Fitness in the app list",
+                  ),
+                  const SizedBox(height: 8),
+                  _buildStep(context, "3.", "Enable Notifications"),
+                ],
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildStep(
-                  context,
-                  "1.",
-                  "Open your device Settings",
-                  theme,
-                  colorScheme,
-                ),
-                const SizedBox(height: 8),
-                _buildStep(
-                  context,
-                  "2.",
-                  "Find Piano Fitness in the app list",
-                  theme,
-                  colorScheme,
-                ),
-                const SizedBox(height: 8),
-                _buildStep(
-                  context,
-                  "3.",
-                  "Enable Notifications",
-                  theme,
-                  colorScheme,
-                ),
-              ],
+            const SizedBox(height: 16),
+            Text(
+              "You can always change notification settings later in the Piano Fitness app.",
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+                fontStyle: FontStyle.italic,
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            "You can always change notification settings later in the Piano Fitness app.",
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
       actions: [
         TextButton(
@@ -101,13 +94,9 @@ class NotificationPermissionDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildStep(
-    BuildContext context,
-    String number,
-    String description,
-    ThemeData theme,
-    ColorScheme colorScheme,
-  ) {
+  Widget _buildStep(BuildContext context, String number, String description) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -115,7 +104,7 @@ class NotificationPermissionDialog extends StatelessWidget {
           width: 20,
           height: 20,
           decoration: BoxDecoration(
-            color: Colors.orange.withValues(alpha: 0.2),
+            color: colorScheme.tertiary.withOpacity(0.2),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Center(
@@ -123,7 +112,7 @@ class NotificationPermissionDialog extends StatelessWidget {
               number,
               style: theme.textTheme.bodySmall?.copyWith(
                 fontWeight: FontWeight.bold,
-                color: Colors.orange,
+                color: colorScheme.tertiary,
               ),
             ),
           ),
