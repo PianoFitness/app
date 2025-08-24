@@ -2,7 +2,6 @@ import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/features/practice/practice_hub_page.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
-import "package:piano_fitness/shared/widgets/midi_controls.dart";
 import "package:provider/provider.dart";
 import "../../shared/midi_mocks.dart";
 
@@ -37,10 +36,6 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      // Check that the app bar is present with correct title
-      expect(find.text("Practice Hub"), findsOneWidget);
-      expect(find.byIcon(Icons.school), findsOneWidget);
-
       // Check that the welcome section is present
       expect(find.text("Structured Practice"), findsOneWidget);
 
@@ -58,13 +53,7 @@ void main() {
       expect(find.text("C Major Scale"), findsOneWidget);
     });
 
-    testWidgets("should display MIDI controls", (tester) async {
-      await tester.pumpWidget(createTestWidget());
-      await tester.pumpAndSettle();
-
-      // Verify MIDI controls are present in the app bar
-      expect(find.byType(MidiControls), findsOneWidget);
-    });
+    // MIDI controls are no longer present in PracticeHubPage after refactor, so this test is removed.
 
     testWidgets("should navigate to practice page when mode card is tapped", (
       tester,

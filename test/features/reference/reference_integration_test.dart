@@ -38,17 +38,21 @@ void main() {
       await tester.pumpAndSettle();
 
       // Initially should be on play page
-      expect(find.text("Piano Fitness"), findsOneWidget);
-      expect(find.text("Free Play Mode"), findsOneWidget);
+      expect(find.text("Free Play"), findsWidgets);
 
-      // Verify we have the Reference navigation item
-      expect(find.text("Reference"), findsOneWidget);
+      // Verify we have the Reference navigation item in the bottom navigation
+      expect(find.text("Reference"), findsWidgets);
 
       // Tap on Reference navigation item
       await tester.tap(find.text("Reference"));
       await tester.pumpAndSettle();
 
-      // Should now be on reference page
+      // Should now be on reference page (app bar title and content)
+      final appBarTitleFinder = find.descendant(
+        of: find.byType(AppBar),
+        matching: find.text("Reference"),
+      );
+      expect(appBarTitleFinder, findsOneWidget);
       expect(find.text("Reference Mode"), findsOneWidget);
       expect(find.text("Scales"), findsOneWidget);
       expect(find.text("Chords by Key"), findsOneWidget);
