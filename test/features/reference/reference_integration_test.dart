@@ -41,7 +41,13 @@ void main() {
       expect(find.text("Free Play Mode"), findsOneWidget);
 
       // Verify we have the Reference navigation item in the bottom navigation
-      expect(find.text("Reference"), findsWidgets);
+      expect(
+        find.descendant(
+          of: find.byType(BottomNavigationBar),
+          matching: find.text("Reference"),
+        ),
+        findsOneWidget,
+      );
 
       // Tap on Reference navigation item
       await tester.tap(find.text("Reference"));
