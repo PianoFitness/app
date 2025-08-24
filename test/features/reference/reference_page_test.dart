@@ -31,6 +31,17 @@ void main() {
       );
     }
 
+    // Helper functions to reduce duplication
+    Future<void> switchToChordsMode(WidgetTester tester) async {
+      await tester.tap(find.byKey(const Key("chord_types_mode_button")));
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> switchToScalesMode(WidgetTester tester) async {
+      await tester.tap(find.byKey(const Key("scales_mode_button")));
+      await tester.pumpAndSettle();
+    }
+
     testWidgets("should display reference page with initial content", (
       tester,
     ) async {
@@ -55,9 +66,8 @@ void main() {
       expect(find.text("Scale Type"), findsOneWidget);
       expect(find.text("Chord Type"), findsNothing);
 
-      // Tap on Chord Types button using key-based selection
-      await tester.tap(find.byKey(const Key("chord_types_mode_button")));
-      await tester.pumpAndSettle();
+      // Switch to Chord Types mode
+      await switchToChordsMode(tester);
 
       // Should now show chords mode
       expect(find.text("Root Note"), findsOneWidget);
@@ -65,9 +75,8 @@ void main() {
       expect(find.text("Inversion"), findsOneWidget);
       expect(find.text("Scale Type"), findsNothing);
 
-      // Switch back to scales using key-based selection
-      await tester.tap(find.byKey(const Key("scales_mode_button")));
-      await tester.pumpAndSettle();
+      // Switch back to scales mode
+      await switchToScalesMode(tester);
 
       // Should show scales mode again
       expect(find.text("Scale Type"), findsOneWidget);
@@ -97,9 +106,8 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      // Switch to chords mode using key-based selection
-      await tester.tap(find.byKey(const Key("chord_types_mode_button")));
-      await tester.pumpAndSettle();
+      // Switch to chords mode
+      await switchToChordsMode(tester);
 
       // Check that all chord types are displayed
       expect(find.text("Major"), findsOneWidget);
@@ -136,7 +144,7 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      // Tap on G♭ key using key-based selection
+      // Tap F# (G♭) via key-based selector; UI displays the flat name
       await tester.tap(find.byKey(const Key("scales_key_fSharp")));
       await tester.pumpAndSettle();
 
@@ -170,9 +178,8 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      // Switch to chords mode using key-based selection
-      await tester.tap(find.byKey(const Key("chord_types_mode_button")));
-      await tester.pumpAndSettle();
+      // Switch to chords mode
+      await switchToChordsMode(tester);
 
       // Tap on Minor chord type using key-based selection
       await tester.tap(find.byKey(const Key("chords_type_minor")));
@@ -191,17 +198,13 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      // Switch to chords mode using key-based selection
-      await tester.tap(find.byKey(const Key("chord_types_mode_button")));
-      await tester.pumpAndSettle();
+      // Switch to chords mode
+      await switchToChordsMode(tester);
 
-      // Verify chord inversion options are available
-      expect(find.text("Root Position"), findsOneWidget);
-      expect(find.text("1st Inversion"), findsOneWidget);
-      expect(find.text("2nd Inversion"), findsOneWidget);
-
-      // Verify the key-based finder works for inversion selection
+      // Verify chord inversion options by key (more stable than text)
+      expect(find.byKey(const Key("chords_inversion_root")), findsOneWidget);
       expect(find.byKey(const Key("chords_inversion_first")), findsOneWidget);
+      expect(find.byKey(const Key("chords_inversion_second")), findsOneWidget);
     });
 
     testWidgets("should display interactive piano", (tester) async {
@@ -242,9 +245,8 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      // Switch to chords mode using key-based selection
-      await tester.tap(find.byKey(const Key("chord_types_mode_button")));
-      await tester.pumpAndSettle();
+      // Switch to chords mode
+      await switchToChordsMode(tester);
 
       // Change to a different chord type using key-based selection
       await tester.tap(find.byKey(const Key("chords_type_minor")));
@@ -276,6 +278,16 @@ void main() {
         // Verify piano is interactive and properly configured
         final piano = tester.widget<InteractivePiano>(pianoFinder);
         expect(piano.onNotePositionTapped, isNotNull);
+
+        // Verify initial UI state shows scales mode (Major scale selected)
+        final majorScaleChip = find.byWidgetPredicate(
+          (widget) =>
+              widget is FilterChip &&
+              widget.label is Text &&
+              (widget.label as Text).data == "Major" &&
+              widget.selected == true,
+        );
+        expect(majorScaleChip, findsOneWidget);
       });
     });
 
