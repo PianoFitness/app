@@ -1,12 +1,29 @@
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:logging/logging.dart";
+import "package:piano_fitness/shared/services/notification_service.dart";
 import "package:piano_fitness/shared/widgets/main_navigation.dart";
+import "package:timezone/data/latest.dart" as tz;
 
 /// Entry point for the Piano Fitness application.
 ///
 /// Initializes the app with the root widget and starts the Flutter engine.
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize timezone data for notifications
+  tz.initializeTimeZones();
+
+  // Initialize notification service
+  try {
+    debugPrint("About to initialize NotificationService...");
+    await NotificationService.initialize();
+    debugPrint("NotificationService initialized successfully");
+  } catch (e, stackTrace) {
+    debugPrint("Failed to initialize notification service: $e");
+    debugPrint("Stack trace: $stackTrace");
+  }
+
   // Configure logging levels
   if (kDebugMode) {
     // In debug mode, show fine (and above) for detailed diagnostics

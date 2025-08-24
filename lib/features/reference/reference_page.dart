@@ -5,7 +5,6 @@ import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_range_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as scales;
 import "package:piano_fitness/shared/utils/chords.dart";
-import "package:piano_fitness/shared/widgets/midi_controls.dart";
 
 /// Reference page for viewing scales and chords on the piano.
 ///
@@ -44,18 +43,6 @@ class _ReferencePageState extends State<ReferencePage> {
     // ...existing code...
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.library_books, color: Colors.deepPurple),
-            SizedBox(width: 8),
-            Text("Reference"),
-          ],
-        ),
-        actions: const [MidiControls()],
-      ),
       body: Column(
         children: [
           Expanded(

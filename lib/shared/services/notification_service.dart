@@ -55,19 +55,24 @@ class NotificationService {
         );
 
     try {
+      _log.info("Initializing flutter_local_notifications plugin...");
       await _plugin.initialize(
         initializationSettings,
         onDidReceiveNotificationResponse: _onNotificationTapped,
       );
+      _log.info("Plugin initialized, syncing stored data...");
 
       // Sync stored notification data with plugin state
       await _syncStoredWithPending();
 
       _isInitialized = true;
       _log.info("Notification service initialized successfully");
-    } catch (e) {
+    } catch (e, stackTrace) {
       _log.severe("Failed to initialize notification service: $e");
-      rethrow;
+      _log.severe("Stack trace: $stackTrace");
+      // Don't rethrow - allow the app to continue running
+      // but mark as not initialized
+      _isInitialized = false;
     }
   }
 
@@ -82,7 +87,16 @@ class NotificationService {
   /// On platforms that don't require explicit permissions, returns true.
   static Future<bool> requestPermissions() async {
     if (!_isInitialized) {
-      throw StateError("NotificationService must be initialized first");
+      _log.warning(
+        "NotificationService not initialized, attempting to initialize now",
+      );
+      await initialize();
+      if (!_isInitialized) {
+        _log.severe(
+          "NotificationService initialization failed, cannot request permissions",
+        );
+        return false;
+      }
     }
 
     try {
@@ -118,7 +132,18 @@ class NotificationService {
 
   /// Checks if notification permissions are currently granted.
   static Future<bool> arePermissionsGranted() async {
-    if (!_isInitialized) return false;
+    if (!_isInitialized) {
+      _log.warning(
+        "NotificationService not initialized, attempting to initialize now",
+      );
+      await initialize();
+      if (!_isInitialized) {
+        _log.warning(
+          "NotificationService initialization failed, assuming permissions not granted",
+        );
+        return false;
+      }
+    }
 
     try {
       if (kIsWeb) {
