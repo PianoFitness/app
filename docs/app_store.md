@@ -57,7 +57,7 @@ Key Learning Features:
 • Practice Hub with progressive exercises (Beginner to Advanced)
 • Real-time visual feedback with MIDI keyboard integration
 • Complete scale & chord reference with interactive highlighting
-• Chord progressions with proper voice leading and roman numerals
+• Chord progressions with roman numerals
 • Daily practice reminders to build consistent habits
 
 What Makes Us Different:
