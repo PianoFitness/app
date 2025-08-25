@@ -456,4 +456,37 @@ When updating existing tests to use keys:
 4. Update test assertions to use key-based expectations
 5. Verify tests pass with both old and new text content
 
+### Bottom Navigation Best Practices
+
+Bottom navigation items and app bar actions should expose stable keys for testing:
+
+- **App bar actions**: Use semantic keys like `Key("midi_settings_button")`, `Key("notification_settings_button")`
+- **Bottom navigation tabs**: Wrap icons in Semantics widgets with unique keys like `Key("nav_tab_practice")`
+- **Navigation tests**: Create helper functions for key-based navigation
+
+```dart
+// Good: Individual tab keys in MainNavigation
+BottomNavigationBarItem(
+  icon: Semantics(
+    key: const Key("nav_tab_practice"),
+    button: true,
+    child: const Icon(Icons.school),
+  ),
+  label: "Practice",
+),
+
+// Good: Key-based navigation helper
+Future<void> navigateToTab(WidgetTester tester, Key tabKey) async {
+  final tabFinder = find.byKey(tabKey);
+  await tester.tap(tabFinder);
+  await tester.pumpAndSettle();
+}
+
+// Good: Using the helper
+await navigateToTab(tester, const Key("nav_tab_reference"));
+
+// Avoid: Text-based navigation
+await tester.tap(find.text("Reference")); // Brittle to text changes
+```
+
 This migration improves test robustness and supports internationalization efforts.
