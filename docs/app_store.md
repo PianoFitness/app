@@ -39,7 +39,7 @@ Complete piano practice app with Practice Hub, chord progressions, MIDI keyboard
 **Option 3 - Education Focus (164 chars):**
 
 ```text
-Learn piano systematically with guided exercises, chord progressions, scales, and real-time MIDI feedback. Practice Hub included!
+Learn piano systematically with guided exercises, chord progressions, scales, and real-time MIDI feedback. Daily reminders included!
 ```
 
 ---
@@ -49,101 +49,49 @@ Learn piano systematically with guided exercises, chord progressions, scales, an
 ### Main Description
 
 ```text
-Practice piano with MIDI integration, notifications, and comprehensive learning tools
+Master piano fundamentals with structured learning exercises
 
-Piano Fitness is a complete piano practice app that combines MIDI keyboard integration with an interactive visual piano interface. Practice scales, chords, and arpeggios with real-time visual feedback, daily practice reminders, and guided exercises designed to improve your technique.
+Piano Fitness teaches you piano through guided practice sessions for scales, chords, and arpeggios - not just sheet music. Unlike typical repertoire apps, Piano Fitness helps you build technique systematically.
 
-Daily Practice Reminders & Notifications
+Key Learning Features:
+• Practice Hub with progressive exercises (Beginner to Advanced)
+• Real-time visual feedback with MIDI keyboard integration
+• Complete scale & chord reference with interactive highlighting
+• Chord progressions with proper voice leading and roman numerals
+• Daily practice reminders to build consistent habits
 
-- Customizable daily practice reminders to maintain consistent practice habits
-- Smart notification scheduling that adapts to your preferred practice times
-- Comprehensive notification permission handling across all platforms
-- Practice streak tracking and motivational feedback
+What Makes Us Different:
+• Structured curriculum vs. random practice
+• Visual piano interface shows exactly what to play
+• Auto-start practice when you touch any key
+• Instant feedback on correct notes and completion
+• Built-in timer for focused practice sessions
 
-Repertoire Practice Mode
+Perfect For:
+• Piano students building foundational skills
+• Self-taught learners wanting structured guidance
+• Anyone with a MIDI keyboard seeking visual feedback
+• Music teachers needing organized practice tools
 
-- Dedicated repertoire practice page with integrated timer functionality
-- High-quality audio feedback with bell sounds for session completion
-- Flexible practice duration selection (15, 30, 45, 60+ minutes)
-- Instructions for integrating with external repertoire apps
-- Progress tracking and session completion notifications
+Works with any MIDI keyboard (USB/Bluetooth) or use the built-in virtual piano. Includes dark theme, customizable notifications, and repertoire practice timer.
 
-Enhanced Practice Experience
+Start building proper piano technique with guided exercises designed to improve your skills systematically.
+```
 
-- Dark theme support with adaptive color schemes for comfortable practice
-- Instant auto-start practice - begins automatically when you play any note
-- Immediate exercise repetition for muscle memory building
-- Intelligent completion notifications that don't block the keyboard
+---
 
-Complete Reference System
+## 🆕 What's New in This Version (0.3.0)
 
-- Interactive scale reference with all major and minor scales
-- Comprehensive chord reference with triads and inversions
-- Single-octave display for clearer learning focus
-- Visual highlighting synchronized with your MIDI keyboard
+```text
+Daily Practice Reminders - Never miss practice with customizable notifications that adapt to your schedule
 
-Comprehensive Practice Hub
+Repertoire Practice Mode - Dedicated practice timer with audio feedback for focused sessions on your favorite pieces
 
-- Structured Practice Hub with organized exercise categories
-- Scales: Major, minor, dorian, and mixolydian scales in all keys
-- Chords by Key: Individual triads and inversions with proper voice leading
-- Chords by Type: Practice chord types (major, minor, diminished, augmented) with inversions
-- Chord Progressions: Classical progressions with roman numeral notation (I-V, vi-IV, ii-V-I, and more)
-- Arpeggios: Major, minor, diminished, and 7th chord arpeggios (1-2 octaves)
-- Progressive difficulty levels (Beginner, Intermediate, Advanced)
-- Real-time progress tracking with visual progress bars
-- Exercise completion feedback and congratulations
+Dark Theme - Comfortable practice in any lighting with full dark mode support
 
-Advanced Interactive Piano Interface
+Enhanced Chord Practice - Practice chord types (major, minor, diminished, augmented) with proper inversions
 
-- Dynamic on-screen keyboard (up to 49 keys) with adaptive range
-- Smart range calculation that centers on your practice exercise
-- Screen-responsive key sizing for optimal touch experience
-- Real-time note highlighting during practice sessions
-- Virtual piano mode - play notes by tapping the screen
-- Focused practice view that eliminates scrolling during exercises
-- MIDI activity indicator showing real-time connection status
-
-Professional MIDI Integration
-
-- Comprehensive MIDI Settings page with device management
-- Scan and connect to Bluetooth and USB MIDI devices
-- Advanced Device Controller with full MIDI testing capabilities
-- Channel selection (1-16) with visual channel indicator
-- Support for Note On/Off, Control Change, Program Change, and Pitch Bend messages
-- Real-time MIDI message monitoring and display
-- Connection troubleshooting tools and status indicators
-- Bluetooth permission management with user guidance
-- Real-time note detection with improved timing accuracy
-- Visual feedback showing played notes on the piano interface
-- Support for multiple MIDI channels and device types
-- Full flat key support (Db, Gb, Ab, Bb, Eb major)
-- Professional device testing and calibration tools
-
-Perfect for:
-
-- Piano students wanting structured, progressive practice sessions with daily reminders
-- Players with MIDI keyboards seeking visual feedback and guided exercises
-- Self-taught pianists looking for a comprehensive practice curriculum with notifications
-- Music teachers needing organized practice tools and repertoire timing for students
-- Anyone wanting to master scales, chords, arpeggios, and progressions with consistent practice habits
-- Musicians seeking to understand chord progressions and harmonic concepts
-- Adults developing consistent practice routines with notification reminders
-- Students preparing repertoire pieces with integrated timer functionality
-
-Features:
-
-- Complete notification system with customizable daily practice reminders
-- Dedicated repertoire practice mode with timer and audio feedback
-- Dark theme support for comfortable practice in any lighting
-- Enhanced chord practice with chord type selection and inversions
-- Comprehensive MIDI integration and visual feedback
-- External link support for music resources and tutorials
-- Accessibility improvements with semantic navigation
-
-Requires: For full functionality, a compatible MIDI keyboard is recommended. The app includes a comprehensive virtual piano mode for practice without external hardware, plus a dedicated Practice Hub for structured learning and repertoire practice mode with timer functionality.
-
-Start your comprehensive piano practice journey with Piano Fitness. Set up daily practice reminders, access structured exercises through the Practice Hub, use the repertoire mode for timed practice sessions, and connect your MIDI keyboard for enhanced feedback. Master piano fundamentals with progressive difficulty levels and maintain consistent practice habits. Begin improving your technique today!
+Improved Accessibility - Better navigation and screen reader support throughout the app
 ```
 
 ---
