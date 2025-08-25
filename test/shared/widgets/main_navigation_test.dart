@@ -2,6 +2,23 @@ import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/shared/widgets/main_navigation.dart";
 
+/// Helper function to navigate to a specific tab by key.
+/// This avoids text-based finders and uses stable key-based navigation.
+Future<void> navigateToTab(WidgetTester tester, Key tabKey) async {
+  final tabFinder = find.byKey(tabKey);
+  expect(tabFinder, findsOneWidget);
+
+  await tester.tap(tabFinder);
+  await tester.pumpAndSettle();
+}
+
+/// Helper function to verify the current tab is active by checking the bottom nav state
+void expectTabActive(WidgetTester tester, int expectedIndex) {
+  final bottomNav = find.byKey(const Key("bottom_navigation_bar"));
+  final bottomNavWidget = tester.widget<BottomNavigationBar>(bottomNav);
+  expect(bottomNavWidget.currentIndex, equals(expectedIndex));
+}
+
 void main() {
   group("MainNavigation Widget Tests", () {
     testWidgets("should display main navigation with initial content", (
@@ -14,12 +31,15 @@ void main() {
       expect(find.text("Free Play"), findsWidgets);
       expect(find.byIcon(Icons.piano), findsWidgets);
 
-      // Verify MIDI and notification settings buttons are present
-      expect(find.byIcon(Icons.settings), findsOneWidget);
-      expect(find.byIcon(Icons.notifications), findsOneWidget);
+      // Verify MIDI and notification settings buttons are present using stable keys
+      expect(find.byKey(const Key("midi_settings_button")), findsOneWidget);
+      expect(
+        find.byKey(const Key("notification_settings_button")),
+        findsOneWidget,
+      );
 
-      // Verify bottom navigation bar and its items
-      expect(find.byType(BottomNavigationBar), findsOneWidget);
+      // Verify bottom navigation bar and its items using stable key
+      expect(find.byKey(const Key("bottom_navigation_bar")), findsOneWidget);
       expect(find.text("Practice"), findsWidgets);
       expect(find.text("Reference"), findsWidgets);
       expect(find.text("Repertoire"), findsWidgets);
@@ -31,35 +51,35 @@ void main() {
       await tester.pumpWidget(const MaterialApp(home: MainNavigation()));
       await tester.pumpAndSettle();
 
-      // Tap Practice tab
-      await tester.tap(find.text("Practice"));
-      await tester.pumpAndSettle();
+      // Navigate to Practice tab using stable key
+      await navigateToTab(tester, const Key("nav_tab_practice"));
 
       // Verify page switched to Practice (text appears in both app bar and bottom nav)
+      expectTabActive(tester, 1);
       expect(find.text("Practice"), findsWidgets);
       expect(find.byIcon(Icons.school), findsWidgets);
 
-      // Tap Reference tab
-      await tester.tap(find.text("Reference").last);
-      await tester.pumpAndSettle();
+      // Navigate to Reference tab using stable key
+      await navigateToTab(tester, const Key("nav_tab_reference"));
 
       // Verify page switched to Reference
+      expectTabActive(tester, 2);
       expect(find.text("Reference"), findsWidgets);
       expect(find.byIcon(Icons.library_books), findsWidgets);
 
-      // Tap Repertoire tab
-      await tester.tap(find.text("Repertoire").last);
-      await tester.pumpAndSettle();
+      // Navigate to Repertoire tab using stable key
+      await navigateToTab(tester, const Key("nav_tab_repertoire"));
 
       // Verify page switched to Repertoire
+      expectTabActive(tester, 3);
       expect(find.text("Repertoire"), findsWidgets);
       expect(find.byIcon(Icons.library_music), findsWidgets);
 
-      // Tap back to Free Play
-      await tester.tap(find.text("Free Play").last);
-      await tester.pumpAndSettle();
+      // Navigate back to Free Play using stable key
+      await navigateToTab(tester, const Key("nav_tab_free_play"));
 
       // Verify back to initial state
+      expectTabActive(tester, 0);
       expect(find.text("Free Play"), findsWidgets);
       expect(find.byIcon(Icons.piano), findsWidgets);
     });
@@ -71,8 +91,8 @@ void main() {
         await tester.pumpWidget(const MaterialApp(home: MainNavigation()));
         await tester.pumpAndSettle();
 
-        // Find MIDI settings button
-        final settingsButton = find.byIcon(Icons.settings);
+        // Find MIDI settings button using stable key
+        final settingsButton = find.byKey(const Key("midi_settings_button"));
         expect(settingsButton, findsOneWidget);
 
         // Verify tooltip
@@ -91,11 +111,8 @@ void main() {
         await tester.pumpWidget(const MaterialApp(home: MainNavigation()));
         await tester.pumpAndSettle();
 
-        // Verify MIDI settings button is interactive
-        final settingsButton = find.ancestor(
-          of: find.byIcon(Icons.settings),
-          matching: find.byType(IconButton),
-        );
+        // Verify MIDI settings button is interactive using stable key
+        final settingsButton = find.byKey(const Key("midi_settings_button"));
         expect(settingsButton, findsOneWidget);
 
         final buttonWidget = tester.widget<IconButton>(settingsButton);
@@ -109,8 +126,10 @@ void main() {
           await tester.pumpWidget(const MaterialApp(home: MainNavigation()));
           await tester.pumpAndSettle();
 
-          // Find notification settings button
-          final notificationButton = find.byIcon(Icons.notifications);
+          // Find notification settings button using stable key
+          final notificationButton = find.byKey(
+            const Key("notification_settings_button"),
+          );
           expect(notificationButton, findsOneWidget);
 
           // Verify tooltip
@@ -130,10 +149,9 @@ void main() {
         await tester.pumpWidget(const MaterialApp(home: MainNavigation()));
         await tester.pumpAndSettle();
 
-        // Verify notification settings button is interactive
-        final notificationButton = find.ancestor(
-          of: find.byIcon(Icons.notifications),
-          matching: find.byType(IconButton),
+        // Verify notification settings button is interactive using stable key
+        final notificationButton = find.byKey(
+          const Key("notification_settings_button"),
         );
         expect(notificationButton, findsOneWidget);
 
@@ -148,28 +166,32 @@ void main() {
           await tester.pumpWidget(const MaterialApp(home: MainNavigation()));
           await tester.pumpAndSettle();
 
-          final pages = ["Practice", "Reference", "Repertoire"];
+          final tabKeys = [
+            const Key("nav_tab_practice"),
+            const Key("nav_tab_reference"),
+            const Key("nav_tab_repertoire"),
+          ];
 
-          for (final pageName in pages) {
-            // Navigate to page using bottom nav (last occurrence of text)
-            await tester.tap(find.text(pageName).last);
-            await tester.pumpAndSettle();
+          for (final tabKey in tabKeys) {
+            // Navigate to page using stable navigation helper
+            await navigateToTab(tester, tabKey);
 
-            // Verify MIDI controls are still accessible
-            expect(find.byIcon(Icons.settings), findsOneWidget);
-            expect(find.byIcon(Icons.notifications), findsOneWidget);
+            // Verify MIDI controls are still accessible using stable keys
+            expect(
+              find.byKey(const Key("midi_settings_button")),
+              findsOneWidget,
+            );
+            expect(
+              find.byKey(const Key("notification_settings_button")),
+              findsOneWidget,
+            );
 
             // Test that settings button is interactive (without navigating)
-            final settingsButton = find.byIcon(Icons.settings);
+            final settingsButton = find.byKey(
+              const Key("midi_settings_button"),
+            );
             expect(
-              tester
-                  .widget<IconButton>(
-                    find.ancestor(
-                      of: settingsButton,
-                      matching: find.byType(IconButton),
-                    ),
-                  )
-                  .onPressed,
+              tester.widget<IconButton>(settingsButton).onPressed,
               isNotNull,
             );
           }
@@ -184,25 +206,17 @@ void main() {
         await tester.pumpWidget(const MaterialApp(home: MainNavigation()));
         await tester.pumpAndSettle();
 
-        // Navigate to Practice
-        await tester.tap(find.text("Practice"));
-        await tester.pumpAndSettle();
+        // Navigate to Practice using stable helper
+        await navigateToTab(tester, const Key("nav_tab_practice"));
 
         // Verify bottom nav shows Practice as selected
-        final bottomNav = tester.widget<BottomNavigationBar>(
-          find.byType(BottomNavigationBar),
-        );
-        expect(bottomNav.currentIndex, equals(1));
+        expectTabActive(tester, 1);
 
-        // Navigate to Reference
-        await tester.tap(find.text("Reference"));
-        await tester.pumpAndSettle();
+        // Navigate to Reference using stable helper
+        await navigateToTab(tester, const Key("nav_tab_reference"));
 
         // Verify state updated
-        final updatedBottomNav = tester.widget<BottomNavigationBar>(
-          find.byType(BottomNavigationBar),
-        );
-        expect(updatedBottomNav.currentIndex, equals(2));
+        expectTabActive(tester, 2);
       });
 
       testWidgets("should use IndexedStack to preserve page state", (
@@ -214,12 +228,12 @@ void main() {
         // Verify IndexedStack is used for page management
         expect(find.byType(IndexedStack), findsOneWidget);
 
-        // Navigate between pages
-        await tester.tap(find.text("Practice"));
-        await tester.pumpAndSettle();
-
-        await tester.tap(find.text("Free Play"));
-        await tester.pumpAndSettle();
+        // Navigate between pages using stable helpers
+        await navigateToTab(tester, const Key("nav_tab_practice")); // Practice
+        await navigateToTab(
+          tester,
+          const Key("nav_tab_free_play"),
+        ); // Free Play
 
         // IndexedStack should preserve state of all pages
         final indexedStack = tester.widget<IndexedStack>(
@@ -237,24 +251,12 @@ void main() {
         await tester.pumpWidget(const MaterialApp(home: MainNavigation()));
         await tester.pumpAndSettle();
 
-        // Find all semantic widgets
-        final semanticsWidgets = find.byType(Semantics);
-        expect(semanticsWidgets, findsWidgets);
-
-        // Look for a Semantics widget with header property set
-        bool foundHeader = false;
-        for (int i = 0; i < tester.widgetList(semanticsWidgets).length; i++) {
-          final semanticsWidget = tester
-              .widgetList<Semantics>(semanticsWidgets)
-              .elementAt(i);
-          if (semanticsWidget.properties.header == true) {
-            foundHeader = true;
-            break;
-          }
-        }
+        // Find Semantics widgets with header property using predicate
         expect(
-          foundHeader,
-          isTrue,
+          find.byWidgetPredicate(
+            (w) => w is Semantics && (w.properties.header ?? false),
+          ),
+          findsWidgets,
           reason: "Should have at least one Semantics widget with header=true",
         );
       });
@@ -263,18 +265,14 @@ void main() {
         await tester.pumpWidget(const MaterialApp(home: MainNavigation()));
         await tester.pumpAndSettle();
 
-        // Test MIDI settings tooltip
-        final settingsButton = find.ancestor(
-          of: find.byIcon(Icons.settings),
-          matching: find.byType(IconButton),
-        );
+        // Test MIDI settings tooltip using stable key
+        final settingsButton = find.byKey(const Key("midi_settings_button"));
         final settingsWidget = tester.widget<IconButton>(settingsButton);
         expect(settingsWidget.tooltip, equals("MIDI Settings"));
 
-        // Test notifications tooltip
-        final notificationsButton = find.ancestor(
-          of: find.byIcon(Icons.notifications),
-          matching: find.byType(IconButton),
+        // Test notifications tooltip using stable key
+        final notificationsButton = find.byKey(
+          const Key("notification_settings_button"),
         );
         final notificationsWidget = tester.widget<IconButton>(
           notificationsButton,
