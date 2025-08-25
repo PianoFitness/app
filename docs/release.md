@@ -172,7 +172,7 @@ flutter pub get
 flutter build macos --release
 
 # Build for iOS (requires macOS with Xcode)
-flutter build ios --release
+flutter build ipa --release
 
 # Build for web (if needed)
 flutter build web --release
@@ -197,7 +197,7 @@ Using **Transporter** app (Apple's upload tool):
 1. Open Transporter app
 2. Sign in with Apple Developer credentials
 3. Drag and drop the appropriate artifact:
-   - **iOS**: `.ipa` file (exported from Xcode Archive or found in `<DerivedData>/Build/Products/`)
+   - **iOS**: `.ipa` file (found in `build/ios/ipa/` after running `flutter build ipa`)
    - **macOS**: `.pkg` file (exported from Xcode Organizer > Archives)
 4. Click "Deliver" to upload
 
