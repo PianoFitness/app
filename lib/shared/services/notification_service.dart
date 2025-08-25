@@ -1,9 +1,11 @@
 import "dart:io";
+
 import "package:device_info_plus/device_info_plus.dart";
 import "package:flutter_local_notifications/flutter_local_notifications.dart";
 import "package:logging/logging.dart";
-import "package:piano_fitness/shared/services/notification_manager.dart";
 import "package:timezone/timezone.dart" as tz;
+
+import "package:piano_fitness/shared/services/notification_manager.dart";
 
 /// Service for managing local notifications across platforms.
 ///
@@ -226,6 +228,17 @@ class NotificationService {
         macOS: const DarwinNotificationDetails(),
       );
 
+      // Android exact alarms may require explicit permission on Android 12+
+      if (Platform.isAndroid) {
+        final androidImplementation =
+            (_plugin as FlutterLocalNotificationsPlugin?)
+                ?.resolvePlatformSpecificImplementation<
+                  AndroidFlutterLocalNotificationsPlugin
+                >();
+        // Request exact alarm permission for precise scheduling - best effort
+        await androidImplementation?.requestExactAlarmsPermission();
+      }
+
       await _plugin.zonedSchedule(
         id,
         title,
@@ -280,6 +293,17 @@ class NotificationService {
       );
 
       final nextInstance = _nextInstanceOfTime(time);
+
+      // Android exact alarms may require explicit permission on Android 12+
+      if (Platform.isAndroid) {
+        final androidImplementation =
+            (_plugin as FlutterLocalNotificationsPlugin?)
+                ?.resolvePlatformSpecificImplementation<
+                  AndroidFlutterLocalNotificationsPlugin
+                >();
+        // Request exact alarm permission for precise scheduling - best effort
+        await androidImplementation?.requestExactAlarmsPermission();
+      }
 
       await _plugin.zonedSchedule(
         dailyReminderNotificationId,

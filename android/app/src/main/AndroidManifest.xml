@@ -1,4 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required for notifications on Android 13+ (API level 33) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    
+    <!-- Required for exact scheduling when using AndroidScheduleMode.exactAllowWhileIdle -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    
     <application
         android:label="piano_fitness"
         android:name="${applicationName}"
