@@ -1,7 +1,7 @@
 name: piano_fitness
 description: "Piano practice app with MIDI support for scales, chords, and arpeggios."
 publish_to: "none"
-version: 0.2.0
+version: 0.3.0
 
 environment:
   sdk: ">=3.8.1 <4.0.0"
