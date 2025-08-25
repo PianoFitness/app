@@ -147,14 +147,14 @@ testWidgets("should maintain reference page state when switching tabs", (tester)
   await tester.pumpWidget(createTestApp());
   await tester.pumpAndSettle();
 
-  // Navigate and interact using keys
-  await tester.tap(find.text("Reference"));
+  // Navigate and interact using keys (using helper from Bottom Navigation Best Practices)
+  await navigateToTab(tester, const Key("nav_tab_reference"));
   await tester.tap(find.byKey(const Key("chord_types_mode_button")));
   await tester.tap(find.byKey(const Key("chords_root_fSharp")));
   
   // Test state persistence
-  await tester.tap(find.text("Practice"));
-  await tester.tap(find.text("Reference"));
+  await navigateToTab(tester, const Key("nav_tab_practice"));
+  await navigateToTab(tester, const Key("nav_tab_reference"));
   
   // Verify state is maintained
   final selectedChip = tester.widget<FilterChip>(
@@ -266,8 +266,8 @@ testWidgets("should navigate between pages correctly", (tester) async {
   await tester.pumpWidget(createTestApp());
   await tester.pumpAndSettle();
 
-  // Test navigation to reference page
-  await tester.tap(find.text("Reference"));
+  // Test navigation to reference page using stable key helper
+  await navigateToTab(tester, const Key("nav_tab_reference"));
   await tester.pumpAndSettle();
 
   // Verify app bar and content
@@ -288,9 +288,9 @@ testWidgets("should maintain state across navigation", (tester) async {
   // Set up state
   await tester.tap(find.byKey(const Key("some_setting")));
   
-  // Navigate away and back
-  await tester.tap(find.text("Other Tab"));
-  await tester.tap(find.text("Original Tab"));
+  // Navigate away and back using stable keys
+  await navigateToTab(tester, const Key("nav_tab_other"));
+  await navigateToTab(tester, const Key("nav_tab_original"));
   
   // Verify state persistence
   expect(find.byKey(const Key("some_setting")), findsOneWidget);

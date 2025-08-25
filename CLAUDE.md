@@ -105,6 +105,12 @@ dart format .
 # Fix auto-fixable issues
 dart fix --apply
 
+# Check for text-based selectors in test files
+./scripts/check-test-selectors.sh
+
+# Check specific test files for text-based selectors
+./scripts/check-test-selectors.sh test/features/reference/reference_page_test.dart
+
 # Run commit validation (used by git hooks)
 dart scripts/validate_commit_msg.dart "your commit message"
 ```
