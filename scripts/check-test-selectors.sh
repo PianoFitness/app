@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 # Script to check for text-based selectors in test files
 # Usage: ./scripts/check-test-selectors.sh [files...]
@@ -7,19 +8,29 @@ echo "🧪 Checking for text-based selectors in test files..."
 
 if [ $# -eq 0 ]; then
     # No files specified, check all test files
-    TEST_FILES=$(find test -name "*_test.dart" -type f)
+    # Use while-read loop to populate array (more portable than mapfile)
+    TEST_FILES=()
+    while IFS= read -r -d '' file; do
+        TEST_FILES+=("$file")
+    done < <(find test -name "*_test.dart" -type f -print0)
 else
-    # Use provided files
-    TEST_FILES="$@"
+    # Use provided files as array
+    TEST_FILES=("$@")
 fi
 
 FOUND_ISSUES=false
 
-for file in $TEST_FILES; do
+# Check if array is empty
+if [ ${#TEST_FILES[@]} -eq 0 ]; then
+    echo "No test files found."
+    exit 0
+fi
+
+for file in "${TEST_FILES[@]}"; do
     if [ -f "$file" ]; then
         # Check for problematic patterns
-        MATCHES=$(grep -n "tester\.tap.*find\.text\|await.*tap.*find\.text\|\.tap(find\.text" "$file" 2>/dev/null)
-        if [ ! -z "$MATCHES" ]; then
+        MATCHES=$(grep -n "tester\.tap.*find\.text\|await.*tap.*find\.text\|\.tap(find\.text" "$file" 2>/dev/null || true)
+        if [ -n "$MATCHES" ]; then
             echo "❌ Found text-based selectors in $file:"
             echo "$MATCHES"
             echo ""
