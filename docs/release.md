@@ -85,7 +85,7 @@ flutter build macos --release
 flutter run -d macos
 
 # Or for iOS simulator
-flutter build ios --release
+flutter build ios --simulator
 flutter run -d ios
 ```
 
@@ -290,7 +290,7 @@ flutter clean
 rm -rf ios/Pods ios/Podfile.lock
 flutter pub get
 cd ios && pod install && cd ..
-flutter build ios --release
+flutter build ipa --release
 ```
 
 #### Code Signing Issues
@@ -363,5 +363,5 @@ Copy this checklist for each release:
 
 ---
 
-*Last Updated: August 17, 2025*
-*Document Version: 1.0*
+*Last Updated: August 25, 2025*
+*Document Version: 1.1*
