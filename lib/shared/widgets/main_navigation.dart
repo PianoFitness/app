@@ -73,6 +73,7 @@ class _MainNavigationState extends State<MainNavigation> {
         ),
         actions: [
           IconButton(
+            key: const Key("midi_settings_button"),
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute<void>(
@@ -84,6 +85,7 @@ class _MainNavigationState extends State<MainNavigation> {
             tooltip: "MIDI Settings",
           ),
           IconButton(
+            key: const Key("notification_settings_button"),
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute<void>(
@@ -98,15 +100,38 @@ class _MainNavigationState extends State<MainNavigation> {
       ),
       body: IndexedStack(index: _selectedIndex, children: _pages),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.piano), label: "Free Play"),
-          BottomNavigationBarItem(icon: Icon(Icons.school), label: "Practice"),
+        key: const Key("bottom_navigation_bar"),
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.library_books),
+            icon: Semantics(
+              key: const Key("nav_tab_free_play"),
+              button: true,
+              child: const Icon(Icons.piano),
+            ),
+            label: "Free Play",
+          ),
+          BottomNavigationBarItem(
+            icon: Semantics(
+              key: const Key("nav_tab_practice"),
+              button: true,
+              child: const Icon(Icons.school),
+            ),
+            label: "Practice",
+          ),
+          BottomNavigationBarItem(
+            icon: Semantics(
+              key: const Key("nav_tab_reference"),
+              button: true,
+              child: const Icon(Icons.library_books),
+            ),
             label: "Reference",
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.library_music),
+            icon: Semantics(
+              key: const Key("nav_tab_repertoire"),
+              button: true,
+              child: const Icon(Icons.library_music),
+            ),
             label: "Repertoire",
           ),
         ],
