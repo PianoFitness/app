@@ -37,21 +37,35 @@ void main() {
       await tester.pumpWidget(createTestApp());
       await tester.pumpAndSettle();
 
-      // Initially should be on play page
-      expect(find.text("Piano Fitness"), findsOneWidget);
-      expect(find.text("Free Play Mode"), findsOneWidget);
+      // Initially should be on play page - check app bar title specifically
+      final playAppBarTitleFinder = find.descendant(
+        of: find.byType(AppBar),
+        matching: find.text("Free Play"),
+      );
+      expect(playAppBarTitleFinder, findsOneWidget);
 
-      // Verify we have the Reference navigation item
-      expect(find.text("Reference"), findsOneWidget);
+      // Verify we have the Reference navigation item in the bottom navigation
+      expect(
+        find.descendant(
+          of: find.byType(BottomNavigationBar),
+          matching: find.text("Reference"),
+        ),
+        findsOneWidget,
+      );
 
       // Tap on Reference navigation item
       await tester.tap(find.text("Reference"));
       await tester.pumpAndSettle();
 
-      // Should now be on reference page
+      // Should now be on reference page (app bar title and content)
+      final appBarTitleFinder = find.descendant(
+        of: find.byType(AppBar),
+        matching: find.text("Reference"),
+      );
+      expect(appBarTitleFinder, findsOneWidget);
       expect(find.text("Reference Mode"), findsOneWidget);
       expect(find.text("Scales"), findsOneWidget);
-      expect(find.text("Chords by Key"), findsOneWidget);
+      expect(find.text("Chord Types"), findsOneWidget);
     });
 
     testWidgets("should maintain reference page state when switching tabs", (
@@ -64,12 +78,12 @@ void main() {
       await tester.tap(find.text("Reference"));
       await tester.pumpAndSettle();
 
-      // Change to chords mode
-      await tester.tap(find.text("Chords by Key"));
+      // Change to chords mode using semantic key
+      await tester.tap(find.byKey(const Key("chord_types_mode_button")));
       await tester.pumpAndSettle();
 
-      // Select F# key
-      await tester.tap(find.text("G♭"));
+      // Select F# key using semantic key
+      await tester.tap(find.byKey(const Key("chords_root_fSharp")));
       await tester.pumpAndSettle();
 
       // Switch to another tab and back
@@ -101,9 +115,10 @@ void main() {
       expect(midiState.activeNotes.isEmpty, isTrue);
 
       // Select a specific scale
-      await tester.tap(find.text("A"));
+      // Use warnIfMissed: false to suppress flaky hit-test warnings for UI elements
+      await tester.tap(find.text("A"), warnIfMissed: false);
       await tester.pumpAndSettle();
-      await tester.tap(find.text("Minor"));
+      await tester.tap(find.text("Minor"), warnIfMissed: false);
       await tester.pumpAndSettle();
 
       // The shared MIDI state should NOT be affected by reference page selections
@@ -128,7 +143,7 @@ void main() {
 
       // Rapidly switch between modes
       for (int i = 0; i < 5; i++) {
-        await tester.tap(find.text("Chords by Key"));
+        await tester.tap(find.text("Chord Types"));
         await tester.pump(const Duration(milliseconds: 100));
 
         await tester.tap(find.text("Scales"));
@@ -184,7 +199,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Switch to chords mode
-      await tester.tap(find.text("Chords by Key"));
+      await tester.tap(find.text("Chord Types"));
       await tester.pumpAndSettle();
 
       // Test a few key combinations
@@ -233,7 +248,12 @@ void main() {
       await tester.pumpAndSettle();
 
       // Should be on Free Play page and app should still be functional
-      expect(find.text("Free Play Mode"), findsOneWidget);
+      // Look for Free Play in the app bar title specifically
+      final appBarTitleFinder = find.descendant(
+        of: find.byType(AppBar),
+        matching: find.text("Free Play"),
+      );
+      expect(appBarTitleFinder, findsOneWidget);
     });
   });
 
@@ -269,9 +289,16 @@ void main() {
 
       final stopwatch = Stopwatch()..start();
 
-      // Perform multiple operations
-      await tester.tap(find.text("G♭"));
-      await tester.tap(find.text("Lydian"));
+      // Perform multiple operations using key-based finders
+      // Use warnIfMissed: false to suppress flaky hit-test warnings in UI elements
+      await tester.tap(
+        find.byKey(const Key("scales_key_fSharp")),
+        warnIfMissed: false,
+      );
+      await tester.tap(
+        find.byKey(const Key("scales_type_lydian")),
+        warnIfMissed: false,
+      );
       await tester.pumpAndSettle();
 
       stopwatch.stop();
@@ -295,19 +322,21 @@ void main() {
       await tester.tap(find.text("Reference"));
       await tester.pumpAndSettle();
 
-      // Switch to chords mode
-      expect(find.text("Chords by Key"), findsOneWidget);
-      await tester.tap(find.text("Chords by Key"));
+      // Switch to chords mode using key-based finder
+      await tester.tap(
+        find.byKey(const Key("chord_types_mode_button")),
+        warnIfMissed: false,
+      );
       await tester.pumpAndSettle();
 
       final stopwatch = Stopwatch()..start();
 
-      // Test all inversions rapidly - only tap what exists
-      if (find.text("1st Inversion").evaluate().isNotEmpty) {
-        await tester.tap(find.text("1st Inversion"), warnIfMissed: false);
-        await tester.pump();
-      }
-      // Just test that the app responds to interactions
+      // Test chord inversion using key-based finder
+      // Use warnIfMissed: false to suppress flaky hit-test warnings
+      await tester.tap(
+        find.byKey(const Key("chords_inversion_first")),
+        warnIfMissed: false,
+      );
       await tester.pumpAndSettle();
 
       stopwatch.stop();

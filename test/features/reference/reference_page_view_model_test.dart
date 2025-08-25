@@ -44,9 +44,9 @@ void main() {
           ..addListener(() {
             notified = true;
           })
-          ..setSelectedMode(ReferenceMode.chordsByKey);
+          ..setSelectedMode(ReferenceMode.chordTypes);
 
-        expect(viewModel.selectedMode, equals(ReferenceMode.chordsByKey));
+        expect(viewModel.selectedMode, equals(ReferenceMode.chordTypes));
         expect(notified, isTrue);
       });
 
@@ -219,7 +219,7 @@ void main() {
       test(
         "should return correct MIDI notes for C Major chord root position",
         () {
-          viewModel.setSelectedMode(ReferenceMode.chordsByKey);
+          viewModel.setSelectedMode(ReferenceMode.chordTypes);
           viewModel.setSelectedKey(scales.Key.c);
           viewModel.setSelectedChordType(ChordType.major);
           viewModel.setSelectedChordInversion(ChordInversion.root);
@@ -240,7 +240,7 @@ void main() {
       test(
         "should return correct MIDI notes for A Minor chord first inversion",
         () {
-          viewModel.setSelectedMode(ReferenceMode.chordsByKey);
+          viewModel.setSelectedMode(ReferenceMode.chordTypes);
           viewModel.setSelectedKey(scales.Key.a);
           viewModel.setSelectedChordType(ChordType.minor);
           viewModel.setSelectedChordInversion(ChordInversion.first);
@@ -264,7 +264,7 @@ void main() {
       );
 
       test("should return correct MIDI notes for F# Diminished chord", () {
-        viewModel.setSelectedMode(ReferenceMode.chordsByKey);
+        viewModel.setSelectedMode(ReferenceMode.chordTypes);
         viewModel.setSelectedKey(scales.Key.fSharp);
         viewModel.setSelectedChordType(ChordType.diminished);
 
@@ -352,7 +352,7 @@ void main() {
         ];
 
         for (final (key, expectedMidiNote) in testCases) {
-          viewModel.setSelectedMode(ReferenceMode.chordsByKey);
+          viewModel.setSelectedMode(ReferenceMode.chordTypes);
           viewModel.setSelectedKey(key);
           viewModel.setSelectedChordType(ChordType.major);
 

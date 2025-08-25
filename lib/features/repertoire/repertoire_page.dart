@@ -39,20 +39,6 @@ class _RepertoirePageState extends State<RepertoirePage> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Semantics(
-          header: true,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.library_music, color: colorScheme.primary),
-              const SizedBox(width: 8),
-              const Text("Repertoire"),
-            ],
-          ),
-        ),
-      ),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {

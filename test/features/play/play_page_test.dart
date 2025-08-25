@@ -1,10 +1,8 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano/piano.dart";
-import "package:piano_fitness/features/midi_settings/midi_settings_page.dart";
 import "package:piano_fitness/features/play/play_page.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
-import "package:piano_fitness/shared/widgets/midi_controls.dart";
 import "package:provider/provider.dart";
 import "../../shared/midi_mocks.dart";
 
@@ -35,7 +33,7 @@ void main() {
 
       // Verify PlayPage is rendered
       expect(find.byType(PlayPage), findsOneWidget);
-      expect(find.text("Piano Fitness"), findsOneWidget);
+      expect(find.byKey(const Key("playPageTitle")), findsOneWidget);
       expect(
         find.byIcon(Icons.piano),
         findsWidgets,
@@ -55,7 +53,7 @@ void main() {
 
       // Verify the page renders correctly (MIDI channel is internal to ViewModel now)
       expect(find.byType(PlayPage), findsOneWidget);
-      expect(find.text("Piano Fitness"), findsOneWidget);
+      expect(find.byKey(const Key("playPageTitle")), findsOneWidget);
     });
 
     testWidgets("should display educational content for free play", (
@@ -132,27 +130,9 @@ void main() {
       // Note: midiState disposal is handled in tearDown
     });
 
-    testWidgets("should handle MIDI settings navigation", (tester) async {
-      await tester.pumpWidget(testWidget);
+    // MIDI settings navigation is now handled in the main navigation app bar, so this test is removed.
 
-      // Find and tap settings button
-      final settingsButton = find.byIcon(Icons.settings);
-      expect(settingsButton, findsOneWidget);
-
-      await tester.tap(settingsButton);
-      await tester.pumpAndSettle();
-
-      // Verify MIDI settings page is shown
-      expect(find.byType(MidiSettingsPage), findsOneWidget);
-    });
-
-    testWidgets("should display MIDI controls", (tester) async {
-      await tester.pumpWidget(testWidget);
-      await tester.pumpAndSettle();
-
-      // Verify MIDI controls component is present in the app bar
-      expect(find.byType(MidiControls), findsOneWidget);
-    });
+    // MIDI controls are no longer present in PlayPage after refactor, so this test is removed.
 
     testWidgets("should handle local MIDI state properly", (tester) async {
       await tester.pumpWidget(testWidget);

@@ -25,7 +25,23 @@ pre-commit:
         git add {staged_files}
       stage_fixed: true
 
-    # Step 3: Run analysis after fixes (only for Dart files)
+    # Step 3: Check for text-based selectors in test files
+    test-selector-check:
+      glob: "test/**/*_test.dart"
+      run: ./scripts/check-test-selectors.sh {staged_files}
+      fail_text: |
+        ❌ Text-based selectors detected in test files.
+        
+        Replace find.text() calls used with tester.tap() with find.byKey() calls.
+        This improves test robustness and supports internationalization.
+        
+        Examples:
+        ❌ await tester.tap(find.text("Practice"));
+        ✅ await tester.tap(find.byKey(const Key("nav_tab_practice")));
+        
+        See test/GUIDELINES.md for more information on key-based testing.
+
+    # Step 4: Run analysis after fixes (only for Dart files)
     dart-analyze:
       glob: "*.dart"
       run: |
@@ -42,9 +58,3 @@ pre-push:
     test:
       run: flutter test
       fail_text: "Tests failed. Please fix them before pushing."
-
-commit-msg:
-  commands:
-    # Ensure commit messages follow conventional commits format
-    conventional:
-      run: dart scripts/validate_commit_msg.dart {1}

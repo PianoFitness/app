@@ -2,7 +2,6 @@ import "package:flutter/material.dart";
 import "package:piano_fitness/features/practice/practice_page.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/models/chord_progression_type.dart";
-import "package:piano_fitness/shared/widgets/midi_controls.dart";
 
 /// Hub page for organized practice sessions.
 ///
@@ -13,21 +12,24 @@ class PracticeHubPage extends StatelessWidget {
   /// Creates the practice hub page.
   const PracticeHubPage({super.key});
 
+  /// Normalize titles into predictable, ASCII-only keys (e.g., "C Major  Scale!" -> "c_major_scale")
+  String _slugify(String s) {
+    final slug = s
+        .toLowerCase()
+        .replaceAll(
+          RegExp(r"[^a-z0-9]+"),
+          "_",
+        ) // collapse non-alnum into underscores
+        .replaceAll(RegExp(r"_+"), "_"); // squeeze duplicate underscores
+    return slug.replaceAll(
+      RegExp(r"^_+|_+$"),
+      "",
+    ); // trim leading/trailing underscores
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.school, color: Colors.deepPurple),
-            SizedBox(width: 8),
-            Text("Practice Hub"),
-          ],
-        ),
-        actions: const [MidiControls()],
-      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -229,9 +231,13 @@ class PracticeHubPage extends StatelessWidget {
     required Color color,
     required VoidCallback onTap,
   }) {
+    // Create a key based on the title for test reliability
+    final keyName = _slugify(title);
+
     return Card(
       elevation: 2,
       child: InkWell(
+        key: Key("practice_mode_$keyName"),
         onTap: onTap,
         borderRadius: BorderRadius.circular(8),
         child: Padding(
@@ -272,9 +278,13 @@ class PracticeHubPage extends StatelessWidget {
     required IconData icon,
     required VoidCallback onTap,
   }) {
+    // Create a key based on the title for test reliability
+    final keyName = _slugify(title);
+
     return Card(
       elevation: 1,
       child: ListTile(
+        key: Key("quick_start_$keyName"),
         leading: Icon(icon, color: Colors.deepPurple, size: 28),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
         subtitle: Text(subtitle),

@@ -3,7 +3,6 @@ import "package:piano/piano.dart";
 import "package:piano_fitness/features/play/play_page_view_model.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_range_utils.dart";
-import "package:piano_fitness/shared/widgets/midi_controls.dart";
 
 /// The main page of the Piano Fitness application.
 ///
@@ -41,18 +40,6 @@ class _PlayPageState extends State<PlayPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.piano, color: Colors.deepPurple),
-            SizedBox(width: 8),
-            Text("Piano Fitness"),
-          ],
-        ),
-        actions: const [MidiControls()],
-      ),
       body: Column(
         children: [
           Expanded(
@@ -83,6 +70,7 @@ class _PlayPageState extends State<PlayPage> {
                           const SizedBox(height: 12),
                           const Text(
                             "Free Play Mode",
+                            key: Key("playPageTitle"),
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,

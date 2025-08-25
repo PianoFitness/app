@@ -2,6 +2,8 @@ import "dart:async";
 import "package:audioplayers/audioplayers.dart";
 import "package:flutter/foundation.dart";
 import "package:flutter/services.dart";
+import "package:piano_fitness/shared/services/notification_manager.dart";
+import "package:piano_fitness/shared/services/notification_service.dart";
 
 /// ViewModel for managing repertoire page state and logic.
 ///
@@ -153,6 +155,21 @@ class RepertoirePageViewModel extends ChangeNotifier {
       );
     } catch (e) {
       debugPrint("Error playing timer completion sound: $e");
+    }
+
+    // Show notification if enabled
+    try {
+      final settings = await NotificationManager.loadSettings();
+      if (settings.timerCompletionEnabled && settings.permissionGranted) {
+        await NotificationService.showInstantNotification(
+          title: "Great Practice Session! 🎹",
+          body:
+              "You completed $_selectedDurationMinutes minutes of practice. Well done!",
+          payload: "timer_completion",
+        );
+      }
+    } catch (e) {
+      debugPrint("Error showing timer completion notification: $e");
     }
 
     // Provide strong haptic feedback for completion

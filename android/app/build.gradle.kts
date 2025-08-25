@@ -7,6 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.piano_fitness"
+    // flutter_local_notifications v19+ requires compileSdk 35, AGP 8.6+, Java 11
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 

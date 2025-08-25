@@ -5,7 +5,6 @@ import "package:piano_fitness/shared/models/chord_progression_type.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_range_utils.dart";
-import "package:piano_fitness/shared/widgets/midi_controls.dart";
 import "package:piano_fitness/shared/widgets/practice_progress_display.dart";
 import "package:piano_fitness/shared/widgets/practice_settings_panel.dart";
 
@@ -129,28 +128,6 @@ class _PracticePageState extends State<PracticePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: const Key("practice_page_scaffold"),
-      appBar: AppBar(
-        key: const Key("practice_page_app_bar"),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Row(
-          key: const Key("practice_page_title"),
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.fitness_center,
-              key: Key("practice_page_icon"),
-              color: Colors.deepPurple,
-              semanticLabel: "Piano fitness icon",
-            ),
-            const SizedBox(width: 8),
-            Semantics(
-              label: "Piano Practice page title",
-              child: const Text("Piano Practice"),
-            ),
-          ],
-        ),
-        actions: const [MidiControls(key: Key("midi_controls"))],
-      ),
       body: Column(
         children: [
           Expanded(

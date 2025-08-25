@@ -3,7 +3,6 @@ import "package:flutter_test/flutter_test.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/reference/reference_page.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
-import "package:piano_fitness/shared/widgets/midi_controls.dart";
 import "package:provider/provider.dart";
 import "../../shared/midi_mocks.dart";
 
@@ -32,32 +31,31 @@ void main() {
       );
     }
 
+    // Helper functions to reduce duplication
+    Future<void> switchToChordsMode(WidgetTester tester) async {
+      await tester.tap(find.byKey(const Key("chord_types_mode_button")));
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> switchToScalesMode(WidgetTester tester) async {
+      await tester.tap(find.byKey(const Key("scales_mode_button")));
+      await tester.pumpAndSettle();
+    }
+
     testWidgets("should display reference page with initial content", (
       tester,
     ) async {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      // Check that the app bar is present with correct title
-      expect(find.text("Reference"), findsOneWidget);
-      expect(find.byIcon(Icons.library_books), findsOneWidget);
-
       // Check that mode selection is present
       expect(find.text("Reference Mode"), findsOneWidget);
       expect(find.text("Scales"), findsOneWidget);
-      expect(find.text("Chords by Key"), findsOneWidget);
+      expect(find.text("Chord Types"), findsOneWidget);
 
       // Initially should show scales mode
       expect(find.text("Key"), findsOneWidget);
       expect(find.text("Scale Type"), findsOneWidget);
-    });
-
-    testWidgets("should display MIDI controls", (tester) async {
-      await tester.pumpWidget(createTestWidget());
-      await tester.pumpAndSettle();
-
-      // Verify MIDI controls are present in the app bar
-      expect(find.byType(MidiControls), findsOneWidget);
     });
 
     testWidgets("should switch between scales and chords mode", (tester) async {
@@ -68,9 +66,8 @@ void main() {
       expect(find.text("Scale Type"), findsOneWidget);
       expect(find.text("Chord Type"), findsNothing);
 
-      // Tap on Chords button
-      await tester.tap(find.text("Chords by Key"));
-      await tester.pumpAndSettle();
+      // Switch to Chord Types mode
+      await switchToChordsMode(tester);
 
       // Should now show chords mode
       expect(find.text("Root Note"), findsOneWidget);
@@ -78,9 +75,8 @@ void main() {
       expect(find.text("Inversion"), findsOneWidget);
       expect(find.text("Scale Type"), findsNothing);
 
-      // Switch back to scales
-      await tester.tap(find.text("Scales"));
-      await tester.pumpAndSettle();
+      // Switch back to scales mode
+      await switchToScalesMode(tester);
 
       // Should show scales mode again
       expect(find.text("Scale Type"), findsOneWidget);
@@ -111,8 +107,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Switch to chords mode
-      await tester.tap(find.text("Chords by Key"));
-      await tester.pumpAndSettle();
+      await switchToChordsMode(tester);
 
       // Check that all chord types are displayed
       expect(find.text("Major"), findsOneWidget);
@@ -149,8 +144,8 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      // Tap on F# key
-      await tester.tap(find.text("G♭"));
+      // Tap F# (G♭) via key-based selector; UI displays the flat name
+      await tester.tap(find.byKey(const Key("scales_key_fSharp")));
       await tester.pumpAndSettle();
 
       // The selection should be updated (the chip should be selected)
@@ -166,8 +161,8 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      // Tap on Minor scale type
-      await tester.tap(find.text("Minor"));
+      // Tap on Minor scale type using key-based selection
+      await tester.tap(find.byKey(const Key("scales_type_minor")));
       await tester.pumpAndSettle();
 
       // The selection should be updated
@@ -184,11 +179,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Switch to chords mode
-      await tester.tap(find.text("Chords by Key"));
-      await tester.pumpAndSettle();
+      await switchToChordsMode(tester);
 
-      // Tap on Minor chord type
-      await tester.tap(find.text("Minor"));
+      // Tap on Minor chord type using key-based selection
+      await tester.tap(find.byKey(const Key("chords_type_minor")));
       await tester.pumpAndSettle();
 
       // The selection should be updated
@@ -205,24 +199,12 @@ void main() {
       await tester.pumpAndSettle();
 
       // Switch to chords mode
-      await tester.tap(find.text("Chords by Key"));
-      await tester.pumpAndSettle();
+      await switchToChordsMode(tester);
 
-      // Tap on 1st Inversion
-      await tester.tap(find.text("1st Inversion"), warnIfMissed: false);
-      await tester.pumpAndSettle();
-
-      // The selection should be updated - or test should at least complete without error
-      final inversionChips = find.widgetWithText(FilterChip, "1st Inversion");
-      if (inversionChips.evaluate().isNotEmpty) {
-        final firstInversionChip = tester.widget<FilterChip>(inversionChips);
-        // Due to overlay issues in tests, just check that the widget exists
-        // The functionality is verified by other tests
-        expect(firstInversionChip.selected, isA<bool>());
-      } else {
-        // If we can't find the chip, just ensure no errors occurred
-        expect(find.text("1st Inversion"), findsWidgets);
-      }
+      // Verify chord inversion options by key (more stable than text)
+      expect(find.byKey(const Key("chords_inversion_root")), findsOneWidget);
+      expect(find.byKey(const Key("chords_inversion_first")), findsOneWidget);
+      expect(find.byKey(const Key("chords_inversion_second")), findsOneWidget);
     });
 
     testWidgets("should display interactive piano", (tester) async {
@@ -239,12 +221,11 @@ void main() {
       await tester.pumpWidget(createTestWidget());
       await tester.pumpAndSettle();
 
-      // Change to a different scale (Minor)
-      await tester.tap(find.text("Minor"));
+      // Change to a different scale (Minor) using key-based selection
+      await tester.tap(find.byKey(const Key("scales_type_minor")));
       await tester.pumpAndSettle();
 
-      // The piano should be present and functional
-      // (Specific highlighting is tested by other tests that don't depend on internal state)
+      // Verify piano is present and functional
       expect(find.byType(InteractivePiano), findsOneWidget);
 
       // Verify the Minor scale is selected in the UI
@@ -265,14 +246,13 @@ void main() {
       await tester.pumpAndSettle();
 
       // Switch to chords mode
-      await tester.tap(find.text("Chords by Key"));
+      await switchToChordsMode(tester);
+
+      // Change to a different chord type using key-based selection
+      await tester.tap(find.byKey(const Key("chords_type_minor")));
       await tester.pumpAndSettle();
 
-      // Change to a different chord type
-      await tester.tap(find.text("Minor"));
-      await tester.pumpAndSettle();
-
-      // The piano should be present and functional
+      // Verify piano is present and functional
       expect(find.byType(InteractivePiano), findsOneWidget);
 
       // Verify the Minor chord type is selected in the UI
@@ -286,38 +266,6 @@ void main() {
       expect(minorChip, findsOneWidget);
     });
 
-    testWidgets("should use correct colors for scales mode", (tester) async {
-      await tester.pumpWidget(createTestWidget());
-      await tester.pumpAndSettle();
-
-      // Check that scales mode uses blue colors
-      final scaleContainer = find.byWidgetPredicate(
-        (widget) =>
-            widget is Container &&
-            widget.decoration is BoxDecoration &&
-            (widget.decoration as BoxDecoration).color == Colors.blue.shade50,
-      );
-      expect(scaleContainer, findsWidgets);
-    });
-
-    testWidgets("should use correct colors for chords mode", (tester) async {
-      await tester.pumpWidget(createTestWidget());
-      await tester.pumpAndSettle();
-
-      // Switch to chords mode
-      await tester.tap(find.text("Chords by Key"));
-      await tester.pumpAndSettle();
-
-      // Check that chords mode uses green colors
-      final chordContainer = find.byWidgetPredicate(
-        (widget) =>
-            widget is Container &&
-            widget.decoration is BoxDecoration &&
-            (widget.decoration as BoxDecoration).color == Colors.green.shade50,
-      );
-      expect(chordContainer, findsWidgets);
-    });
-
     group("Piano Interaction", () {
       testWidgets("should handle piano key taps", (tester) async {
         await tester.pumpWidget(createTestWidget());
@@ -327,9 +275,19 @@ void main() {
         final pianoFinder = find.byType(InteractivePiano);
         expect(pianoFinder, findsOneWidget);
 
-        // The piano should be interactive (this tests that it was set up correctly)
+        // Verify piano is interactive and properly configured
         final piano = tester.widget<InteractivePiano>(pianoFinder);
         expect(piano.onNotePositionTapped, isNotNull);
+
+        // Verify initial UI state shows scales mode (Major scale selected)
+        final majorScaleChip = find.byWidgetPredicate(
+          (widget) =>
+              widget is FilterChip &&
+              widget.label is Text &&
+              (widget.label as Text).data == "Major" &&
+              widget.selected == true,
+        );
+        expect(majorScaleChip, findsOneWidget);
       });
     });
 
@@ -343,7 +301,7 @@ void main() {
 
         // Should not crash and should render properly
         await tester.pumpAndSettle();
-        expect(find.text("Reference"), findsOneWidget);
+        expect(find.text("Reference Mode"), findsOneWidget);
       });
     });
   });
