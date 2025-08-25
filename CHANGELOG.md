@@ -44,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Architecture Enhancement**: Better separation of concerns with improved MVVM implementation
 - **Plugin Integration**: Enhanced flutter_local_notifications with proper platform configuration
 - **Build System**: Updated macOS deployment target to 10.15 and iOS to 13.0
-- **Dependencies**: Added audioplayers, path_provider, and url_launcher for expanded functionality
+- **Dependencies**: Added audioplayers and url_launcher for expanded functionality
 - **Code Documentation**: Comprehensive documentation updates and development guidelines
 
 [0.3.0]: https://github.com/PianoFitness/app/compare/v0.2.0...v0.3.0
