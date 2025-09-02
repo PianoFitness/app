@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
-import "package:flutter/semantics.dart";
 import "package:piano/piano.dart";
+import "package:piano_fitness/shared/accessibility/services/musical_announcements_service.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 
 /// Utility class providing accessibility enhancements for piano widgets.
@@ -109,8 +109,9 @@ class PianoAccessibilityUtils {
 
   /// Announces highlighted notes changes to screen readers.
   ///
-  /// This method uses the Flutter SemanticsService to announce changes
-  /// in highlighted notes to assistive technologies.
+  /// This method uses the MusicalAnnouncementsService to announce changes
+  /// in highlighted notes to assistive technologies. It analyzes the message
+  /// content to determine if it's a note, chord, or general announcement.
   ///
   /// The [context] is required for directionality.
   /// The [newHighlightedNotes] are the newly highlighted notes.
@@ -119,7 +120,19 @@ class PianoAccessibilityUtils {
     List<NotePosition> newHighlightedNotes,
   ) {
     final announcement = getHighlightedNotesAnnouncement(newHighlightedNotes);
-    SemanticsService.announce(announcement, Directionality.of(context));
+
+    // Determine the appropriate announcement method based on content
+    if (newHighlightedNotes.isEmpty) {
+      MusicalAnnouncementsService.announceGeneral(context, announcement);
+    } else if (newHighlightedNotes.length == 1) {
+      final noteName = _getNotePositionDisplayName(newHighlightedNotes.first);
+      MusicalAnnouncementsService.announceNote(context, noteName);
+    } else {
+      final noteNames = newHighlightedNotes
+          .map(_getNotePositionDisplayName)
+          .toList();
+      MusicalAnnouncementsService.announceChord(context, noteNames);
+    }
   }
 
   /// Creates semantic annotations for musical practice context.

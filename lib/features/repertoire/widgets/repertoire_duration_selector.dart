@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "package:flutter/semantics.dart";
+import "package:piano_fitness/shared/accessibility/services/musical_announcements_service.dart";
 
 /// Reusable widget for selecting practice duration in repertoire practice.
 class RepertoireDurationSelector extends StatelessWidget {
@@ -125,9 +125,9 @@ class RepertoireDurationSelector extends StatelessWidget {
                           onTap: canInteract
                               ? () {
                                   onDurationChanged(duration);
-                                  SemanticsService.announce(
+                                  MusicalAnnouncementsService.announceGeneral(
+                                    context,
                                     "$duration minutes selected",
-                                    Directionality.of(context),
                                   );
                                 }
                               : null,
