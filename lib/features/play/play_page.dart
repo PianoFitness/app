@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/play/play_page_view_model.dart";
+import "package:piano_fitness/shared/accessibility/config/accessibility_labels.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_range_utils.dart";
 import "package:piano_fitness/shared/utils/piano_accessibility_utils.dart";
@@ -146,7 +147,9 @@ class _PlayPageState extends State<PlayPage> {
                 return PianoAccessibilityUtils.createAccessiblePianoWrapper(
                   highlightedNotes:
                       _viewModel.localMidiState.highlightedNotePositions,
-                  semanticLabel: "Play mode piano keyboard",
+                  semanticLabel: AccessibilityLabels.piano.keyboardLabel(
+                    PianoMode.play,
+                  ),
                   child: InteractivePiano(
                     highlightedNotes:
                         _viewModel.localMidiState.highlightedNotePositions,

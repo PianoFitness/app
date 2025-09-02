@@ -56,9 +56,12 @@ void main() {
 
       // Verify device information is displayed
       expect(find.text("Device Information"), findsOneWidget);
-      expect(find.textContaining("Name: Test MIDI Device"), findsOneWidget);
-      expect(find.textContaining("Type: BLE"), findsOneWidget);
-      expect(find.textContaining("ID: test-device-1"), findsOneWidget);
+      expect(
+        find.textContaining("Device name: Test MIDI Device"),
+        findsOneWidget,
+      );
+      expect(find.textContaining("Device type: BLE"), findsOneWidget);
+      expect(find.textContaining("Device ID: test-device-1"), findsOneWidget);
     });
 
     testWidgets("should display MIDI controls", (tester) async {
@@ -179,7 +182,10 @@ void main() {
       // Should render without errors even for disconnected device
       expect(find.byType(DeviceControllerPage), findsOneWidget);
       expect(find.textContaining("Disconnected Device").first, findsOneWidget);
-      expect(find.textContaining("Connected: No"), findsOneWidget);
+      expect(
+        find.textContaining("Connection status: Disconnected"),
+        findsOneWidget,
+      );
     });
 
     testWidgets("should handle program change controls", (tester) async {
