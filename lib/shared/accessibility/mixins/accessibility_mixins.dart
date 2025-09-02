@@ -116,13 +116,17 @@ mixin SemanticWrapperMixin {
       hint: hint,
       onIncrease: onChanged != null
           ? () {
-              final newValue = (value + ((max - min) / 10)).clamp(min, max);
+              final newValue = (value + ((max - min) / 10))
+                  .clamp(min, max)
+                  .toDouble();
               onChanged(newValue);
             }
           : null,
       onDecrease: onChanged != null
           ? () {
-              final newValue = (value - ((max - min) / 10)).clamp(min, max);
+              final newValue = (value - ((max - min) / 10))
+                  .clamp(min, max)
+                  .toDouble();
               onChanged(newValue);
             }
           : null,
