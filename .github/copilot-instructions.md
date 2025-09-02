@@ -26,7 +26,6 @@ Piano Fitness is a Flutter application designed to help users improve their pian
 - **Files**: Use snake_case (e.g., `piano_keyboard_component.dart`)
 - **Classes**: Use PascalCase (e.g., `PianoKeyboard`, `MidiController`)
 - **Variables/Methods**: Use camelCase (e.g., `currentNote`, `playSound()`)
-- **Constants**: Use SCREAMING_SNAKE_CASE (e.g., `MAX_NOTES`)
 
 ### Import Organization
 
@@ -248,6 +247,7 @@ try {
 1. **Write Tests First** (TDD approach recommended)
 2. **Implement Feature** with tests in mind
 3. **Verify Coverage** meets requirements:
+
    ```bash
    flutter test --coverage && genhtml coverage/lcov.info -o coverage/html
    open coverage/html/index.html

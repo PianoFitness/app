@@ -1,8 +1,10 @@
 import "package:flutter/material.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/play/play_page_view_model.dart";
+import "package:piano_fitness/shared/accessibility/config/accessibility_labels.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_range_utils.dart";
+import "package:piano_fitness/shared/utils/piano_accessibility_utils.dart";
 
 /// The main page of the Piano Fitness application.
 ///
@@ -142,20 +144,28 @@ class _PlayPageState extends State<PlayPage> {
                 final dynamicKeyWidth =
                     PianoRangeUtils.calculateScreenBasedKeyWidth(screenWidth);
 
-                return InteractivePiano(
+                return PianoAccessibilityUtils.createAccessiblePianoWrapper(
                   highlightedNotes:
                       _viewModel.localMidiState.highlightedNotePositions,
-                  keyWidth: dynamicKeyWidth.clamp(
-                    PianoRangeUtils.minKeyWidth,
-                    PianoRangeUtils.maxKeyWidth,
+                  mode: PianoMode.play,
+                  semanticLabel: AccessibilityLabels.piano.keyboardLabel(
+                    PianoMode.play,
                   ),
-                  noteRange: fixed49KeyRange,
-                  onNotePositionTapped: (position) {
-                    final midiNote = NoteUtils.convertNotePositionToMidi(
-                      position,
-                    );
-                    _viewModel.playVirtualNote(midiNote);
-                  },
+                  child: InteractivePiano(
+                    highlightedNotes:
+                        _viewModel.localMidiState.highlightedNotePositions,
+                    keyWidth: dynamicKeyWidth.clamp(
+                      PianoRangeUtils.minKeyWidth,
+                      PianoRangeUtils.maxKeyWidth,
+                    ),
+                    noteRange: fixed49KeyRange,
+                    onNotePositionTapped: (position) {
+                      final midiNote = NoteUtils.convertNotePositionToMidi(
+                        position,
+                      );
+                      _viewModel.playVirtualNote(midiNote);
+                    },
+                  ),
                 );
               },
             ),

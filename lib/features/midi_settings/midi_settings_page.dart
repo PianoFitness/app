@@ -113,30 +113,52 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Text("Channel: "),
-              IconButton(
-                icon: const Icon(Icons.remove_circle),
-                onPressed: viewModel.selectedChannel > 0
-                    ? viewModel.decrementChannel
-                    : null,
-              ),
-              Text(
-                "${viewModel.selectedChannel + 1}",
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              Semantics(
+                button: true,
+                enabled: viewModel.selectedChannel > 0,
+                label: "Decrease MIDI channel",
+                hint:
+                    "Currently set to channel ${viewModel.selectedChannel + 1}",
+                child: IconButton(
+                  icon: const Icon(Icons.remove_circle),
+                  onPressed: viewModel.selectedChannel > 0
+                      ? viewModel.decrementChannel
+                      : null,
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.add_circle),
-                onPressed: viewModel.selectedChannel < 15
-                    ? viewModel.incrementChannel
-                    : null,
+              Semantics(
+                value: "${viewModel.selectedChannel + 1}",
+                excludeSemantics: true,
+                liveRegion: true,
+                child: Text(
+                  "${viewModel.selectedChannel + 1}",
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              Semantics(
+                button: true,
+                enabled: viewModel.selectedChannel < 15,
+                label: "Increase MIDI channel",
+                hint:
+                    "Currently set to channel ${viewModel.selectedChannel + 1}",
+                child: IconButton(
+                  icon: const Icon(Icons.add_circle),
+                  onPressed: viewModel.selectedChannel < 15
+                      ? viewModel.incrementChannel
+                      : null,
+                ),
               ),
             ],
           ),
-          const Text(
-            "Channel for virtual piano output (1-16)",
-            style: TextStyle(fontSize: 12, color: Colors.grey),
+          Semantics(
+            label: "Channel for virtual piano output, ranges from 1 to 16",
+            child: const Text(
+              "Channel for virtual piano output (1-16)",
+              style: TextStyle(fontSize: 12, color: Colors.grey),
+            ),
           ),
         ],
       ),
@@ -147,10 +169,17 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
     BuildContext context,
     MidiSettingsViewModel viewModel,
   ) {
-    return Text(
-      viewModel.midiStatus,
-      style: Theme.of(context).textTheme.bodyLarge,
-      textAlign: TextAlign.center,
+    return Semantics(
+      container: true,
+      label: "MIDI status: ${viewModel.midiStatus}",
+      liveRegion: true,
+      child: ExcludeSemantics(
+        child: Text(
+          viewModel.midiStatus,
+          style: Theme.of(context).textTheme.bodyLarge,
+          textAlign: TextAlign.center,
+        ),
+      ),
     );
   }
 

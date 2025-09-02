@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "package:flutter/semantics.dart";
+import "package:piano_fitness/shared/accessibility/services/musical_announcements_service.dart";
 
 /// Reusable widget for displaying practice timer with controls.
 class RepertoireTimerDisplay extends StatelessWidget {
@@ -240,16 +240,16 @@ class RepertoireTimerDisplay extends StatelessWidget {
                   onPressed: canStart
                       ? () {
                           onStart();
-                          SemanticsService.announce(
+                          MusicalAnnouncementsService.announceTimerChange(
+                            context,
                             "Timer started",
-                            Directionality.of(context),
                           );
                         }
                       : () {
                           onResume();
-                          SemanticsService.announce(
+                          MusicalAnnouncementsService.announceTimerChange(
+                            context,
                             "Timer resumed",
-                            Directionality.of(context),
                           );
                         },
                   style: ElevatedButton.styleFrom(
@@ -298,9 +298,9 @@ class RepertoireTimerDisplay extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () {
                     onPause();
-                    SemanticsService.announce(
+                    MusicalAnnouncementsService.announceTimerChange(
+                      context,
                       "Timer paused",
-                      Directionality.of(context),
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -342,9 +342,9 @@ class RepertoireTimerDisplay extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: () {
                     onReset();
-                    SemanticsService.announce(
+                    MusicalAnnouncementsService.announceTimerChange(
+                      context,
                       "Timer reset to $selectedDurationMinutes minutes",
-                      Directionality.of(context),
                     );
                   },
                   style: OutlinedButton.styleFrom(

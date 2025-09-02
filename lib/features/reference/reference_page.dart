@@ -1,10 +1,12 @@
 import "package:flutter/material.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/reference/reference_page_view_model.dart";
+import "package:piano_fitness/shared/accessibility/config/accessibility_labels.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_range_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as scales;
 import "package:piano_fitness/shared/utils/chords.dart";
+import "package:piano_fitness/shared/utils/piano_accessibility_utils.dart";
 
 /// Reference page for viewing scales and chords on the piano.
 ///
@@ -144,20 +146,25 @@ class _ReferencePageState extends State<ReferencePage> {
                         .cast<NotePosition>()
                         .toList();
 
-                    return InteractivePiano(
-                      key: const Key("reference_piano"),
+                    return PianoAccessibilityUtils.createAccessiblePianoWrapper(
                       highlightedNotes: localHighlightedPositions,
-                      keyWidth: dynamicKeyWidth.clamp(
-                        PianoRangeUtils.minKeyWidth,
-                        PianoRangeUtils.maxKeyWidth,
+                      mode: PianoMode.reference,
+                      semanticLabel: "Reference mode piano keyboard",
+                      child: InteractivePiano(
+                        key: const Key("reference_piano"),
+                        highlightedNotes: localHighlightedPositions,
+                        keyWidth: dynamicKeyWidth.clamp(
+                          PianoRangeUtils.minKeyWidth,
+                          PianoRangeUtils.maxKeyWidth,
+                        ),
+                        noteRange: fixed49KeyRange,
+                        onNotePositionTapped: (position) {
+                          final midiNote = NoteUtils.convertNotePositionToMidi(
+                            position,
+                          );
+                          _viewModel.playNote(midiNote);
+                        },
                       ),
-                      noteRange: fixed49KeyRange,
-                      onNotePositionTapped: (position) {
-                        final midiNote = NoteUtils.convertNotePositionToMidi(
-                          position,
-                        );
-                        _viewModel.playNote(midiNote);
-                      },
                     );
                   },
                 );

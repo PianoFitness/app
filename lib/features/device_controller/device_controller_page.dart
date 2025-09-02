@@ -60,17 +60,28 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Device Information",
-              style: Theme.of(context).textTheme.titleLarge,
+            Semantics(
+              header: true,
+              child: Text(
+                "Device Information",
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
             ),
             const SizedBox(height: 8),
-            Text("Name: ${viewModel.device.name}"),
-            Text("Type: ${viewModel.device.type}"),
-            Text("ID: ${viewModel.device.id}"),
-            Text('Connected: ${viewModel.device.connected ? "Yes" : "No"}'),
-            Text("Inputs: ${viewModel.device.inputPorts.length}"),
-            Text("Outputs: ${viewModel.device.outputPorts.length}"),
+            Text("Device name: ${viewModel.device.name}"),
+            Text("Device type: ${viewModel.device.type}"),
+            Text("Device ID: ${viewModel.device.id}"),
+            Semantics(
+              label:
+                  "Device is ${viewModel.device.connected ? "connected" : "disconnected"}",
+              liveRegion: true,
+              excludeSemantics: true,
+              child: Text(
+                'Connection status: ${viewModel.device.connected ? "Connected" : "Disconnected"}',
+              ),
+            ),
+            Text("Input ports: ${viewModel.device.inputPorts.length}"),
+            Text("Output ports: ${viewModel.device.outputPorts.length}"),
           ],
         ),
       ),
@@ -110,26 +121,49 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("MIDI Channel", style: Theme.of(context).textTheme.titleLarge),
+            Semantics(
+              header: true,
+              child: Text(
+                "MIDI Channel",
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.remove_circle),
-                  onPressed: viewModel.selectedChannel > 0
-                      ? viewModel.decrementChannel
-                      : null,
+                Semantics(
+                  button: true,
+                  enabled: viewModel.selectedChannel > 0,
+                  label: "Decrease MIDI channel",
+                  hint: "Current channel is ${viewModel.selectedChannel + 1}",
+                  child: IconButton(
+                    icon: const Icon(Icons.remove_circle),
+                    onPressed: viewModel.selectedChannel > 0
+                        ? viewModel.decrementChannel
+                        : null,
+                  ),
                 ),
-                Text(
-                  "${viewModel.selectedChannel + 1}",
-                  style: Theme.of(context).textTheme.headlineSmall,
+                Semantics(
+                  value: "${viewModel.selectedChannel + 1}",
+                  excludeSemantics: true,
+                  liveRegion: true,
+                  child: Text(
+                    "${viewModel.selectedChannel + 1}",
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.add_circle),
-                  onPressed: viewModel.selectedChannel < 15
-                      ? viewModel.incrementChannel
-                      : null,
+                Semantics(
+                  button: true,
+                  enabled: viewModel.selectedChannel < 15,
+                  label: "Increase MIDI channel",
+                  hint: "Current channel is ${viewModel.selectedChannel + 1}",
+                  child: IconButton(
+                    icon: const Icon(Icons.add_circle),
+                    onPressed: viewModel.selectedChannel < 15
+                        ? viewModel.incrementChannel
+                        : null,
+                  ),
                 ),
               ],
             ),
