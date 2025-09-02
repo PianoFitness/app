@@ -172,6 +172,8 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
     return Semantics(
       label: "MIDI status: ${viewModel.midiStatus}",
       liveRegion: true,
+      excludeSemantics: true,
+      container: true,
       child: Text(
         viewModel.midiStatus,
         style: Theme.of(context).textTheme.bodyLarge,
