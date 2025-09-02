@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:piano/piano.dart";
+import "package:piano_fitness/shared/accessibility/config/accessibility_labels.dart";
 import "package:piano_fitness/shared/accessibility/services/musical_announcements_service.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 
@@ -15,19 +16,28 @@ class PianoAccessibilityUtils {
   static String getPianoKeyboardDescription(
     List<NotePosition> highlightedNotes,
   ) {
+    // Use default keyboard label for general interactive use
+    // Since AccessibilityLabels.piano.keyboardLabel requires a mode,
+    // we'll use a general interactive description here
     const baseDescription = "Interactive piano keyboard";
 
-    if (highlightedNotes.isEmpty) {
-      return "$baseDescription. No notes highlighted.";
-    } else if (highlightedNotes.length == 1) {
-      final noteName = _getNotePositionDisplayName(highlightedNotes.first);
-      return "$baseDescription. $noteName is highlighted.";
-    } else {
-      final noteNames = highlightedNotes
-          .map(_getNotePositionDisplayName)
-          .join(", ");
-      return "$baseDescription. ${highlightedNotes.length} notes highlighted: $noteNames.";
-    }
+    // Get the highlighted notes part using the centralized labels
+    final noteNames = highlightedNotes
+        .map(_getNotePositionDisplayName)
+        .toList();
+    final highlightDescription = AccessibilityLabels.piano.highlightedNotes(
+      noteNames,
+    );
+
+    return "$baseDescription. $highlightDescription.";
+  }
+
+  /// Helper method to join note display names with consistent formatting.
+  ///
+  /// The [notes] are the note positions to convert and join.
+  /// Returns a comma-separated string of note names.
+  static String _joinNoteDisplayNames(List<NotePosition> notes) {
+    return notes.map(_getNotePositionDisplayName).join(", ");
   }
 
   /// Creates a semantic label for highlighted notes changes.
@@ -39,15 +49,15 @@ class PianoAccessibilityUtils {
     List<NotePosition> newHighlightedNotes,
   ) {
     if (newHighlightedNotes.isEmpty) {
-      return "No notes highlighted";
+      return AccessibilityLabels.piano.highlightedNotes([]);
     } else if (newHighlightedNotes.length == 1) {
       final noteName = _getNotePositionDisplayName(newHighlightedNotes.first);
-      return "$noteName highlighted";
+      return AccessibilityLabels.piano.highlightedNotes([noteName]);
     } else {
       final noteNames = newHighlightedNotes
           .map(_getNotePositionDisplayName)
-          .join(", ");
-      return "${newHighlightedNotes.length} notes highlighted: $noteNames";
+          .toList();
+      return AccessibilityLabels.piano.highlightedNotes(noteNames);
     }
   }
 
@@ -61,11 +71,7 @@ class PianoAccessibilityUtils {
     bool isHighlighted,
   ) {
     final noteName = _getNotePositionDisplayName(position);
-    final keyType =
-        "piano key"; // Simplified since we can't easily determine white vs black
-    final highlightStatus = isHighlighted ? " highlighted" : "";
-
-    return "$noteName $keyType$highlightStatus";
+    return AccessibilityLabels.piano.keyDescription(noteName, isHighlighted);
   }
 
   /// Creates an accessible wrapper widget for InteractivePiano.
@@ -82,11 +88,14 @@ class PianoAccessibilityUtils {
     String? semanticLabel,
   }) {
     final description = getPianoKeyboardDescription(highlightedNotes);
-    final label = semanticLabel ?? "Interactive piano keyboard";
+    // Use play mode as default for general interactive keyboard
+    final label =
+        semanticLabel ??
+        AccessibilityLabels.piano.keyboardLabel(PianoMode.play);
 
     return Semantics(
       label: label,
-      hint: "Piano keyboard for musical interaction and practice",
+      hint: AccessibilityLabels.piano.keyboardHint(PianoMode.play),
       container: true,
       child: Semantics(liveRegion: true, label: description, child: child),
     );
@@ -157,21 +166,17 @@ class PianoAccessibilityUtils {
     }
 
     if (targetNotes != null && targetNotes.isNotEmpty) {
-      final noteNames = targetNotes.map(_getNotePositionDisplayName).join(", ");
+      final noteNames = _joinNoteDisplayNames(targetNotes);
       parts.add("Target notes: $noteNames");
     }
 
     if (correctNotes != null && correctNotes.isNotEmpty) {
-      final noteNames = correctNotes
-          .map(_getNotePositionDisplayName)
-          .join(", ");
+      final noteNames = _joinNoteDisplayNames(correctNotes);
       parts.add("${correctNotes.length} correct notes: $noteNames");
     }
 
     if (incorrectNotes != null && incorrectNotes.isNotEmpty) {
-      final noteNames = incorrectNotes
-          .map(_getNotePositionDisplayName)
-          .join(", ");
+      final noteNames = _joinNoteDisplayNames(incorrectNotes);
       parts.add("${incorrectNotes.length} incorrect notes: $noteNames");
     }
 
