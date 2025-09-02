@@ -68,36 +68,20 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
               ),
             ),
             const SizedBox(height: 8),
-            Semantics(
-              label: "Device name is ${viewModel.device.name}",
-              child: Text("Name: ${viewModel.device.name}"),
-            ),
-            Semantics(
-              label: "Device type is ${viewModel.device.type}",
-              child: Text("Type: ${viewModel.device.type}"),
-            ),
-            Semantics(
-              label: "Device ID is ${viewModel.device.id}",
-              child: Text("ID: ${viewModel.device.id}"),
-            ),
+            Text("Device name: ${viewModel.device.name}"),
+            Text("Device type: ${viewModel.device.type}"),
+            Text("Device ID: ${viewModel.device.id}"),
             Semantics(
               label:
                   "Device is ${viewModel.device.connected ? "connected" : "disconnected"}",
               liveRegion: true,
+              excludeSemantics: true,
               child: Text(
-                'Connected: ${viewModel.device.connected ? "Yes" : "No"}',
+                'Connection status: ${viewModel.device.connected ? "Connected" : "Disconnected"}',
               ),
             ),
-            Semantics(
-              label:
-                  "Device has ${viewModel.device.inputPorts.length} input ports",
-              child: Text("Inputs: ${viewModel.device.inputPorts.length}"),
-            ),
-            Semantics(
-              label:
-                  "Device has ${viewModel.device.outputPorts.length} output ports",
-              child: Text("Outputs: ${viewModel.device.outputPorts.length}"),
-            ),
+            Text("Input ports: ${viewModel.device.inputPorts.length}"),
+            Text("Output ports: ${viewModel.device.outputPorts.length}"),
           ],
         ),
       ),
