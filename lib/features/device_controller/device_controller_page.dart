@@ -145,7 +145,8 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                   ),
                 ),
                 Semantics(
-                  label: "MIDI Channel ${viewModel.selectedChannel + 1}",
+                  value: "${viewModel.selectedChannel + 1}",
+                  excludeSemantics: true,
                   liveRegion: true,
                   child: Text(
                     "${viewModel.selectedChannel + 1}",
