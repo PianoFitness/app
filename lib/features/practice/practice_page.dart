@@ -238,6 +238,7 @@ class _PracticePageState extends State<PracticePage> {
 
                 return PianoAccessibilityUtils.createAccessiblePianoWrapper(
                   highlightedNotes: highlightedNotes,
+                  mode: PianoMode.practice,
                   semanticLabel: AccessibilityLabels.piano.keyboardLabel(
                     PianoMode.practice,
                   ),

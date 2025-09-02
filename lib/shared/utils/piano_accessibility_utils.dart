@@ -81,23 +81,25 @@ class PianoAccessibilityUtils {
   ///
   /// The [child] should be the InteractivePiano widget.
   /// The [highlightedNotes] are the currently highlighted notes.
+  /// The [mode] specifies the piano mode for context-appropriate labeling.
   /// The [semanticLabel] is an optional custom label for the piano.
   static Widget createAccessiblePianoWrapper({
     required Widget child,
     required List<NotePosition> highlightedNotes,
+    required PianoMode mode,
     String? semanticLabel,
   }) {
     final description = getPianoKeyboardDescription(highlightedNotes);
-    // Use play mode as default for general interactive keyboard
     final label =
-        semanticLabel ??
-        AccessibilityLabels.piano.keyboardLabel(PianoMode.play);
+        semanticLabel ?? AccessibilityLabels.piano.keyboardLabel(mode);
 
     return Semantics(
       label: label,
-      hint: AccessibilityLabels.piano.keyboardHint(PianoMode.play),
+      hint: AccessibilityLabels.piano.keyboardHint(mode),
       container: true,
-      child: Semantics(liveRegion: true, label: description, child: child),
+      child: ExcludeSemantics(
+        child: Semantics(liveRegion: true, value: description, child: child),
+      ),
     );
   }
 

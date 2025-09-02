@@ -147,6 +147,7 @@ class _PlayPageState extends State<PlayPage> {
                 return PianoAccessibilityUtils.createAccessiblePianoWrapper(
                   highlightedNotes:
                       _viewModel.localMidiState.highlightedNotePositions,
+                  mode: PianoMode.play,
                   semanticLabel: AccessibilityLabels.piano.keyboardLabel(
                     PianoMode.play,
                   ),
