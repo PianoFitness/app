@@ -1,12 +1,3 @@
-/// Centralized accessibility labels and messages for consistent screen reader experience.
-///
-/// This configuration-driven approach ensures:
-/// - Consistent terminology across the app
-/// - Easy localization support in the future
-/// - Single source of truth for accessibility strings
-/// - Simplified maintenance and updates
-library;
-
 /// Piano modes that affect accessibility context
 enum PianoMode {
   /// Free play mode

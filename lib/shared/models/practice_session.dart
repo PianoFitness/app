@@ -24,7 +24,7 @@ class PracticeSession {
     required this.onExerciseCompleted,
     required this.onHighlightedNotesChanged,
   });
-  static const int DEFAULT_START_OCTAVE = MusicalConstants.baseOctave;
+  static const int defaultStartOctave = MusicalConstants.baseOctave;
 
   static final _log = Logger("PracticeSession");
 
@@ -198,7 +198,7 @@ class PracticeSession {
         _selectedKey,
         _selectedScaleType,
       );
-      _currentSequence = scale.getFullScaleSequence(DEFAULT_START_OCTAVE);
+      _currentSequence = scale.getFullScaleSequence(defaultStartOctave);
       _currentNoteIndex = 0;
       _updateHighlightedNotes();
     } else if (_practiceMode == PracticeMode.chordsByKey) {
@@ -209,7 +209,7 @@ class PracticeSession {
       _currentSequence = ChordDefinitions.getSmoothChordProgressionMidiSequence(
         _selectedKey,
         _selectedScaleType,
-        DEFAULT_START_OCTAVE,
+        defaultStartOctave,
       );
       _currentNoteIndex = 0;
       _currentChordIndex = 0;
@@ -221,7 +221,7 @@ class PracticeSession {
         _selectedArpeggioType,
         _selectedArpeggioOctaves,
       );
-      _currentSequence = arpeggio.getFullArpeggioSequence(DEFAULT_START_OCTAVE);
+      _currentSequence = arpeggio.getFullArpeggioSequence(defaultStartOctave);
       _currentNoteIndex = 0;
       _updateHighlightedNotes();
     } else if (_practiceMode == PracticeMode.chordsByType) {
@@ -234,7 +234,7 @@ class PracticeSession {
       _currentChordProgression = exercise.generateChordSequence();
       _currentSequence = exercise.getMidiSequenceFrom(
         _currentChordProgression,
-        DEFAULT_START_OCTAVE,
+        defaultStartOctave,
       );
       _currentNoteIndex = 0;
       _currentChordIndex = 0;
@@ -248,7 +248,7 @@ class PracticeSession {
         );
         _currentSequence = _generateChordProgressionMidiSequence(
           _currentChordProgression,
-          DEFAULT_START_OCTAVE,
+          defaultStartOctave,
         );
       } else {
         // Default to I-V if no progression selected
@@ -262,7 +262,7 @@ class PracticeSession {
           );
           _currentSequence = _generateChordProgressionMidiSequence(
             _currentChordProgression,
-            DEFAULT_START_OCTAVE,
+            defaultStartOctave,
           );
         }
       }
@@ -292,7 +292,7 @@ class PracticeSession {
     } else if (_isChordMode) {
       if (_currentChordIndex < _currentChordProgression.length) {
         final currentChord = _currentChordProgression[_currentChordIndex];
-        final chordMidiNotes = currentChord.getMidiNotes(DEFAULT_START_OCTAVE);
+        final chordMidiNotes = currentChord.getMidiNotes(defaultStartOctave);
         final highlightedPositions = <NotePosition>[];
 
         _log.fine(
@@ -341,7 +341,7 @@ class PracticeSession {
       if (_currentChordIndex < _currentChordProgression.length) {
         final currentChord = _currentChordProgression[_currentChordIndex];
         final expectedChordNotes = currentChord.getMidiNotes(
-          DEFAULT_START_OCTAVE,
+          defaultStartOctave,
         );
 
         if (expectedChordNotes.contains(midiNote)) {
@@ -369,7 +369,7 @@ class PracticeSession {
     if (_currentChordIndex < _currentChordProgression.length) {
       final currentChord = _currentChordProgression[_currentChordIndex];
       final expectedChordNotes = currentChord
-          .getMidiNotes(DEFAULT_START_OCTAVE)
+          .getMidiNotes(defaultStartOctave)
           .toSet();
 
       // Require exactly the expected notes to be held (no extras)
