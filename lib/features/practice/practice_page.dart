@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/practice/practice_page_view_model.dart";
+import "package:piano_fitness/shared/accessibility/config/accessibility_labels.dart";
 import "package:piano_fitness/shared/models/chord_progression_type.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
@@ -237,11 +238,16 @@ class _PracticePageState extends State<PracticePage> {
 
                 return PianoAccessibilityUtils.createAccessiblePianoWrapper(
                   highlightedNotes: highlightedNotes,
-                  semanticLabel: "Practice mode piano keyboard",
+                  semanticLabel: AccessibilityLabels.piano.keyboardLabel(
+                    PianoMode.practice,
+                  ),
                   child: InteractivePiano(
                     key: const Key("practice_interactive_piano"),
                     highlightedNotes: highlightedNotes,
-                    keyWidth: dynamicKeyWidth,
+                    keyWidth: dynamicKeyWidth.clamp(
+                      PianoRangeUtils.minKeyWidth,
+                      PianoRangeUtils.maxKeyWidth,
+                    ),
                     noteRange: practiceRange,
                     onNotePositionTapped: (position) async {
                       final midiNote = NoteUtils.convertNotePositionToMidi(
