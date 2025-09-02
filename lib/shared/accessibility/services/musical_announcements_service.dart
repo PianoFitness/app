@@ -83,28 +83,31 @@ class MusicalAnnouncementsService {
   }
 
   /// Announces a note being played (simplified method for mixins).
-  static void announceNote(String note) {
-    SemanticsService.announce("Playing note $note", TextDirection.ltr);
+  static void announceNote(BuildContext context, String note) {
+    SemanticsService.announce("Playing note $note", Directionality.of(context));
   }
 
   /// Announces a chord being played (simplified method for mixins).
-  static void announceChord(List<String> notes) {
+  static void announceChord(BuildContext context, List<String> notes) {
     if (notes.isEmpty) return;
     if (notes.length == 1) {
-      announceNote(notes.first);
+      announceNote(context, notes.first);
     } else {
       final noteList = notes.join(", ");
-      SemanticsService.announce("Playing chord: $noteList", TextDirection.ltr);
+      SemanticsService.announce(
+        "Playing chord: $noteList",
+        Directionality.of(context),
+      );
     }
   }
 
   /// Announces a status change (simplified method for mixins).
-  static void announceStatus(String status) {
-    SemanticsService.announce(status, TextDirection.ltr);
+  static void announceStatus(BuildContext context, String status) {
+    SemanticsService.announce(status, Directionality.of(context));
   }
 
   /// Announces an error with appropriate emphasis (simplified method for mixins).
-  static void announceError(String error) {
-    SemanticsService.announce("Error: $error", TextDirection.ltr);
+  static void announceError(BuildContext context, String error) {
+    SemanticsService.announce("Error: $error", Directionality.of(context));
   }
 }

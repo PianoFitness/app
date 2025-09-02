@@ -10,11 +10,11 @@ mixin AccessibilityAnnouncementMixin<T extends StatefulWidget> on State<T> {
   /// Announces a note being played.
   void announceNote(String note, {Duration delay = Duration.zero}) {
     if (delay == Duration.zero) {
-      MusicalAnnouncementsService.announceNote(note);
+      MusicalAnnouncementsService.announceNote(context, note);
     } else {
       Future.delayed(delay, () {
         if (mounted) {
-          MusicalAnnouncementsService.announceNote(note);
+          MusicalAnnouncementsService.announceNote(context, note);
         }
       });
     }
@@ -23,11 +23,11 @@ mixin AccessibilityAnnouncementMixin<T extends StatefulWidget> on State<T> {
   /// Announces a chord being played.
   void announceChord(List<String> notes, {Duration delay = Duration.zero}) {
     if (delay == Duration.zero) {
-      MusicalAnnouncementsService.announceChord(notes);
+      MusicalAnnouncementsService.announceChord(context, notes);
     } else {
       Future.delayed(delay, () {
         if (mounted) {
-          MusicalAnnouncementsService.announceChord(notes);
+          MusicalAnnouncementsService.announceChord(context, notes);
         }
       });
     }
@@ -36,11 +36,11 @@ mixin AccessibilityAnnouncementMixin<T extends StatefulWidget> on State<T> {
   /// Announces a status change.
   void announceStatus(String status, {Duration delay = Duration.zero}) {
     if (delay == Duration.zero) {
-      MusicalAnnouncementsService.announceStatus(status);
+      MusicalAnnouncementsService.announceStatus(context, status);
     } else {
       Future.delayed(delay, () {
         if (mounted) {
-          MusicalAnnouncementsService.announceStatus(status);
+          MusicalAnnouncementsService.announceStatus(context, status);
         }
       });
     }
@@ -49,11 +49,11 @@ mixin AccessibilityAnnouncementMixin<T extends StatefulWidget> on State<T> {
   /// Announces an error with appropriate semantic markup.
   void announceError(String error, {Duration delay = Duration.zero}) {
     if (delay == Duration.zero) {
-      MusicalAnnouncementsService.announceError(error);
+      MusicalAnnouncementsService.announceError(context, error);
     } else {
       Future.delayed(delay, () {
         if (mounted) {
-          MusicalAnnouncementsService.announceError(error);
+          MusicalAnnouncementsService.announceError(context, error);
         }
       });
     }
