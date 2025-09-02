@@ -7,6 +7,7 @@ import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_range_utils.dart";
 import "package:piano_fitness/shared/widgets/practice_progress_display.dart";
 import "package:piano_fitness/shared/widgets/practice_settings_panel.dart";
+import "package:piano_fitness/shared/utils/piano_accessibility_utils.dart";
 
 /// A comprehensive piano practice page with guided exercises and real-time feedback.
 ///
@@ -234,20 +235,24 @@ class _PracticePageState extends State<PracticePage> {
                 final dynamicKeyWidth =
                     PianoRangeUtils.calculateScreenBasedKeyWidth(screenWidth);
 
-                return InteractivePiano(
-                  key: const Key("practice_interactive_piano"),
+                return PianoAccessibilityUtils.createAccessiblePianoWrapper(
                   highlightedNotes: highlightedNotes,
-                  keyWidth: dynamicKeyWidth,
-                  noteRange: practiceRange,
-                  onNotePositionTapped: (position) async {
-                    final midiNote = NoteUtils.convertNotePositionToMidi(
-                      position,
-                    );
-                    await _viewModel.playVirtualNote(
-                      midiNote,
-                      mounted: mounted,
-                    );
-                  },
+                  semanticLabel: "Practice mode piano keyboard",
+                  child: InteractivePiano(
+                    key: const Key("practice_interactive_piano"),
+                    highlightedNotes: highlightedNotes,
+                    keyWidth: dynamicKeyWidth,
+                    noteRange: practiceRange,
+                    onNotePositionTapped: (position) async {
+                      final midiNote = NoteUtils.convertNotePositionToMidi(
+                        position,
+                      );
+                      await _viewModel.playVirtualNote(
+                        midiNote,
+                        mounted: mounted,
+                      );
+                    },
+                  ),
                 );
               },
             ),
