@@ -45,12 +45,15 @@ class PracticeProgressDisplay extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.blue.shade50,
+        color: colorScheme.secondaryContainer.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.blue.shade200),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.5)),
       ),
       child: Column(
         children: [
@@ -58,13 +61,16 @@ class PracticeProgressDisplay extends StatelessWidget {
               practiceMode == PracticeMode.arpeggios) ...[
             Text(
               "Progress: ${currentNoteIndex + 1}/${currentSequence.length}",
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: colorScheme.onSurface,
+              ),
             ),
             const SizedBox(height: 8),
             LinearProgressIndicator(
               value: (currentNoteIndex + 1) / currentSequence.length,
-              backgroundColor: Colors.blue.shade100,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade600),
+              backgroundColor: colorScheme.outline.withValues(alpha: 0.2),
+              valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
               semanticsLabel: practiceMode == PracticeMode.scales
                   ? "Scale practice progress"
                   : "Arpeggio practice progress",
@@ -76,7 +82,10 @@ class PracticeProgressDisplay extends StatelessWidget {
               practiceMode == PracticeMode.chordProgressions) ...[
             Text(
               "${practiceMode == PracticeMode.chordProgressions ? "Progression" : "Chord"} ${currentChordIndex + 1}/${currentChordProgression.length}",
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: colorScheme.onSurface,
+              ),
             ),
             if (currentChordIndex < currentChordProgression.length) ...[
               const SizedBox(height: 4),
@@ -84,7 +93,7 @@ class PracticeProgressDisplay extends StatelessWidget {
                 currentChordProgression[currentChordIndex].name,
                 style: TextStyle(
                   fontSize: 14,
-                  color: Colors.blue.shade700,
+                  color: colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -92,8 +101,8 @@ class PracticeProgressDisplay extends StatelessWidget {
             const SizedBox(height: 8),
             LinearProgressIndicator(
               value: (currentChordIndex + 1) / currentChordProgression.length,
-              backgroundColor: Colors.blue.shade100,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade600),
+              backgroundColor: colorScheme.outline.withValues(alpha: 0.2),
+              valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
               semanticsLabel: practiceMode == PracticeMode.chordsByKey
                   ? "Chord practice progress"
                   : practiceMode == PracticeMode.chordsByType

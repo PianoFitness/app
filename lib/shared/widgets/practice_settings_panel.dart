@@ -255,29 +255,28 @@ class PracticeSettingsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.deepPurple.shade50,
+        color: colorScheme.primaryContainer.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.deepPurple.shade100),
+        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.5)),
       ),
       child: Column(
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.fitness_center,
-                size: 24,
-                color: Colors.deepPurple,
-              ),
+              Icon(Icons.fitness_center, size: 24, color: colorScheme.primary),
               const SizedBox(width: 8),
               Text(
                 "Practice Settings",
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple.shade700,
+                  color: colorScheme.onSurface,
                 ),
               ),
             ],
@@ -434,13 +433,13 @@ class PracticeSettingsPanel extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: practiceActive
-                        ? Colors.green.shade100
-                        : Colors.blue.shade50,
+                        ? colorScheme.primaryContainer
+                        : colorScheme.secondaryContainer,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: practiceActive
-                          ? Colors.green.shade300
-                          : Colors.blue.shade200,
+                          ? colorScheme.primary.withValues(alpha: 0.5)
+                          : colorScheme.secondary.withValues(alpha: 0.5),
                     ),
                   ),
                   child: Row(
@@ -449,8 +448,8 @@ class PracticeSettingsPanel extends StatelessWidget {
                       Icon(
                         practiceActive ? Icons.music_note : Icons.piano,
                         color: practiceActive
-                            ? Colors.green.shade700
-                            : Colors.blue.shade700,
+                            ? colorScheme.onPrimaryContainer
+                            : colorScheme.onSecondaryContainer,
                         size: 20,
                       ),
                       const SizedBox(width: 8),
@@ -461,8 +460,8 @@ class PracticeSettingsPanel extends StatelessWidget {
                         style: TextStyle(
                           fontWeight: FontWeight.w500,
                           color: practiceActive
-                              ? Colors.green.shade700
-                              : Colors.blue.shade700,
+                              ? colorScheme.onPrimaryContainer
+                              : colorScheme.onSecondaryContainer,
                         ),
                       ),
                     ],
@@ -475,8 +474,8 @@ class PracticeSettingsPanel extends StatelessWidget {
                 icon: const Icon(Icons.refresh),
                 label: const Text("Reset Exercise"),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  foregroundColor: Colors.white,
+                  backgroundColor: colorScheme.error,
+                  foregroundColor: colorScheme.onError,
                 ),
               ),
             ],
