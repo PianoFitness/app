@@ -9,6 +9,7 @@ import "package:piano_fitness/shared/utils/piano_range_utils.dart";
 import "package:piano_fitness/shared/widgets/practice_progress_display.dart";
 import "package:piano_fitness/shared/widgets/practice_settings_panel.dart";
 import "package:piano_fitness/shared/utils/piano_accessibility_utils.dart";
+import "package:piano_fitness/main.dart";
 
 /// A comprehensive piano practice page with guided exercises and real-time feedback.
 ///
@@ -85,25 +86,30 @@ class _PracticePageState extends State<PracticePage> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.green,
+              color:
+                  Theme.of(context).extension<SemanticColors>()?.success ??
+                  Colors.green,
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
+                  color: Theme.of(context).shadowColor,
                   blurRadius: 4,
                   offset: const Offset(0, 2),
                 ),
               ],
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.check_circle, color: Colors.white),
+                Icon(
+                  Icons.check_circle,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
                 SizedBox(width: 8),
                 Text(
                   "Exercise completed! Well done!",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Theme.of(context).colorScheme.onPrimary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
