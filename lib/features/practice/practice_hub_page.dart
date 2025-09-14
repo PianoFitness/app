@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:piano_fitness/main.dart";
 import "package:piano_fitness/features/practice/practice_page.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/models/chord_progression_type.dart";
@@ -40,17 +41,19 @@ class PracticeHubPage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.deepPurple.shade50,
+                  color: Theme.of(context).colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.deepPurple.shade100),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
                 ),
                 child: Row(
                   children: [
                     // Icon column (compact)
-                    const Icon(
+                    Icon(
                       Icons.music_note,
                       size: 48,
-                      color: Colors.deepPurple,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(width: 16),
                     // Text content column (expanded)
@@ -58,12 +61,14 @@ class PracticeHubPage extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
+                          Text(
                             "Structured Practice",
                             style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.bold,
-                              color: Colors.deepPurple,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onPrimaryContainer,
                             ),
                           ),
                           const SizedBox(height: 6),
@@ -71,7 +76,9 @@ class PracticeHubPage extends StatelessWidget {
                             "Choose your practice focus and develop your piano skills through guided exercises.",
                             style: TextStyle(
                               fontSize: 16,
-                              color: Colors.deepPurple.shade700,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onPrimaryContainer,
                             ),
                           ),
                         ],
@@ -83,12 +90,12 @@ class PracticeHubPage extends StatelessWidget {
               const SizedBox(height: 24),
 
               // Practice Modes Grid
-              const Text(
+              Text(
                 "Practice Modes",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 16),
@@ -104,7 +111,7 @@ class PracticeHubPage extends StatelessWidget {
                         title: "Scales",
                         icon: Icons.trending_up,
                         description: "Major, minor, and modal scales",
-                        color: Colors.blue,
+                        color: Theme.of(context).colorScheme.primary,
                         onTap: () =>
                             _navigateToPractice(context, PracticeMode.scales),
                       ),
@@ -116,7 +123,7 @@ class PracticeHubPage extends StatelessWidget {
                         title: "Chords by Key",
                         icon: Icons.piano,
                         description: "Individual chord triads and inversions",
-                        color: Colors.green,
+                        color: Theme.of(context).colorScheme.secondary,
                         onTap: () => _navigateToPractice(
                           context,
                           PracticeMode.chordsByKey,
@@ -131,7 +138,7 @@ class PracticeHubPage extends StatelessWidget {
                         icon: Icons.library_music,
                         description:
                             "Major, minor, diminished, augmented chords",
-                        color: Colors.teal,
+                        color: Theme.of(context).colorScheme.tertiary,
                         onTap: () => _navigateToPractice(
                           context,
                           PracticeMode.chordsByType,
@@ -156,7 +163,11 @@ class PracticeHubPage extends StatelessWidget {
                         icon: Icons.swap_vert,
                         description:
                             "Arpeggio patterns across multiple octaves",
-                        color: Colors.orange,
+                        color:
+                            Theme.of(
+                              context,
+                            ).extension<SemanticColors>()?.warning ??
+                            Theme.of(context).colorScheme.tertiary,
                         onTap: () => _navigateToPractice(
                           context,
                           PracticeMode.arpeggios,
@@ -171,7 +182,7 @@ class PracticeHubPage extends StatelessWidget {
                         icon: Icons.music_note,
                         description:
                             "Chord progressions using roman numeral notation",
-                        color: Colors.purple,
+                        color: Theme.of(context).colorScheme.primary,
                         onTap: () => _navigateToPractice(
                           context,
                           PracticeMode.chordProgressions,
@@ -187,12 +198,12 @@ class PracticeHubPage extends StatelessWidget {
               const SizedBox(height: 24),
 
               // Quick Start Section
-              const Text(
+              Text(
                 "Quick Start",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 16),
@@ -258,7 +269,10 @@ class PracticeHubPage extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 description,
-                style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
                 textAlign: TextAlign.center,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -285,7 +299,11 @@ class PracticeHubPage extends StatelessWidget {
       elevation: 1,
       child: ListTile(
         key: Key("quick_start_$keyName"),
-        leading: Icon(icon, color: Colors.deepPurple, size: 28),
+        leading: Icon(
+          icon,
+          color: Theme.of(context).colorScheme.primary,
+          size: 28,
+        ),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
         subtitle: Text(subtitle),
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
