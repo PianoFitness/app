@@ -86,9 +86,7 @@ class _PracticePageState extends State<PracticePage> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color:
-                  Theme.of(context).extension<SemanticColors>()?.success ??
-                  Colors.green,
+              color: context.semanticColors.success,
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
