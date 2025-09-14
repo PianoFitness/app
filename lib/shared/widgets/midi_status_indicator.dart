@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:piano_fitness/main.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:provider/provider.dart";
 
@@ -33,8 +34,9 @@ class MidiStatusIndicator extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: midiState.hasRecentActivity
-                  ? Colors.green
-                  : Colors.grey.shade400,
+                  ? Theme.of(context).extension<SemanticColors>()?.success ??
+                        Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.outline,
             ),
           ),
         );
