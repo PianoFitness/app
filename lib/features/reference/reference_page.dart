@@ -60,18 +60,24 @@ class _ReferencePageState extends State<ReferencePage> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.deepPurple.shade50,
+                        color: Theme.of(context).colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.deepPurple.shade100),
+                        border: Border.all(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.primary.withAlpha(80),
+                        ),
                       ),
                       child: Column(
                         children: [
-                          const Text(
+                          Text(
                             "Reference Mode",
                             style: TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              color: Colors.deepPurple,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onPrimaryContainer,
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -192,19 +198,21 @@ class _ReferencePageState extends State<ReferencePage> {
           key: const Key("scales_key_selection"),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.blue.shade50,
+            color: Theme.of(context).colorScheme.secondaryContainer,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.blue.shade100),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.secondary.withAlpha(80),
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 "Key",
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.blue,
+                  color: Theme.of(context).colorScheme.onSecondaryContainer,
                 ),
               ),
               const SizedBox(height: 8),
@@ -222,8 +230,10 @@ class _ReferencePageState extends State<ReferencePage> {
                         _viewModel.setSelectedKey(key);
                       }
                     },
-                    selectedColor: Colors.blue.shade100,
-                    checkmarkColor: Colors.blue,
+                    selectedColor: Theme.of(
+                      context,
+                    ).colorScheme.secondary.withAlpha(50),
+                    checkmarkColor: Theme.of(context).colorScheme.secondary,
                   );
                 }).toList(),
               ),
@@ -237,19 +247,19 @@ class _ReferencePageState extends State<ReferencePage> {
           key: const Key("scales_type_selection"),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.blue.shade50,
+            color: Theme.of(context).colorScheme.secondaryContainer,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.blue.shade100),
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 "Scale Type",
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.blue,
+                  color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
               const SizedBox(height: 8),
@@ -267,8 +277,10 @@ class _ReferencePageState extends State<ReferencePage> {
                         _viewModel.setSelectedScaleType(type);
                       }
                     },
-                    selectedColor: Colors.blue.shade100,
-                    checkmarkColor: Colors.blue,
+                    selectedColor: Theme.of(
+                      context,
+                    ).colorScheme.secondaryContainer,
+                    checkmarkColor: Theme.of(context).colorScheme.secondary,
                   );
                 }).toList(),
               ),
@@ -287,19 +299,19 @@ class _ReferencePageState extends State<ReferencePage> {
           key: const Key("chords_root_selection"),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.green.shade50,
+            color: Theme.of(context).colorScheme.tertiaryContainer,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.green.shade100),
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 "Root Note",
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.green,
+                  color: Theme.of(context).colorScheme.tertiary,
                 ),
               ),
               const SizedBox(height: 8),
@@ -317,8 +329,10 @@ class _ReferencePageState extends State<ReferencePage> {
                         _viewModel.setSelectedKey(key);
                       }
                     },
-                    selectedColor: Colors.green.shade100,
-                    checkmarkColor: Colors.green,
+                    selectedColor: Theme.of(
+                      context,
+                    ).colorScheme.tertiaryContainer,
+                    checkmarkColor: Theme.of(context).colorScheme.tertiary,
                   );
                 }).toList(),
               ),
@@ -332,19 +346,19 @@ class _ReferencePageState extends State<ReferencePage> {
           key: const Key("chords_type_selection"),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.green.shade50,
+            color: Theme.of(context).colorScheme.tertiaryContainer,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.green.shade100),
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 "Chord Type",
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.green,
+                  color: Theme.of(context).colorScheme.tertiary,
                 ),
               ),
               const SizedBox(height: 8),
@@ -362,8 +376,10 @@ class _ReferencePageState extends State<ReferencePage> {
                         _viewModel.setSelectedChordType(type);
                       }
                     },
-                    selectedColor: Colors.green.shade100,
-                    checkmarkColor: Colors.green,
+                    selectedColor: Theme.of(
+                      context,
+                    ).colorScheme.tertiaryContainer,
+                    checkmarkColor: Theme.of(context).colorScheme.tertiary,
                   );
                 }).toList(),
               ),
@@ -377,19 +393,19 @@ class _ReferencePageState extends State<ReferencePage> {
           key: const Key("chords_inversion_selection"),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.green.shade50,
+            color: Theme.of(context).colorScheme.tertiaryContainer,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.green.shade100),
+            border: Border.all(color: Theme.of(context).colorScheme.outline),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 "Inversion",
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.green,
+                  color: Theme.of(context).colorScheme.tertiary,
                 ),
               ),
               const SizedBox(height: 8),
@@ -408,8 +424,10 @@ class _ReferencePageState extends State<ReferencePage> {
                         _viewModel.setSelectedChordInversion(inversion);
                       }
                     },
-                    selectedColor: Colors.green.shade100,
-                    checkmarkColor: Colors.green,
+                    selectedColor: Theme.of(
+                      context,
+                    ).colorScheme.tertiaryContainer,
+                    checkmarkColor: Theme.of(context).colorScheme.tertiary,
                   );
                 }).toList(),
               ),
