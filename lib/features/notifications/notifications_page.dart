@@ -128,8 +128,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     ? Icons.check_circle
                     : Icons.notifications_off,
                 color: settings.permissionGranted
-                    ? Theme.of(context).extension<SemanticColors>()?.success ??
-                          colorScheme.primary
+                    ? context.semanticColors.success
                     : colorScheme.outline,
                 size: isTablet ? 24 : 20,
               ),
@@ -367,29 +366,20 @@ class _NotificationsPageState extends State<NotificationsPage> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Theme.of(
-                  context,
-                ).extension<SemanticColors>()?.warning.withValues(alpha: 0.1) ??
-                colorScheme.tertiaryContainer.withValues(alpha: 0.3),
+            context.semanticColors.warning.withValues(alpha: 0.1),
             colorScheme.tertiaryContainer.withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color:
-              Theme.of(
-                context,
-              ).extension<SemanticColors>()?.warning.withValues(alpha: 0.3) ??
-              colorScheme.tertiary.withValues(alpha: 0.3),
+          color: context.semanticColors.warning.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
         children: [
           Icon(
             Icons.notifications_active,
-            color:
-                Theme.of(context).extension<SemanticColors>()?.warning ??
-                colorScheme.tertiary,
+            color: context.semanticColors.warning,
             size: isTablet ? 32 : 28,
           ),
           const SizedBox(height: 12),
@@ -413,9 +403,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           ElevatedButton(
             onPressed: () => _requestPermissions(context, viewModel),
             style: ElevatedButton.styleFrom(
-              backgroundColor:
-                  Theme.of(context).extension<SemanticColors>()?.warning ??
-                  colorScheme.tertiary,
+              backgroundColor: context.semanticColors.warning,
               foregroundColor: colorScheme.onTertiary,
               padding: EdgeInsets.symmetric(
                 horizontal: isTablet ? 32 : 24,
