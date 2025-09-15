@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
-import "package:piano_fitness/main.dart";
+import "package:piano_fitness/shared/theme/semantic_colors.dart";
 import "package:piano_fitness/features/notifications/notifications_page_view_model.dart";
 import "package:piano_fitness/features/notifications/widgets/notification_permission_dialog.dart";
 

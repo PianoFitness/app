@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
-import "package:piano_fitness/main.dart";
+import "package:piano_fitness/shared/theme/semantic_colors.dart";
 import "package:piano_fitness/features/device_controller/device_controller_view_model.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:provider/provider.dart";

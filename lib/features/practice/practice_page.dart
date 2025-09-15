@@ -9,7 +9,7 @@ import "package:piano_fitness/shared/utils/piano_range_utils.dart";
 import "package:piano_fitness/shared/widgets/practice_progress_display.dart";
 import "package:piano_fitness/shared/widgets/practice_settings_panel.dart";
 import "package:piano_fitness/shared/utils/piano_accessibility_utils.dart";
-import "package:piano_fitness/main.dart";
+import "package:piano_fitness/shared/theme/semantic_colors.dart";
 
 /// A comprehensive piano practice page with guided exercises and real-time feedback.
 ///
