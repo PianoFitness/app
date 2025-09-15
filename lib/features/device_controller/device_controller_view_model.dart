@@ -1,4 +1,3 @@
-import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_midi_command/flutter_midi_command_messages.dart";
@@ -20,7 +19,6 @@ class DeviceControllerViewModel extends ChangeNotifier {
 
   final MidiDevice _device;
   final MidiConnectionService _midiService = MidiConnectionService();
-  Timer? _noteOffTimer;
 
   int _selectedChannel = 0;
   int _ccController = 1;
@@ -155,11 +153,6 @@ class DeviceControllerViewModel extends ChangeNotifier {
         note: midiNote,
         velocity: velocity,
       ).send();
-
-      _noteOffTimer?.cancel();
-      _noteOffTimer = Timer(const Duration(milliseconds: 500), () {
-        sendNoteOff(midiNote);
-      });
     } on Exception catch (e) {
       _log.warning("Error sending note: $e");
     }
@@ -220,7 +213,6 @@ class DeviceControllerViewModel extends ChangeNotifier {
   @override
   void dispose() {
     _midiService.unregisterDataHandler(_handleMidiData);
-    _noteOffTimer?.cancel();
     super.dispose();
   }
 }
