@@ -259,6 +259,7 @@ class PracticeSettingsPanel extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Container(
+      key: const Key("practiceSettingsPanel"),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer.withValues(alpha: 0.3),
@@ -427,6 +428,7 @@ class PracticeSettingsPanel extends StatelessWidget {
                     ? "Practice Active - Keep Playing!"
                     : "Ready - Play Any Note to Start",
                 child: Container(
+                  key: const Key("practiceStatusContainer"),
                   padding: const EdgeInsets.symmetric(
                     vertical: 8,
                     horizontal: 12,
