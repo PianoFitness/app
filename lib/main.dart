@@ -184,23 +184,7 @@ class SemanticColors extends ThemeExtension<SemanticColors> {
 extension SemanticColorsExtension on BuildContext {
   /// Access semantic colors from the current theme.
   SemanticColors get semanticColors =>
-      Theme.of(this).extension<SemanticColors>() ??
-      const SemanticColors(
-        success: Color(0xFF4CAF50),
-        successContainer: Color(0xFFE8F5E8),
-        onSuccessContainer: Color(0xFF1B5E20),
-        warning: Color(0xFFFF9800),
-        warningContainer: Color(0xFFFFF3E0),
-        onWarningContainer: Color(0xFFE65100),
-        info: Color(0xFF2196F3),
-        infoContainer: Color(0xFFE3F2FD),
-        onInfoContainer: Color(0xFF0D47A1),
-        disabled: Color(0xFF9E9E9E),
-        onDisabled: Color(0xFFFFFFFF),
-        onSuccess: Color(0xFFFFFFFF),
-        onWarning: Color(0xFFFFFFFF),
-        onInfo: Color(0xFFFFFFFF),
-      );
+      Theme.of(this).extension<SemanticColors>() ?? SemanticColors.light;
 }
 
 /// Entry point for the Piano Fitness application.
