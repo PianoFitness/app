@@ -80,7 +80,9 @@ class PracticeProgressDisplay extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             LinearProgressIndicator(
-              value: (currentNoteIndex + 1) / currentSequence.length,
+              value:
+                  ((currentNoteIndex + 1).clamp(0, currentSequence.length)) /
+                  currentSequence.length,
               backgroundColor: colorScheme.outline.withValues(alpha: 0.2),
               valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
               semanticsLabel: practiceMode == PracticeMode.scales
@@ -112,7 +114,12 @@ class PracticeProgressDisplay extends StatelessWidget {
             ],
             const SizedBox(height: 8),
             LinearProgressIndicator(
-              value: (currentChordIndex + 1) / currentChordProgression.length,
+              value:
+                  ((currentChordIndex + 1).clamp(
+                    0,
+                    currentChordProgression.length,
+                  )) /
+                  currentChordProgression.length,
               backgroundColor: colorScheme.outline.withValues(alpha: 0.2),
               valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
               semanticsLabel: practiceMode == PracticeMode.chordsByKey
