@@ -134,6 +134,16 @@ class _PracticePageState extends State<PracticePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: const Key("practice_page_scaffold"),
+      appBar: AppBar(
+        title: const Text("Practice Session"),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        leading: IconButton(
+          key: const Key("practice_back_button"),
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+          tooltip: "Back to Practice Hub",
+        ),
+      ),
       body: Column(
         children: [
           Expanded(
