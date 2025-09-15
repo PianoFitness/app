@@ -43,7 +43,9 @@ void main() {
 
       // Verify the panel container uses theme colors
       final containerDecoration =
-          tester.widget<Container>(find.byType(Container).first).decoration
+          tester
+                  .widget<Container>(find.byKey(PracticeSettingsPanel.panelKey))
+                  .decoration
               as BoxDecoration;
 
       expect(containerDecoration.color, isNotNull);
@@ -90,7 +92,9 @@ void main() {
 
       // Verify the panel container uses theme colors
       final containerDecoration =
-          tester.widget<Container>(find.byType(Container).first).decoration
+          tester
+                  .widget<Container>(find.byKey(PracticeSettingsPanel.panelKey))
+                  .decoration
               as BoxDecoration;
 
       expect(containerDecoration.color, isNotNull);
@@ -98,7 +102,7 @@ void main() {
 
       // Verify practice status container with different states
       final practiceStatusContainer = tester.widget<Container>(
-        find.byType(Container).at(1),
+        find.byKey(PracticeSettingsPanel.statusKey),
       );
 
       expect(practiceStatusContainer.decoration, isNotNull);

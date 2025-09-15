@@ -39,6 +39,12 @@ class PracticeSettingsPanel extends StatelessWidget {
     required this.onIncludeInversionsChanged,
     super.key,
   });
+
+  /// Key for the main panel container
+  static const Key panelKey = Key("practiceSettingsPanel");
+
+  /// Key for the practice status container
+  static const Key statusKey = Key("practiceStatusContainer");
   Widget _buildRootNoteDropdown() {
     return DropdownButtonFormField<MusicalNote>(
       initialValue: selectedRootNote,
@@ -259,7 +265,7 @@ class PracticeSettingsPanel extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      key: const Key("practiceSettingsPanel"),
+      key: panelKey,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer.withValues(alpha: 0.3),
@@ -428,7 +434,7 @@ class PracticeSettingsPanel extends StatelessWidget {
                     ? "Practice Active - Keep Playing!"
                     : "Ready - Play Any Note to Start",
                 child: Container(
-                  key: const Key("practiceStatusContainer"),
+                  key: statusKey,
                   padding: const EdgeInsets.symmetric(
                     vertical: 8,
                     horizontal: 12,
