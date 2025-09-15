@@ -49,7 +49,9 @@ void main() {
 
       // Verify the container uses theme colors
       final containerDecoration =
-          tester.widget<Container>(find.byType(Container).first).decoration
+          tester
+                  .widget<Container>(find.byKey(const Key("ppd_container")))
+                  .decoration
               as BoxDecoration;
 
       expect(containerDecoration.color, isNotNull);
@@ -99,7 +101,9 @@ void main() {
 
       // Verify the container uses theme colors
       final containerDecoration =
-          tester.widget<Container>(find.byType(Container).first).decoration
+          tester
+                  .widget<Container>(find.byKey(const Key("ppd_container")))
+                  .decoration
               as BoxDecoration;
 
       expect(containerDecoration.color, isNotNull);

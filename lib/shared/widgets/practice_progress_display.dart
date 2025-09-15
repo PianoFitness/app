@@ -60,6 +60,7 @@ class PracticeProgressDisplay extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return Container(
+      key: const Key("ppd_container"),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: colorScheme.secondaryContainer.withValues(alpha: 0.3),
