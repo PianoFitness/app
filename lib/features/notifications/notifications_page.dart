@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
+import "package:piano_fitness/shared/theme/semantic_colors.dart";
 import "package:piano_fitness/features/notifications/notifications_page_view_model.dart";
 import "package:piano_fitness/features/notifications/widgets/notification_permission_dialog.dart";
 
@@ -108,8 +109,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.indigo.withValues(alpha: 0.05),
-            Colors.purple.withValues(alpha: 0.05),
+            colorScheme.primaryContainer.withValues(alpha: 0.3),
+            colorScheme.secondaryContainer.withValues(alpha: 0.2),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -127,7 +128,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     ? Icons.check_circle
                     : Icons.notifications_off,
                 color: settings.permissionGranted
-                    ? Colors.green
+                    ? context.semanticColors.success
                     : colorScheme.outline,
                 size: isTablet ? 24 : 20,
               ),
@@ -174,7 +175,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: colorScheme.shadow.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -185,7 +186,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
         children: [
           Row(
             children: [
-              Icon(Icons.timer, color: Colors.orange, size: isTablet ? 24 : 20),
+              Icon(
+                Icons.timer,
+                color: colorScheme.tertiary,
+                size: isTablet ? 24 : 20,
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -250,7 +255,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: colorScheme.shadow.withValues(alpha: 0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -263,7 +268,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             children: [
               Icon(
                 Icons.schedule,
-                color: Colors.blue,
+                color: colorScheme.secondary,
                 size: isTablet ? 24 : 20,
               ),
               const SizedBox(width: 12),
@@ -361,18 +366,20 @@ class _NotificationsPageState extends State<NotificationsPage> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Colors.orange.withValues(alpha: 0.1),
-            Colors.amber.withValues(alpha: 0.05),
+            context.semanticColors.warning.withValues(alpha: 0.1),
+            colorScheme.tertiaryContainer.withValues(alpha: 0.1),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+        border: Border.all(
+          color: context.semanticColors.warning.withValues(alpha: 0.3),
+        ),
       ),
       child: Column(
         children: [
           Icon(
             Icons.notifications_active,
-            color: Colors.orange,
+            color: context.semanticColors.warning,
             size: isTablet ? 32 : 28,
           ),
           const SizedBox(height: 12),
@@ -396,8 +403,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
           ElevatedButton(
             onPressed: () => _requestPermissions(context, viewModel),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
-              foregroundColor: Colors.white,
+              backgroundColor: context.semanticColors.warning,
+              foregroundColor: colorScheme.onTertiary,
               padding: EdgeInsets.symmetric(
                 horizontal: isTablet ? 32 : 24,
                 vertical: isTablet ? 16 : 12,

@@ -1,7 +1,9 @@
 import "package:flutter/material.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
+import "package:piano_fitness/shared/theme/semantic_colors.dart";
 import "package:piano_fitness/features/device_controller/device_controller_view_model.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
+import "package:piano_fitness/shared/utils/piano_key_utils.dart";
 import "package:provider/provider.dart";
 
 /// A detailed controller interface for a specific MIDI device.
@@ -93,7 +95,11 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
     DeviceControllerViewModel viewModel,
   ) {
     return Card(
-      color: Colors.green.shade50,
+      color:
+          Theme.of(
+            context,
+          ).extension<SemanticColors>()?.success.withValues(alpha: 0.1) ??
+          Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -309,12 +315,12 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
               alignment: WrapAlignment.center,
               children: [
                 const SizedBox(width: 18),
-                _buildDevicePianoKey(61, Colors.black, viewModel),
-                _buildDevicePianoKey(63, Colors.black, viewModel),
+                _buildDevicePianoKey(61, viewModel), // C# black key
+                _buildDevicePianoKey(63, viewModel), // D# black key
                 const SizedBox(width: 40),
-                _buildDevicePianoKey(66, Colors.black, viewModel),
-                _buildDevicePianoKey(68, Colors.black, viewModel),
-                _buildDevicePianoKey(70, Colors.black, viewModel),
+                _buildDevicePianoKey(66, viewModel), // F# black key
+                _buildDevicePianoKey(68, viewModel), // G# black key
+                _buildDevicePianoKey(70, viewModel), // A# black key
               ],
             ),
             const SizedBox(height: 8),
@@ -322,8 +328,9 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
               spacing: 4,
               alignment: WrapAlignment.center,
               children: [
-                for (int note = 60; note <= 71; note += 2)
-                  _buildDevicePianoKey(note, Colors.white, viewModel),
+                for (int note = 60; note <= 71; note++)
+                  if (isWhiteKey(note))
+                    _buildDevicePianoKey(note, viewModel), // White keys
               ],
             ),
           ],
@@ -334,27 +341,42 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
 
   Widget _buildDevicePianoKey(
     int midiNote,
-    Color color,
     DeviceControllerViewModel viewModel,
   ) {
     // Use centralized compact note naming to ensure consistency across the app
     final noteName = NoteUtils.getCompactNoteName(midiNote);
+    final theme = Theme.of(context);
+    final isBlack = isBlackKey(midiNote);
+
+    // For piano keys, we need clear visual distinction regardless of theme
+    final keyColor = isBlack
+        ? theme
+              .colorScheme
+              .inverseSurface // Dark key (traditionally black)
+        : theme.colorScheme.surface; // Light key (traditionally white)
+    final textColor = isBlack
+        ? theme
+              .colorScheme
+              .onInverseSurface // Light text on dark key
+        : theme.colorScheme.onSurface; // Dark text on light key
 
     return GestureDetector(
-      onTap: () => viewModel.sendNoteOn(midiNote),
+      onTapDown: (_) => viewModel.sendNoteOn(midiNote),
+      onTapUp: (_) => viewModel.sendNoteOff(midiNote),
+      onTapCancel: () => viewModel.sendNoteOff(midiNote),
       child: Container(
         width: 40,
         height: 80,
         decoration: BoxDecoration(
-          color: color,
-          border: Border.all(),
+          color: keyColor,
+          border: Border.all(color: theme.colorScheme.outline),
           borderRadius: BorderRadius.circular(4),
         ),
         child: Center(
           child: Text(
             noteName,
             style: TextStyle(
-              color: color == Colors.white ? Colors.black : Colors.white,
+              color: textColor,
               fontWeight: FontWeight.bold,
               fontSize: 12,
             ),

@@ -41,6 +41,7 @@ class _PlayPageState extends State<PlayPage> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       body: Column(
         children: [
@@ -58,25 +59,25 @@ class _PlayPageState extends State<PlayPage> {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.deepPurple.shade50,
+                        color: colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.deepPurple.shade100),
+                        border: Border.all(color: colorScheme.outline),
                       ),
                       child: Column(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.piano,
                             size: 32,
-                            color: Colors.deepPurple,
+                            color: colorScheme.primary,
                           ),
                           const SizedBox(height: 12),
-                          const Text(
+                          Text(
                             "Free Play Mode",
-                            key: Key("playPageTitle"),
+                            key: const Key("playPageTitle"),
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
-                              color: Colors.deepPurple,
+                              color: colorScheme.onPrimaryContainer,
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -85,7 +86,7 @@ class _PlayPageState extends State<PlayPage> {
                             "Connect a MIDI keyboard for enhanced experience or use the virtual keys below.",
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.deepPurple.shade700,
+                              color: colorScheme.onPrimaryContainer,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -96,11 +97,9 @@ class _PlayPageState extends State<PlayPage> {
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: colorScheme.surface,
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: Colors.deepPurple.shade200,
-                              ),
+                              border: Border.all(color: colorScheme.outline),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -108,7 +107,7 @@ class _PlayPageState extends State<PlayPage> {
                                 Icon(
                                   Icons.info_outline,
                                   size: 16,
-                                  color: Colors.deepPurple.shade600,
+                                  color: colorScheme.onSurface,
                                 ),
                                 const SizedBox(width: 8),
                                 Flexible(
@@ -116,7 +115,7 @@ class _PlayPageState extends State<PlayPage> {
                                     "Looking for structured practice? Visit the Practice tab!",
                                     style: TextStyle(
                                       fontSize: 12,
-                                      color: Colors.deepPurple.shade600,
+                                      color: colorScheme.onSurface,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),

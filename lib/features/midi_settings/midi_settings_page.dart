@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:piano_fitness/features/device_controller/device_controller_page.dart";
 import "package:piano_fitness/features/midi_settings/midi_settings_view_model.dart";
+import "package:piano_fitness/shared/theme/semantic_colors.dart";
 import "package:provider/provider.dart";
 
 /// The MIDI settings and device management page.
@@ -46,11 +47,11 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const SizedBox(height: 20),
-                    const Center(
+                    Center(
                       child: Icon(
                         Icons.bluetooth_audio,
                         size: 80,
-                        color: Colors.blue,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -95,12 +96,17 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
     BuildContext context,
     MidiSettingsViewModel viewModel,
   ) {
+    final theme = Theme.of(context);
+    final semanticColors = context.semanticColors;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.blue.shade50,
+        color: semanticColors.infoContainer,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.blue.shade200),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.5),
+        ),
       ),
       child: Column(
         children: [
@@ -155,9 +161,12 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
           ),
           Semantics(
             label: "Channel for virtual piano output, ranges from 1 to 16",
-            child: const Text(
+            child: Text(
               "Channel for virtual piano output (1-16)",
-              style: TextStyle(fontSize: 12, color: Colors.grey),
+              style: TextStyle(
+                fontSize: 12,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
         ],
@@ -187,48 +196,50 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
     BuildContext context,
     MidiSettingsViewModel viewModel,
   ) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        ElevatedButton.icon(
-          onPressed: () => viewModel.retrySetup(),
-          icon: const Icon(Icons.refresh),
-          label: const Text("Retry"),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue,
-            foregroundColor: Colors.white,
-          ),
+    final semanticColors = context.semanticColors;
+
+    return Center(
+      child: ElevatedButton.icon(
+        onPressed: () => viewModel.retrySetup(),
+        icon: const Icon(Icons.refresh),
+        label: const Text("Retry"),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: semanticColors.info,
+          foregroundColor: semanticColors.onInfo,
         ),
-        ElevatedButton.icon(
-          onPressed: () => Navigator.of(context).pop(viewModel.selectedChannel),
-          icon: const Icon(Icons.arrow_back),
-          label: const Text("Back"),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.grey,
-            foregroundColor: Colors.white,
-          ),
-        ),
-      ],
+      ),
     );
   }
 
   Widget _buildResetInfo() {
+    final theme = Theme.of(context);
+    final semanticColors = context.semanticColors;
+
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.blue.shade50,
+        color: semanticColors.infoContainer,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.blue.shade200),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha: 0.5),
+        ),
       ),
-      child: const Column(
+      child: Column(
         children: [
-          Icon(Icons.lightbulb_outline, color: Colors.blue, size: 32),
-          SizedBox(height: 8),
+          Icon(
+            Icons.lightbulb_outline,
+            color: semanticColors.onInfoContainer,
+            size: 32,
+          ),
+          const SizedBox(height: 8),
           Text(
             "Alternative Options:",
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: semanticColors.onInfoContainer,
+            ),
           ),
           SizedBox(height: 8),
           Text(
@@ -259,11 +270,18 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
           (device) => Card(
             margin: const EdgeInsets.symmetric(vertical: 4),
             child: ListTile(
-              leading: Icon(
-                device.connected
-                    ? Icons.radio_button_on
-                    : Icons.radio_button_off,
-                color: device.connected ? Colors.green : Colors.grey,
+              leading: Builder(
+                builder: (context) {
+                  final semanticColors = context.semanticColors;
+                  return Icon(
+                    device.connected
+                        ? Icons.radio_button_on
+                        : Icons.radio_button_off,
+                    color: device.connected
+                        ? semanticColors.success
+                        : semanticColors.disabled,
+                  );
+                },
               ),
               title: Text(
                 device.name,
@@ -297,7 +315,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
         const SizedBox(height: 8),
         const Text(
           "Tap a device to connect/disconnect\nLong press or tap ⚙️ on connected devices for controller",
-          style: TextStyle(color: Colors.grey, fontSize: 12),
+          style: TextStyle(fontSize: 12),
           textAlign: TextAlign.center,
         ),
       ],
@@ -311,30 +329,42 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
     return Column(
       children: [
         const SizedBox(height: 16),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.green.shade50,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.green.shade200),
-          ),
-          child: Column(
-            children: [
-              const Icon(Icons.music_note, color: Colors.green, size: 32),
-              const SizedBox(height: 8),
-              const Text(
-                "MIDI Activity:",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        Builder(
+          builder: (context) {
+            final semanticColors = context.semanticColors;
+            return Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: semanticColors.successContainer,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: semanticColors.success.withAlpha(80)),
               ),
-              const SizedBox(height: 4),
-              Text(
-                viewModel.lastNote,
-                style: const TextStyle(color: Colors.green, fontSize: 16),
-                textAlign: TextAlign.center,
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.music_note,
+                    color: semanticColors.success,
+                    size: 32,
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "MIDI Activity:",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    viewModel.lastNote,
+                    style: TextStyle(
+                      color: semanticColors.success,
+                      fontSize: 16,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ],
     );
@@ -361,9 +391,14 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
           : (viewModel.shouldShowErrorButtons
                 ? "Retry MIDI setup"
                 : "Scan for MIDI devices"),
-      backgroundColor: viewModel.isScanning ? Colors.grey : null,
+      backgroundColor: viewModel.isScanning
+          ? Theme.of(context).disabledColor
+          : null,
       child: viewModel.isScanning
-          ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+          ? CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.onPrimary,
+              strokeWidth: 2,
+            )
           : Icon(
               viewModel.shouldShowErrorButtons
                   ? Icons.refresh
@@ -392,8 +427,38 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
 
   void _showSnackBar(String message, [Color? backgroundColor]) {
     if (mounted) {
+      final semanticColors = context.semanticColors;
+
+      // Auto-assign semantic colors based on message content if no color provided
+      Color? snackBarColor = backgroundColor;
+      if (snackBarColor == null) {
+        if (message.toLowerCase().contains("error") ||
+            message.toLowerCase().contains("failed") ||
+            message.toLowerCase().contains("cannot")) {
+          snackBarColor = semanticColors.warning;
+        } else if (message.toLowerCase().contains("connected") ||
+            message.toLowerCase().contains("success")) {
+          snackBarColor = semanticColors.success;
+        } else if (message.toLowerCase().contains("scanning") ||
+            message.toLowerCase().contains("found")) {
+          snackBarColor = semanticColors.info;
+        }
+      }
+
+      final textColor = switch (snackBarColor) {
+        final c? when c == semanticColors.success => semanticColors.onSuccess,
+        final c? when c == semanticColors.warning => semanticColors.onWarning,
+        final c? when c == semanticColors.info => semanticColors.onInfo,
+        _ => null,
+      };
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), backgroundColor: backgroundColor),
+        SnackBar(
+          backgroundColor: snackBarColor,
+          content: Text(
+            message,
+            style: textColor != null ? TextStyle(color: textColor) : null,
+          ),
+        ),
       );
     }
   }

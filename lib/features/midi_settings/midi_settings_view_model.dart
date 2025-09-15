@@ -219,7 +219,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
       _log.info("Starting Bluetooth central");
 
       await _midiCommand.startBluetoothCentral().catchError((Object err) {
-        showSnackBar("Bluetooth error: $err", Colors.red);
+        showSnackBar("Bluetooth error: $err");
         throw Exception(err);
       });
 
@@ -243,7 +243,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
           throw Exception(err);
         });
 
-        showSnackBar("Scanning for Bluetooth MIDI devices...", Colors.blue);
+        showSnackBar("Scanning for Bluetooth MIDI devices...");
 
         await Future<void>.delayed(const Duration(seconds: 3));
         await updateDeviceList();
@@ -259,7 +259,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
         _midiStatus =
             'Cannot scan: $errorMessage\n\nTap "Retry" to try again or use the back button to return';
         notifyListeners();
-        showSnackBar(errorMessage, Colors.red);
+        showSnackBar(errorMessage);
       }
     } on Exception catch (e) {
       var errorMessage = "Error scanning for devices: $e";
@@ -332,13 +332,12 @@ class MidiSettingsViewModel extends ChangeNotifier {
       } else {
         _log.info("Connecting to ${device.name}");
         await _midiCommand.connectToDevice(device);
-        showSnackBar("Connected to ${device.name}", Colors.green);
+        showSnackBar("Connected to ${device.name}");
       }
       await updateDeviceList();
     } on Exception catch (e) {
       showSnackBar(
         "Connection error: ${e is PlatformException ? e.message ?? e.toString() : e.toString()}",
-        Colors.red,
       );
     }
   }
@@ -358,7 +357,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
         orElse: () => currentDevice,
       );
       if (!updatedDevice.connected) {
-        showSnackBar("Failed to connect to device", Colors.red);
+        showSnackBar("Failed to connect to device");
         return null;
       }
       currentDevice = updatedDevice;

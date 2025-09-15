@@ -136,7 +136,7 @@ class _MainNavigationState extends State<MainNavigation> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Colors.deepPurple,
+        selectedItemColor: Theme.of(context).colorScheme.primary,
         onTap: _onItemTapped,
         type: BottomNavigationBarType.fixed,
       ),

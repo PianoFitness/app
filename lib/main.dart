@@ -2,6 +2,7 @@ import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:logging/logging.dart";
 import "package:piano_fitness/shared/services/notification_service.dart";
+import "package:piano_fitness/shared/theme/semantic_colors.dart";
 import "package:piano_fitness/shared/widgets/main_navigation.dart";
 import "package:timezone/data/latest.dart" as tz;
 
@@ -66,6 +67,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+        extensions: const <ThemeExtension<dynamic>>[SemanticColors.light],
       ),
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -73,6 +75,7 @@ class MyApp extends StatelessWidget {
           brightness: Brightness.dark,
         ),
         useMaterial3: true,
+        extensions: const <ThemeExtension<dynamic>>[SemanticColors.dark],
       ),
       home: const MainNavigation(),
     );

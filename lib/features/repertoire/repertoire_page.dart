@@ -338,7 +338,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                                 "Learn popular songs with interactive lessons and real-time feedback",
                             url: "https://www.flowkey.com",
                             icon: Icons.play_circle_filled,
-                            color: Colors.purple,
+                            color: colorScheme.tertiary,
                           ),
                           const SizedBox(height: 12),
 
@@ -348,7 +348,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                                 "Practice with your favorite songs using acoustic recognition",
                             url: "https://www.joytunes.com/simply-piano",
                             icon: Icons.music_note,
-                            color: Colors.green,
+                            color: colorScheme.secondary,
                           ),
                           const SizedBox(height: 20),
 
