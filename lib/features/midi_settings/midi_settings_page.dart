@@ -445,8 +445,20 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
         }
       }
 
+      final textColor = switch (snackBarColor) {
+        final c? when c == semanticColors.success => semanticColors.onSuccess,
+        final c? when c == semanticColors.warning => semanticColors.onWarning,
+        final c? when c == semanticColors.info => semanticColors.onInfo,
+        _ => null,
+      };
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), backgroundColor: snackBarColor),
+        SnackBar(
+          backgroundColor: snackBarColor,
+          content: Text(
+            message,
+            style: textColor != null ? TextStyle(color: textColor) : null,
+          ),
+        ),
       );
     }
   }
