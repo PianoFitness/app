@@ -41,7 +41,18 @@ class PracticeProgressDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!practiceActive || currentSequence.isEmpty) {
+    if (!practiceActive) {
+      return const SizedBox.shrink();
+    }
+    if ((practiceMode == PracticeMode.scales ||
+            practiceMode == PracticeMode.arpeggios) &&
+        currentSequence.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    if ((practiceMode == PracticeMode.chordsByKey ||
+            practiceMode == PracticeMode.chordsByType ||
+            practiceMode == PracticeMode.chordProgressions) &&
+        currentChordProgression.isEmpty) {
       return const SizedBox.shrink();
     }
 
