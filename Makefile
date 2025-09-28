@@ -136,7 +136,7 @@ run-web: check-flutter
 	@flutter run -d chrome --debug
 
 # Utilities
-devices: check-xcode
+devices: check-flutter check-xcode
 	@echo "📱 Available simulators:"
 	@xcrun simctl list devices available
 	@echo ""
