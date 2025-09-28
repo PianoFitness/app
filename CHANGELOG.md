@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Makefile Commands**: Added simulator override support (`make IPAD_SIM="iPad mini" run-ipad`)
 - **Error Handling**: Better device detection and fallback behavior for simulator management
 - **iOS Runtime Check**: Added script to verify and guide iOS simulator runtime installation
+- **Accessibility Infrastructure**: Comprehensive accessibility framework with `PianoAccessibilityUtils`, `MusicalAnnouncementsService`, and context-aware semantic labeling
+- **Screen Reader Support**: Full screen reader compatibility with live region announcements for piano interactions, MIDI status changes, and practice progress
+- **Semantic Navigation**: Enhanced keyboard navigation with proper semantic labels, hints, and container structure across all pages
+- **Universal Design**: Theme-based color implementation ensuring proper contrast ratios and consistent visual accessibility standards
 
 [Unreleased]: https://github.com/PianoFitness/app/compare/v0.3.0...HEAD
 
