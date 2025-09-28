@@ -6,6 +6,29 @@
 
 set -e
 
+# Preflight checks - verify required tools are available
+echo "🔧 Checking prerequisites..."
+
+if ! command -v flutter >/dev/null 2>&1; then
+    echo "❌ Error: flutter command not found in PATH"
+    echo "   Please install Flutter from https://flutter.dev"
+    exit 1
+fi
+
+if ! command -v xcrun >/dev/null 2>&1; then
+    echo "❌ Error: xcrun command not found in PATH" 
+    echo "   Please install Xcode Command Line Tools"
+    exit 1
+fi
+
+if ! command -v open >/dev/null 2>&1; then
+    echo "❌ Error: open command not found in PATH"
+    echo "   This script requires macOS"
+    exit 1
+fi
+
+echo "✅ Prerequisites verified"
+
 PREFERRED_SIMULATOR="$1"
 
 echo "🚀 Launching iPad simulator..."
@@ -18,7 +41,21 @@ if [ -n "$PREFERRED_SIMULATOR" ]; then
 fi
 
 echo "⏳ Finding available iPad simulator..."
-IPAD_DEVICE=$(flutter devices | grep -E "iPad.*simulator" | grep -o " • [A-Z0-9-]* • " | tr -d ' •' | head -1)
+
+# Use awk to reliably extract device ID from flutter devices output
+# Format: "  DEVICE_NAME (TYPE) • DEVICE_ID • PLATFORM • ADDITIONAL_INFO"
+IPAD_DEVICE=$(flutter devices 2>/dev/null | awk '
+    /iPad.*simulator/ {
+        # Split the line by bullet points (•)
+        split($0, fields, " • ")
+        if (length(fields) >= 2) {
+            # The device ID is in the second field, trim whitespace
+            gsub(/^[ \t]+|[ \t]+$/, "", fields[2])
+            print fields[2]
+            exit
+        }
+    }
+')
 
 if [ -n "$IPAD_DEVICE" ]; then
     echo "📱 Found iPad device ID: $IPAD_DEVICE"
