@@ -2,7 +2,7 @@
 # Complete developer workflow commands for building, testing, and releasing
 
 # Simulator defaults (overridable): use `make IPHONE_SIM="..."` to override
-IPHONE_SIM ?= iPhone 16 Pro Max
+IPHONE_SIM ?= iPhone 17 Pro
 IPAD_SIM   ?= iPad Pro 13-inch (M4)
 
 .PHONY: all help setup deps deps-upgrade clean \
@@ -31,8 +31,8 @@ help:
 	@echo "  web            - Launch on web (alias for run-web)"
 	@echo ""
 	@echo "📱 Simulators:"
-	@echo "  run-iphone     - Launch app on $(IPHONE_SIM) simulator"
-	@echo "  run-ipad       - Launch app on $(IPAD_SIM) simulator"
+	@echo "  run-iphone     - Launch app on iPhone simulator"
+	@echo "  run-ipad       - Launch app on iPad simulator"
 	@echo "  run-web        - Launch app in web browser"
 	@echo "  hot-reload     - Trigger hot reload (r key)"
 	@echo ""
@@ -73,6 +73,7 @@ help:
 	@echo "  devices        - List available simulators"
 	@echo "  reset-simulators - Reset all simulators (TODO)"
 	@echo "  install-certificates - Setup iOS certificates (TODO)"
+	@echo "  install-ios-runtime - Check/install iOS 26.0 simulator"
 	@echo ""
 	@echo "💡 Workflow Help:"
 	@echo "  help-first-time - First time setup guide"
@@ -117,70 +118,24 @@ hot-reload:
 	@echo "Hot reload typically triggered with 'r' key in running Flutter session"
 	@echo "Or use your IDE's hot reload button"
 
-# Simulator Management
+# Simulator Management - Using Scripts for Maintainability
 run-iphone: check-flutter check-xcode
-	@echo "🚀 Launching $(IPHONE_SIM) simulator..."
-	@open -a Simulator
-	@xcrun simctl boot "$(IPHONE_SIM)" 2>/dev/null || true
-	@echo "⏳ Waiting for simulator to fully boot..."
-	@xcrun simctl bootstatus "$(IPHONE_SIM)" -b
-	@echo "🎯 Launching app..."
-	@flutter run -d "$(IPHONE_SIM)" --debug
+	@./scripts/run-iphone-simulator.sh
 
 run-ipad: check-flutter check-xcode
-	@echo "🚀 Launching $(IPAD_SIM) simulator..."
-	@open -a Simulator
-	@xcrun simctl boot "$(IPAD_SIM)" 2>/dev/null || true
-	@echo "⏳ Waiting for simulator to fully boot..."
-	@xcrun simctl bootstatus "$(IPAD_SIM)" -b
-	@echo "🎯 Launching app..."
-	@flutter run -d "$(IPAD_SIM)" --debug
+	@./scripts/run-ipad-simulator.sh
 
 run-web: check-flutter
 	@echo "🌐 Launching web version..."
 	@flutter run -d chrome --debug
 
+# Utilities
 devices: check-xcode
 	@echo "📱 Available simulators:"
 	@xcrun simctl list devices available
 	@echo ""
 	@echo "🌐 Available devices for Flutter:"
 	@flutter devices
-
-reset-simulators:
-	@echo "🔄 Resetting all simulators..."
-	@echo "TODO: Implement simulator reset functionality"
-	@echo "Manual: Device > Erase All Content and Settings in Simulator"
-
-install-certificates:
-	@echo "📜 Setting up iOS certificates..."
-	@echo "TODO: Implement certificate installation automation"
-	@echo "Manual: Open Xcode > Preferences > Accounts > Add Apple ID"
-
-# Screenshots
-screenshot-iphone: check-xcode
-	@echo "📸 Taking iPhone screenshot..."
-	@mkdir -p screenshots
-	@open -a Simulator
-	@xcrun simctl boot "$(IPHONE_SIM)" 2>/dev/null || true
-	@echo "⏳ Waiting for simulator to fully boot..."
-	@xcrun simctl bootstatus "$(IPHONE_SIM)" -b
-	@FILE="screenshots/iphone-$$(date +%Y%m%d-%H%M%S).png" && \
-	 xcrun simctl io "$(IPHONE_SIM)" screenshot "$$FILE" && \
-	 echo "✅ Screenshot saved: $$FILE" && \
-	 ls -la "$$FILE"
-
-screenshot-ipad: check-xcode
-	@echo "📸 Taking iPad screenshot..."
-	@mkdir -p screenshots
-	@open -a Simulator
-	@xcrun simctl boot "$(IPAD_SIM)" 2>/dev/null || true
-	@echo "⏳ Waiting for simulator to fully boot..."
-	@xcrun simctl bootstatus "$(IPAD_SIM)" -b
-	@FILE="screenshots/ipad-$$(date +%Y%m%d-%H%M%S).png" && \
-	 xcrun simctl io "$(IPAD_SIM)" screenshot "$$FILE" && \
-	 echo "✅ Screenshot saved: $$FILE" && \
-	 ls -la "$$FILE"
 
 # Building
 build-ipa: check-flutter check-xcode
@@ -217,11 +172,6 @@ test-coverage: check-flutter
 	@echo "✅ Coverage report generated: coverage/lcov.info"
 	@echo "💡 View with: genhtml coverage/lcov.info -o coverage/html"
 
-test-watch:
-	@echo "👀 Running tests in watch mode..."
-	@echo "TODO: Implement test watch mode"
-	@echo "Manual: Use your IDE's test runner or run tests manually after changes"
-
 lint: check-flutter
 	@echo "🔍 Running code analysis..."
 	@flutter analyze
@@ -236,42 +186,16 @@ validate: format lint test
 	@echo "🎯 Running complete validation..."
 	@echo "✅ All quality checks passed!"
 
-# Performance & Analysis
-profile:
-	@echo "⚡ Performance profiling..."
-	@echo "TODO: Implement performance profiling"
-	@echo "Manual: flutter run --profile and use DevTools"
+# Screenshots - Using Scripts for Maintainability
+screenshot-iphone: check-xcode
+	@./scripts/take-iphone-screenshot.sh "$(IPHONE_SIM)"
 
-bundle-size:
-	@echo "📦 Analyzing bundle size..."
-	@echo "TODO: Implement bundle size analysis"
-	@echo "Manual: flutter build --analyze-size"
+screenshot-ipad: check-xcode
+	@./scripts/take-ipad-screenshot.sh "$(IPAD_SIM)"
 
-# Release Workflow
-release:
-	@echo "🚢 Starting release workflow..."
-	@echo "TODO: Implement complete release automation"
-	@echo "This should: bump version, build IPA, run tests, take screenshots"
-	@echo "Manual steps for now:"
-	@echo "1. Update version in pubspec.yaml"
-	@echo "2. Run: make validate"
-	@echo "3. Run: make build-ipa"
-	@echo "4. Take screenshots with: make screenshot-iphone screenshot-ipad"
-
-version:
-	@echo "📋 Current version:"
-	@grep "^version:" pubspec.yaml || echo "Version not found in pubspec.yaml"
-
-changelog:
-	@echo "📝 Generating changelog..."
-	@echo "TODO: Implement changelog generation"
-	@echo "Manual: Update CHANGELOG.md with version $$(awk -F': *' '/^version:/ {print $$2}' pubspec.yaml)"
-
-# Shorter Aliases
-ios: run-iphone
-ipad: run-ipad
-web: run-web
-build: build-ipa
+# iOS Runtime Management - Using Script for Maintainability
+install-ios-runtime:
+	@./scripts/check-ios-runtime.sh
 
 # Utilities
 clean:
@@ -280,6 +204,16 @@ clean:
 	@rm -rf build/
 	@rm -rf .dart_tool/
 	@echo "✅ Clean complete"
+
+version:
+	@echo "📋 Current version:"
+	@grep "^version:" pubspec.yaml || echo "Version not found in pubspec.yaml"
+
+# Shorter Aliases
+ios: run-iphone
+ipad: run-ipad
+web: run-web
+build: build-ipa
 
 # Help for specific workflows
 help-first-time:
