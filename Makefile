@@ -4,6 +4,7 @@
 # Simulator defaults (overridable): use `make IPHONE_SIM="..."` to override
 IPHONE_SIM ?= iPhone 17 Pro
 IPAD_SIM   ?= iPad Pro 13-inch (M4)
+IOS_RUNTIME_VERSION ?= 26.0
 
 .PHONY: all help setup deps deps-upgrade clean \
 	build-ios build-macos build-ipa build-web \
@@ -39,6 +40,7 @@ help:
 	@echo "💡 Simulator Overrides:"
 	@echo "  make IPHONE_SIM=\"iPhone 17\" run-iphone    # Use specific iPhone"
 	@echo "  make IPAD_SIM=\"iPad mini (A17 Pro)\" run-ipad  # Use specific iPad"
+	@echo "  make IOS_RUNTIME_VERSION=\"18.4\" install-ios-runtime  # Check specific iOS version"
 	@echo ""
 	@echo "📸 Screenshots:"
 	@echo "  screenshot-iphone - Take screenshot on iPhone simulator"
@@ -199,7 +201,7 @@ screenshot-ipad: check-xcode
 
 # iOS Runtime Management - Using Script for Maintainability
 install-ios-runtime:
-	@./scripts/check-ios-runtime.sh
+	@./scripts/check-ios-runtime.sh "$(IOS_RUNTIME_VERSION)"
 
 # Utilities
 clean:

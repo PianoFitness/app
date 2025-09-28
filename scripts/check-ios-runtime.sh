@@ -1,8 +1,15 @@
 #!/bin/bash
 # Piano Fitness - iOS Runtime Status Script
 # Checks and reports on iOS simulator runtime availability
+# Usage: ./check-ios-runtime.sh [IOS_VERSION]
+# Examples: ./check-ios-runtime.sh 26.0
+#           ./check-ios-runtime.sh 18.4
+#           IOS_RUNTIME_VERSION=26.0 ./check-ios-runtime.sh
 
 set -e
+
+# Accept version via CLI argument or environment variable
+IOS_VERSION="${1:-${IOS_RUNTIME_VERSION}}"
 
 echo "📱 Checking iOS simulator runtime status..."
 echo ""
@@ -26,19 +33,28 @@ else
 fi
 
 echo ""
-echo "💡 To install iOS 26.0 Simulator:"
-echo "  1. Open Xcode"
-echo "  2. Go to Settings > Components (or Xcode > Preferences > Components)"
-echo "  3. Look for iOS 26.0 Simulator and click GET/INSTALL"
-echo "  4. Wait for download and installation (this may take a while)"
-echo ""
-echo "🎯 Current status summary:"
-
-# Check if iOS 26.0 runtime is available
-if xcrun simctl runtime list 2>/dev/null | grep -q "iOS-26-0"; then
-    echo "✅ iOS 26.0 runtime is installed"
+if [ -n "$IOS_VERSION" ]; then
+    echo "💡 To install iOS $IOS_VERSION Simulator:"
+    echo "  1. Open Xcode"
+    echo "  2. Go to Settings > Components (or Xcode > Preferences > Components)"
+    echo "  3. Look for iOS $IOS_VERSION Simulator and click GET/INSTALL"
+    echo "  4. Wait for download and installation (this may take a while)"
+    echo ""
+    echo "🎯 Current status summary:"
+    
+    # Check if the specified iOS runtime is available
+    if xcrun simctl runtime list 2>/dev/null | grep -q "iOS $IOS_VERSION"; then
+        echo "✅ iOS $IOS_VERSION runtime is installed"
+    else
+        echo "⚠️  iOS $IOS_VERSION runtime not found - you may need to install it"
+    fi
 else
-    echo "⚠️  iOS 26.0 runtime not found - you may need to install it"
+    echo "💡 No specific iOS version specified."
+    echo "  Available iOS runtimes:"
+    xcrun simctl runtime list 2>/dev/null | grep -E "iOS.*Ready" | sed 's/^/    /' || echo "    ❌ No iOS runtimes found"
+    echo ""
+    echo "🎯 General status summary:"
+    echo "ℹ️  Use with a version argument to check specific runtime (e.g., ./check-ios-runtime.sh 26.0)"
 fi
 
 # Check if any simulators are available
