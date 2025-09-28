@@ -32,9 +32,13 @@ help:
 	@echo ""
 	@echo "📱 Simulators:"
 	@echo "  run-iphone     - Launch app on iPhone simulator"
-	@echo "  run-ipad       - Launch app on iPad simulator"
+	@echo "  run-ipad       - Launch app on iPad simulator" 
 	@echo "  run-web        - Launch app in web browser"
 	@echo "  hot-reload     - Trigger hot reload (r key)"
+	@echo ""
+	@echo "💡 Simulator Overrides:"
+	@echo "  make IPHONE_SIM=\"iPhone 17\" run-iphone    # Use specific iPhone"
+	@echo "  make IPAD_SIM=\"iPad mini (A17 Pro)\" run-ipad  # Use specific iPad"
 	@echo ""
 	@echo "📸 Screenshots:"
 	@echo "  screenshot-iphone - Take screenshot on iPhone simulator"
@@ -120,10 +124,10 @@ hot-reload:
 
 # Simulator Management - Using Scripts for Maintainability
 run-iphone: check-flutter check-xcode
-	@./scripts/run-iphone-simulator.sh
+	@./scripts/run-iphone-simulator.sh "$(IPHONE_SIM)"
 
 run-ipad: check-flutter check-xcode
-	@./scripts/run-ipad-simulator.sh
+	@./scripts/run-ipad-simulator.sh "$(IPAD_SIM)"
 
 run-web: check-flutter
 	@echo "🌐 Launching web version..."
