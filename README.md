@@ -126,29 +126,21 @@ Piano Fitness enhances rather than replaces traditional piano lessons:
 
 ## 🏗️ Project Structure
 
+Piano Fitness is built with Flutter for cross-platform compatibility and features a comprehensive accessibility framework, MIDI integration system, and modular architecture designed for scalability and maintainability.
+
 ```text
 piano-fitness/
-├── app/                           # Flutter application
+├── app/                          # Flutter application
 │   ├── lib/
-│   │   ├── main.dart             # App entry point
-│   │   ├── design_system/        # UI components and theming
-│   │   ├── features/             # Feature modules
-│   │   ├── services/             # Business logic and data
-│   │   └── utils/                # Utilities and helpers
-│   └── pubspec.yaml              # Dependencies
-├── docs/
-│   └── specifications/           # Technical specifications
-│       ├── piano-keyboard-component.md
-│       ├── exercise-system.md
-│       ├── practice-tools.md
-│       ├── progress-tracking.md
-│       ├── visual-feedback-system.md
-│       ├── metronome-component.md
-│       ├── design-system.md
-│       ├── authentication-system.md
-│       └── firebase-data-models.md
-└── README.md                     # This file
+│   │   ├── features/            # Core features (practice, MIDI, reference)
+│   │   ├── shared/              # Shared utilities and components
+│   │   └── main.dart           # App entry point
+│   └── test/                   # Comprehensive test coverage
+├── docs/                       # Technical specifications and documentation
+└── CONTRIBUTING.md             # Development guidelines and setup
 ```
+
+**📋 For detailed architecture information, development setup, and contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).**
 
 ## 🚀 Development Status
 
@@ -185,15 +177,17 @@ Piano Fitness is currently in the **specification and design phase**. We're buil
 
 ## 🤝 Contributing
 
-Piano Fitness is an open-source project welcoming contributions from developers, musicians, and educators. Whether you're interested in:
+Piano Fitness is an open-source project welcoming contributions from developers, musicians, and educators. Whether you're interested in Flutter development, MIDI programming, music education, design, or testing, we'd love to have you involved!
 
-- **Flutter development** - UI components, animations, mobile optimization
-- **MIDI programming** - Timing accuracy, device compatibility, audio processing
-- **Music education** - Exercise design, pedagogical features, accessibility
-- **Design** - User experience, visual design, accessibility improvements
-- **Testing** - Performance testing, user testing, device compatibility
+**👉 See our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines, development setup, and project architecture.**
 
-We'd love to have you involved! Check out our [specifications](docs/specifications/) to understand the technical architecture.
+Areas where we especially welcome contributions:
+
+- **🎹 Flutter Development**: UI components, animations, mobile optimization  
+- **🎵 MIDI Programming**: Timing accuracy, device compatibility, audio processing
+- **📚 Music Education**: Exercise design, pedagogical features, accessibility
+- **🎨 Design**: User experience, visual design, accessibility improvements
+- **🧪 Testing**: Performance testing, user testing, device compatibility
 
 ## 📚 Documentation
 
@@ -209,61 +203,16 @@ We'd love to have you involved! Check out our [specifications](docs/specificatio
 - [Authentication System](docs/specifications/authentication-system.md)
 - [Firebase Data Models](docs/specifications/firebase-data-models.md)
 
-### Getting Started
+### For Contributors
 
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/yourusername/piano-fitness.git
-   cd piano-fitness
-   ```
-
-2. **Set up Flutter development environment**
-   - Install [Flutter SDK](https://flutter.dev/docs/get-started/install)
-   - Set up your preferred IDE (VS Code, Android Studio, IntelliJ)
-
-3. **Install development dependencies**
-
-   ```bash
-   # Install lefthook globally for git hooks
-   brew install lefthook  # macOS
-   # or
-   npm install -g lefthook  # Cross-platform
-   
-   # Install markdownlint for markdown linting and formatting
-   brew install markdownlint-cli  # macOS
-   # or
-   npm install -g markdownlint-cli  # Cross-platform
-   
-   # Install and initialize lefthook in the project
-   cd app
-   lefthook install
-   ```
-
-4. **Install Flutter dependencies**
-
-   ```bash
-   flutter pub get
-   ```
-
-5. **Run the app**
-
-   ```bash
-   flutter run
-   ```
-
-### Development Dependencies
-
-- **lefthook** - Git hooks manager for automated linting and formatting
-- **markdownlint-cli** - Markdown linting and formatting tool
+- [Contributing Guide](CONTRIBUTING.md) - Development setup, architecture, and guidelines
+- [Accessibility Plan](lib/features/ACCESSIBILITY_PLAN.md) - Comprehensive accessibility implementation
 
 ## 🎵 The Future of Piano Practice
 
 Piano Fitness represents a new paradigm in music education - one where technology amplifies human creativity rather than replacing it. By providing precise feedback, comprehensive tracking, and intelligent guidance, we're building tools that help students develop technical mastery more efficiently, leaving more time for the joy of musical expression.
 
 **Join us in revolutionizing piano education, one practice session at a time.**
-
----
 
 ## 📄 License
 
@@ -275,7 +224,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - The Flutter community for building amazing cross-platform tools
 - MIDI technology pioneers who made digital music interaction possible
 - Piano students everywhere who dedicate countless hours to mastering their craft
-
----
 
 *Piano Fitness - Where precision meets passion in piano practice.* 🎹✨
