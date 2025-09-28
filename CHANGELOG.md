@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Comprehensive Accessibility Framework**: Complete accessibility infrastructure with semantic labels, screen reader support, and WCAG compliance
+- **SemanticColors Extension**: New theming system for consistent semantic color usage across all components
+- **Piano Key Utilities**: New utility functions for piano key identification and interaction handling
+- **Accessibility Documentation**: Comprehensive documentation including implementation reports and architectural guidelines
+
 ### Improved
 
 - **Development Tooling**: Refactored simulator scripts for better reliability and maintainability
@@ -17,6 +24,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Screen Reader Support**: Full screen reader compatibility with live region announcements for piano interactions, MIDI status changes, and practice progress
 - **Semantic Navigation**: Enhanced keyboard navigation with proper semantic labels, hints, and container structure across all pages
 - **Universal Design**: Theme-based color implementation ensuring proper contrast ratios and consistent visual accessibility standards
+- **Widget Testing**: Enhanced test coverage with key-based selectors and improved widget testing reliability
+- **Code Quality**: Comprehensive refactoring with consistent theming, improved error handling, and better separation of concerns
+- **User Interface**: Enhanced visual consistency across all pages with semantic color usage and improved dark mode support
 
 [Unreleased]: https://github.com/PianoFitness/app/compare/v0.3.0...HEAD
 
