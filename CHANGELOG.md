@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Improved
+
+- **Development Tooling**: Refactored simulator scripts for better reliability and maintainability
+- **Makefile Commands**: Added simulator override support (`make IPAD_SIM="iPad mini" run-ipad`)
+- **Error Handling**: Better device detection and fallback behavior for simulator management
+- **iOS Runtime Check**: Added script to verify and guide iOS simulator runtime installation
+
 [Unreleased]: https://github.com/PianoFitness/app/compare/v0.3.0...HEAD
 
 ## [0.3.0] - 2025-08-25
