@@ -44,18 +44,19 @@ echo "⏳ Finding available iPhone simulator..."
 
 # Use awk to reliably extract device ID from flutter devices output
 # Format: "  DEVICE_NAME (TYPE) • DEVICE_ID • PLATFORM • ADDITIONAL_INFO"
+# Split by literal " • " and take the second field, ensuring we get the first match
 IPHONE_DEVICE=$(flutter devices 2>/dev/null | awk '
     /iPhone.*simulator/ {
-        # Split the line by bullet points (•)
+        # Split the line by the literal " • " delimiter
         split($0, fields, " • ")
         if (length(fields) >= 2) {
             # The device ID is in the second field, trim whitespace
             gsub(/^[ \t]+|[ \t]+$/, "", fields[2])
             print fields[2]
-            exit
+            exit  # Take only the first match
         }
     }
-')
+' | head -1)
 
 if [ -n "$IPHONE_DEVICE" ]; then
     echo "📱 Found iPhone device ID: $IPHONE_DEVICE"
