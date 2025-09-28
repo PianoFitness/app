@@ -43,7 +43,11 @@ if [ -n "$IOS_VERSION" ]; then
     echo "🎯 Current status summary:"
     
     # Check if the specified iOS runtime is available
-    if xcrun simctl runtime list 2>/dev/null | grep -q "iOS $IOS_VERSION"; then
+    # Set LC_ALL=C for stable output and create pattern to match both spaced and dashed formats
+    IOS_VERSION_PATTERN=$(echo "$IOS_VERSION" | sed 's/\./ /g; s/ /-/g')  # Convert dots to dashes for pattern
+    IOS_VERSION_SPACED=$(echo "$IOS_VERSION" | sed 's/\./ /g')           # Convert dots to spaces for pattern
+    
+    if LC_ALL=C xcrun simctl runtime list 2>/dev/null | grep -qE "(iOS $IOS_VERSION_SPACED|iOS-$IOS_VERSION_PATTERN|iOS $IOS_VERSION)"; then
         echo "✅ iOS $IOS_VERSION runtime is installed"
     else
         echo "⚠️  iOS $IOS_VERSION runtime not found - you may need to install it"
