@@ -105,33 +105,42 @@ Thank you for your interest in contributing to Piano Fitness! This document prov
 ### Directory Structure
 
 ```text
-app/
-├── lib/
-│   ├── main.dart                 # App entry point and Provider configuration
-│   ├── features/                 # Feature-based MVVM modules
-│   │   ├── device_controller/    # MIDI device testing and control
-│   │   ├── midi_settings/        # MIDI device configuration
-│   │   ├── notifications/        # Practice reminders and notifications
-│   │   ├── play/                 # Main piano interface
-│   │   ├── practice/             # Guided practice exercises
-│   │   ├── reference/            # Scale and chord reference
-│   │   └── repertoire/           # Repertoire practice with timer
-│   ├── shared/                   # Common code shared across features
-│   │   ├── accessibility/        # Accessibility framework
-│   │   ├── models/              # Data models and business entities
-│   │   ├── services/            # Business logic and external integrations
-│   │   ├── theme/               # Theming and visual design system
-│   │   ├── utils/               # Music theory and helper functions
-│   │   └── widgets/             # Reusable UI components
-│   └── scripts/                  # Development and build scripts
-├── test/                         # Test files (mirrors lib/ structure)
-├── docs/                         # Project documentation
-├── android/                      # Android platform files
-├── ios/                          # iOS platform files
-├── macos/                        # macOS platform files
-├── windows/                      # Windows platform files
-├── linux/                        # Linux platform files
-└── web/                          # Web platform files
+lib/
+├── main.dart                     # App entry point and Provider configuration
+├── features/                     # Feature-based MVVM modules
+│   ├── device_controller/        # MIDI device testing and control
+│   ├── midi_settings/            # MIDI device configuration
+│   ├── notifications/            # Practice reminders and notifications
+│   │   └── widgets/              # Notification-specific widgets
+│   ├── play/                     # Main piano interface
+│   ├── practice/                 # Guided practice exercises
+│   ├── reference/                # Scale and chord reference
+│   │   └── widgets/              # Reference-specific widgets
+│   └── repertoire/               # Repertoire practice with timer
+│       └── widgets/              # Repertoire-specific widgets
+├── shared/                       # Common code shared across features
+│   ├── accessibility/            # Accessibility framework
+│   │   ├── config/               # Accessibility configuration
+│   │   ├── mixins/               # Accessibility mixins
+│   │   ├── services/             # Accessibility services
+│   │   └── widgets/              # Accessible widget components
+│   ├── constants/                # App-wide constants
+│   ├── models/                   # Data models and business entities
+│   ├── services/                 # Business logic and external integrations
+│   ├── theme/                    # Theming and visual design system
+│   ├── utils/                    # Music theory and helper functions
+│   └── widgets/                  # Reusable UI components
+└── scripts/                      # Development and build scripts
+test/                             # Test files (mirrors lib/ structure)
+docs/                             # Project documentation
+coverage/                         # Test coverage reports
+scripts/                          # Development scripts (simulators, etc.)
+android/                          # Android platform files
+ios/                              # iOS platform files
+macos/                            # macOS platform files
+windows/                          # Windows platform files
+linux/                            # Linux platform files
+web/                              # Web platform files
 ```
 
 ### Architecture Pattern: MVVM with Clean Architecture
@@ -196,14 +205,31 @@ Tests mirror the `lib/` structure for easy navigation:
 ```text
 test/
 ├── features/                     # Feature-based MVVM tests
+│   ├── device_controller/
+│   │   ├── device_controller_page_test.dart          # UI tests
+│   │   └── device_controller_view_model_test.dart    # Business logic tests
+│   ├── midi_settings/
+│   │   ├── midi_settings_page_test.dart              # UI tests
+│   │   └── midi_settings_view_model_test.dart        # Business logic tests
+│   ├── notifications/
+│   │   ├── notifications_page_test.dart              # UI tests
+│   │   ├── notifications_page_view_model_test.dart   # Business logic tests
+│   │   └── widgets/                                  # Notification widget tests
 │   ├── play/
-│   │   ├── play_page_test.dart          # UI tests
-│   │   └── play_page_view_model_test.dart # Business logic tests
-│   └── practice/
-│       ├── practice_page_test.dart       # UI tests
-│       └── practice_page_view_model_test.dart # Business logic tests
+│   │   ├── play_page_test.dart                       # UI tests
+│   │   └── play_page_view_model_test.dart            # Business logic tests
+│   ├── practice/
+│   │   ├── practice_page_test.dart                   # UI tests
+│   │   └── practice_page_view_model_test.dart        # Business logic tests
+│   ├── reference/
+│   │   ├── reference_page_test.dart                  # UI tests
+│   │   └── reference_page_view_model_test.dart       # Business logic tests
+│   └── repertoire/
+│       ├── repertoire_page_test.dart                 # UI tests
+│       └── repertoire_page_view_model_test.dart      # Business logic tests
 ├── shared/                       # Shared code tests
 │   ├── models/                   # Data model unit tests
+│   ├── services/                 # Service layer unit tests
 │   ├── utils/                    # Music theory and utility tests
 │   └── widgets/                  # Shared widget tests
 └── widget_integration_test.dart  # Cross-feature integration tests
