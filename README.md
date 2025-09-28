@@ -216,12 +216,12 @@ Piano Fitness represents a new paradigm in music education - one where technolog
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
 - Music educators worldwide who inspire students to reach their potential
-- The Flutter community for building amazing cross-platform tools
+- The Flutter community for building excellent cross-platform tools
 - MIDI technology pioneers who made digital music interaction possible
 - Piano students everywhere who dedicate countless hours to mastering their craft
 
