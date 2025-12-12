@@ -652,28 +652,28 @@ void main() {
             HandSelection.both,
           );
 
-          // Both hands sequence should have paired ascending, then paired descending
-          final halfLength = bothHandsSequence.length ~/ 2;
+          // Extract right-hand notes from interleaved [L1,R1,L2,R2,...] sequence
+          final rightHandSequence = <int>[];
+          for (var i = 1; i < bothHandsSequence.length; i += 2) {
+            rightHandSequence.add(bothHandsSequence[i]);
+          }
 
-          // First half should be ascending (excluding the peak transition)
-          for (var i = 0; i < halfLength - 4; i += 2) {
-            final currentRight = bothHandsSequence[i + 1];
-            final nextRight = bothHandsSequence[i + 3];
+          // Full scale sequence is 8 ascending notes (including octave) + 7 descending
+          // First 8 notes should be ascending
+          for (var i = 0; i < 7; i++) {
             expect(
-              currentRight,
-              lessThan(nextRight),
-              reason: "Right hand should ascend in first half",
+              rightHandSequence[i],
+              lessThan(rightHandSequence[i + 1]),
+              reason: "Right hand should ascend in first part (index $i)",
             );
           }
 
-          // Second half should be descending
-          for (var i = halfLength; i < bothHandsSequence.length - 3; i += 2) {
-            final currentRight = bothHandsSequence[i + 1];
-            final nextRight = bothHandsSequence[i + 3];
+          // Remaining notes (starting at index 8) should be descending
+          for (var i = 8; i < rightHandSequence.length - 1; i++) {
             expect(
-              currentRight,
-              greaterThan(nextRight),
-              reason: "Right hand should descend in second half",
+              rightHandSequence[i],
+              greaterThan(rightHandSequence[i + 1]),
+              reason: "Right hand should descend in second part (index $i)",
             );
           }
         },
