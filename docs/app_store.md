@@ -19,7 +19,7 @@ This document contains all the promotional and descriptive content for the Piano
 ### Current Promotional Text
 
 ```text
-Complete piano practice with notifications, repertoire mode, dark theme, and MIDI integration! Daily reminders keep you practicing.
+Practice with left hand, right hand, or both! Complete piano app with hand selection, notifications, and MIDI integration for systematic learning.
 ```
 
 ### Alternative Promotional Text Options
@@ -54,6 +54,7 @@ Master piano fundamentals with structured learning exercises
 Piano Fitness teaches you piano through guided practice sessions for scales, chords, and arpeggios - not just sheet music. Unlike typical repertoire apps, Piano Fitness helps you build technique systematically.
 
 Key Learning Features:
+• Hand Selection - Practice left hand, right hand, or both hands independently
 • Practice Hub with progressive exercises (Beginner to Advanced)
 • Real-time visual feedback with MIDI keyboard integration
 • Complete scale & chord reference with interactive highlighting
@@ -80,18 +81,16 @@ Start building proper piano technique with guided exercises designed to improve 
 
 ---
 
-## 🆕 What's New in This Version (0.3.0)
+## 🆕 What's New in This Version (0.4.0)
 
 ```text
-Daily Practice Reminders - Never miss practice with customizable notifications that adapt to your schedule
+Hand Selection - Practice each hand independently! Choose left hand, right hand, or both hands for scales, arpeggios, chords, and progressions. Perfect for building hand independence and mastering complex pieces.
 
-Repertoire Practice Mode - Dedicated practice timer with audio feedback for focused sessions on your favorite pieces
+Enhanced Accessibility - Comprehensive screen reader support and WCAG compliance for all users
 
-Dark Theme - Comfortable practice in any lighting with full dark mode support
+Improved Practice Experience - Better visual feedback and intelligent octave management prevents wrong note ranges
 
-Enhanced Chord Practice - Practice chord types (major, minor, diminished, augmented) with proper inversions
-
-Improved Accessibility - Better navigation and screen reader support throughout the app
+Quality Improvements - Enhanced code reliability with production-grade validation and error handling
 ```
 
 ---
@@ -101,7 +100,7 @@ Improved Accessibility - Better navigation and screen reader support throughout 
 ### Primary Keywords
 
 ```text
-piano,notifications,repertoire,MIDI,chord progressions,scales,practice reminders
+piano,hand selection,MIDI,scales,chord progressions,practice,left hand,right hand
 ```
 
 ### Alternative Keyword Sets
@@ -266,5 +265,5 @@ piano practice,music education,chord progressions,scales,MIDI,notifications,hub
 
 ---
 
-*Last Updated: August 25, 2025*
-*Document Version: 1.3 - Piano Fitness 0.3.0 Release*
+*Last Updated: December 12, 2025*
+*Document Version: 1.4 - Piano Fitness 0.4.0 Release*
