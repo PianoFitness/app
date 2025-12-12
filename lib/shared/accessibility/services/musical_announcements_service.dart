@@ -14,6 +14,10 @@ class MusicalAnnouncementsService {
   /// This method checks for platform support, View availability, and provides
   /// graceful degradation for missing Directionality context.
   static void _send(BuildContext context, String message) {
+    // Guard against missing MediaQuery (tests, overlays, early lifecycle)
+    final mediaQuery = MediaQuery.maybeOf(context);
+    if (mediaQuery == null) return;
+
     // Skip if platform doesn't support announcements
     if (!MediaQuery.supportsAnnounceOf(context)) return;
 
