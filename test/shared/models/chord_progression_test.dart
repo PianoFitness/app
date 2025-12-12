@@ -293,10 +293,10 @@ void main() {
         );
         final chords = progression!.generateChords(music.Key.c);
 
-        // octave = 0 should fail assertion (left hand would be at -1)
+        // octave = 0 should throw ArgumentError (left hand would be at -1)
         expect(
           () => chords[0].getMidiNotesForHand(0, HandSelection.both),
-          throwsA(isA<AssertionError>()),
+          throwsA(isA<ArgumentError>()),
           reason: "octave must be >= 1 for both hands",
         );
 

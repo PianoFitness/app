@@ -877,10 +877,10 @@ void main() {
       test("should enforce minimum startOctave for left hand", () {
         final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
 
-        // startOctave = 0 should fail assertion (left hand would be at -1)
+        // startOctave = 0 should throw ArgumentError (left hand would be at -1)
         expect(
           () => scale.getHandSequence(0, HandSelection.left),
-          throwsA(isA<AssertionError>()),
+          throwsA(isA<ArgumentError>()),
           reason: "startOctave must be >= 1 for left hand",
         );
 
@@ -895,10 +895,10 @@ void main() {
       test("should enforce minimum startOctave for both hands", () {
         final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
 
-        // startOctave = 0 should fail assertion (left hand would be at -1)
+        // startOctave = 0 should throw ArgumentError (left hand would be at -1)
         expect(
           () => scale.getHandSequence(0, HandSelection.both),
-          throwsA(isA<AssertionError>()),
+          throwsA(isA<ArgumentError>()),
           reason: "startOctave must be >= 1 for both hands",
         );
 

@@ -159,10 +159,11 @@ class Arpeggio {
   List<int> getHandSequence(int startOctave, HandSelection hand) {
     switch (hand) {
       case HandSelection.both:
-        assert(
-          startOctave >= 1,
-          "startOctave must be >= 1 for both hands (left hand plays at startOctave - 1)",
-        );
+        if (startOctave < 1) {
+          throw ArgumentError(
+            "startOctave must be >= 1 for both hands (left hand plays at startOctave - 1), got: $startOctave",
+          );
+        }
         // Both hands play in parallel: left hand one octave lower, right hand at startOctave
         final rightHand = getFullArpeggioSequence(startOctave);
         final leftHand = getFullArpeggioSequence(startOctave - 1);
@@ -177,10 +178,11 @@ class Arpeggio {
         // Right hand uses the original octave
         return getFullArpeggioSequence(startOctave);
       case HandSelection.left:
-        assert(
-          startOctave >= 1,
-          "startOctave must be >= 1 for left hand (plays at startOctave - 1)",
-        );
+        if (startOctave < 1) {
+          throw ArgumentError(
+            "startOctave must be >= 1 for left hand (plays at startOctave - 1), got: $startOctave",
+          );
+        }
         // Left hand plays one octave lower
         return getFullArpeggioSequence(startOctave - 1);
     }
