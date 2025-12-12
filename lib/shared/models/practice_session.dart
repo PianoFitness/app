@@ -330,6 +330,11 @@ class PracticeSession {
       // For both hands, notes are paired: [L1, R1, L2, R2, ...]
       // _currentNoteIndex points to the left hand note of the pair
       if (_selectedHandSelection == HandSelection.both) {
+        // Defensive check: ensure we have a complete pair
+        if (_currentNoteIndex + 1 >= _currentSequence.length) {
+          onHighlightedNotesChanged([]);
+          return;
+        }
         // Both hands: highlight two notes (left and right)
         final leftMidiNote = _currentSequence[_currentNoteIndex];
         final rightMidiNote = _currentSequence[_currentNoteIndex + 1];
@@ -392,6 +397,10 @@ class PracticeSession {
     if (_practiceMode == PracticeMode.scales ||
         _practiceMode == PracticeMode.arpeggios) {
       if (_selectedHandSelection == HandSelection.both) {
+        // Defensive check: ensure we have a complete pair
+        if (_currentNoteIndex + 1 >= _currentSequence.length) {
+          return;
+        }
         // Both hands: expect both notes of the pair to be held simultaneously
         final leftNote = _currentSequence[_currentNoteIndex];
         final rightNote = _currentSequence[_currentNoteIndex + 1];
