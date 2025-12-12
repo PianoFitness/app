@@ -1,4 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/shared/constants/musical_constants.dart";
 import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
@@ -745,10 +746,13 @@ void main() {
           HandSelection.right,
         );
 
-        // Left hand should be one octave (12 semitones) lower
+        // Left hand should be one octave lower
         expect(leftHandSequence, hasLength(rightHandSequence.length));
         for (var i = 0; i < leftHandSequence.length; i++) {
-          expect(leftHandSequence[i], equals(rightHandSequence[i] - 12));
+          expect(
+            leftHandSequence[i],
+            equals(rightHandSequence[i] - MusicalConstants.semitonesPerOctave),
+          );
         }
         // Verify it starts at C3 (MIDI 48)
         expect(leftHandSequence.first, equals(48));
@@ -795,8 +799,11 @@ void main() {
           final leftNote = bothHandsSequence[i * 2]; // Even indices
           final rightNote = bothHandsSequence[i * 2 + 1]; // Odd indices
 
-          // Left note should be 12 semitones lower than right note
-          expect(leftNote, equals(rightNote - 12));
+          // Left note should be one octave lower than right note
+          expect(
+            leftNote,
+            equals(rightNote - MusicalConstants.semitonesPerOctave),
+          );
           // Right note should match the right hand sequence
           expect(rightNote, equals(rightHandSequence[i]));
         }
@@ -816,11 +823,14 @@ void main() {
         // Should have even length (pairs of notes)
         expect(bothHandsSequence.length % 2, equals(0));
 
-        // Verify all pairs have 12-semitone offset
+        // Verify all pairs have one octave offset
         for (var i = 0; i < bothHandsSequence.length; i += 2) {
           final leftNote = bothHandsSequence[i];
           final rightNote = bothHandsSequence[i + 1];
-          expect(leftNote, equals(rightNote - 12));
+          expect(
+            leftNote,
+            equals(rightNote - MusicalConstants.semitonesPerOctave),
+          );
         }
 
         // Two-octave should be longer than one-octave
@@ -862,7 +872,10 @@ void main() {
               for (var i = 0; i < sequence.length; i += 2) {
                 final leftNote = sequence[i];
                 final rightNote = sequence[i + 1];
-                expect(leftNote, equals(rightNote - 12));
+                expect(
+                  leftNote,
+                  equals(rightNote - MusicalConstants.semitonesPerOctave),
+                );
               }
             }
           }
@@ -903,8 +916,8 @@ void main() {
             final rightNote = bothHandsSequence[i + 1];
             expect(
               leftNote,
-              equals(rightNote - 12),
-              reason: "$type should maintain 12-semitone offset",
+              equals(rightNote - MusicalConstants.semitonesPerOctave),
+              reason: "$type should maintain one octave offset",
             );
           }
         }
