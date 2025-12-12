@@ -9,27 +9,28 @@ echo "📸 Piano Fitness - Automated Screenshot Setup"
 echo "=============================================="
 
 # Configuration
-IPAD_MODEL="iPad Pro 13-inch (M4)"
 SCREENSHOT_DIR="screenshots"
 
 # Create screenshots directory
 mkdir -p "$SCREENSHOT_DIR"
 
 echo ""
-echo "🔍 Finding $IPAD_MODEL simulator..."
+echo "🔍 Finding iPad Pro 13-inch simulator..."
 
-# Get the device ID for iPad Pro 13-inch (M4)
-DEVICE_ID=$(xcrun simctl list devices available | grep "$IPAD_MODEL" | grep -o '([A-F0-9-]*[A-F0-9])' | tr -d '()')
+# Try to find iPad Pro 13-inch (any variant)
+DEVICE_ID=$(xcrun simctl list devices available | grep -i "iPad Pro 13-inch" | head -1 | grep -o '([A-F0-9-]*[A-F0-9])' | tr -d '()')
+IPAD_MODEL=$(xcrun simctl list devices available | grep -i "iPad Pro 13-inch" | head -1 | sed 's/ (.*//')
 
 if [ -z "$DEVICE_ID" ]; then
-    echo "❌ Could not find $IPAD_MODEL simulator"
+    echo "❌ Could not find iPad Pro 13-inch simulator"
     echo ""
     echo "📋 Available iPad simulators:"
     xcrun simctl list devices available | grep -i "ipad"
     exit 1
 fi
 
-echo "✅ Found device ID: $DEVICE_ID"
+echo "✅ Found $IPAD_MODEL"
+echo "   Device ID: $DEVICE_ID"
 
 # Shutdown any running simulators to ensure clean state
 echo ""
