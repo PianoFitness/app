@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2024-12-12
+
 ### Added
 
 - **Hand Selection Feature**: New hand selection functionality for practice exercises with left hand, right hand, and both hands options
@@ -36,7 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Code Quality**: Comprehensive refactoring with consistent theming, improved error handling, and better separation of concerns
 - **User Interface**: Enhanced visual consistency across all pages with semantic color usage and improved dark mode support
 
-[Unreleased]: https://github.com/PianoFitness/app/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/PianoFitness/app/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/PianoFitness/app/compare/v0.3.0...v0.4.0
 
 ## [0.3.0] - 2025-08-25
 
