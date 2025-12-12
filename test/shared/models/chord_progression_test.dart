@@ -1,5 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/shared/models/chord_progression_type.dart";
+import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as music;
 
@@ -165,6 +166,124 @@ void main() {
       // G major: I = G B D (67, 71, 74), V = D F# A (74, 78, 81)
       expect(gMajorI.midiNotes, equals([67, 71, 74]));
       expect(gMajorV.midiNotes, equals([74, 78, 81]));
+    });
+
+    group("Hand selection for chord progressions", () {
+      test("should handle left hand for progression chords", () {
+        final progression = ChordProgressionLibrary.getProgressionByName(
+          "I - V",
+        );
+        final chords = progression!.generateChords(music.Key.c);
+
+        // Test left hand returns only bass note
+        for (final chord in chords) {
+          final leftHandNotes = chord.getMidiNotesForHand(
+            4,
+            HandSelection.left,
+          );
+          expect(leftHandNotes, hasLength(1));
+        }
+
+        // I chord left hand: C4 (60)
+        expect(
+          chords[0].getMidiNotesForHand(4, HandSelection.left),
+          equals([60]),
+        );
+        // V chord left hand: G4 (67)
+        expect(
+          chords[1].getMidiNotesForHand(4, HandSelection.left),
+          equals([67]),
+        );
+      });
+
+      test("should handle right hand for progression chords", () {
+        final progression = ChordProgressionLibrary.getProgressionByName(
+          "I - V",
+        );
+        final chords = progression!.generateChords(music.Key.c);
+
+        // I chord right hand: E4,G4 (64, 67)
+        final iRightHand = chords[0].getMidiNotesForHand(
+          4,
+          HandSelection.right,
+        );
+        expect(iRightHand, equals([64, 67]));
+
+        // V chord right hand: B4,D5 (71, 74)
+        final vRightHand = chords[1].getMidiNotesForHand(
+          4,
+          HandSelection.right,
+        );
+        expect(vRightHand, equals([71, 74]));
+      });
+
+      test("should handle both hands for progression chords", () {
+        final progression = ChordProgressionLibrary.getProgressionByName(
+          "I - V",
+        );
+        final chords = progression!.generateChords(music.Key.c);
+
+        // I chord both hands: C3,E3,G3,C4,E4,G4 (48, 52, 55, 60, 64, 67)
+        final iBothHands = chords[0].getMidiNotesForHand(4, HandSelection.both);
+        expect(iBothHands, equals([48, 52, 55, 60, 64, 67]));
+
+        // V chord both hands: G3,B3,D4,G4,B4,D5 (55, 59, 62, 67, 71, 74)
+        final vBothHands = chords[1].getMidiNotesForHand(4, HandSelection.both);
+        expect(vBothHands, equals([55, 59, 62, 67, 71, 74]));
+      });
+
+      test("should handle all hand selections for I-vi-IV-V progression", () {
+        final progression = ChordProgressionLibrary.getProgressionByName(
+          "I - vi - IV - V",
+        );
+        final chords = progression!.generateChords(music.Key.c);
+
+        expect(chords.length, equals(4));
+
+        // Test all four chords with each hand selection
+        for (final chord in chords) {
+          // Left hand should have 1 note
+          final leftNotes = chord.getMidiNotesForHand(4, HandSelection.left);
+          expect(leftNotes, hasLength(1));
+
+          // Right hand should have 2 notes (upper tones)
+          final rightNotes = chord.getMidiNotesForHand(4, HandSelection.right);
+          expect(rightNotes, hasLength(2));
+
+          // Both hands should have 6 notes (3 + 3)
+          final bothNotes = chord.getMidiNotesForHand(4, HandSelection.both);
+          expect(bothNotes, hasLength(6));
+
+          // Verify both hands structure
+          final regularMidi = chord.getMidiNotes(4);
+          final expected = <int>[];
+          expected.addAll(regularMidi.map((note) => note - 12));
+          expected.addAll(regularMidi);
+          expect(bothNotes, equals(expected));
+        }
+      });
+
+      test("should handle chromatic progressions with hand selection", () {
+        final progression = ChordProgressionLibrary.getProgressionByName(
+          "I - ♭VII - IV",
+        );
+        final chords = progression!.generateChords(music.Key.c);
+
+        // Test the flat VII chord with both hands
+        final flatVIIBothHands = chords[1].getMidiNotesForHand(
+          4,
+          HandSelection.both,
+        );
+        final flatVIIRegular = chords[1].getMidiNotes(4);
+
+        // Should follow standard pattern: all notes -12, then all notes
+        expect(flatVIIBothHands.length, equals(flatVIIRegular.length * 2));
+
+        final expected = <int>[];
+        expected.addAll(flatVIIRegular.map((note) => note - 12));
+        expected.addAll(flatVIIRegular);
+        expect(flatVIIBothHands, equals(expected));
+      });
     });
   });
 }

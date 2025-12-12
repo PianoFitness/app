@@ -50,6 +50,11 @@ class PracticeSettingsPanel extends StatelessWidget {
 
   /// Key for the practice status container
   static const Key statusKey = Key("practiceStatusContainer");
+
+  /// Keys for hand selection buttons
+  static const Key leftHandButtonKey = Key("handSelectionLeftButton");
+  static const Key rightHandButtonKey = Key("handSelectionRightButton");
+  static const Key bothHandsButtonKey = Key("handSelectionBothButton");
   Widget _buildRootNoteDropdown() {
     return DropdownButtonFormField<MusicalNote>(
       initialValue: selectedRootNote,

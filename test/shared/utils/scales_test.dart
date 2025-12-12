@@ -1,4 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart";
 
@@ -545,6 +546,138 @@ void main() {
           expect(midi, lessThanOrEqualTo(127)); // Don't exceed MIDI range
         }
       });
+    });
+
+    group("Hand selection sequences", () {
+      test("should generate left hand sequence one octave lower", () {
+        final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
+        final leftHandSequence = scale.getHandSequence(4, HandSelection.left);
+        final rightHandSequence = scale.getHandSequence(4, HandSelection.right);
+
+        // Left hand should be one octave (12 semitones) lower
+        expect(leftHandSequence, hasLength(rightHandSequence.length));
+        for (var i = 0; i < leftHandSequence.length; i++) {
+          expect(leftHandSequence[i], equals(rightHandSequence[i] - 12));
+        }
+        // Verify it starts at C3 (MIDI 48)
+        expect(leftHandSequence.first, equals(48));
+      });
+
+      test("should generate right hand sequence at specified octave", () {
+        final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
+        final rightHandSequence = scale.getHandSequence(4, HandSelection.right);
+        final fullSequence = scale.getFullScaleSequence(4);
+
+        // Right hand should match the regular full sequence
+        expect(rightHandSequence, equals(fullSequence));
+        // Verify it starts at C4 (MIDI 60)
+        expect(rightHandSequence.first, equals(60));
+      });
+
+      test("should generate both hands sequence with interleaved notes", () {
+        final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
+        final bothHandsSequence = scale.getHandSequence(4, HandSelection.both);
+        final rightHandSequence = scale.getHandSequence(4, HandSelection.right);
+
+        // Both hands should be 2x the length of single hand
+        expect(bothHandsSequence.length, equals(rightHandSequence.length * 2));
+
+        // Verify interleaved pattern: [L1, R1, L2, R2, ...]
+        for (var i = 0; i < rightHandSequence.length; i++) {
+          final leftNote = bothHandsSequence[i * 2]; // Even indices
+          final rightNote = bothHandsSequence[i * 2 + 1]; // Odd indices
+
+          // Left note should be 12 semitones lower than right note
+          expect(leftNote, equals(rightNote - 12));
+          // Right note should match the right hand sequence
+          expect(rightNote, equals(rightHandSequence[i]));
+        }
+      });
+
+      test("should handle both hands with different scale types", () {
+        final testCases = [
+          ScaleType.major,
+          ScaleType.minor,
+          ScaleType.dorian,
+          ScaleType.mixolydian,
+        ];
+
+        for (final scaleType in testCases) {
+          final scale = ScaleDefinitions.getScale(Key.c, scaleType);
+          final bothHandsSequence = scale.getHandSequence(
+            4,
+            HandSelection.both,
+          );
+
+          // Should have even length (pairs of notes)
+          expect(bothHandsSequence.length % 2, equals(0));
+
+          // Verify all pairs have 12-semitone offset
+          for (var i = 0; i < bothHandsSequence.length; i += 2) {
+            final leftNote = bothHandsSequence[i];
+            final rightNote = bothHandsSequence[i + 1];
+            expect(leftNote, equals(rightNote - 12));
+          }
+        }
+      });
+
+      test("should handle both hands across all keys", () {
+        for (final key in Key.values) {
+          final scale = ScaleDefinitions.getScale(key, ScaleType.major);
+          final bothHandsSequence = scale.getHandSequence(
+            4,
+            HandSelection.both,
+          );
+
+          // Should have even length
+          expect(bothHandsSequence.length % 2, equals(0));
+          // Should not be empty
+          expect(bothHandsSequence, isNotEmpty);
+
+          // Verify interleaving pattern maintained
+          for (var i = 0; i < bothHandsSequence.length; i += 2) {
+            final leftNote = bothHandsSequence[i];
+            final rightNote = bothHandsSequence[i + 1];
+            expect(leftNote, equals(rightNote - 12));
+          }
+        }
+      });
+
+      test(
+        "should maintain correct ascending/descending pattern for both hands",
+        () {
+          final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
+          final bothHandsSequence = scale.getHandSequence(
+            4,
+            HandSelection.both,
+          );
+
+          // Both hands sequence should have paired ascending, then paired descending
+          final halfLength = bothHandsSequence.length ~/ 2;
+
+          // First half should be ascending (excluding the peak transition)
+          for (var i = 0; i < halfLength - 4; i += 2) {
+            final currentRight = bothHandsSequence[i + 1];
+            final nextRight = bothHandsSequence[i + 3];
+            expect(
+              currentRight,
+              lessThan(nextRight),
+              reason: "Right hand should ascend in first half",
+            );
+          }
+
+          // Second half should be descending
+          for (var i = halfLength; i < bothHandsSequence.length - 3; i += 2) {
+            final currentRight = bothHandsSequence[i + 1];
+            final nextRight = bothHandsSequence[i + 3];
+            expect(
+              currentRight,
+              greaterThan(nextRight),
+              reason: "Right hand should descend in second half",
+            );
+          }
+        },
+      );
     });
   });
 
