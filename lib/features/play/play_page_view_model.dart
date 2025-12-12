@@ -14,12 +14,19 @@ class PlayPageViewModel extends ChangeNotifier {
   PlayPageViewModel({int initialChannel = 0}) : _midiChannel = initialChannel {
     _localMidiState = MidiState();
     _localMidiState.setSelectedChannel(_midiChannel);
+    // Forward localMidiState changes to ViewModel listeners
+    _localMidiState.addListener(_forwardMidiStateChanges);
     _initializeMidiConnection();
   }
 
   final MidiConnectionService _midiConnectionService = MidiConnectionService();
   final int _midiChannel;
   late final MidiState _localMidiState;
+
+  /// Forwards MIDI state changes to ViewModel listeners.
+  void _forwardMidiStateChanges() {
+    notifyListeners();
+  }
 
   /// Local MIDI state for this play page instance.
   MidiState get localMidiState => _localMidiState;
@@ -62,6 +69,8 @@ class PlayPageViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
+    // Remove listener before disposing
+    _localMidiState.removeListener(_forwardMidiStateChanges);
     // Unregister our data handler
     _midiConnectionService.unregisterDataHandler(_handleMidiData);
     // Dispose local MIDI state

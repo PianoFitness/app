@@ -9,6 +9,33 @@ import "package:piano_fitness/shared/accessibility/services/piano_semantics_serv
 /// This service handles real-time semantic announcements that keep screen reader
 /// users informed about dynamic changes in the musical interface.
 class MusicalAnnouncementsService {
+  /// Centralized helper for sending announcements with proper guards.
+  ///
+  /// This method checks for platform support, View availability, and provides
+  /// graceful degradation for missing Directionality context.
+  static Future<void> _send(BuildContext context, String message) async {
+    // Guard against missing MediaQuery (tests, overlays, early lifecycle)
+    final mediaQuery = MediaQuery.maybeOf(context);
+    if (mediaQuery == null) return;
+
+    // Skip if platform doesn't support announcements
+    if (!MediaQuery.supportsAnnounceOf(context)) return;
+
+    // Gracefully handle missing View
+    final view = View.maybeOf(context);
+    if (view == null) return;
+
+    // Use LTR as fallback if no Directionality ancestor
+    final textDirection = Directionality.maybeOf(context) ?? TextDirection.ltr;
+
+    try {
+      await SemanticsService.sendAnnouncement(view, message, textDirection);
+    } catch (e) {
+      // Silently ignore announcement errors to avoid disrupting UI
+      // Announcements are non-critical accessibility enhancements
+    }
+  }
+
   /// Announces highlighted notes changes to screen readers.
   ///
   /// This method uses the Flutter SemanticsService to announce changes
@@ -23,7 +50,8 @@ class MusicalAnnouncementsService {
     final announcement = PianoSemanticsService.getNotesChangeAnnouncement(
       newHighlightedNotes,
     );
-    SemanticsService.announce(announcement, Directionality.of(context));
+    // Fire and forget - don't await to avoid blocking UI
+    _send(context, announcement);
   }
 
   /// Announces mode changes (play, practice, reference).
@@ -34,10 +62,7 @@ class MusicalAnnouncementsService {
   /// The [newMode] is the mode being switched to.
   static void announceModeChange(BuildContext context, PianoMode newMode) {
     final modeLabel = AccessibilityLabels.piano.keyboardLabel(newMode);
-    SemanticsService.announce(
-      "Switched to $modeLabel",
-      Directionality.of(context),
-    );
+    _send(context, "Switched to $modeLabel");
   }
 
   /// Announces timer state changes.
@@ -47,7 +72,7 @@ class MusicalAnnouncementsService {
   /// The [context] is required for directionality.
   /// The [timerState] describes the new timer state.
   static void announceTimerChange(BuildContext context, String timerState) {
-    SemanticsService.announce(timerState, Directionality.of(context));
+    _send(context, timerState);
   }
 
   /// Announces MIDI device status changes.
@@ -57,7 +82,7 @@ class MusicalAnnouncementsService {
   /// The [context] is required for directionality.
   /// The [status] describes the MIDI status or change.
   static void announceMidiStatus(BuildContext context, String status) {
-    SemanticsService.announce(status, Directionality.of(context));
+    _send(context, status);
   }
 
   /// Announces practice progress or feedback.
@@ -68,7 +93,7 @@ class MusicalAnnouncementsService {
   /// The [context] is required for directionality.
   /// The [feedback] describes the practice feedback or progress.
   static void announcePracticeFeedback(BuildContext context, String feedback) {
-    SemanticsService.announce(feedback, Directionality.of(context));
+    _send(context, feedback);
   }
 
   /// Announces general UI state changes.
@@ -79,12 +104,12 @@ class MusicalAnnouncementsService {
   /// The [context] is required for directionality.
   /// The [message] is the announcement to make.
   static void announceGeneral(BuildContext context, String message) {
-    SemanticsService.announce(message, Directionality.of(context));
+    _send(context, message);
   }
 
   /// Announces a note being played (simplified method for mixins).
   static void announceNote(BuildContext context, String note) {
-    SemanticsService.announce("Playing note $note", Directionality.of(context));
+    _send(context, "Playing note $note");
   }
 
   /// Announces a chord being played (simplified method for mixins).
@@ -94,20 +119,17 @@ class MusicalAnnouncementsService {
       announceNote(context, notes.first);
     } else {
       final noteList = notes.join(", ");
-      SemanticsService.announce(
-        "Playing chord: $noteList",
-        Directionality.of(context),
-      );
+      _send(context, "Playing chord: $noteList");
     }
   }
 
   /// Announces a status change (simplified method for mixins).
   static void announceStatus(BuildContext context, String status) {
-    SemanticsService.announce(status, Directionality.of(context));
+    _send(context, status);
   }
 
   /// Announces an error with appropriate emphasis (simplified method for mixins).
   static void announceError(BuildContext context, String error) {
-    SemanticsService.announce("Error: $error", Directionality.of(context));
+    _send(context, "Error: $error");
   }
 }
