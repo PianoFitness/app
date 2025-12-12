@@ -438,16 +438,10 @@ class PracticeSession {
       }
     } else if (_isChordMode) {
       if (_currentChordIndex < _currentChordProgression.length) {
-        final currentChord = _currentChordProgression[_currentChordIndex];
-        final expectedChordNotes = currentChord.getMidiNotesForHand(
-          defaultStartOctave,
-          _selectedHandSelection,
-        );
-
-        if (expectedChordNotes.contains(midiNote)) {
-          _currentlyHeldNotes.add(midiNote);
-          _checkChordCompletion();
-        }
+        // Track all held notes (including wrong ones) so set equality
+        // in _checkChordCompletion enforces "no extras"
+        _currentlyHeldNotes.add(midiNote);
+        _checkChordCompletion();
       }
     }
   }
