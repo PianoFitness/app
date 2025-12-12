@@ -3,6 +3,7 @@ import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:logging/logging.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/shared/models/chord_progression_type.dart";
+import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/models/practice_session.dart";
@@ -205,6 +206,12 @@ class PracticePageViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Changes the selected hand and updates the session.
+  void setSelectedHandSelection(HandSelection handSelection) {
+    _practiceSession?.setSelectedHandSelection(handSelection);
+    notifyListeners();
+  }
+
   /// Plays a virtual note through MIDI output and triggers practice session.
   Future<void> playVirtualNote(int note, {bool mounted = true}) async {
     if (_practiceSession == null) return;
@@ -230,10 +237,18 @@ class PracticePageViewModel extends ChangeNotifier {
   }
 
   /// Calculates the 49-key range centered around the current practice exercise.
+  ///
+  /// Delegates to PracticeSession to get all notes that will be visible,
+  /// which automatically accounts for hand selection.
   NoteRange calculatePracticeRange() {
-    return PianoRangeUtils.calculateFixed49KeyRange(
-      _practiceSession?.currentSequence ?? [],
-    );
+    final session = _practiceSession;
+    if (session == null) {
+      return PianoRangeUtils.calculateFixed49KeyRange([]);
+    }
+
+    // Get all notes from the single source of truth
+    final allNotes = session.getNotesForRangeCalculation();
+    return PianoRangeUtils.calculateFixed49KeyRange(allNotes);
   }
 
   @override

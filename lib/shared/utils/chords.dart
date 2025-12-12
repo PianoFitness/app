@@ -1,4 +1,5 @@
 import "package:piano_fitness/shared/constants/musical_constants.dart";
+import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart";
 
@@ -148,6 +149,49 @@ class ChordInfo {
     }
 
     return midiNotes;
+  }
+
+  /// Returns MIDI note numbers for the specified hand selection.
+  ///
+  /// This method filters chord tones by hand:
+  /// - [HandSelection.both]: Full triad in left hand (one octave lower) + full triad in right hand
+  /// - [HandSelection.left]: Root note only (bass/accompaniment)
+  /// - [HandSelection.right]: Upper chord tones (melody/harmony)
+  ///
+  /// The hand-specific filtering follows standard piano pedagogy:
+  /// - Both hands play the same chord shape for muscle memory and visualization
+  /// - Left hand plays one octave lower for proper piano range
+  /// - Single hand exercises isolate left (bass) or right (melody) patterns
+  List<int> getMidiNotesForHand(int octave, HandSelection hand) {
+    final allNotes = getMidiNotes(octave);
+
+    switch (hand) {
+      case HandSelection.both:
+        // Both hands: full triad in each hand, left hand one octave lower
+        // This matches the scales/arpeggios pattern for pedagogical consistency
+        if (allNotes.isEmpty) return [];
+
+        final result = <int>[];
+        // Left hand: all notes one octave lower (12 semitones down)
+        result.addAll(allNotes.map((note) => note - 12));
+        // Right hand: all notes at the specified octave
+        result.addAll(allNotes);
+        return result;
+      case HandSelection.left:
+        // Left hand plays root note (bass)
+        // For inversions, still use the lowest note in the voicing
+        return allNotes.isNotEmpty ? [allNotes.first] : [];
+      case HandSelection.right:
+        // Right hand plays upper chord tones
+        // For triads: typically the top 2 notes
+        // For root position: 3rd and 5th
+        // For inversions: the upper notes
+        if (allNotes.length <= 1) {
+          return allNotes; // If only one note, use it
+        }
+        // Return all notes except the bass note
+        return allNotes.skip(1).toList();
+    }
   }
 }
 

@@ -1,3 +1,4 @@
+import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 
 /// The different types of arpeggio chord qualities supported by Piano Fitness.
@@ -137,6 +138,39 @@ class Arpeggio {
       final allAscendingNotes = [...baseNotes, ...secondOctaveNotes];
       final descendingNotes = allAscendingNotes.reversed.skip(1).toList();
       return [...allAscendingNotes, ...descendingNotes];
+    }
+  }
+
+  /// Returns an arpeggio sequence adapted for the specified hand selection.
+  ///
+  /// This method generates hand-specific practice sequences:
+  /// - [HandSelection.both]: Returns notes with both hands paired (encoded as pairs)
+  /// - [HandSelection.right]: Right hand plays in the original octave
+  /// - [HandSelection.left]: Left hand plays one octave lower
+  ///
+  /// For both hands mode, each "step" in the sequence contains two MIDI notes
+  /// that should be played simultaneously (one in each hand). These are returned
+  /// as alternating values in the list: [left1, right1, left2, right2, ...].
+  /// The caller must process pairs of notes for simultaneous playback.
+  List<int> getHandSequence(int startOctave, HandSelection hand) {
+    switch (hand) {
+      case HandSelection.both:
+        // Both hands play in parallel: left hand one octave lower, right hand at startOctave
+        final rightHand = getFullArpeggioSequence(startOctave);
+        final leftHand = getFullArpeggioSequence(startOctave - 1);
+        // Interleave: [L1, R1, L2, R2, ...] to encode pairs
+        final paired = <int>[];
+        for (var i = 0; i < rightHand.length; i++) {
+          paired.add(leftHand[i]);
+          paired.add(rightHand[i]);
+        }
+        return paired;
+      case HandSelection.right:
+        // Right hand uses the original octave
+        return getFullArpeggioSequence(startOctave);
+      case HandSelection.left:
+        // Left hand plays one octave lower
+        return getFullArpeggioSequence(startOctave - 1);
     }
   }
 }

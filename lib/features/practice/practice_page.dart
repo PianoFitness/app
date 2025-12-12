@@ -177,6 +177,7 @@ class _PracticePageState extends State<PracticePage> {
                               session.selectedChordProgression,
                           selectedChordType: session.selectedChordType,
                           includeInversions: session.includeInversions,
+                          selectedHandSelection: session.selectedHandSelection,
                           practiceActive: session.practiceActive,
                           onResetPractice: _resetPractice,
                           onPracticeModeChanged: (mode) {
@@ -205,6 +206,9 @@ class _PracticePageState extends State<PracticePage> {
                           },
                           onIncludeInversionsChanged: (include) {
                             _viewModel.setIncludeInversions(include);
+                          },
+                          onHandSelectionChanged: (handSelection) {
+                            _viewModel.setSelectedHandSelection(handSelection);
                           },
                         );
                       },

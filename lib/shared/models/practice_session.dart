@@ -1,8 +1,8 @@
 import "package:flutter/foundation.dart";
-import "package:logging/logging.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/shared/constants/musical_constants.dart";
 import "package:piano_fitness/shared/models/chord_progression_type.dart";
+import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
 import "package:piano_fitness/shared/utils/chords.dart";
@@ -25,8 +25,6 @@ class PracticeSession {
     required this.onHighlightedNotesChanged,
   });
   static const int defaultStartOctave = MusicalConstants.baseOctave;
-
-  static final _log = Logger("PracticeSession");
 
   /// Helper getter to check if current practice mode is any chord-based mode.
   bool get _isChordMode =>
@@ -59,6 +57,9 @@ class PracticeSession {
   ChordType _selectedChordType = ChordType.major;
   bool _includeInversions = true;
   ChordByType? _selectedChordByType;
+
+  // Hand selection state
+  HandSelection _selectedHandSelection = HandSelection.both;
 
   List<int> _currentSequence = [];
   int _currentNoteIndex = 0;
@@ -98,6 +99,9 @@ class PracticeSession {
   /// The currently selected chord by type exercise.
   ChordByType? get selectedChordByType => _selectedChordByType;
 
+  /// The currently selected hand for practice exercises.
+  HandSelection get selectedHandSelection => _selectedHandSelection;
+
   /// The current sequence of MIDI note numbers for the active exercise.
   List<int> get currentSequence => _currentSequence;
 
@@ -112,6 +116,33 @@ class PracticeSession {
 
   /// The index of the current chord in the chord progression.
   int get currentChordIndex => _currentChordIndex;
+
+  /// Returns all MIDI notes that will be visible during this exercise.
+  ///
+  /// This method accounts for hand selection and returns all notes that
+  /// should be considered when calculating the piano keyboard range.
+  /// This is the single source of truth for range calculation.
+  List<int> getNotesForRangeCalculation() {
+    if (_currentSequence.isEmpty) {
+      return [];
+    }
+
+    // For chord modes, we need to include hand-filtered notes from all chords
+    if (_isChordMode && _currentChordProgression.isNotEmpty) {
+      final allNotes = <int>{};
+      for (final chord in _currentChordProgression) {
+        final chordNotes = chord.getMidiNotesForHand(
+          defaultStartOctave,
+          _selectedHandSelection,
+        );
+        allNotes.addAll(chordNotes);
+      }
+      return allNotes.toList();
+    }
+
+    // For scales/arpeggios, the sequence already contains hand-filtered notes
+    return _currentSequence;
+  }
 
   /// Sets the practice mode and reinitializes the exercise sequence.
   ///
@@ -185,6 +216,14 @@ class PracticeSession {
     _applyConfigChange(() => _includeInversions = includeInversions);
   }
 
+  /// Sets the hand selection for practice exercises.
+  ///
+  /// Automatically stops any active practice session and regenerates
+  /// the exercise sequence for the selected hand(s).
+  void setSelectedHandSelection(HandSelection handSelection) {
+    _applyConfigChange(() => _selectedHandSelection = handSelection);
+  }
+
   /// Applies a config mutation, then resets practice state and rebuilds the sequence.
   void _applyConfigChange(void Function() update) {
     _practiceActive = false;
@@ -198,7 +237,10 @@ class PracticeSession {
         _selectedKey,
         _selectedScaleType,
       );
-      _currentSequence = scale.getFullScaleSequence(defaultStartOctave);
+      _currentSequence = scale.getHandSequence(
+        defaultStartOctave,
+        _selectedHandSelection,
+      );
       _currentNoteIndex = 0;
       _updateHighlightedNotes();
     } else if (_practiceMode == PracticeMode.chordsByKey) {
@@ -221,7 +263,10 @@ class PracticeSession {
         _selectedArpeggioType,
         _selectedArpeggioOctaves,
       );
-      _currentSequence = arpeggio.getFullArpeggioSequence(defaultStartOctave);
+      _currentSequence = arpeggio.getHandSequence(
+        defaultStartOctave,
+        _selectedHandSelection,
+      );
       _currentNoteIndex = 0;
       _updateHighlightedNotes();
     } else if (_practiceMode == PracticeMode.chordsByType) {
@@ -282,22 +327,42 @@ class PracticeSession {
 
     if (_practiceMode == PracticeMode.scales ||
         _practiceMode == PracticeMode.arpeggios) {
-      final currentMidiNote = _currentSequence[_currentNoteIndex];
-      final noteInfo = NoteUtils.midiNumberToNote(currentMidiNote);
-      final notePosition = NoteUtils.noteToNotePosition(
-        noteInfo.note,
-        noteInfo.octave,
-      );
-      onHighlightedNotesChanged([notePosition]);
+      // For both hands, notes are paired: [L1, R1, L2, R2, ...]
+      // _currentNoteIndex points to the left hand note of the pair
+      if (_selectedHandSelection == HandSelection.both) {
+        // Both hands: highlight two notes (left and right)
+        final leftMidiNote = _currentSequence[_currentNoteIndex];
+        final rightMidiNote = _currentSequence[_currentNoteIndex + 1];
+
+        final leftNoteInfo = NoteUtils.midiNumberToNote(leftMidiNote);
+        final rightNoteInfo = NoteUtils.midiNumberToNote(rightMidiNote);
+
+        final highlightedPositions = [
+          NoteUtils.noteToNotePosition(leftNoteInfo.note, leftNoteInfo.octave),
+          NoteUtils.noteToNotePosition(
+            rightNoteInfo.note,
+            rightNoteInfo.octave,
+          ),
+        ];
+        onHighlightedNotesChanged(highlightedPositions);
+      } else {
+        // Single hand: highlight one note
+        final currentMidiNote = _currentSequence[_currentNoteIndex];
+        final noteInfo = NoteUtils.midiNumberToNote(currentMidiNote);
+        final notePosition = NoteUtils.noteToNotePosition(
+          noteInfo.note,
+          noteInfo.octave,
+        );
+        onHighlightedNotesChanged([notePosition]);
+      }
     } else if (_isChordMode) {
       if (_currentChordIndex < _currentChordProgression.length) {
         final currentChord = _currentChordProgression[_currentChordIndex];
-        final chordMidiNotes = currentChord.getMidiNotes(defaultStartOctave);
-        final highlightedPositions = <NotePosition>[];
-
-        _log.fine(
-          "Highlighting chord ${_currentChordIndex + 1}: ${currentChord.name} with MIDI notes: $chordMidiNotes",
+        final chordMidiNotes = currentChord.getMidiNotesForHand(
+          defaultStartOctave,
+          _selectedHandSelection,
         );
+        final highlightedPositions = <NotePosition>[];
 
         for (final midiNote in chordMidiNotes) {
           final noteInfo = NoteUtils.midiNumberToNote(midiNote);
@@ -326,22 +391,48 @@ class PracticeSession {
 
     if (_practiceMode == PracticeMode.scales ||
         _practiceMode == PracticeMode.arpeggios) {
-      final expectedNote = _currentSequence[_currentNoteIndex];
+      if (_selectedHandSelection == HandSelection.both) {
+        // Both hands: expect both notes of the pair to be held simultaneously
+        final leftNote = _currentSequence[_currentNoteIndex];
+        final rightNote = _currentSequence[_currentNoteIndex + 1];
 
-      if (midiNote == expectedNote) {
-        _currentNoteIndex++;
+        if (midiNote == leftNote || midiNote == rightNote) {
+          _currentlyHeldChordNotes.add(midiNote);
 
-        if (_currentNoteIndex >= _currentSequence.length) {
-          _completeExercise();
-        } else {
-          _updateHighlightedNotes();
+          // Check if both notes are now held
+          if (_currentlyHeldChordNotes.contains(leftNote) &&
+              _currentlyHeldChordNotes.contains(rightNote)) {
+            // Both notes played! Advance by 2 (skip the pair)
+            _currentNoteIndex += 2;
+            _currentlyHeldChordNotes.clear();
+
+            if (_currentNoteIndex >= _currentSequence.length) {
+              _completeExercise();
+            } else {
+              _updateHighlightedNotes();
+            }
+          }
+        }
+      } else {
+        // Single hand: expect one note at a time
+        final expectedNote = _currentSequence[_currentNoteIndex];
+
+        if (midiNote == expectedNote) {
+          _currentNoteIndex++;
+
+          if (_currentNoteIndex >= _currentSequence.length) {
+            _completeExercise();
+          } else {
+            _updateHighlightedNotes();
+          }
         }
       }
     } else if (_isChordMode) {
       if (_currentChordIndex < _currentChordProgression.length) {
         final currentChord = _currentChordProgression[_currentChordIndex];
-        final expectedChordNotes = currentChord.getMidiNotes(
+        final expectedChordNotes = currentChord.getMidiNotesForHand(
           defaultStartOctave,
+          _selectedHandSelection,
         );
 
         if (expectedChordNotes.contains(midiNote)) {
@@ -352,16 +443,24 @@ class PracticeSession {
     }
   }
 
-  /// Handles MIDI note release events during chord practice.
+  /// Handles MIDI note release events during practice.
   ///
-  /// Removes the released note from the set of currently held chord notes.
-  /// This is primarily used in chord and chord progression modes to track
-  /// which notes are being held simultaneously.
+  /// Removes the released note from the set of currently held notes.
+  /// This is used in:
+  /// - Chord modes: to track simultaneous chord notes
+  /// - Both hands mode for scales/arpeggios: to track both hand notes
   ///
   /// The [midiNote] parameter should be the MIDI note number (0-127).
   void handleNoteReleased(int midiNote) {
-    if (_isChordMode && _practiceActive) {
-      _currentlyHeldChordNotes.remove(midiNote);
+    if (_practiceActive) {
+      if (_isChordMode) {
+        _currentlyHeldChordNotes.remove(midiNote);
+      } else if ((_practiceMode == PracticeMode.scales ||
+              _practiceMode == PracticeMode.arpeggios) &&
+          _selectedHandSelection == HandSelection.both) {
+        // Both hands mode for sequential exercises also uses held notes
+        _currentlyHeldChordNotes.remove(midiNote);
+      }
     }
   }
 
@@ -369,7 +468,7 @@ class PracticeSession {
     if (_currentChordIndex < _currentChordProgression.length) {
       final currentChord = _currentChordProgression[_currentChordIndex];
       final expectedChordNotes = currentChord
-          .getMidiNotes(defaultStartOctave)
+          .getMidiNotesForHand(defaultStartOctave, _selectedHandSelection)
           .toSet();
 
       // Require exactly the expected notes to be held (no extras)

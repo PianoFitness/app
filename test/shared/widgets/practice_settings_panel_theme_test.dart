@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
 import "package:piano_fitness/shared/utils/chords.dart";
@@ -25,6 +26,7 @@ void main() {
               selectedChordProgression: null,
               selectedChordType: ChordType.major,
               includeInversions: false,
+              selectedHandSelection: HandSelection.both,
               practiceActive: false,
               onResetPractice: () {},
               onPracticeModeChanged: (_) {},
@@ -36,6 +38,7 @@ void main() {
               onChordProgressionChanged: (_) {},
               onChordTypeChanged: (_) {},
               onIncludeInversionsChanged: (_) {},
+              onHandSelectionChanged: (_) {},
             ),
           ),
         ),
@@ -74,6 +77,7 @@ void main() {
               selectedChordProgression: null,
               selectedChordType: ChordType.major,
               includeInversions: false,
+              selectedHandSelection: HandSelection.both,
               practiceActive: false,
               onResetPractice: () {},
               onPracticeModeChanged: (_) {},
@@ -85,6 +89,7 @@ void main() {
               onChordProgressionChanged: (_) {},
               onChordTypeChanged: (_) {},
               onIncludeInversionsChanged: (_) {},
+              onHandSelectionChanged: (_) {},
             ),
           ),
         ),
@@ -132,6 +137,7 @@ void main() {
               selectedChordProgression: null,
               selectedChordType: ChordType.major,
               includeInversions: false,
+              selectedHandSelection: HandSelection.both,
               practiceActive: false,
               onResetPractice: () {},
               onPracticeModeChanged: (_) {},
@@ -143,6 +149,7 @@ void main() {
               onChordProgressionChanged: (_) {},
               onChordTypeChanged: (_) {},
               onIncludeInversionsChanged: (_) {},
+              onHandSelectionChanged: (_) {},
             ),
           ),
         ),
@@ -165,6 +172,7 @@ void main() {
               selectedChordProgression: null,
               selectedChordType: ChordType.major,
               includeInversions: false,
+              selectedHandSelection: HandSelection.both,
               practiceActive: true,
               onResetPractice: () {},
               onPracticeModeChanged: (_) {},
@@ -176,6 +184,7 @@ void main() {
               onChordProgressionChanged: (_) {},
               onChordTypeChanged: (_) {},
               onIncludeInversionsChanged: (_) {},
+              onHandSelectionChanged: (_) {},
             ),
           ),
         ),

@@ -1,4 +1,5 @@
 import "package:piano_fitness/shared/constants/musical_constants.dart";
+import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/utils/chords.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as music;
@@ -125,6 +126,34 @@ class IntervalBasedChordInfo implements ChordInfo {
         (octave - MusicalConstants.baseOctave) *
         MusicalConstants.semitonesPerOctave; // Our base is the base octave
     return midiNotes.map((note) => note + octaveOffset).toList();
+  }
+
+  @override
+  List<int> getMidiNotesForHand(int octave, HandSelection hand) {
+    final allNotes = getMidiNotes(octave);
+
+    switch (hand) {
+      case HandSelection.both:
+        // Both hands: full triad in each hand, left hand one octave lower
+        // This matches the scales/arpeggios pattern for pedagogical consistency
+        if (allNotes.isEmpty) return [];
+
+        final result = <int>[];
+        // Left hand: all notes one octave lower (12 semitones down)
+        result.addAll(allNotes.map((note) => note - 12));
+        // Right hand: all notes at the specified octave
+        result.addAll(allNotes);
+        return result;
+      case HandSelection.left:
+        // Left hand plays root note (bass)
+        return allNotes.isNotEmpty ? [allNotes.first] : [];
+      case HandSelection.right:
+        // Right hand plays upper chord tones
+        if (allNotes.length <= 1) {
+          return allNotes;
+        }
+        return allNotes.skip(1).toList();
+    }
   }
 
   // Provide implementations for the required ChordInfo properties
