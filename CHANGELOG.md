@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Hand Selection Feature**: New hand selection functionality for practice exercises with left hand, right hand, and both hands options
+  - SegmentedButton UI for intuitive hand selection in practice settings
+  - Support for scales, arpeggios, chords, and chord progressions with independent hand practice
+  - Intelligent octave management preventing negative MIDI notes with left hand octave offset
+  - Interleaved note patterns for scales/arpeggios (sequential practice) and concatenated patterns for chords (simultaneous playing)
+  - Comprehensive test coverage with 80%+ coverage for all new functionality
 - **Comprehensive Accessibility Framework**: Complete accessibility infrastructure with semantic labels, screen reader support, and WCAG compliance
 - **SemanticColors Extension**: New theming system for consistent semantic color usage across all components
 - **Piano Key Utilities**: New utility functions for piano key identification and interaction handling
@@ -16,6 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Improved
 
+- **Hand Selection Code Quality**: Eliminated magic numbers with `MusicalConstants`, added octave validation assertions, and defensive bounds checking for note pairs
+- **Test Infrastructure**: Streamlined test documentation and improved test patterns with key-based selectors following project guidelines
 - **Development Tooling**: Refactored simulator scripts for better reliability and maintainability
 - **Makefile Commands**: Added simulator override support (`make IPAD_SIM="iPad mini" run-ipad`)
 - **Error Handling**: Better device detection and fallback behavior for simulator management
