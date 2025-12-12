@@ -67,7 +67,7 @@ class PracticeSession {
 
   List<ChordInfo> _currentChordProgression = [];
   int _currentChordIndex = 0;
-  final Set<int> _currentlyHeldChordNotes = {};
+  final Set<int> _currentlyHeldNotes = {};
 
   /// The currently selected practice mode (scales, chords by key, chords by type, arpeggios, or chord progressions).
   PracticeMode get practiceMode => _practiceMode;
@@ -255,7 +255,7 @@ class PracticeSession {
       );
       _currentNoteIndex = 0;
       _currentChordIndex = 0;
-      _currentlyHeldChordNotes.clear();
+      _currentlyHeldNotes.clear();
       _updateHighlightedNotes();
     } else if (_practiceMode == PracticeMode.arpeggios) {
       final arpeggio = ArpeggioDefinitions.getArpeggio(
@@ -283,7 +283,7 @@ class PracticeSession {
       );
       _currentNoteIndex = 0;
       _currentChordIndex = 0;
-      _currentlyHeldChordNotes.clear();
+      _currentlyHeldNotes.clear();
       _updateHighlightedNotes();
     } else if (_practiceMode == PracticeMode.chordProgressions) {
       // For chord progressions, generate based on the selected progression
@@ -313,7 +313,7 @@ class PracticeSession {
       }
       _currentNoteIndex = 0;
       _currentChordIndex = 0;
-      _currentlyHeldChordNotes.clear();
+      _currentlyHeldNotes.clear();
       _updateHighlightedNotes();
     }
   }
@@ -406,14 +406,14 @@ class PracticeSession {
         final rightNote = _currentSequence[_currentNoteIndex + 1];
 
         if (midiNote == leftNote || midiNote == rightNote) {
-          _currentlyHeldChordNotes.add(midiNote);
+          _currentlyHeldNotes.add(midiNote);
 
           // Check if both notes are now held
-          if (_currentlyHeldChordNotes.contains(leftNote) &&
-              _currentlyHeldChordNotes.contains(rightNote)) {
+          if (_currentlyHeldNotes.contains(leftNote) &&
+              _currentlyHeldNotes.contains(rightNote)) {
             // Both notes played! Advance by 2 (skip the pair)
             _currentNoteIndex += 2;
-            _currentlyHeldChordNotes.clear();
+            _currentlyHeldNotes.clear();
 
             if (_currentNoteIndex >= _currentSequence.length) {
               _completeExercise();
@@ -445,7 +445,7 @@ class PracticeSession {
         );
 
         if (expectedChordNotes.contains(midiNote)) {
-          _currentlyHeldChordNotes.add(midiNote);
+          _currentlyHeldNotes.add(midiNote);
           _checkChordCompletion();
         }
       }
@@ -463,12 +463,12 @@ class PracticeSession {
   void handleNoteReleased(int midiNote) {
     if (_practiceActive) {
       if (_isChordMode) {
-        _currentlyHeldChordNotes.remove(midiNote);
+        _currentlyHeldNotes.remove(midiNote);
       } else if ((_practiceMode == PracticeMode.scales ||
               _practiceMode == PracticeMode.arpeggios) &&
           _selectedHandSelection == HandSelection.both) {
         // Both hands mode for sequential exercises also uses held notes
-        _currentlyHeldChordNotes.remove(midiNote);
+        _currentlyHeldNotes.remove(midiNote);
       }
     }
   }
@@ -481,9 +481,9 @@ class PracticeSession {
           .toSet();
 
       // Require exactly the expected notes to be held (no extras)
-      if (setEquals(_currentlyHeldChordNotes, expectedChordNotes)) {
+      if (setEquals(_currentlyHeldNotes, expectedChordNotes)) {
         _currentChordIndex++;
-        _currentlyHeldChordNotes.clear();
+        _currentlyHeldNotes.clear();
 
         if (_currentChordIndex >= _currentChordProgression.length) {
           _completeExercise();
@@ -501,7 +501,7 @@ class PracticeSession {
     // Reset for immediate repetition - ready for next practice session
     _currentNoteIndex = 0;
     _currentChordIndex = 0;
-    _currentlyHeldChordNotes.clear();
+    _currentlyHeldNotes.clear();
     _updateHighlightedNotes();
   }
 
@@ -531,7 +531,7 @@ class PracticeSession {
     _practiceActive = true;
     _currentNoteIndex = 0;
     _currentChordIndex = 0;
-    _currentlyHeldChordNotes.clear();
+    _currentlyHeldNotes.clear();
     _updateHighlightedNotes();
   }
 
@@ -544,7 +544,7 @@ class PracticeSession {
     _practiceActive = false;
     _currentNoteIndex = 0;
     _currentChordIndex = 0;
-    _currentlyHeldChordNotes.clear();
+    _currentlyHeldNotes.clear();
     _updateHighlightedNotes();
   }
 
