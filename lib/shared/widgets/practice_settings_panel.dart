@@ -366,7 +366,7 @@ class PracticeSettingsPanel extends StatelessWidget {
               onHandSelectionChanged(selection.first);
             },
             showSelectedIcon: false,
-            style: ButtonStyle(visualDensity: VisualDensity.compact),
+            style: const ButtonStyle(visualDensity: VisualDensity.compact),
           ),
           if (practiceMode == PracticeMode.scales) ...[
             const SizedBox(height: 12),
