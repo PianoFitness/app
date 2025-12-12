@@ -172,8 +172,14 @@ class ChordInfo {
         if (allNotes.isEmpty) return [];
 
         final result = <int>[];
-        // Left hand: all notes one octave lower (12 semitones down)
-        result.addAll(allNotes.map((note) => note - 12));
+        // Left hand: all notes one octave lower
+        final octaveDown = MusicalConstants.semitonesPerOctave;
+        result.addAll(
+          allNotes
+              .map((note) => note - octaveDown)
+              .where((note) => note >= 0) // Guard against negative MIDI notes
+              .toList(),
+        );
         // Right hand: all notes at the specified octave
         result.addAll(allNotes);
         return result;

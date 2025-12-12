@@ -910,5 +910,66 @@ void main() {
         }
       });
     });
+
+    group("Octave validation", () {
+      test("should enforce minimum startOctave for left hand", () {
+        final arpeggio = ArpeggioDefinitions.getArpeggio(
+          MusicalNote.c,
+          ArpeggioType.major,
+          ArpeggioOctaves.one,
+        );
+
+        // startOctave = 0 should fail assertion (left hand would be at -1)
+        expect(
+          () => arpeggio.getHandSequence(0, HandSelection.left),
+          throwsA(isA<AssertionError>()),
+          reason: "startOctave must be >= 1 for left hand",
+        );
+
+        // startOctave = 1 should work (left hand at 0)
+        expect(
+          () => arpeggio.getHandSequence(1, HandSelection.left),
+          returnsNormally,
+          reason: "startOctave = 1 should be valid for left hand",
+        );
+      });
+
+      test("should enforce minimum startOctave for both hands", () {
+        final arpeggio = ArpeggioDefinitions.getArpeggio(
+          MusicalNote.c,
+          ArpeggioType.major,
+          ArpeggioOctaves.one,
+        );
+
+        // startOctave = 0 should fail assertion (left hand would be at -1)
+        expect(
+          () => arpeggio.getHandSequence(0, HandSelection.both),
+          throwsA(isA<AssertionError>()),
+          reason: "startOctave must be >= 1 for both hands",
+        );
+
+        // startOctave = 1 should work (left hand at 0)
+        expect(
+          () => arpeggio.getHandSequence(1, HandSelection.both),
+          returnsNormally,
+          reason: "startOctave = 1 should be valid for both hands",
+        );
+      });
+
+      test("should allow any startOctave for right hand only", () {
+        final arpeggio = ArpeggioDefinitions.getArpeggio(
+          MusicalNote.c,
+          ArpeggioType.major,
+          ArpeggioOctaves.one,
+        );
+
+        // Even startOctave = 0 should work for right hand (no offset)
+        expect(
+          () => arpeggio.getHandSequence(0, HandSelection.right),
+          returnsNormally,
+          reason: "Right hand should accept any valid octave",
+        );
+      });
+    });
   });
 }

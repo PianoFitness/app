@@ -152,9 +152,17 @@ class Arpeggio {
   /// that should be played simultaneously (one in each hand). These are returned
   /// as alternating values in the list: [left1, right1, left2, right2, ...].
   /// The caller must process pairs of notes for simultaneous playback.
+  ///
+  /// **Precondition**: [startOctave] must be at least 1 when using [HandSelection.left]
+  /// or [HandSelection.both] to ensure the left hand (startOctave - 1) stays in
+  /// a musically practical range.
   List<int> getHandSequence(int startOctave, HandSelection hand) {
     switch (hand) {
       case HandSelection.both:
+        assert(
+          startOctave >= 1,
+          "startOctave must be >= 1 for both hands (left hand plays at startOctave - 1)",
+        );
         // Both hands play in parallel: left hand one octave lower, right hand at startOctave
         final rightHand = getFullArpeggioSequence(startOctave);
         final leftHand = getFullArpeggioSequence(startOctave - 1);
@@ -169,6 +177,10 @@ class Arpeggio {
         // Right hand uses the original octave
         return getFullArpeggioSequence(startOctave);
       case HandSelection.left:
+        assert(
+          startOctave >= 1,
+          "startOctave must be >= 1 for left hand (plays at startOctave - 1)",
+        );
         // Left hand plays one octave lower
         return getFullArpeggioSequence(startOctave - 1);
     }
