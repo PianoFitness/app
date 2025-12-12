@@ -199,9 +199,9 @@ piano practice,music education,chord progressions,scales,MIDI,notifications,hub
 
 ### Screenshots Required
 
-- **iPhone 15 Plus** (6.7-inch display): 3-10 screenshots
-  - Required for App Store Connect (1290 x 2796 pixels)
-  - Alternatives: iPhone 14 Plus, iPhone 16 Plus
+- **iPhone 13 Pro Max** (6.5-inch display): 3-10 screenshots
+  - Required for App Store Connect (1284 x 2778 pixels portrait)
+  - Alternatives: iPhone 14 Plus, iPhone 12 Pro Max, iPhone 11 Pro Max
 - **iPad Pro 13-inch** (13-inch display): 3-10 screenshots
 
 ### Preview Videos (Optional)
