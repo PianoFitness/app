@@ -34,17 +34,6 @@ class PlayPageViewModel extends ChangeNotifier {
   /// MIDI channel for input and output operations (0-15).
   int get midiChannel => _midiChannel;
 
-  /// Sets the MIDI state reference for updating UI state.
-  ///
-  /// Note: The Play page now uses its own local MIDI state, so this method
-  /// is maintained for compatibility but no longer needed.
-  @Deprecated(
-    "Play page now uses local MIDI state. Use localMidiState instead.",
-  )
-  void setMidiState(MidiState midiState) {
-    // No-op: We use local state now
-  }
-
   /// Initializes the MIDI connection and sets up data handling.
   void _initializeMidiConnection() {
     // Register this ViewModel's MIDI data handler and start connection

@@ -56,17 +56,6 @@ class PracticePageViewModel extends ChangeNotifier {
   /// Currently highlighted notes for piano display.
   List<NotePosition> get highlightedNotes => _highlightedNotes;
 
-  /// Sets the MIDI state reference for updating UI state.
-  ///
-  /// Note: The Practice page now uses its own local MIDI state, so this method
-  /// is maintained for compatibility but no longer needed.
-  @Deprecated(
-    "Practice page now uses local MIDI state. Use localMidiState instead.",
-  )
-  void setMidiState(MidiState midiState) {
-    // No-op: We use local state now
-  }
-
   /// Initializes the practice session with required callbacks.
   void initializePracticeSession({
     required VoidCallback onExerciseCompleted,
