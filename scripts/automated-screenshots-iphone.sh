@@ -8,15 +8,15 @@ set -e
 echo "📸 Piano Fitness - Automated Screenshot Setup (iPhone)"
 echo "======================================================="
 
-# Configuration - try to find the best iPhone Pro Max available
-IPHONE_MODELS=("iPhone 17 Pro Max" "iPhone 16 Pro Max" "iPhone 15 Pro Max")
+# Configuration - try to find the best large iPhone available (Pro Max or Plus models)
+IPHONE_MODELS=("iPhone 17 Pro Max" "iPhone 16 Pro Max" "iPhone 15 Pro Max" "iPhone 16 Plus" "iPhone 15 Plus" "iPhone 14 Plus")
 SCREENSHOT_DIR="screenshots"
 
 # Create screenshots directory
 mkdir -p "$SCREENSHOT_DIR"
 
 echo ""
-echo "🔍 Finding iPhone Pro Max simulator..."
+echo "🔍 Finding large iPhone simulator (Pro Max or Plus)..."
 
 # Try each model in order of preference
 DEVICE_ID=""
@@ -30,7 +30,7 @@ for model in "${IPHONE_MODELS[@]}"; do
 done
 
 if [ -z "$DEVICE_ID" ]; then
-    echo "❌ Could not find any iPhone Pro Max simulator"
+    echo "❌ Could not find any large iPhone simulator (Pro Max or Plus models)"
     echo ""
     echo "📋 Available iPhone simulators:"
     xcrun simctl list devices available | grep -i "iphone"
