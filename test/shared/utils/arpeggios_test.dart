@@ -731,6 +731,23 @@ void main() {
     });
 
     group("Hand selection sequences", () {
+      /// Helper to verify that a both-hands sequence has proper octave offset.
+      ///
+      /// Validates that:
+      /// - Sequence length is even (paired notes)
+      /// - Each pair has left note exactly one octave below right note
+      void expectPairedOctaveOffset(List<int> sequence) {
+        expect(sequence.length % 2, equals(0));
+        for (var i = 0; i < sequence.length; i += 2) {
+          final leftNote = sequence[i];
+          final rightNote = sequence[i + 1];
+          expect(
+            leftNote,
+            equals(rightNote - MusicalConstants.semitonesPerOctave),
+          );
+        }
+      }
+
       test("should generate left hand arpeggio one octave lower", () {
         final arpeggio = ArpeggioDefinitions.getArpeggio(
           MusicalNote.c,
@@ -794,17 +811,12 @@ void main() {
         // Both hands should be 2x the length of single hand
         expect(bothHandsSequence.length, equals(rightHandSequence.length * 2));
 
-        // Verify interleaved pattern: [L1, R1, L2, R2, ...]
-        for (var i = 0; i < rightHandSequence.length; i++) {
-          final leftNote = bothHandsSequence[i * 2]; // Even indices
-          final rightNote = bothHandsSequence[i * 2 + 1]; // Odd indices
+        // Verify interleaved pattern: [L1, R1, L2, R2, ...] with octave offset
+        expectPairedOctaveOffset(bothHandsSequence);
 
-          // Left note should be one octave lower than right note
-          expect(
-            leftNote,
-            equals(rightNote - MusicalConstants.semitonesPerOctave),
-          );
-          // Right note should match the right hand sequence
+        // Additionally verify right notes match the right hand sequence
+        for (var i = 0; i < rightHandSequence.length; i++) {
+          final rightNote = bothHandsSequence[i * 2 + 1]; // Odd indices
           expect(rightNote, equals(rightHandSequence[i]));
         }
       });
@@ -820,18 +832,8 @@ void main() {
           HandSelection.both,
         );
 
-        // Should have even length (pairs of notes)
-        expect(bothHandsSequence.length % 2, equals(0));
-
-        // Verify all pairs have one octave offset
-        for (var i = 0; i < bothHandsSequence.length; i += 2) {
-          final leftNote = bothHandsSequence[i];
-          final rightNote = bothHandsSequence[i + 1];
-          expect(
-            leftNote,
-            equals(rightNote - MusicalConstants.semitonesPerOctave),
-          );
-        }
+        // Verify paired notes with one octave offset
+        expectPairedOctaveOffset(bothHandsSequence);
 
         // Two-octave should be longer than one-octave
         final oneOctave = ArpeggioDefinitions.getArpeggio(
@@ -866,17 +868,9 @@ void main() {
               reason: "$type with $hand should not be empty",
             );
 
-            // Both hands should have paired notes
+            // Both hands should have paired notes with octave offset
             if (hand == HandSelection.both) {
-              expect(sequence.length % 2, equals(0));
-              for (var i = 0; i < sequence.length; i += 2) {
-                final leftNote = sequence[i];
-                final rightNote = sequence[i + 1];
-                expect(
-                  leftNote,
-                  equals(rightNote - MusicalConstants.semitonesPerOctave),
-                );
-              }
+              expectPairedOctaveOffset(sequence);
             }
           }
         }
@@ -903,23 +897,8 @@ void main() {
             HandSelection.both,
           );
 
-          // Should have even length
-          expect(
-            bothHandsSequence.length % 2,
-            equals(0),
-            reason: "$type both hands should have paired notes",
-          );
-
-          // Verify interleaving pattern
-          for (var i = 0; i < bothHandsSequence.length; i += 2) {
-            final leftNote = bothHandsSequence[i];
-            final rightNote = bothHandsSequence[i + 1];
-            expect(
-              leftNote,
-              equals(rightNote - MusicalConstants.semitonesPerOctave),
-              reason: "$type should maintain one octave offset",
-            );
-          }
+          // Verify paired notes with one octave offset
+          expectPairedOctaveOffset(bothHandsSequence);
         }
       });
     });
