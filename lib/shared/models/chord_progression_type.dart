@@ -134,8 +134,14 @@ class IntervalBasedChordInfo implements ChordInfo {
 
     switch (hand) {
       case HandSelection.both:
+        assert(
+          octave >= 1,
+          "octave must be >= 1 for both hands (left hand plays at octave - 1)",
+        );
         // Both hands: full triad in each hand, left hand one octave lower
-        // This matches the scales/arpeggios pattern for pedagogical consistency
+        // Note: Left and right arrays are concatenated [L1,L2,L3,R1,R2,R3]
+        // for simultaneous chord playing, unlike scales/arpeggios which
+        // interleave [L1,R1,L2,R2,...] for sequential note-by-note practice
         if (allNotes.isEmpty) return [];
 
         final result = <int>[];

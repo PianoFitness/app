@@ -285,5 +285,48 @@ void main() {
         expect(flatVIIBothHands, equals(expected));
       });
     });
+
+    group("Octave validation", () {
+      test("should enforce minimum octave for both hands", () {
+        final progression = ChordProgressionLibrary.getProgressionByName(
+          "I - V",
+        );
+        final chords = progression!.generateChords(music.Key.c);
+
+        // octave = 0 should fail assertion (left hand would be at -1)
+        expect(
+          () => chords[0].getMidiNotesForHand(0, HandSelection.both),
+          throwsA(isA<AssertionError>()),
+          reason: "octave must be >= 1 for both hands",
+        );
+
+        // octave = 1 should work (left hand at 0)
+        expect(
+          () => chords[0].getMidiNotesForHand(1, HandSelection.both),
+          returnsNormally,
+          reason: "octave = 1 should be valid for both hands",
+        );
+      });
+
+      test("should allow any octave for left or right hand only", () {
+        final progression = ChordProgressionLibrary.getProgressionByName(
+          "I - V",
+        );
+        final chords = progression!.generateChords(music.Key.c);
+
+        // Even octave = 0 should work for left/right hand (no offset)
+        expect(
+          () => chords[0].getMidiNotesForHand(0, HandSelection.left),
+          returnsNormally,
+          reason: "Left hand should accept any valid octave",
+        );
+
+        expect(
+          () => chords[0].getMidiNotesForHand(0, HandSelection.right),
+          returnsNormally,
+          reason: "Right hand should accept any valid octave",
+        );
+      });
+    });
   });
 }
