@@ -119,9 +119,13 @@ void main() {
         );
 
         // Find the SegmentedButton
-        final segmentedButton =
-            find.byType(SegmentedButton<HandSelection>).evaluate().first.widget
-                as SegmentedButton<HandSelection>;
+        final segmentedButtonFinder = find.byType(
+          SegmentedButton<HandSelection>,
+        );
+        expect(segmentedButtonFinder, findsOneWidget);
+        final segmentedButton = tester.widget<SegmentedButton<HandSelection>>(
+          segmentedButtonFinder,
+        );
 
         // Verify right hand is selected
         expect(segmentedButton.selected, equals({HandSelection.right}));
@@ -146,9 +150,13 @@ void main() {
         // does not expose individual segments with Keys for tester.tap().
         // This validates the callback wiring while complying with project
         // guidelines that forbid text-based selectors.
-        final segmentedButton =
-            find.byType(SegmentedButton<HandSelection>).evaluate().first.widget
-                as SegmentedButton<HandSelection>;
+        final segmentedButtonFinder = find.byType(
+          SegmentedButton<HandSelection>,
+        );
+        expect(segmentedButtonFinder, findsOneWidget);
+        final segmentedButton = tester.widget<SegmentedButton<HandSelection>>(
+          segmentedButtonFinder,
+        );
 
         // Programmatically trigger the selection callback
         segmentedButton.onSelectionChanged!({HandSelection.left});
@@ -174,9 +182,13 @@ void main() {
 
         // Get the SegmentedButton widget to access its callback
         // (See test documentation header for rationale on programmatic approach)
-        final segmentedButton =
-            find.byType(SegmentedButton<HandSelection>).evaluate().first.widget
-                as SegmentedButton<HandSelection>;
+        final segmentedButtonFinder = find.byType(
+          SegmentedButton<HandSelection>,
+        );
+        expect(segmentedButtonFinder, findsOneWidget);
+        final segmentedButton = tester.widget<SegmentedButton<HandSelection>>(
+          segmentedButtonFinder,
+        );
 
         // Programmatically trigger the selection callback
         segmentedButton.onSelectionChanged!({HandSelection.both});
@@ -197,13 +209,13 @@ void main() {
           );
 
           // Find the SegmentedButton
-          final segmentedButton =
-              find
-                      .byType(SegmentedButton<HandSelection>)
-                      .evaluate()
-                      .first
-                      .widget
-                  as SegmentedButton<HandSelection>;
+          final segmentedButtonFinder = find.byType(
+            SegmentedButton<HandSelection>,
+          );
+          expect(segmentedButtonFinder, findsOneWidget);
+          final segmentedButton = tester.widget<SegmentedButton<HandSelection>>(
+            segmentedButtonFinder,
+          );
 
           // Verify only one selection is active
           expect(segmentedButton.selected.length, equals(1));
@@ -224,9 +236,10 @@ void main() {
         final segmentedButtonFinder = find.byType(
           SegmentedButton<HandSelection>,
         );
-        final segmentedButton =
-            segmentedButtonFinder.evaluate().first.widget
-                as SegmentedButton<HandSelection>;
+        expect(segmentedButtonFinder, findsOneWidget);
+        final segmentedButton = tester.widget<SegmentedButton<HandSelection>>(
+          segmentedButtonFinder,
+        );
 
         // Verify showSelectedIcon is false
         expect(segmentedButton.showSelectedIcon, equals(false));
@@ -260,9 +273,13 @@ void main() {
         );
 
         // Verify initial state
-        var segmentedButton =
-            find.byType(SegmentedButton<HandSelection>).evaluate().first.widget
-                as SegmentedButton<HandSelection>;
+        final segmentedButtonFinder = find.byType(
+          SegmentedButton<HandSelection>,
+        );
+        expect(segmentedButtonFinder, findsOneWidget);
+        var segmentedButton = tester.widget<SegmentedButton<HandSelection>>(
+          segmentedButtonFinder,
+        );
         expect(segmentedButton.selected, equals({HandSelection.right}));
 
         // Programmatically trigger left hand selection
@@ -271,9 +288,10 @@ void main() {
         await tester.pumpAndSettle();
 
         // Verify the state change triggered a UI update
-        segmentedButton =
-            find.byType(SegmentedButton<HandSelection>).evaluate().first.widget
-                as SegmentedButton<HandSelection>;
+        expect(segmentedButtonFinder, findsOneWidget);
+        segmentedButton = tester.widget<SegmentedButton<HandSelection>>(
+          segmentedButtonFinder,
+        );
         expect(segmentedButton.selected, equals({HandSelection.left}));
       });
     });
