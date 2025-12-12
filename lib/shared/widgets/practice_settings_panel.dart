@@ -1,3 +1,5 @@
+import "dart:math" as math;
+
 import "package:flutter/material.dart";
 import "package:piano_fitness/shared/models/chord_progression_type.dart";
 import "package:piano_fitness/shared/models/hand_selection.dart";
@@ -326,27 +328,43 @@ class PracticeSettingsPanel extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           SegmentedButton<HandSelection>(
-            segments: const [
+            segments: [
               ButtonSegment(
                 value: HandSelection.left,
-                label: Text("Left Hand"),
-                icon: Icon(Icons.pan_tool, size: 16),
+                label: const Text("Left Hand"),
+                icon: Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.rotationY(math.pi),
+                  child: const Icon(Icons.back_hand, size: 16),
+                ),
               ),
-              ButtonSegment(
+              const ButtonSegment(
                 value: HandSelection.right,
                 label: Text("Right Hand"),
                 icon: Icon(Icons.back_hand, size: 16),
               ),
               ButtonSegment(
                 value: HandSelection.both,
-                label: Text("Both Hands"),
-                icon: Icon(Icons.open_in_full, size: 16),
+                label: const Text("Both Hands"),
+                icon: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Transform(
+                      alignment: Alignment.center,
+                      transform: Matrix4.rotationY(math.pi),
+                      child: const Icon(Icons.back_hand, size: 16),
+                    ),
+                    const SizedBox(width: 2),
+                    const Icon(Icons.back_hand, size: 16),
+                  ],
+                ),
               ),
             ],
             selected: {selectedHandSelection},
             onSelectionChanged: (Set<HandSelection> selection) {
               onHandSelectionChanged(selection.first);
             },
+            showSelectedIcon: false,
             style: ButtonStyle(visualDensity: VisualDensity.compact),
           ),
           if (practiceMode == PracticeMode.scales) ...[
