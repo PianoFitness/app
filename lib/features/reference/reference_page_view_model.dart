@@ -67,14 +67,6 @@ class ReferencePageViewModel extends ChangeNotifier {
   /// Gets the local MIDI state for this reference view model.
   MidiState get localMidiState => _localMidiState;
 
-  /// Sets the MIDI state reference for playing notes (not for highlighting).
-  /// Note: This is deprecated since we now use local MIDI state.
-  @Deprecated("Use local MIDI state instead")
-  void setMidiState(MidiState midiState) {
-    // This method is kept for backward compatibility but does nothing
-    // since we now use local MIDI state
-  }
-
   /// Activates the reference display with current scale/chord selection.
   /// Call this when the reference page becomes visible or active.
   void activateReferenceDisplay() {

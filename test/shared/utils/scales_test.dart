@@ -1,4 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart";
 
@@ -546,6 +547,138 @@ void main() {
         }
       });
     });
+
+    group("Hand selection sequences", () {
+      test("should generate left hand sequence one octave lower", () {
+        final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
+        final leftHandSequence = scale.getHandSequence(4, HandSelection.left);
+        final rightHandSequence = scale.getHandSequence(4, HandSelection.right);
+
+        // Left hand should be one octave (12 semitones) lower
+        expect(leftHandSequence, hasLength(rightHandSequence.length));
+        for (var i = 0; i < leftHandSequence.length; i++) {
+          expect(leftHandSequence[i], equals(rightHandSequence[i] - 12));
+        }
+        // Verify it starts at C3 (MIDI 48)
+        expect(leftHandSequence.first, equals(48));
+      });
+
+      test("should generate right hand sequence at specified octave", () {
+        final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
+        final rightHandSequence = scale.getHandSequence(4, HandSelection.right);
+        final fullSequence = scale.getFullScaleSequence(4);
+
+        // Right hand should match the regular full sequence
+        expect(rightHandSequence, equals(fullSequence));
+        // Verify it starts at C4 (MIDI 60)
+        expect(rightHandSequence.first, equals(60));
+      });
+
+      test("should generate both hands sequence with interleaved notes", () {
+        final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
+        final bothHandsSequence = scale.getHandSequence(4, HandSelection.both);
+        final rightHandSequence = scale.getHandSequence(4, HandSelection.right);
+
+        // Both hands should be 2x the length of single hand
+        expect(bothHandsSequence.length, equals(rightHandSequence.length * 2));
+
+        // Verify interleaved pattern: [L1, R1, L2, R2, ...]
+        for (var i = 0; i < rightHandSequence.length; i++) {
+          final leftNote = bothHandsSequence[i * 2]; // Even indices
+          final rightNote = bothHandsSequence[i * 2 + 1]; // Odd indices
+
+          // Left note should be 12 semitones lower than right note
+          expect(leftNote, equals(rightNote - 12));
+          // Right note should match the right hand sequence
+          expect(rightNote, equals(rightHandSequence[i]));
+        }
+      });
+
+      test("should handle both hands with different scale types", () {
+        final testCases = [
+          ScaleType.major,
+          ScaleType.minor,
+          ScaleType.dorian,
+          ScaleType.mixolydian,
+        ];
+
+        for (final scaleType in testCases) {
+          final scale = ScaleDefinitions.getScale(Key.c, scaleType);
+          final bothHandsSequence = scale.getHandSequence(
+            4,
+            HandSelection.both,
+          );
+
+          // Should have even length (pairs of notes)
+          expect(bothHandsSequence.length % 2, equals(0));
+
+          // Verify all pairs have 12-semitone offset
+          for (var i = 0; i < bothHandsSequence.length; i += 2) {
+            final leftNote = bothHandsSequence[i];
+            final rightNote = bothHandsSequence[i + 1];
+            expect(leftNote, equals(rightNote - 12));
+          }
+        }
+      });
+
+      test("should handle both hands across all keys", () {
+        for (final key in Key.values) {
+          final scale = ScaleDefinitions.getScale(key, ScaleType.major);
+          final bothHandsSequence = scale.getHandSequence(
+            4,
+            HandSelection.both,
+          );
+
+          // Should have even length
+          expect(bothHandsSequence.length % 2, equals(0));
+          // Should not be empty
+          expect(bothHandsSequence, isNotEmpty);
+
+          // Verify interleaving pattern maintained
+          for (var i = 0; i < bothHandsSequence.length; i += 2) {
+            final leftNote = bothHandsSequence[i];
+            final rightNote = bothHandsSequence[i + 1];
+            expect(leftNote, equals(rightNote - 12));
+          }
+        }
+      });
+
+      test(
+        "should maintain correct ascending/descending pattern for both hands",
+        () {
+          final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
+          final bothHandsSequence = scale.getHandSequence(
+            4,
+            HandSelection.both,
+          );
+
+          // Extract right-hand notes from interleaved [L1,R1,L2,R2,...] sequence
+          final rightHandSequence = <int>[];
+          for (var i = 1; i < bothHandsSequence.length; i += 2) {
+            rightHandSequence.add(bothHandsSequence[i]);
+          }
+
+          // Full scale sequence is 8 ascending notes (including octave) + 7 descending
+          // First 8 notes should be ascending
+          for (var i = 0; i < 7; i++) {
+            expect(
+              rightHandSequence[i],
+              lessThan(rightHandSequence[i + 1]),
+              reason: "Right hand should ascend in first part (index $i)",
+            );
+          }
+
+          // Remaining notes (starting at index 8) should be descending
+          for (var i = 8; i < rightHandSequence.length - 1; i++) {
+            expect(
+              rightHandSequence[i],
+              greaterThan(rightHandSequence[i + 1]),
+              reason: "Right hand should descend in second part (index $i)",
+            );
+          }
+        },
+      );
+    });
   });
 
   group("KeyDisplay Extension", () {
@@ -737,6 +870,55 @@ void main() {
           expect(name1, equals(name2));
           expect(fullName1, equals(fullName2));
         }
+      });
+    });
+
+    group("Octave validation", () {
+      test("should enforce minimum startOctave for left hand", () {
+        final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
+
+        // startOctave = 0 should throw ArgumentError (left hand would be at -1)
+        expect(
+          () => scale.getHandSequence(0, HandSelection.left),
+          throwsA(isA<ArgumentError>()),
+          reason: "startOctave must be >= 1 for left hand",
+        );
+
+        // startOctave = 1 should work (left hand at 0)
+        expect(
+          () => scale.getHandSequence(1, HandSelection.left),
+          returnsNormally,
+          reason: "startOctave = 1 should be valid for left hand",
+        );
+      });
+
+      test("should enforce minimum startOctave for both hands", () {
+        final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
+
+        // startOctave = 0 should throw ArgumentError (left hand would be at -1)
+        expect(
+          () => scale.getHandSequence(0, HandSelection.both),
+          throwsA(isA<ArgumentError>()),
+          reason: "startOctave must be >= 1 for both hands",
+        );
+
+        // startOctave = 1 should work (left hand at 0)
+        expect(
+          () => scale.getHandSequence(1, HandSelection.both),
+          returnsNormally,
+          reason: "startOctave = 1 should be valid for both hands",
+        );
+      });
+
+      test("should allow any startOctave for right hand only", () {
+        final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
+
+        // Even startOctave = 0 should work for right hand (no offset)
+        expect(
+          () => scale.getHandSequence(0, HandSelection.right),
+          returnsNormally,
+          reason: "Right hand should accept any valid octave",
+        );
       });
     });
   });

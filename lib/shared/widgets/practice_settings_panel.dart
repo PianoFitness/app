@@ -1,5 +1,8 @@
+import "dart:math" as math;
+
 import "package:flutter/material.dart";
 import "package:piano_fitness/shared/models/chord_progression_type.dart";
+import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
 import "package:piano_fitness/shared/utils/chords.dart";
@@ -26,6 +29,7 @@ class PracticeSettingsPanel extends StatelessWidget {
     required this.selectedChordProgression,
     required this.selectedChordType,
     required this.includeInversions,
+    required this.selectedHandSelection,
     required this.practiceActive,
     required this.onResetPractice,
     required this.onPracticeModeChanged,
@@ -37,6 +41,7 @@ class PracticeSettingsPanel extends StatelessWidget {
     required this.onChordProgressionChanged,
     required this.onChordTypeChanged,
     required this.onIncludeInversionsChanged,
+    required this.onHandSelectionChanged,
     super.key,
   });
 
@@ -45,6 +50,7 @@ class PracticeSettingsPanel extends StatelessWidget {
 
   /// Key for the practice status container
   static const Key statusKey = Key("practiceStatusContainer");
+
   Widget _buildRootNoteDropdown() {
     return DropdownButtonFormField<MusicalNote>(
       initialValue: selectedRootNote,
@@ -146,6 +152,9 @@ class PracticeSettingsPanel extends StatelessWidget {
   /// Whether to include inversions in chord type exercises.
   final bool includeInversions;
 
+  /// The selected hand for practice exercises.
+  final HandSelection selectedHandSelection;
+
   /// Whether a practice session is currently active.
   final bool practiceActive;
 
@@ -178,6 +187,9 @@ class PracticeSettingsPanel extends StatelessWidget {
 
   /// Callback fired when the user changes the inversion setting.
   final ValueChanged<bool> onIncludeInversionsChanged;
+
+  /// Callback fired when the user changes the hand selection.
+  final ValueChanged<HandSelection> onHandSelectionChanged;
 
   String _getPracticeModeString(PracticeMode mode) {
     switch (mode) {
@@ -314,6 +326,47 @@ class PracticeSettingsPanel extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(child: _buildSecondarySelector(context)),
             ],
+          ),
+          const SizedBox(height: 12),
+          SegmentedButton<HandSelection>(
+            segments: [
+              ButtonSegment(
+                value: HandSelection.left,
+                label: const Text("Left Hand"),
+                icon: Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.rotationY(math.pi),
+                  child: const Icon(Icons.back_hand, size: 16),
+                ),
+              ),
+              const ButtonSegment(
+                value: HandSelection.right,
+                label: Text("Right Hand"),
+                icon: Icon(Icons.back_hand, size: 16),
+              ),
+              ButtonSegment(
+                value: HandSelection.both,
+                label: const Text("Both Hands"),
+                icon: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Transform(
+                      alignment: Alignment.center,
+                      transform: Matrix4.rotationY(math.pi),
+                      child: const Icon(Icons.back_hand, size: 16),
+                    ),
+                    const SizedBox(width: 2),
+                    const Icon(Icons.back_hand, size: 16),
+                  ],
+                ),
+              ),
+            ],
+            selected: {selectedHandSelection},
+            onSelectionChanged: (Set<HandSelection> selection) {
+              onHandSelectionChanged(selection.first);
+            },
+            showSelectedIcon: false,
+            style: const ButtonStyle(visualDensity: VisualDensity.compact),
           ),
           if (practiceMode == PracticeMode.scales) ...[
             const SizedBox(height: 12),

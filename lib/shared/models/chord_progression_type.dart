@@ -1,4 +1,5 @@
 import "package:piano_fitness/shared/constants/musical_constants.dart";
+import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/utils/chords.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as music;
@@ -125,6 +126,47 @@ class IntervalBasedChordInfo implements ChordInfo {
         (octave - MusicalConstants.baseOctave) *
         MusicalConstants.semitonesPerOctave; // Our base is the base octave
     return midiNotes.map((note) => note + octaveOffset).toList();
+  }
+
+  @override
+  List<int> getMidiNotesForHand(int octave, HandSelection hand) {
+    final allNotes = getMidiNotes(octave);
+
+    switch (hand) {
+      case HandSelection.both:
+        if (octave < 1) {
+          throw ArgumentError(
+            "octave must be >= 1 for both hands (left hand plays at octave - 1), got: $octave",
+          );
+        }
+        // Both hands: full triad in each hand, left hand one octave lower
+        // Note: Left and right arrays are concatenated [L1,L2,L3,R1,R2,R3]
+        // for simultaneous chord playing, unlike scales/arpeggios which
+        // interleave [L1,R1,L2,R2,...] for sequential note-by-note practice
+        if (allNotes.isEmpty) return [];
+
+        final result = <int>[];
+        // Left hand: all notes one octave lower
+        final octaveDown = MusicalConstants.semitonesPerOctave;
+        result.addAll(
+          allNotes
+              .map((note) => note - octaveDown)
+              .where((note) => note >= 0) // Guard against negative MIDI notes
+              .toList(),
+        );
+        // Right hand: all notes at the specified octave
+        result.addAll(allNotes);
+        return result;
+      case HandSelection.left:
+        // Left hand plays root note (bass)
+        return allNotes.isNotEmpty ? [allNotes.first] : [];
+      case HandSelection.right:
+        // Right hand plays upper chord tones
+        if (allNotes.length <= 1) {
+          return allNotes;
+        }
+        return allNotes.skip(1).toList();
+    }
   }
 
   // Provide implementations for the required ChordInfo properties

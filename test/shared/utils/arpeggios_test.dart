@@ -1,4 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/shared/constants/musical_constants.dart";
+import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 
@@ -725,6 +727,240 @@ void main() {
             );
           }
         }
+      });
+    });
+
+    group("Hand selection sequences", () {
+      /// Helper to verify that a both-hands sequence has proper octave offset.
+      ///
+      /// Validates that:
+      /// - Sequence length is even (paired notes)
+      /// - Each pair has left note exactly one octave below right note
+      void expectPairedOctaveOffset(List<int> sequence) {
+        expect(sequence.length % 2, equals(0));
+        for (var i = 0; i < sequence.length; i += 2) {
+          final leftNote = sequence[i];
+          final rightNote = sequence[i + 1];
+          expect(
+            leftNote,
+            equals(rightNote - MusicalConstants.semitonesPerOctave),
+          );
+        }
+      }
+
+      test("should generate left hand arpeggio one octave lower", () {
+        final arpeggio = ArpeggioDefinitions.getArpeggio(
+          MusicalNote.c,
+          ArpeggioType.major,
+          ArpeggioOctaves.one,
+        );
+        final leftHandSequence = arpeggio.getHandSequence(
+          4,
+          HandSelection.left,
+        );
+        final rightHandSequence = arpeggio.getHandSequence(
+          4,
+          HandSelection.right,
+        );
+
+        // Left hand should be one octave lower
+        expect(leftHandSequence, hasLength(rightHandSequence.length));
+        for (var i = 0; i < leftHandSequence.length; i++) {
+          expect(
+            leftHandSequence[i],
+            equals(rightHandSequence[i] - MusicalConstants.semitonesPerOctave),
+          );
+        }
+        // Verify it starts at C3 (MIDI 48)
+        expect(leftHandSequence.first, equals(48));
+      });
+
+      test("should generate right hand arpeggio at specified octave", () {
+        final arpeggio = ArpeggioDefinitions.getArpeggio(
+          MusicalNote.c,
+          ArpeggioType.major,
+          ArpeggioOctaves.one,
+        );
+        final rightHandSequence = arpeggio.getHandSequence(
+          4,
+          HandSelection.right,
+        );
+        final fullSequence = arpeggio.getFullArpeggioSequence(4);
+
+        // Right hand should match the regular full sequence
+        expect(rightHandSequence, equals(fullSequence));
+        // Verify it starts at C4 (MIDI 60)
+        expect(rightHandSequence.first, equals(60));
+      });
+
+      test("should generate both hands arpeggio with paired notes", () {
+        final arpeggio = ArpeggioDefinitions.getArpeggio(
+          MusicalNote.c,
+          ArpeggioType.major,
+          ArpeggioOctaves.one,
+        );
+        final bothHandsSequence = arpeggio.getHandSequence(
+          4,
+          HandSelection.both,
+        );
+        final rightHandSequence = arpeggio.getHandSequence(
+          4,
+          HandSelection.right,
+        );
+
+        // Both hands should be 2x the length of single hand
+        expect(bothHandsSequence.length, equals(rightHandSequence.length * 2));
+
+        // Verify interleaved pattern: [L1, R1, L2, R2, ...] with octave offset
+        expectPairedOctaveOffset(bothHandsSequence);
+
+        // Additionally verify right notes match the right hand sequence
+        for (var i = 0; i < rightHandSequence.length; i++) {
+          final rightNote = bothHandsSequence[i * 2 + 1]; // Odd indices
+          expect(rightNote, equals(rightHandSequence[i]));
+        }
+      });
+
+      test("should handle two-octave arpeggios for both hands", () {
+        final arpeggio = ArpeggioDefinitions.getArpeggio(
+          MusicalNote.c,
+          ArpeggioType.major,
+          ArpeggioOctaves.two,
+        );
+        final bothHandsSequence = arpeggio.getHandSequence(
+          4,
+          HandSelection.both,
+        );
+
+        // Verify paired notes with one octave offset
+        expectPairedOctaveOffset(bothHandsSequence);
+
+        // Two-octave should be longer than one-octave
+        final oneOctave = ArpeggioDefinitions.getArpeggio(
+          MusicalNote.c,
+          ArpeggioType.major,
+          ArpeggioOctaves.one,
+        );
+        final oneOctaveBoth = oneOctave.getHandSequence(4, HandSelection.both);
+        expect(bothHandsSequence.length, greaterThan(oneOctaveBoth.length));
+      });
+
+      test("should handle 7th chord arpeggios for all hands", () {
+        final arpeggioTypes = [
+          ArpeggioType.dominant7,
+          ArpeggioType.minor7,
+          ArpeggioType.major7,
+        ];
+
+        for (final type in arpeggioTypes) {
+          final arpeggio = ArpeggioDefinitions.getArpeggio(
+            MusicalNote.c,
+            type,
+            ArpeggioOctaves.one,
+          );
+
+          // Test all hand selections
+          for (final hand in HandSelection.values) {
+            final sequence = arpeggio.getHandSequence(4, hand);
+            expect(
+              sequence,
+              isNotEmpty,
+              reason: "$type with $hand should not be empty",
+            );
+
+            // Both hands should have paired notes with octave offset
+            if (hand == HandSelection.both) {
+              expectPairedOctaveOffset(sequence);
+            }
+          }
+        }
+      });
+
+      test("should handle all arpeggio types with hand selection", () {
+        final types = [
+          ArpeggioType.major,
+          ArpeggioType.minor,
+          ArpeggioType.diminished,
+          ArpeggioType.augmented,
+        ];
+
+        for (final type in types) {
+          final arpeggio = ArpeggioDefinitions.getArpeggio(
+            MusicalNote.c,
+            type,
+            ArpeggioOctaves.one,
+          );
+
+          // Test both hands mode
+          final bothHandsSequence = arpeggio.getHandSequence(
+            4,
+            HandSelection.both,
+          );
+
+          // Verify paired notes with one octave offset
+          expectPairedOctaveOffset(bothHandsSequence);
+        }
+      });
+    });
+
+    group("Octave validation", () {
+      test("should enforce minimum startOctave for left hand", () {
+        final arpeggio = ArpeggioDefinitions.getArpeggio(
+          MusicalNote.c,
+          ArpeggioType.major,
+          ArpeggioOctaves.one,
+        );
+
+        // startOctave = 0 should throw ArgumentError (left hand would be at -1)
+        expect(
+          () => arpeggio.getHandSequence(0, HandSelection.left),
+          throwsA(isA<ArgumentError>()),
+          reason: "startOctave must be >= 1 for left hand",
+        );
+
+        // startOctave = 1 should work (left hand at 0)
+        expect(
+          () => arpeggio.getHandSequence(1, HandSelection.left),
+          returnsNormally,
+          reason: "startOctave = 1 should be valid for left hand",
+        );
+      });
+
+      test("should enforce minimum startOctave for both hands", () {
+        final arpeggio = ArpeggioDefinitions.getArpeggio(
+          MusicalNote.c,
+          ArpeggioType.major,
+          ArpeggioOctaves.one,
+        );
+
+        // startOctave = 0 should throw ArgumentError (left hand would be at -1)
+        expect(
+          () => arpeggio.getHandSequence(0, HandSelection.both),
+          throwsA(isA<ArgumentError>()),
+          reason: "startOctave must be >= 1 for both hands",
+        );
+
+        // startOctave = 1 should work (left hand at 0)
+        expect(
+          () => arpeggio.getHandSequence(1, HandSelection.both),
+          returnsNormally,
+          reason: "startOctave = 1 should be valid for both hands",
+        );
+      });
+
+      test("should allow any startOctave for right hand only", () {
+        final arpeggio = ArpeggioDefinitions.getArpeggio(
+          MusicalNote.c,
+          ArpeggioType.major,
+          ArpeggioOctaves.one,
+        );
+
+        // Even startOctave = 0 should work for right hand (no offset)
+        expect(
+          () => arpeggio.getHandSequence(0, HandSelection.right),
+          returnsNormally,
+          reason: "Right hand should accept any valid octave",
+        );
       });
     });
   });

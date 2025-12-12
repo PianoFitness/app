@@ -1,4 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/utils/chords.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart";
@@ -620,6 +621,203 @@ void main() {
           }
         },
       );
+    });
+
+    group("Hand selection for chords", () {
+      test("should generate left hand with bass note only", () {
+        final chord = ChordDefinitions.getChord(
+          MusicalNote.c,
+          ChordType.major,
+          ChordInversion.root,
+        );
+        final leftHandNotes = chord.getMidiNotesForHand(4, HandSelection.left);
+
+        // Left hand should return only the bass note (root)
+        expect(leftHandNotes, hasLength(1));
+        // C major root position: C4 (bass note)
+        expect(leftHandNotes, equals([60]));
+      });
+
+      test("should generate right hand with upper tones", () {
+        final chord = ChordDefinitions.getChord(
+          MusicalNote.c,
+          ChordType.major,
+          ChordInversion.root,
+        );
+        final rightHandNotes = chord.getMidiNotesForHand(
+          4,
+          HandSelection.right,
+        );
+        final regularMidi = chord.getMidiNotes(4);
+
+        // Right hand should skip the bass note and return upper tones
+        expect(rightHandNotes, equals(regularMidi.skip(1).toList()));
+        // C major root position: E4,G4 (upper tones)
+        expect(rightHandNotes, equals([64, 67]));
+      });
+
+      test("should generate both hands with full triads in each hand", () {
+        final chord = ChordDefinitions.getChord(
+          MusicalNote.c,
+          ChordType.major,
+          ChordInversion.root,
+        );
+        final bothHandsNotes = chord.getMidiNotesForHand(4, HandSelection.both);
+        final regularMidi = chord.getMidiNotes(4);
+
+        // Both hands should have 2x the notes (full triad in each hand)
+        expect(bothHandsNotes.length, equals(regularMidi.length * 2));
+
+        // Should be: all notes -12, then all notes
+        final expected = <int>[];
+        expected.addAll(regularMidi.map((note) => note - 12));
+        expected.addAll(regularMidi);
+        expect(bothHandsNotes, equals(expected));
+
+        // Both hands C major: C3,E3,G3,C4,E4,G4
+        expect(bothHandsNotes, equals([48, 52, 55, 60, 64, 67]));
+      });
+
+      test("should handle chord inversions for all hand selections", () {
+        final inversions = [
+          ChordInversion.root,
+          ChordInversion.first,
+          ChordInversion.second,
+        ];
+
+        for (final inversion in inversions) {
+          final chord = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.major,
+            inversion,
+          );
+
+          // Test all hand selections
+          for (final hand in HandSelection.values) {
+            final notes = chord.getMidiNotesForHand(4, hand);
+            expect(
+              notes,
+              isNotEmpty,
+              reason: "$inversion with $hand should not be empty",
+            );
+
+            // Verify hand-specific behavior
+            if (hand == HandSelection.left) {
+              // Left hand should have only 1 note (bass)
+              expect(notes.length, equals(1));
+            } else if (hand == HandSelection.right) {
+              // Right hand should have upper tones (skipping first note)
+              final regularMidi = chord.getMidiNotes(4);
+              expect(notes, equals(regularMidi.skip(1).toList()));
+            } else {
+              // Both hands: full triad -12 + full triad
+              final regularMidi = chord.getMidiNotes(4);
+              expect(notes.length, equals(regularMidi.length * 2));
+            }
+          }
+        }
+      });
+
+      test("should handle all chord types with hand selection", () {
+        final types = [
+          ChordType.major,
+          ChordType.minor,
+          ChordType.diminished,
+          ChordType.augmented,
+        ];
+
+        for (final type in types) {
+          final chord = ChordDefinitions.getChord(
+            MusicalNote.c,
+            type,
+            ChordInversion.root,
+          );
+
+          // Test both hands mode
+          final bothHandsNotes = chord.getMidiNotesForHand(
+            4,
+            HandSelection.both,
+          );
+          final regularMidi = chord.getMidiNotes(4);
+
+          // Both hands should have 2x the regular notes
+          expect(
+            bothHandsNotes.length,
+            equals(regularMidi.length * 2),
+            reason: "$type both hands should have double the notes",
+          );
+
+          // Verify structure: all notes -12, then all notes
+          for (var i = 0; i < regularMidi.length; i++) {
+            expect(
+              bothHandsNotes[i],
+              equals(regularMidi[i] - 12),
+              reason: "$type left hand notes should be 12 semitones lower",
+            );
+            expect(
+              bothHandsNotes[i + regularMidi.length],
+              equals(regularMidi[i]),
+              reason: "$type right hand notes should match regular MIDI",
+            );
+          }
+        }
+      });
+
+      test("should handle all 12 root notes with hand selection", () {
+        for (final rootNote in MusicalNote.values) {
+          final chord = ChordDefinitions.getChord(
+            rootNote,
+            ChordType.major,
+            ChordInversion.root,
+          );
+
+          final bothHandsNotes = chord.getMidiNotesForHand(
+            4,
+            HandSelection.both,
+          );
+          final regularMidi = chord.getMidiNotes(4);
+
+          // Should have 2x the regular notes
+          expect(
+            bothHandsNotes.length,
+            equals(regularMidi.length * 2),
+            reason: "$rootNote major should have double the notes",
+          );
+
+          // Verify structure: all notes -12, then all notes
+          for (var i = 0; i < regularMidi.length; i++) {
+            expect(
+              bothHandsNotes[i],
+              equals(regularMidi[i] - 12),
+              reason: "$rootNote left hand should be 12 semitones lower",
+            );
+            expect(
+              bothHandsNotes[i + regularMidi.length],
+              equals(regularMidi[i]),
+              reason: "$rootNote right hand should match regular MIDI",
+            );
+          }
+        }
+      });
+
+      test("should handle first inversion with both hands", () {
+        final chord = ChordDefinitions.getChord(
+          MusicalNote.c,
+          ChordType.major,
+          ChordInversion.first,
+        );
+        final bothHandsNotes = chord.getMidiNotesForHand(4, HandSelection.both);
+        final regularMidi = chord.getMidiNotes(4);
+
+        // Should be: all notes -12, then all notes
+        expect(bothHandsNotes.length, equals(regularMidi.length * 2));
+
+        // Verify specific MIDI values for first inversion
+        // C major first inversion regular: E4,G4,C5 -> [64, 67, 72]
+        // Left hand (all -12): E3,G3,C4 -> [52, 55, 60]
+        // Combined: [52, 55, 60, 64, 67, 72]
+        expect(bothHandsNotes, equals([52, 55, 60, 64, 67, 72]));
+      });
     });
   });
 }
