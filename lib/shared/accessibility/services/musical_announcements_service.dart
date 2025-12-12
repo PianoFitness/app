@@ -13,7 +13,7 @@ class MusicalAnnouncementsService {
   ///
   /// This method checks for platform support, View availability, and provides
   /// graceful degradation for missing Directionality context.
-  static void _send(BuildContext context, String message) {
+  static Future<void> _send(BuildContext context, String message) async {
     // Guard against missing MediaQuery (tests, overlays, early lifecycle)
     final mediaQuery = MediaQuery.maybeOf(context);
     if (mediaQuery == null) return;
@@ -27,7 +27,13 @@ class MusicalAnnouncementsService {
 
     // Use LTR as fallback if no Directionality ancestor
     final textDirection = Directionality.maybeOf(context) ?? TextDirection.ltr;
-    SemanticsService.sendAnnouncement(view, message, textDirection);
+
+    try {
+      await SemanticsService.sendAnnouncement(view, message, textDirection);
+    } catch (e) {
+      // Silently ignore announcement errors to avoid disrupting UI
+      // Announcements are non-critical accessibility enhancements
+    }
   }
 
   /// Announces highlighted notes changes to screen readers.
@@ -44,6 +50,7 @@ class MusicalAnnouncementsService {
     final announcement = PianoSemanticsService.getNotesChangeAnnouncement(
       newHighlightedNotes,
     );
+    // Fire and forget - don't await to avoid blocking UI
     _send(context, announcement);
   }
 
