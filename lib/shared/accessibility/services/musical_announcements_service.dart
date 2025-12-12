@@ -23,7 +23,11 @@ class MusicalAnnouncementsService {
     final announcement = PianoSemanticsService.getNotesChangeAnnouncement(
       newHighlightedNotes,
     );
-    SemanticsService.announce(announcement, Directionality.of(context));
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      announcement,
+      Directionality.of(context),
+    );
   }
 
   /// Announces mode changes (play, practice, reference).
@@ -34,7 +38,8 @@ class MusicalAnnouncementsService {
   /// The [newMode] is the mode being switched to.
   static void announceModeChange(BuildContext context, PianoMode newMode) {
     final modeLabel = AccessibilityLabels.piano.keyboardLabel(newMode);
-    SemanticsService.announce(
+    SemanticsService.sendAnnouncement(
+      View.of(context),
       "Switched to $modeLabel",
       Directionality.of(context),
     );
@@ -47,7 +52,11 @@ class MusicalAnnouncementsService {
   /// The [context] is required for directionality.
   /// The [timerState] describes the new timer state.
   static void announceTimerChange(BuildContext context, String timerState) {
-    SemanticsService.announce(timerState, Directionality.of(context));
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      timerState,
+      Directionality.of(context),
+    );
   }
 
   /// Announces MIDI device status changes.
@@ -57,7 +66,11 @@ class MusicalAnnouncementsService {
   /// The [context] is required for directionality.
   /// The [status] describes the MIDI status or change.
   static void announceMidiStatus(BuildContext context, String status) {
-    SemanticsService.announce(status, Directionality.of(context));
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      status,
+      Directionality.of(context),
+    );
   }
 
   /// Announces practice progress or feedback.
@@ -68,7 +81,11 @@ class MusicalAnnouncementsService {
   /// The [context] is required for directionality.
   /// The [feedback] describes the practice feedback or progress.
   static void announcePracticeFeedback(BuildContext context, String feedback) {
-    SemanticsService.announce(feedback, Directionality.of(context));
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      feedback,
+      Directionality.of(context),
+    );
   }
 
   /// Announces general UI state changes.
@@ -79,12 +96,20 @@ class MusicalAnnouncementsService {
   /// The [context] is required for directionality.
   /// The [message] is the announcement to make.
   static void announceGeneral(BuildContext context, String message) {
-    SemanticsService.announce(message, Directionality.of(context));
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      message,
+      Directionality.of(context),
+    );
   }
 
   /// Announces a note being played (simplified method for mixins).
   static void announceNote(BuildContext context, String note) {
-    SemanticsService.announce("Playing note $note", Directionality.of(context));
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      "Playing note $note",
+      Directionality.of(context),
+    );
   }
 
   /// Announces a chord being played (simplified method for mixins).
@@ -94,7 +119,8 @@ class MusicalAnnouncementsService {
       announceNote(context, notes.first);
     } else {
       final noteList = notes.join(", ");
-      SemanticsService.announce(
+      SemanticsService.sendAnnouncement(
+        View.of(context),
         "Playing chord: $noteList",
         Directionality.of(context),
       );
@@ -103,11 +129,19 @@ class MusicalAnnouncementsService {
 
   /// Announces a status change (simplified method for mixins).
   static void announceStatus(BuildContext context, String status) {
-    SemanticsService.announce(status, Directionality.of(context));
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      status,
+      Directionality.of(context),
+    );
   }
 
   /// Announces an error with appropriate emphasis (simplified method for mixins).
   static void announceError(BuildContext context, String error) {
-    SemanticsService.announce("Error: $error", Directionality.of(context));
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      "Error: $error",
+      Directionality.of(context),
+    );
   }
 }
