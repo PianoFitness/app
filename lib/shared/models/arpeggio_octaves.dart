@@ -1,0 +1,1 @@
+enum ArpeggioOctaves { one, two }
