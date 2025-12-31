@@ -1,13 +1,15 @@
 import "dart:math" as math;
 
 import "package:flutter/material.dart";
-import "package:piano_fitness/shared/models/chord_progression_type.dart";
 import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
-import "package:piano_fitness/shared/utils/chords.dart";
+// import "package:piano_fitness/shared/utils/chords.dart"; // Removed to avoid ChordType ambiguity
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as music;
+import "package:piano_fitness/shared/models/chord_progression_type.dart"
+    show ChordProgression, ChordProgressionLibrary;
+import "package:piano_fitness/shared/models/chord_type.dart";
 
 /// A comprehensive settings panel for configuring piano practice exercises.
 ///
@@ -51,50 +53,6 @@ class PracticeSettingsPanel extends StatelessWidget {
   /// Key for the practice status container
   static const Key statusKey = Key("practiceStatusContainer");
 
-  Widget _buildRootNoteDropdown() {
-    return DropdownButtonFormField<MusicalNote>(
-      initialValue: selectedRootNote,
-      decoration: const InputDecoration(
-        labelText: "Root Note",
-        border: OutlineInputBorder(),
-      ),
-      isExpanded: true,
-      items: MusicalNote.values.map((note) {
-        return DropdownMenuItem(
-          value: note,
-          child: Text(_getRootNoteString(note)),
-        );
-      }).toList(),
-      onChanged: (value) {
-        if (value != null) {
-          onRootNoteChanged(value);
-        }
-      },
-    );
-  }
-
-  Widget _buildChordTypeDropdown() {
-    return DropdownButtonFormField<ChordType>(
-      initialValue: selectedChordType,
-      decoration: const InputDecoration(
-        labelText: "Chord Type",
-        border: OutlineInputBorder(),
-      ),
-      isExpanded: true,
-      items: ChordType.values.map((type) {
-        return DropdownMenuItem(
-          value: type,
-          child: Text(_getChordTypeString(type)),
-        );
-      }).toList(),
-      onChanged: (value) {
-        if (value != null) {
-          onChordTypeChanged(value);
-        }
-      },
-    );
-  }
-
   Widget _buildKeyDropdown() {
     return DropdownButtonFormField<music.Key>(
       initialValue: selectedKey,
@@ -117,9 +75,9 @@ class PracticeSettingsPanel extends StatelessWidget {
   Widget _buildSecondarySelector(BuildContext context) {
     switch (practiceMode) {
       case PracticeMode.arpeggios:
-        return _buildRootNoteDropdown();
-      case PracticeMode.chordsByType:
-        return _buildChordTypeDropdown();
+      // String _getChordTypeString(ChordType type) {
+      //   // ...existing code...
+      // }
       default:
         return _buildKeyDropdown();
     }
@@ -231,10 +189,6 @@ class PracticeSettingsPanel extends StatelessWidget {
     }
   }
 
-  String _getRootNoteString(MusicalNote note) {
-    return NoteUtils.noteDisplayName(note, 0).replaceAll("0", "");
-  }
-
   String _getArpeggioTypeString(ArpeggioType type) {
     switch (type) {
       case ArpeggioType.major:
@@ -267,9 +221,9 @@ class PracticeSettingsPanel extends StatelessWidget {
     return progression?.displayName ?? "Select Progression";
   }
 
-  String _getChordTypeString(ChordType type) {
-    return type.shortName;
-  }
+  // String _getChordTypeString(ChordType type) {
+  //   return type.name;
+  // }
 
   @override
   Widget build(BuildContext context) {

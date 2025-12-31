@@ -1,10 +1,18 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/shared/models/configurations/chord_progression_configuration.dart";
-import "package:piano_fitness/shared/models/chord_progression.dart";
+import "package:piano_fitness/shared/models/chord_progression_type.dart";
 import "package:piano_fitness/shared/models/music_key.dart";
 import "package:piano_fitness/shared/models/hand_selection.dart";
 
-class DummyProgression implements ChordProgression {}
+class DummyProgression extends ChordProgression {
+  DummyProgression()
+    : super(
+        name: "Dummy",
+        romanNumerals: const [],
+        chords: const [],
+        difficulty: ProgressionDifficulty.beginner,
+      );
+}
 
 void main() {
   group("ChordProgressionConfiguration", () {

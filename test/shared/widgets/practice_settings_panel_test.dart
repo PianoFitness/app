@@ -3,7 +3,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
-import "package:piano_fitness/shared/utils/chords.dart";
+import "package:piano_fitness/shared/models/chord_type.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as music;
 import "package:piano_fitness/shared/widgets/practice_settings_panel.dart";

@@ -3,7 +3,8 @@ import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/models/result.dart";
 import "package:piano_fitness/shared/models/validation_error.dart";
-import "package:piano_fitness/shared/models/chord_progression.dart";
+import "package:piano_fitness/shared/models/chord_progression_type.dart"
+    show ChordProgression;
 import "package:piano_fitness/shared/models/music_key.dart";
 
 class ChordProgressionConfiguration implements PracticeConfiguration {

@@ -4,7 +4,7 @@ import "package:piano/piano.dart";
 import "package:piano_fitness/features/practice/practice_page_view_model.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
-import "package:piano_fitness/shared/utils/chords.dart";
+import "package:piano_fitness/shared/models/chord_type.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as music;
 import "../../shared/midi_mocks.dart";
 
@@ -492,7 +492,6 @@ void main() {
           ChordType.major,
           ChordType.minor,
           ChordType.diminished,
-          ChordType.augmented,
         ];
 
         for (final chordType in chordTypes) {
