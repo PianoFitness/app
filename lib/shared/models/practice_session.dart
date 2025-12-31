@@ -236,7 +236,13 @@ class PracticeSession {
     }
 
     ScaleType toScaleType(music.ScaleType t) {
-      return ScaleType.values[t.index];
+      // Guard against out-of-range index
+      if (t.index < ScaleType.values.length) {
+        return ScaleType.values[t.index];
+      } else {
+        // Fallback to major if out of range (should not happen in normal use)
+        return ScaleType.major;
+      }
     }
 
     // Convert from utils ChordType to model ChordType (by name)

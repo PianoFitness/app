@@ -9,22 +9,38 @@ class ChordsByTypeStrategy implements PracticeStrategy {
     // Use the chords_utils to generate the chord sequence for the selected type and inversions.
     final theoryChordType =
         chords_utils.ChordType.values[config.selectedChordType.index];
-    final chords = chords_utils.ChordByTypeDefinitions.getChordTypeExercise(
+    _chords = chords_utils.ChordByTypeDefinitions.getChordTypeExercise(
       theoryChordType,
       includeInversions: config.includeInversions,
     ).generateChordSequence();
-    _sequence = chords.expand((chord) => chord.getMidiNotes(4)).toList();
+    _sequence = _chords.expand((chord) => chord.getMidiNotes(4)).toList();
   }
   final ChordsByTypeConfiguration config;
   late final List<int> _sequence;
+  late final List<chords_utils.ChordInfo> _chords;
 
   @override
   List<int> generateSequence() => _sequence;
 
   @override
   List<int> getHighlightedNotes(int currentIndex) {
-    if (currentIndex < 0 || currentIndex >= _sequence.length) return [];
-    return [_sequence[currentIndex]];
+    if (_chords.isEmpty || _sequence.isEmpty) return [];
+    // Each chord's notes are grouped together in the sequence.
+    // Find which chord the currentIndex belongs to.
+    int runningIndex = 0;
+    for (final chord in _chords) {
+      final chordNotes = chord.getMidiNotes(4);
+      if (currentIndex >= runningIndex &&
+          currentIndex < runningIndex + chordNotes.length) {
+        return chordNotes;
+      }
+      runningIndex += chordNotes.length;
+    }
+    // Fallback: return the note at currentIndex if not found
+    if (currentIndex >= 0 && currentIndex < _sequence.length) {
+      return [_sequence[currentIndex]];
+    }
+    return [];
   }
 
   @override

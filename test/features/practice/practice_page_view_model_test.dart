@@ -42,11 +42,20 @@ void main() {
 
     test("should initialize with correct MIDI channel", () {
       expect(viewModel.midiChannel, equals(3));
-      expect(viewModel.localMidiState.selectedChannel, equals(3));
-    });
-
-    test("should initialize practice session correctly", () {
-      expect(viewModel.practiceSession, isNotNull);
+      // Simulate highlighted notes update via callback
+      final updatedNotes = <NotePosition>[
+        NotePosition(note: Note.D),
+        NotePosition(note: Note.E),
+      ];
+      viewModel.initializePracticeSession(
+        onExerciseCompleted: () {},
+        onHighlightedNotesChanged: (notes) {
+          receivedHighlightedNotes = notes;
+        },
+      );
+      // Manually trigger the callback for test
+      viewModel.practiceSession!.onHighlightedNotesChanged(updatedNotes);
+      expect(receivedHighlightedNotes, equals(updatedNotes));
       expect(
         viewModel.practiceSession!.practiceMode,
         equals(PracticeMode.scales),

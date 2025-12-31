@@ -37,8 +37,16 @@ class StrategyFactory {
   PracticeStrategy createStrategy(PracticeConfiguration config) {
     final creator = _creators[config.mode];
     if (creator == null) {
-      throw ArgumentError("No strategy registered for mode: \\${config.mode}");
+      throw ArgumentError("No strategy registered for mode: ${config.mode}");
     }
     return creator(config);
+  }
+
+  /// Allows tests to register custom strategies for a given mode.
+  void register(
+    PracticeMode mode,
+    PracticeStrategy Function(PracticeConfiguration) creator,
+  ) {
+    _creators[mode] = creator;
   }
 }

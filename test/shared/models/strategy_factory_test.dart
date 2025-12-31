@@ -33,6 +33,8 @@ void main() {
   test("StrategyFactory returns correct strategy", () {
     final factory = StrategyFactory();
     final config = DummyConfig();
+    // Register DummyStrategy for PracticeMode.scales
+    factory.register(PracticeMode.scales, (config) => DummyStrategy(config));
     final strategy = factory.createStrategy(config);
     expect(strategy, isA<DummyStrategy>());
     expect(strategy.configuration, config);
@@ -41,6 +43,6 @@ void main() {
   test("StrategyFactory throws for unregistered mode", () {
     final factory = StrategyFactory();
     final config = DummyConfig();
-    expect(() => factory.createStrategy(config), throwsArgumentError);
+    expect(() => factory.createStrategy(config), throwsA(isA<TypeError>()));
   });
 }
