@@ -31,9 +31,7 @@ class DummyStrategy implements PracticeStrategy {
 
 void main() {
   test("StrategyFactory returns correct strategy", () {
-    final factory = StrategyFactory({
-      PracticeMode.scales: (config) => DummyStrategy(config),
-    });
+    final factory = StrategyFactory();
     final config = DummyConfig();
     final strategy = factory.createStrategy(config);
     expect(strategy, isA<DummyStrategy>());
@@ -41,7 +39,7 @@ void main() {
   });
 
   test("StrategyFactory throws for unregistered mode", () {
-    final factory = StrategyFactory({});
+    final factory = StrategyFactory();
     final config = DummyConfig();
     expect(() => factory.createStrategy(config), throwsArgumentError);
   });
