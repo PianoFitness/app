@@ -1,7 +1,56 @@
+import "package:piano_fitness/shared/models/scale_type.dart"
+    as model_scale_type;
+import "package:piano_fitness/shared/models/music_key.dart";
+import "package:piano_fitness/shared/utils/scales.dart" as scales_utils;
 import "package:piano_fitness/shared/constants/musical_constants.dart";
 import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart";
+
+/// Converts app-level ScaleType to theory/util ScaleType.
+scales_utils.ScaleType modelScaleTypeToTheoryScaleType(
+  model_scale_type.ScaleType modelType,
+) {
+  switch (modelType) {
+    case model_scale_type.ScaleType.major:
+      return scales_utils.ScaleType.major;
+    case model_scale_type.ScaleType.minor:
+      return scales_utils.ScaleType.minor;
+    case model_scale_type.ScaleType.dorian:
+      return scales_utils.ScaleType.dorian;
+    case model_scale_type.ScaleType.mixolydian:
+      return scales_utils.ScaleType.mixolydian;
+    // Add more mappings as needed
+  }
+}
+
+/// Converts MusicKey (app-level) to Key (theory/util level).
+scales_utils.Key musicKeyToTheoryKey(MusicKey musicKey) {
+  switch (musicKey) {
+    case MusicKey.c:
+      return scales_utils.Key.c;
+    case MusicKey.d:
+      return scales_utils.Key.d;
+    case MusicKey.e:
+      return scales_utils.Key.e;
+    case MusicKey.f:
+      return scales_utils.Key.f;
+    case MusicKey.g:
+      return scales_utils.Key.g;
+    case MusicKey.a:
+      return scales_utils.Key.a;
+    case MusicKey.b:
+      return scales_utils.Key.b;
+  }
+}
+
+/// Returns all triad chords (with inversions) for a given key and scale type.
+/// Used by ChordsByKeyStrategy for practice exercises.
+List<ChordInfo> getChordsByKey(Key key, ScaleType scaleType) {
+  // This uses the existing getKeyTriadProgression logic for now.
+  // In the future, this can be extended for more advanced chord sets.
+  return ChordDefinitions.getKeyTriadProgression(key, scaleType);
+}
 
 /// The different chord qualities supported for chord practice.
 ///
