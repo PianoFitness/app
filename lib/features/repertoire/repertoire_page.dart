@@ -375,7 +375,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: AppBorderRadius.xLarge),
+                          const SizedBox(height: Spacing.xl),
 
                           // App Recommendations
                           Semantics(
@@ -410,7 +410,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                             icon: Icons.music_note,
                             color: colorScheme.secondary,
                           ),
-                          const SizedBox(height: AppBorderRadius.xLarge),
+                          const SizedBox(height: Spacing.xl),
 
                           // Practice Timer Info
                           Semantics(
