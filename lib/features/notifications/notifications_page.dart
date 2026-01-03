@@ -463,16 +463,16 @@ class _NotificationsPageState extends State<NotificationsPage> {
   Future<void> _handlePermissionAndToggle(
     BuildContext context,
     NotificationsPageViewModel viewModel,
-    VoidCallback onPermissionGranted,
+    Future<void> Function() onPermissionGranted,
   ) async {
     if (viewModel.settings.permissionGranted) {
-      onPermissionGranted();
+      await onPermissionGranted();
       return;
     }
 
     final granted = await _requestPermissions(context, viewModel);
     if (granted) {
-      onPermissionGranted();
+      await onPermissionGranted();
     } else if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
