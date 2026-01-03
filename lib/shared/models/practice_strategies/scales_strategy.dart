@@ -45,11 +45,16 @@ class ScalesStrategy implements PracticeStrategy {
       // Each pair should be played simultaneously
       for (var i = 0; i < sequence.length; i += 2) {
         if (i + 1 < sequence.length) {
+          final degree = (i ~/ 2) + 1;
           steps.add(
             PracticeStep(
               notes: [sequence[i], sequence[i + 1]],
               type: StepType.paired,
-              metadata: {"hand": "both", "degree": (i ~/ 2) + 1},
+              metadata: {
+                "hand": "both",
+                "degree": degree,
+                "displayName": "Degree $degree (Both Hands)",
+              },
             ),
           );
         }
@@ -57,13 +62,16 @@ class ScalesStrategy implements PracticeStrategy {
     } else {
       // Single hand: each note is played sequentially
       for (var i = 0; i < sequence.length; i++) {
+        final degree = i + 1;
+        final hand = handSelection == HandSelection.left ? "Left" : "Right";
         steps.add(
           PracticeStep(
             notes: [sequence[i]],
             type: StepType.sequential,
             metadata: {
               "hand": handSelection == HandSelection.left ? "left" : "right",
-              "degree": i + 1,
+              "degree": degree,
+              "displayName": "Degree $degree ($hand Hand)",
             },
           ),
         );

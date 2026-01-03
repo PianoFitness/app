@@ -64,6 +64,7 @@ class ChordProgressionsStrategy implements PracticeStrategy {
             "inversion": chord.inversion.name,
             "position": i + 1,
             "romanNumeral": progression.romanNumerals[i],
+            "displayName": "${progression.romanNumerals[i]}: ${chord.name}",
           },
         ),
       );

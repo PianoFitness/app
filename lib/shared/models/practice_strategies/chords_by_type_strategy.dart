@@ -60,6 +60,7 @@ class ChordsByTypeStrategy implements PracticeStrategy {
             "chordType": chord.type.name,
             "inversion": chord.inversion.name,
             "position": i + 1,
+            "displayName": chord.name,
           },
         ),
       );

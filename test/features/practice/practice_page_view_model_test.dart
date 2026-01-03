@@ -343,10 +343,9 @@ void main() {
           viewModel.startPractice();
           expect(viewModel.practiceSession!.practiceActive, isTrue);
 
-          final initialSequence = List<int>.from(
-            viewModel.practiceSession!.currentSequence,
-          );
-          expect(initialSequence.isNotEmpty, isTrue);
+          final initialExercise = viewModel.practiceSession!.currentExercise;
+          expect(initialExercise, isNotNull);
+          expect(initialExercise!.isNotEmpty, isTrue);
 
           var notificationReceived = false;
           viewModel.addListener(() {
@@ -366,9 +365,10 @@ void main() {
           expect(viewModel.practiceSession!.practiceActive, isFalse);
 
           // Verify sequence content updates accordingly
-          final newSequence = viewModel.practiceSession!.currentSequence;
-          expect(newSequence, isNot(equals(initialSequence)));
-          expect(newSequence.isNotEmpty, isTrue);
+          final newExercise = viewModel.practiceSession!.currentExercise;
+          expect(newExercise, isNot(equals(initialExercise)));
+          expect(newExercise, isNotNull);
+          expect(newExercise!.isNotEmpty, isTrue);
         },
       );
 
@@ -382,7 +382,7 @@ void main() {
 
         viewModel.startPractice();
         final rootOnlySequenceLength =
-            viewModel.practiceSession!.currentSequence.length;
+            viewModel.practiceSession!.currentExercise!.length;
         expect(rootOnlySequenceLength, greaterThan(0));
 
         var notificationReceived = false;
@@ -402,7 +402,7 @@ void main() {
         // Start new practice with inversions
         viewModel.startPractice();
         final withInversionsSequenceLength =
-            viewModel.practiceSession!.currentSequence.length;
+            viewModel.practiceSession!.currentExercise!.length;
 
         // With inversions enabled, sequence should be longer
         expect(
@@ -507,8 +507,11 @@ void main() {
 
           // Verify that highlighted notes change based on chord type
           // (This would be validated through the practice session's sequence generation)
-          expect(viewModel.practiceSession!.currentSequence, isNotNull);
-          expect(viewModel.practiceSession!.currentSequence.isNotEmpty, isTrue);
+          expect(viewModel.practiceSession!.currentExercise, isNotNull);
+          expect(
+            viewModel.practiceSession!.currentExercise!.isNotEmpty,
+            isTrue,
+          );
 
           // Reset for next iteration
           viewModel.resetPractice();
@@ -547,7 +550,7 @@ void main() {
         viewModel.startPractice();
 
         final rootOnlySequenceLength =
-            viewModel.practiceSession!.currentSequence.length;
+            viewModel.practiceSession!.currentExercise!.length;
         expect(rootOnlySequenceLength, greaterThan(0));
 
         // Reset and enable inversions
@@ -556,7 +559,7 @@ void main() {
         viewModel.startPractice();
 
         final withInversionsSequenceLength =
-            viewModel.practiceSession!.currentSequence.length;
+            viewModel.practiceSession!.currentExercise!.length;
 
         // With inversions enabled, sequence should be longer (root + first + second inversions)
         expect(
@@ -577,26 +580,22 @@ void main() {
           viewModel.setIncludeInversions(false);
           viewModel.startPractice();
 
-          final rootOnlySequence = List<int>.from(
-            viewModel.practiceSession!.currentSequence,
-          );
-          expect(rootOnlySequence.isNotEmpty, isTrue);
+          final rootOnlyExercise = viewModel.practiceSession!.currentExercise!;
+          expect(rootOnlyExercise.isNotEmpty, isTrue);
+          final rootOnlyLength = rootOnlyExercise.length;
 
           // Reset and enable inversions
           viewModel.resetPractice();
           viewModel.setIncludeInversions(true);
           viewModel.startPractice();
 
-          final withInversionsSequence =
-              viewModel.practiceSession!.currentSequence;
-          expect(withInversionsSequence.isNotEmpty, isTrue);
+          final withInversionsExercise =
+              viewModel.practiceSession!.currentExercise!;
+          expect(withInversionsExercise.isNotEmpty, isTrue);
 
           // With inversions, sequence should contain additional chord positions
           // The sequence should include different chord voicings/inversions
-          expect(
-            withInversionsSequence.length,
-            greaterThan(rootOnlySequence.length),
-          );
+          expect(withInversionsExercise.length, greaterThan(rootOnlyLength));
 
           // Note: The actual sequence structure depends on how the practice session
           // generates chord progressions with inversions. We just verify that

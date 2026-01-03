@@ -1,12 +1,12 @@
 import "package:flutter/material.dart";
+import "package:piano_fitness/shared/models/practice_exercise.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
-import "package:piano_fitness/shared/utils/chords.dart";
+import "package:piano_fitness/shared/utils/practice_accessibility_utils.dart";
 
 /// A widget that displays progress information during active practice sessions.
 ///
-/// Shows different progress indicators based on the practice mode:
-/// - Scales/Arpeggios: Progress through note sequence with progress bar
-/// - Chords/ChordProgressions: Current chord in progression with chord name display
+/// Shows a unified progress display with "Step X/Y" format and optional
+/// step display names (e.g., "Degree 1 (Right Hand)", "C Major", "I: C Major").
 ///
 /// Only visible when a practice session is active.
 class PracticeProgressDisplay extends StatelessWidget {
@@ -14,50 +14,52 @@ class PracticeProgressDisplay extends StatelessWidget {
   const PracticeProgressDisplay({
     required this.practiceMode,
     required this.practiceActive,
-    required this.currentSequence,
-    required this.currentNoteIndex,
-    required this.currentChordIndex,
-    required this.currentChordProgression,
+    required this.currentExercise,
+    required this.currentStepIndex,
     super.key,
   });
 
-  /// The current practice mode (determines display format).
+  /// The current practice mode (determines accessibility labels).
   final PracticeMode practiceMode;
 
   /// Whether a practice session is currently active.
   final bool practiceActive;
 
-  /// The current sequence of notes being practiced.
-  final List<int> currentSequence;
+  /// The current exercise being practiced.
+  final PracticeExercise? currentExercise;
 
-  /// The index of the next note to be played in the sequence.
-  final int currentNoteIndex;
-
-  /// The index of the current chord in chord progression mode.
-  final int currentChordIndex;
-
-  /// The current chord progression for chord practice mode.
-  final List<ChordInfo> currentChordProgression;
+  /// The index of the current step in the exercise.
+  final int currentStepIndex;
 
   @override
   Widget build(BuildContext context) {
-    if (!practiceActive) {
-      return const SizedBox.shrink();
-    }
-    if ((practiceMode == PracticeMode.scales ||
-            practiceMode == PracticeMode.arpeggios) &&
-        currentSequence.isEmpty) {
-      return const SizedBox.shrink();
-    }
-    if ((practiceMode == PracticeMode.chordsByKey ||
-            practiceMode == PracticeMode.chordsByType ||
-            practiceMode == PracticeMode.chordProgressions) &&
-        currentChordProgression.isEmpty) {
+    // Don't show if practice isn't active or exercise is null/empty
+    if (!practiceActive ||
+        currentExercise == null ||
+        currentExercise!.isEmpty) {
       return const SizedBox.shrink();
     }
 
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final exercise = currentExercise!;
+    final totalSteps = exercise.length;
+
+    // Get step display name if available
+    String? stepDisplayName;
+    if (currentStepIndex < exercise.steps.length) {
+      stepDisplayName =
+          exercise.steps[currentStepIndex].metadata?["displayName"] as String?;
+    }
+
+    // Generate accessibility label
+    final accessibilityLabel = currentStepIndex < exercise.steps.length
+        ? PracticeAccessibilityUtils.getStepSemanticLabel(
+            exercise.steps[currentStepIndex],
+            currentStepIndex + 1,
+            totalSteps,
+          )
+        : _getPracticeModeLabel(practiceMode);
 
     return Container(
       key: const Key("ppd_container"),
@@ -69,70 +71,50 @@ class PracticeProgressDisplay extends StatelessWidget {
       ),
       child: Column(
         children: [
-          if (practiceMode == PracticeMode.scales ||
-              practiceMode == PracticeMode.arpeggios) ...[
+          Text(
+            "Step ${currentStepIndex + 1}/$totalSteps",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: colorScheme.onSurface,
+            ),
+          ),
+          if (stepDisplayName != null) ...[
+            const SizedBox(height: 4),
             Text(
-              "Progress: ${currentNoteIndex + 1}/${currentSequence.length}",
+              stepDisplayName,
               style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
+                fontSize: 14,
+                color: colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w500,
               ),
-            ),
-            const SizedBox(height: 8),
-            LinearProgressIndicator(
-              value:
-                  ((currentNoteIndex + 1).clamp(0, currentSequence.length)) /
-                  currentSequence.length,
-              backgroundColor: colorScheme.outline.withValues(alpha: 0.2),
-              valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
-              semanticsLabel: practiceMode == PracticeMode.scales
-                  ? "Scale practice progress"
-                  : "Arpeggio practice progress",
-              semanticsValue:
-                  "${currentNoteIndex + 1} of ${currentSequence.length}",
-            ),
-          ] else if (practiceMode == PracticeMode.chordsByKey ||
-              practiceMode == PracticeMode.chordsByType ||
-              practiceMode == PracticeMode.chordProgressions) ...[
-            Text(
-              "${practiceMode == PracticeMode.chordProgressions ? "Progression" : "Chord"} ${currentChordIndex + 1}/${currentChordProgression.length}",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: colorScheme.onSurface,
-              ),
-            ),
-            if (currentChordIndex < currentChordProgression.length) ...[
-              const SizedBox(height: 4),
-              Text(
-                currentChordProgression[currentChordIndex].name,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: colorScheme.onSurfaceVariant,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-            const SizedBox(height: 8),
-            LinearProgressIndicator(
-              value:
-                  ((currentChordIndex + 1).clamp(
-                    0,
-                    currentChordProgression.length,
-                  )) /
-                  currentChordProgression.length,
-              backgroundColor: colorScheme.outline.withValues(alpha: 0.2),
-              valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
-              semanticsLabel: practiceMode == PracticeMode.chordsByKey
-                  ? "Chord practice progress"
-                  : practiceMode == PracticeMode.chordsByType
-                  ? "Chord type practice progress"
-                  : "Chord progression practice progress",
-              semanticsValue:
-                  "${currentChordIndex + 1} of ${currentChordProgression.length}",
             ),
           ],
+          const SizedBox(height: 8),
+          LinearProgressIndicator(
+            value: ((currentStepIndex + 1).clamp(0, totalSteps)) / totalSteps,
+            backgroundColor: colorScheme.outline.withValues(alpha: 0.2),
+            valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+            semanticsLabel: accessibilityLabel,
+            semanticsValue: "${currentStepIndex + 1} of $totalSteps",
+          ),
         ],
       ),
     );
+  }
+
+  /// Returns a human-readable label for the practice mode.
+  String _getPracticeModeLabel(PracticeMode mode) {
+    switch (mode) {
+      case PracticeMode.scales:
+        return "Scale practice progress";
+      case PracticeMode.arpeggios:
+        return "Arpeggio practice progress";
+      case PracticeMode.chordsByKey:
+        return "Chord practice progress";
+      case PracticeMode.chordsByType:
+        return "Chord type practice progress";
+      case PracticeMode.chordProgressions:
+        return "Chord progression practice progress";
+    }
   }
 }

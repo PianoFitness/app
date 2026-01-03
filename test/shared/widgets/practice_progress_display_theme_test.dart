@@ -1,30 +1,57 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/shared/models/practice_exercise.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
-import "package:piano_fitness/shared/utils/chords.dart";
-import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/widgets/practice_progress_display.dart";
 
 void main() {
   group("PracticeProgressDisplay Theme Tests", () {
     testWidgets("uses theme colors in light mode", (WidgetTester tester) async {
-      // Create test chord progression
-      final testChordProgression = [
-        ChordInfo(
-          name: "C Major",
-          notes: [MusicalNote.c, MusicalNote.e, MusicalNote.g],
-          type: ChordType.major,
-          inversion: ChordInversion.root,
-          rootNote: MusicalNote.c,
-        ),
-        ChordInfo(
-          name: "G Major",
-          notes: [MusicalNote.g, MusicalNote.b, MusicalNote.d],
-          type: ChordType.major,
-          inversion: ChordInversion.root,
-          rootNote: MusicalNote.g,
-        ),
-      ];
+      // Create test exercise for scales
+      final testExercise = PracticeExercise(
+        steps: [
+          PracticeStep(
+            notes: [60],
+            type: StepType.sequential,
+            metadata: {"displayName": "Degree 1 (Right Hand)"},
+          ),
+          PracticeStep(
+            notes: [62],
+            type: StepType.sequential,
+            metadata: {"displayName": "Degree 2 (Right Hand)"},
+          ),
+          PracticeStep(
+            notes: [64],
+            type: StepType.sequential,
+            metadata: {"displayName": "Degree 3 (Right Hand)"},
+          ),
+          PracticeStep(
+            notes: [65],
+            type: StepType.sequential,
+            metadata: {"displayName": "Degree 4 (Right Hand)"},
+          ),
+          PracticeStep(
+            notes: [67],
+            type: StepType.sequential,
+            metadata: {"displayName": "Degree 5 (Right Hand)"},
+          ),
+          PracticeStep(
+            notes: [69],
+            type: StepType.sequential,
+            metadata: {"displayName": "Degree 6 (Right Hand)"},
+          ),
+          PracticeStep(
+            notes: [71],
+            type: StepType.sequential,
+            metadata: {"displayName": "Degree 7 (Right Hand)"},
+          ),
+          PracticeStep(
+            notes: [72],
+            type: StepType.sequential,
+            metadata: {"displayName": "Degree 8 (Right Hand)"},
+          ),
+        ],
+      );
 
       // Build widget with light theme
       await tester.pumpWidget(
@@ -34,17 +61,16 @@ void main() {
             body: PracticeProgressDisplay(
               practiceMode: PracticeMode.scales,
               practiceActive: true,
-              currentSequence: [60, 62, 64, 65, 67, 69, 71, 72],
-              currentNoteIndex: 3,
-              currentChordIndex: 0,
-              currentChordProgression: testChordProgression,
+              currentExercise: testExercise,
+              currentStepIndex: 3,
             ),
           ),
         ),
       );
 
-      // Verify progress indicator is shown
-      expect(find.text("Progress: 4/8"), findsOneWidget);
+      // Verify progress indicator is shown with unified format
+      expect(find.text("Step 4/8"), findsOneWidget);
+      expect(find.text("Degree 4 (Right Hand)"), findsOneWidget);
       expect(find.byType(LinearProgressIndicator), findsOneWidget);
 
       // Verify the container uses theme colors
@@ -59,23 +85,21 @@ void main() {
     });
 
     testWidgets("uses theme colors in dark mode", (WidgetTester tester) async {
-      // Create test chord progression
-      final testChordProgression = [
-        ChordInfo(
-          name: "C Major",
-          notes: [MusicalNote.c, MusicalNote.e, MusicalNote.g],
-          type: ChordType.major,
-          inversion: ChordInversion.root,
-          rootNote: MusicalNote.c,
-        ),
-        ChordInfo(
-          name: "G Major",
-          notes: [MusicalNote.g, MusicalNote.b, MusicalNote.d],
-          type: ChordType.major,
-          inversion: ChordInversion.root,
-          rootNote: MusicalNote.g,
-        ),
-      ];
+      // Create test exercise for chord progressions
+      final testExercise = PracticeExercise(
+        steps: [
+          PracticeStep(
+            notes: [60, 64, 67],
+            type: StepType.simultaneous,
+            metadata: {"displayName": "I: C Major"},
+          ),
+          PracticeStep(
+            notes: [67, 71, 74],
+            type: StepType.simultaneous,
+            metadata: {"displayName": "V: G Major"},
+          ),
+        ],
+      );
 
       // Build widget with dark theme
       await tester.pumpWidget(
@@ -85,18 +109,16 @@ void main() {
             body: PracticeProgressDisplay(
               practiceMode: PracticeMode.chordProgressions,
               practiceActive: true,
-              currentSequence: [60, 64, 67],
-              currentNoteIndex: 0,
-              currentChordIndex: 0,
-              currentChordProgression: testChordProgression,
+              currentExercise: testExercise,
+              currentStepIndex: 0,
             ),
           ),
         ),
       );
 
-      // Verify progression text and chord name are shown
-      expect(find.text("Progression 1/2"), findsOneWidget);
-      expect(find.text("C Major"), findsOneWidget);
+      // Verify step text and chord name with roman numeral are shown
+      expect(find.text("Step 1/2"), findsOneWidget);
+      expect(find.text("I: C Major"), findsOneWidget);
       expect(find.byType(LinearProgressIndicator), findsOneWidget);
 
       // Verify the container uses theme colors
@@ -121,10 +143,8 @@ void main() {
             body: PracticeProgressDisplay(
               practiceMode: PracticeMode.scales,
               practiceActive: false,
-              currentSequence: [60, 62, 64],
-              currentNoteIndex: 0,
-              currentChordIndex: 0,
-              currentChordProgression: [],
+              currentExercise: null,
+              currentStepIndex: 0,
             ),
           ),
         ),
@@ -135,8 +155,8 @@ void main() {
       expect(find.byType(LinearProgressIndicator), findsNothing);
     });
 
-    testWidgets("hides when sequence is empty", (WidgetTester tester) async {
-      // Build widget with empty sequence
+    testWidgets("hides when exercise is null", (WidgetTester tester) async {
+      // Build widget with null exercise
       await tester.pumpWidget(
         MaterialApp(
           theme: ThemeData.dark(),
@@ -144,16 +164,14 @@ void main() {
             body: PracticeProgressDisplay(
               practiceMode: PracticeMode.scales,
               practiceActive: true,
-              currentSequence: [],
-              currentNoteIndex: 0,
-              currentChordIndex: 0,
-              currentChordProgression: [],
+              currentExercise: null,
+              currentStepIndex: 0,
             ),
           ),
         ),
       );
 
-      // Should show nothing when sequence is empty
+      // Should show nothing when exercise is null
       expect(find.byType(Container), findsNothing);
       expect(find.byType(LinearProgressIndicator), findsNothing);
     });

@@ -106,38 +106,6 @@ class PracticeSession {
   /// Whether a practice session is currently active.
   bool get practiceActive => _practiceActive;
 
-  /// Legacy getter for current sequence (flattened from exercise steps).
-  /// @Deprecated('Use currentExercise instead')
-  List<int> get currentSequence {
-    if (_currentExercise == null) return [];
-    return _currentExercise!.steps.expand((step) => step.notes).toList();
-  }
-
-  /// Legacy getter for current note index.
-  /// @Deprecated('Use currentStepIndex instead')
-  int get currentNoteIndex {
-    // For backward compatibility, calculate flat index from step index
-    if (_currentExercise == null) return 0;
-    int flatIndex = 0;
-    for (
-      int i = 0;
-      i < _currentStepIndex && i < _currentExercise!.steps.length;
-      i++
-    ) {
-      flatIndex += _currentExercise!.steps[i].notes.length;
-    }
-    return flatIndex;
-  }
-
-  /// Legacy getter for chord progression (extracted from exercise).
-  /// @Deprecated('Use currentExercise instead')
-  List<ChordInfo> get currentChordProgression =>
-      _extractChordProgressionFromExercise();
-
-  /// Legacy getter for chord index.
-  /// @Deprecated('Use currentStepIndex instead')
-  int get currentChordIndex => _currentStepIndex;
-
   /// Returns all MIDI notes that will be visible during this exercise.
   ///
   /// This method accounts for hand selection and returns all notes that
@@ -296,47 +264,6 @@ class PracticeSession {
     }
 
     _updateHighlightedNotes();
-  }
-
-  /// Extracts chord progression from current exercise for chord-based modes.
-  /// Returns empty list for non-chord exercises.
-  List<ChordInfo> _extractChordProgressionFromExercise() {
-    if (_currentExercise == null) return [];
-
-    final exercise = _currentExercise!;
-    final exerciseType = exercise.metadata?["exerciseType"] as String?;
-
-    // Only extract chord progression for chord-based exercises
-    if (exerciseType == null ||
-        ![
-          "chordsByKey",
-          "chordsByType",
-          "chordProgressions",
-        ].contains(exerciseType)) {
-      return [];
-    }
-
-    // Rebuild ChordInfo objects from step metadata
-    final chords = <ChordInfo>[];
-    for (final step in exercise.steps) {
-      if (step.type == StepType.simultaneous && step.metadata != null) {
-        final metadata = step.metadata!;
-        final rootNoteName = metadata["rootNote"] as String?;
-        final chordTypeName = metadata["chordType"] as String?;
-        final inversionName = metadata["inversion"] as String?;
-
-        if (rootNoteName != null &&
-            chordTypeName != null &&
-            inversionName != null) {
-          final rootNote = MusicalNote.values.byName(rootNoteName);
-          final chordType = ChordType.values.byName(chordTypeName);
-          final inversion = ChordInversion.values.byName(inversionName);
-
-          chords.add(ChordDefinitions.getChord(rootNote, chordType, inversion));
-        }
-      }
-    }
-    return chords;
   }
 
   void _updateHighlightedNotes() {
