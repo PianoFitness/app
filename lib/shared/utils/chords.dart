@@ -153,15 +153,16 @@ class ChordInfo {
 
   /// Returns MIDI note numbers for the specified hand selection.
   ///
-  /// This method filters chord tones by hand:
+  /// This method generates hand-specific chord voicings:
   /// - [HandSelection.both]: Full triad in left hand (one octave lower) + full triad in right hand
-  /// - [HandSelection.left]: Root note only (bass/accompaniment)
-  /// - [HandSelection.right]: Upper chord tones (melody/harmony)
+  /// - [HandSelection.left]: Full triad one octave lower than specified octave
+  /// - [HandSelection.right]: Full triad at specified octave
   ///
   /// The hand-specific filtering follows standard piano pedagogy:
   /// - Both hands play the same chord shape for muscle memory and visualization
   /// - Left hand plays one octave lower for proper piano range
-  /// - Single hand exercises isolate left (bass) or right (melody) patterns
+  /// - Single hand exercises practice the complete chord structure in each hand
+  /// - This matches the scales/arpeggios pattern for pedagogical consistency
   List<int> getMidiNotesForHand(int octave, HandSelection hand) {
     final allNotes = getMidiNotes(octave);
 
@@ -184,19 +185,19 @@ class ChordInfo {
         result.addAll(allNotes);
         return result;
       case HandSelection.left:
-        // Left hand plays root note (bass)
-        // For inversions, still use the lowest note in the voicing
-        return allNotes.isNotEmpty ? [allNotes.first] : [];
+        // Left hand plays full triad one octave lower
+        // This matches the scales/arpeggios pattern where each hand
+        // practices the complete musical structure
+        if (allNotes.isEmpty) return [];
+        final octaveDown = MusicalConstants.semitonesPerOctave;
+        return allNotes
+            .map((note) => note - octaveDown)
+            .where((note) => note >= 0) // Guard against negative MIDI notes
+            .toList();
       case HandSelection.right:
-        // Right hand plays upper chord tones
-        // For triads: typically the top 2 notes
-        // For root position: 3rd and 5th
-        // For inversions: the upper notes
-        if (allNotes.length <= 1) {
-          return allNotes; // If only one note, use it
-        }
-        // Return all notes except the bass note
-        return allNotes.skip(1).toList();
+        // Right hand plays full triad at specified octave
+        // This matches the scales/arpeggios pattern for pedagogical consistency
+        return allNotes;
     }
   }
 }

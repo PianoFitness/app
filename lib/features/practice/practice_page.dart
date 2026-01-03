@@ -225,11 +225,8 @@ class _PracticePageState extends State<PracticePage> {
                         return PracticeProgressDisplay(
                           practiceMode: session.practiceMode,
                           practiceActive: session.practiceActive,
-                          currentSequence: session.currentSequence,
-                          currentNoteIndex: session.currentNoteIndex,
-                          currentChordIndex: session.currentChordIndex,
-                          currentChordProgression:
-                              session.currentChordProgression,
+                          currentExercise: session.currentExercise,
+                          currentStepIndex: session.currentStepIndex,
                         );
                       },
                     ),
