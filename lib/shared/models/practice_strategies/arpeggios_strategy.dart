@@ -78,7 +78,9 @@ class ArpeggiosStrategy implements PracticeStrategy {
       // Single hand: each note is played sequentially
       for (var i = 0; i < sequence.length; i++) {
         final position = i + 1;
-        final hand = handSelection == HandSelection.left ? "Left" : "Right";
+        final handDisplay = handSelection == HandSelection.left
+            ? "Left"
+            : "Right";
         steps.add(
           PracticeStep(
             notes: [sequence[i]],
@@ -86,7 +88,7 @@ class ArpeggiosStrategy implements PracticeStrategy {
             metadata: {
               "hand": handSelection == HandSelection.left ? "left" : "right",
               "position": position,
-              "displayName": "Note $position ($hand Hand)",
+              "displayName": "Note $position ($handDisplay Hand)",
             },
           ),
         );

@@ -70,7 +70,9 @@ class ScalesStrategy implements PracticeStrategy {
       // Single hand: each note is played sequentially
       for (var i = 0; i < sequence.length; i++) {
         final degree = i + 1;
-        final hand = handSelection == HandSelection.left ? "Left" : "Right";
+        final handDisplay = handSelection == HandSelection.left
+            ? "Left"
+            : "Right";
         steps.add(
           PracticeStep(
             notes: [sequence[i]],
@@ -78,7 +80,7 @@ class ScalesStrategy implements PracticeStrategy {
             metadata: {
               "hand": handSelection == HandSelection.left ? "left" : "right",
               "degree": degree,
-              "displayName": "Degree $degree ($hand Hand)",
+              "displayName": "Degree $degree ($handDisplay Hand)",
             },
           ),
         );
