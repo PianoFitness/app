@@ -158,14 +158,19 @@ class IntervalBasedChordInfo implements ChordInfo {
         result.addAll(allNotes);
         return result;
       case HandSelection.left:
-        // Left hand plays root note (bass)
-        return allNotes.isNotEmpty ? [allNotes.first] : [];
+        // Left hand plays full triad one octave lower
+        // This matches the scales/arpeggios pattern where each hand
+        // practices the complete musical structure
+        if (allNotes.isEmpty) return [];
+        final octaveDown = MusicalConstants.semitonesPerOctave;
+        return allNotes
+            .map((note) => note - octaveDown)
+            .where((note) => note >= 0) // Guard against negative MIDI notes
+            .toList();
       case HandSelection.right:
-        // Right hand plays upper chord tones
-        if (allNotes.length <= 1) {
-          return allNotes;
-        }
-        return allNotes.skip(1).toList();
+        // Right hand plays full triad at specified octave
+        // This matches the scales/arpeggios pattern for pedagogical consistency
+        return allNotes;
     }
   }
 

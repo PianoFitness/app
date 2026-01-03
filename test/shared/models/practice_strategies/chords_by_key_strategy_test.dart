@@ -77,10 +77,11 @@ void main() {
       expect(exercise.steps, isNotEmpty);
       expect(exercise.metadata?["handSelection"], "left");
 
-      // Verify first chord (C major) has only 1 note (root/bass note)
+      // Verify first chord (C major) has full triad (3 notes) in left hand octave
+      // Left hand plays one octave lower: C3, E3, G3
       final firstStep = exercise.steps.first;
-      expect(firstStep.notes.length, 1);
-      expect(firstStep.notes.first, 60); // C4
+      expect(firstStep.notes.length, 3);
+      expect(firstStep.notes, containsAll([48, 52, 55])); // C3, E3, G3
     });
 
     test("should handle right hand selection correctly", () {
@@ -96,10 +97,10 @@ void main() {
       expect(exercise.steps, isNotEmpty);
       expect(exercise.metadata?["handSelection"], "right");
 
-      // Verify first chord (C major) has 2 notes (upper chord tones)
+      // Verify first chord (C major) has full triad (3 notes) in right hand octave
       final firstStep = exercise.steps.first;
-      expect(firstStep.notes.length, 2);
-      expect(firstStep.notes, containsAll([64, 67])); // E4 and G4
+      expect(firstStep.notes.length, 3);
+      expect(firstStep.notes, containsAll([60, 64, 67])); // C4, E4, G4
     });
 
     test("should handle both hands selection correctly", () {

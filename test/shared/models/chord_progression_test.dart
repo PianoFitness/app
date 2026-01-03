@@ -175,24 +175,24 @@ void main() {
         );
         final chords = progression!.generateChords(music.Key.c);
 
-        // Test left hand returns only bass note
+        // Test left hand returns full triad one octave lower
         for (final chord in chords) {
           final leftHandNotes = chord.getMidiNotesForHand(
             4,
             HandSelection.left,
           );
-          expect(leftHandNotes, hasLength(1));
+          expect(leftHandNotes, hasLength(3));
         }
 
-        // I chord left hand: C4 (60)
+        // I chord left hand (C major): C3, E3, G3 (48, 52, 55)
         expect(
           chords[0].getMidiNotesForHand(4, HandSelection.left),
-          equals([60]),
+          equals([48, 52, 55]),
         );
-        // V chord left hand: G4 (67)
+        // V chord left hand (G major): G3, B3, D4 (55, 59, 62)
         expect(
           chords[1].getMidiNotesForHand(4, HandSelection.left),
-          equals([67]),
+          equals([55, 59, 62]),
         );
       });
 
@@ -202,19 +202,19 @@ void main() {
         );
         final chords = progression!.generateChords(music.Key.c);
 
-        // I chord right hand: E4,G4 (64, 67)
+        // I chord right hand: C4, E4, G4 (60, 64, 67)
         final iRightHand = chords[0].getMidiNotesForHand(
           4,
           HandSelection.right,
         );
-        expect(iRightHand, equals([64, 67]));
+        expect(iRightHand, equals([60, 64, 67]));
 
-        // V chord right hand: B4,D5 (71, 74)
+        // V chord right hand: G4, B4, D5 (67, 71, 74)
         final vRightHand = chords[1].getMidiNotesForHand(
           4,
           HandSelection.right,
         );
-        expect(vRightHand, equals([71, 74]));
+        expect(vRightHand, equals([67, 71, 74]));
       });
 
       test("should handle both hands for progression chords", () {
@@ -242,13 +242,13 @@ void main() {
 
         // Test all four chords with each hand selection
         for (final chord in chords) {
-          // Left hand should have 1 note
+          // Left hand should have 3 notes (full triad one octave lower)
           final leftNotes = chord.getMidiNotesForHand(4, HandSelection.left);
-          expect(leftNotes, hasLength(1));
+          expect(leftNotes, hasLength(3));
 
-          // Right hand should have 2 notes (upper tones)
+          // Right hand should have 3 notes (full triad)
           final rightNotes = chord.getMidiNotesForHand(4, HandSelection.right);
-          expect(rightNotes, hasLength(2));
+          expect(rightNotes, hasLength(3));
 
           // Both hands should have 6 notes (3 + 3)
           final bothNotes = chord.getMidiNotesForHand(4, HandSelection.both);

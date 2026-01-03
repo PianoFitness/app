@@ -624,7 +624,7 @@ void main() {
     });
 
     group("Hand selection for chords", () {
-      test("should generate left hand with bass note only", () {
+      test("should generate left hand with full triad one octave lower", () {
         final chord = ChordDefinitions.getChord(
           MusicalNote.c,
           ChordType.major,
@@ -632,13 +632,13 @@ void main() {
         );
         final leftHandNotes = chord.getMidiNotesForHand(4, HandSelection.left);
 
-        // Left hand should return only the bass note (root)
-        expect(leftHandNotes, hasLength(1));
-        // C major root position: C4 (bass note)
-        expect(leftHandNotes, equals([60]));
+        // Left hand should return full triad one octave lower
+        expect(leftHandNotes, hasLength(3));
+        // C major root position one octave lower: C3, E3, G3
+        expect(leftHandNotes, equals([48, 52, 55]));
       });
 
-      test("should generate right hand with upper tones", () {
+      test("should generate right hand with full triad", () {
         final chord = ChordDefinitions.getChord(
           MusicalNote.c,
           ChordType.major,
@@ -650,10 +650,10 @@ void main() {
         );
         final regularMidi = chord.getMidiNotes(4);
 
-        // Right hand should skip the bass note and return upper tones
-        expect(rightHandNotes, equals(regularMidi.skip(1).toList()));
-        // C major root position: E4,G4 (upper tones)
-        expect(rightHandNotes, equals([64, 67]));
+        // Right hand should return full triad at specified octave
+        expect(rightHandNotes, equals(regularMidi));
+        // C major root position: C4, E4, G4
+        expect(rightHandNotes, equals([60, 64, 67]));
       });
 
       test("should generate both hands with full triads in each hand", () {
@@ -703,12 +703,12 @@ void main() {
 
             // Verify hand-specific behavior
             if (hand == HandSelection.left) {
-              // Left hand should have only 1 note (bass)
-              expect(notes.length, equals(1));
+              // Left hand should have full triad one octave lower (3 notes)
+              expect(notes.length, equals(3));
             } else if (hand == HandSelection.right) {
-              // Right hand should have upper tones (skipping first note)
+              // Right hand should have full triad (3 notes)
               final regularMidi = chord.getMidiNotes(4);
-              expect(notes, equals(regularMidi.skip(1).toList()));
+              expect(notes, equals(regularMidi));
             } else {
               // Both hands: full triad -12 + full triad
               final regularMidi = chord.getMidiNotes(4);
