@@ -3,10 +3,6 @@
 /// These constants are specific to the play page feature and not reusable
 /// across the broader application. For shared UI constants, see
 /// [lib/shared/constants/ui_constants.dart].
-///
-/// ## Migration Notes
-/// The following constants have been moved to shared constants:
-/// - contentContainerPadding (20.0) → Spacing.lg
 library;
 
 import "package:flutter/material.dart";
