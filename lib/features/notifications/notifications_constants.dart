@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:piano_fitness/shared/constants/ui_constants.dart";
 
 /// Constants for Notifications page UI elements
 ///
@@ -16,23 +17,25 @@ class NotificationsUIConstants {
   // Responsive layout functions (feature-specific)
 
   /// Section padding based on device type
-  /// Tablet: 20.0, Mobile: uses Spacing.md (16.0)
-  static double sectionPadding(bool isTablet) => isTablet ? 20.0 : 16.0;
+  /// Tablet: 20.0, Mobile: Spacing.md
+  static double sectionPadding(bool isTablet) => isTablet ? 20.0 : Spacing.md;
 
   /// Section icon size based on device type
-  /// Tablet: ComponentDimensions.iconSizeLarge (24), Mobile: ComponentDimensions.iconSizeMedium (20)
-  static double sectionIconSize(bool isTablet) => isTablet ? 24.0 : 20.0;
+  /// Tablet: ComponentDimensions.iconSizeLarge, Mobile: ComponentDimensions.iconSizeMedium
+  static double sectionIconSize(bool isTablet) => isTablet
+      ? ComponentDimensions.iconSizeLarge
+      : ComponentDimensions.iconSizeMedium;
 
   /// Permission prompt icon size based on device type
-  /// Tablet: ComponentDimensions.iconSizeXLarge (32), Mobile: 28
+  /// Tablet: ComponentDimensions.iconSizeXLarge, Mobile: 28
   static double permissionPromptIconSize(bool isTablet) =>
-      isTablet ? 32.0 : 28.0;
+      isTablet ? ComponentDimensions.iconSizeXLarge : 28.0;
 
   /// Button padding based on device type
-  /// Tablet: (32, 16), Mobile: (24, 12)
+  /// Tablet: (Spacing.xl, Spacing.md), Mobile: (Spacing.lg, Spacing.sm)
   static EdgeInsets buttonPadding(bool isTablet) => EdgeInsets.symmetric(
-    horizontal: isTablet ? 32.0 : 24.0,
-    vertical: isTablet ? 16.0 : 12.0,
+    horizontal: isTablet ? Spacing.xl : Spacing.lg,
+    vertical: isTablet ? Spacing.md : Spacing.sm,
   );
 
   // Feature-specific constants
