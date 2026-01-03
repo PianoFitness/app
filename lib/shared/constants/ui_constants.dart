@@ -36,6 +36,9 @@ class Spacing {
 class AppBorderRadius {
   AppBorderRadius._(); // Private constructor to prevent instantiation
 
+  /// Extra small border radius: 4.0 logical pixels
+  static const double xs = 4.0;
+
   /// Small border radius: 8.0 logical pixels
   static const double small = 8.0;
 

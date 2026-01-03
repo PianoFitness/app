@@ -1,7 +1,9 @@
 import "package:flutter/material.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
-import "package:piano_fitness/shared/theme/semantic_colors.dart";
+import "package:piano_fitness/features/device_controller/device_controller_constants.dart";
 import "package:piano_fitness/features/device_controller/device_controller_view_model.dart";
+import "package:piano_fitness/shared/constants/ui_constants.dart";
+import "package:piano_fitness/shared/theme/semantic_colors.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_key_utils.dart";
 import "package:provider/provider.dart";
@@ -35,7 +37,7 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
               backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             ),
             body: ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(Spacing.md),
               children: [
                 _buildDeviceInfoCard(context, viewModel),
                 _buildLastMessageCard(context, viewModel),
@@ -58,7 +60,7 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
   ) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(Spacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -69,7 +71,7 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: Spacing.sm),
             Text("Device name: ${viewModel.device.name}"),
             Text("Device type: ${viewModel.device.type}"),
             Text("Device ID: ${viewModel.device.id}"),
@@ -185,7 +187,7 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
   ) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(Spacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -193,15 +195,16 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
               "Control Change (CC)",
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: Spacing.md),
             Row(
               children: [
                 const Text("Controller: "),
                 Expanded(
                   child: Slider(
                     value: viewModel.ccController.toDouble(),
-                    max: 127,
-                    divisions: 127,
+                    max: DeviceControllerUIConstants.midiControllerMax
+                        .toDouble(),
+                    divisions: DeviceControllerUIConstants.midiControllerMax,
                     label: viewModel.ccController.toString(),
                     onChanged: (value) =>
                         viewModel.setCCController(value.toInt()),
@@ -216,8 +219,9 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                 Expanded(
                   child: Slider(
                     value: viewModel.ccValue.toDouble(),
-                    max: 127,
-                    divisions: 127,
+                    max: DeviceControllerUIConstants.midiControllerMax
+                        .toDouble(),
+                    divisions: DeviceControllerUIConstants.midiControllerMax,
                     label: viewModel.ccValue.toString(),
                     onChanged: (value) => viewModel.setCCValue(value.toInt()),
                   ),
@@ -237,23 +241,20 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
   ) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(Spacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Program Change",
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 16),
+            Text("MIDI Channel", style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: Spacing.sm),
             Row(
               children: [
                 const Text("Program: "),
                 Expanded(
                   child: Slider(
                     value: viewModel.programNumber.toDouble(),
-                    max: 127,
-                    divisions: 127,
+                    max: DeviceControllerUIConstants.midiProgramMax.toDouble(),
+                    divisions: DeviceControllerUIConstants.midiProgramMax,
                     label: viewModel.programNumber.toString(),
                     onChanged: (value) =>
                         viewModel.setProgramNumber(value.toInt()),
@@ -274,16 +275,16 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
   ) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(Spacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("Pitch Bend", style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 16),
+            const SizedBox(height: Spacing.md),
             Slider(
               value: viewModel.pitchBend,
-              min: -1,
-              divisions: 100,
+              min: DeviceControllerUIConstants.pitchBendMin,
+              divisions: DeviceControllerUIConstants.pitchBendDivisions,
               label: viewModel.pitchBend.toStringAsFixed(2),
               onChanged: viewModel.setPitchBend,
               onChangeEnd: (_) => viewModel.resetPitchBend(),
@@ -301,7 +302,7 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
   ) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(Spacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -309,23 +310,27 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
               "Virtual Piano",
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: Spacing.md),
             Wrap(
-              spacing: 4,
+              spacing: DeviceControllerUIConstants.pianoKeySpacing,
               alignment: WrapAlignment.center,
               children: [
-                const SizedBox(width: 18),
+                const SizedBox(
+                  width: DeviceControllerUIConstants.blackKeyLeftOffset,
+                ),
                 _buildDevicePianoKey(61, viewModel), // C# black key
                 _buildDevicePianoKey(63, viewModel), // D# black key
-                const SizedBox(width: 40),
+                const SizedBox(
+                  width: DeviceControllerUIConstants.blackKeyGroupGap,
+                ),
                 _buildDevicePianoKey(66, viewModel), // F# black key
                 _buildDevicePianoKey(68, viewModel), // G# black key
                 _buildDevicePianoKey(70, viewModel), // A# black key
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: Spacing.sm),
             Wrap(
-              spacing: 4,
+              spacing: DeviceControllerUIConstants.pianoKeySpacing,
               alignment: WrapAlignment.center,
               children: [
                 for (int note = 60; note <= 71; note++)
@@ -365,12 +370,12 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
       onTapUp: (_) => viewModel.sendNoteOff(midiNote),
       onTapCancel: () => viewModel.sendNoteOff(midiNote),
       child: Container(
-        width: 40,
-        height: 80,
+        width: DeviceControllerUIConstants.pianoKeyWidth,
+        height: DeviceControllerUIConstants.pianoKeyHeight,
         decoration: BoxDecoration(
           color: keyColor,
           border: Border.all(color: theme.colorScheme.outline),
-          borderRadius: BorderRadius.circular(4),
+          borderRadius: BorderRadius.circular(AppBorderRadius.xs),
         ),
         child: Center(
           child: Text(
@@ -378,7 +383,7 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
             style: TextStyle(
               color: textColor,
               fontWeight: FontWeight.bold,
-              fontSize: 12,
+              fontSize: DeviceControllerUIConstants.pianoKeyFontSize,
             ),
           ),
         ),
