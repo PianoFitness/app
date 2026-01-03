@@ -69,12 +69,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
   ) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Responsive layout based on design guidelines
         final isTablet = constraints.maxWidth >= 768;
-        final isLandscape = constraints.maxWidth > constraints.maxHeight;
-        final padding = isTablet
-            ? (isLandscape ? Spacing.lg : Spacing.md)
-            : (isLandscape ? Spacing.md : Spacing.sm);
+        final padding = _calculateResponsivePadding(constraints, isTablet);
 
         return SingleChildScrollView(
           padding: EdgeInsets.all(padding),
@@ -97,6 +93,17 @@ class _NotificationsPageState extends State<NotificationsPage> {
     );
   }
 
+  /// Calculates responsive padding based on screen constraints.
+  double _calculateResponsivePadding(
+    BoxConstraints constraints,
+    bool isTablet,
+  ) {
+    final isLandscape = constraints.maxWidth > constraints.maxHeight;
+    return isTablet
+        ? (isLandscape ? Spacing.lg : Spacing.md)
+        : (isLandscape ? Spacing.md : Spacing.sm);
+  }
+
   Widget _buildPermissionSection(
     BuildContext context,
     NotificationsPageViewModel viewModel,
@@ -113,14 +120,22 @@ class _NotificationsPageState extends State<NotificationsPage> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            colorScheme.primaryContainer.withValues(alpha: 0.3),
-            colorScheme.secondaryContainer.withValues(alpha: 0.2),
+            colorScheme.primaryContainer.withValues(
+              alpha: NotificationsUIConstants.gradientPrimaryAlpha,
+            ),
+            colorScheme.secondaryContainer.withValues(
+              alpha: NotificationsUIConstants.gradientSecondaryAlpha,
+            ),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(AppBorderRadius.large),
-        border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
+        border: Border.all(
+          color: colorScheme.primary.withValues(
+            alpha: NotificationsUIConstants.borderAlpha,
+          ),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -178,10 +193,16 @@ class _NotificationsPageState extends State<NotificationsPage> {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(AppBorderRadius.large),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+        border: Border.all(
+          color: colorScheme.outline.withValues(
+            alpha: NotificationsUIConstants.borderAlpha,
+          ),
+        ),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.shadow.withValues(alpha: 0.05),
+            color: colorScheme.shadow.withValues(
+              alpha: NotificationsUIConstants.shadowAlpha,
+            ),
             blurRadius: ShadowConfig.subtleBlur,
             offset: ShadowConfig.subtleOffset,
           ),
@@ -260,10 +281,16 @@ class _NotificationsPageState extends State<NotificationsPage> {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(AppBorderRadius.large),
-        border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
+        border: Border.all(
+          color: colorScheme.outline.withValues(
+            alpha: NotificationsUIConstants.borderAlpha,
+          ),
+        ),
         boxShadow: [
           BoxShadow(
-            color: colorScheme.shadow.withValues(alpha: 0.05),
+            color: colorScheme.shadow.withValues(
+              alpha: NotificationsUIConstants.shadowAlpha,
+            ),
             blurRadius: ShadowConfig.subtleBlur,
             offset: ShadowConfig.subtleOffset,
           ),
@@ -378,13 +405,19 @@ class _NotificationsPageState extends State<NotificationsPage> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            context.semanticColors.warning.withValues(alpha: 0.1),
-            colorScheme.tertiaryContainer.withValues(alpha: 0.1),
+            context.semanticColors.warning.withValues(
+              alpha: NotificationsUIConstants.shadowAlpha * 2,
+            ),
+            colorScheme.tertiaryContainer.withValues(
+              alpha: NotificationsUIConstants.shadowAlpha * 2,
+            ),
           ],
         ),
         borderRadius: BorderRadius.circular(AppBorderRadius.large),
         border: Border.all(
-          color: context.semanticColors.warning.withValues(alpha: 0.3),
+          color: context.semanticColors.warning.withValues(
+            alpha: NotificationsUIConstants.gradientPrimaryAlpha,
+          ),
         ),
       ),
       child: Column(

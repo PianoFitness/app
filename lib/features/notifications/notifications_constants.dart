@@ -39,4 +39,10 @@ class NotificationsUIConstants {
 
   // Default values
   static const TimeOfDay defaultReminderTime = TimeOfDay(hour: 18, minute: 0);
+
+  // Opacity values for gradient overlays
+  static const double gradientPrimaryAlpha = 0.3;
+  static const double gradientSecondaryAlpha = 0.2;
+  static const double borderAlpha = 0.2;
+  static const double shadowAlpha = 0.05;
 }
