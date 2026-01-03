@@ -96,6 +96,9 @@ class AnimationDurations {
 
   /// Extra long animation: 1 second
   static const Duration xLong = Duration(seconds: 1);
+
+  /// Snackbar/toast display duration: 2 seconds
+  static const Duration snackbar = Duration(seconds: 2);
 }
 
 /// Common shadow configurations for elevated components.
@@ -145,4 +148,86 @@ class MidiConstants {
   // Default values
   /// Standard default velocity for note messages: 64 (medium velocity)
   static const int defaultVelocity = 64;
+
+  // Connection timeouts
+  /// Bluetooth initialization timeout: 5 seconds
+  static const Duration bluetoothInitTimeout = Duration(seconds: 5);
+
+  /// Device scanning duration: 3 seconds
+  static const Duration scanningDuration = Duration(seconds: 3);
+
+  /// Delay before device connection: 500 milliseconds
+  static const Duration connectionDelay = Duration(milliseconds: 500);
+}
+
+/// Standardized opacity values for consistent transparency across the app.
+///
+/// Use these constants with Color.withValues(alpha:) for Material3 compatibility.
+/// Organized by semantic usage rather than numerical value.
+class OpacityValues {
+  OpacityValues._(); // Private constructor to prevent instantiation
+
+  // ===== BACKGROUND OVERLAYS =====
+  /// Very subtle background tint (barely visible)
+  static const double backgroundSubtle = 0.05;
+
+  /// Light background tint for containers
+  static const double backgroundLight = 0.1;
+
+  /// Moderate background tint
+  static const double backgroundMedium = 0.2;
+
+  /// Strong background tint
+  static const double backgroundStrong = 0.3;
+
+  // ===== BORDERS & OUTLINES =====
+  /// Subtle border/outline
+  static const double borderSubtle = 0.2;
+
+  /// Standard border visibility
+  static const double borderMedium = 0.3;
+
+  /// Strong border/outline (info boxes, emphasis)
+  static const double borderStrong = 0.5;
+
+  // ===== SHADOWS & ELEVATION =====
+  /// Very subtle shadow (minimal elevation)
+  static const double shadowSubtle = 0.05;
+
+  /// Standard shadow for cards/components
+  static const double shadowMedium = 0.1;
+
+  // ===== TEXT & CONTENT =====
+  /// Muted text (secondary information)
+  static const double textMuted = 0.7;
+
+  /// Nearly opaque (highlighted/active states)
+  static const double textHighlighted = 0.8;
+
+  // ===== GRADIENTS =====
+  /// Start of gradient (lighter)
+  static const double gradientStart = 0.1;
+
+  /// Middle of gradient
+  static const double gradientMid = 0.2;
+
+  /// End of gradient (darker)
+  static const double gradientEnd = 0.3;
+}
+
+/// Responsive breakpoint values for adaptive layouts.
+///
+/// Use these for consistent responsive behavior across the app.
+class ResponsiveBreakpoints {
+  ResponsiveBreakpoints._(); // Private constructor to prevent instantiation
+
+  /// Tablet width/height threshold: 768.0 logical pixels
+  ///
+  /// Devices with width or height >= this value are considered tablets.
+  static const double tablet = 768.0;
+
+  /// Compact height threshold: 600.0 logical pixels
+  ///
+  /// Layouts with height < this value should use compact spacing.
+  static const double compactHeight = 600.0;
 }

@@ -123,7 +123,7 @@ class _PracticePageState extends State<PracticePage> {
     overlay.insert(overlayEntry);
 
     // Remove the overlay after configured duration
-    Future.delayed(PracticeUIConstants.completionDisplayDuration, () {
+    Future.delayed(AnimationDurations.snackbar, () {
       overlayEntry.remove();
     });
   }

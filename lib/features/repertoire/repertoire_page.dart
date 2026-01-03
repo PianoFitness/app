@@ -45,16 +45,13 @@ class _RepertoirePageState extends State<RepertoirePage> {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final isSmallHeight =
-                constraints.maxHeight <
-                RepertoireUIConstants.compactHeightThreshold;
+                constraints.maxHeight < ResponsiveBreakpoints.compactHeight;
 
             // Responsive padding and spacing
             final padding = isSmallHeight
                 ? RepertoireUIConstants.pagePaddingCompact
-                : RepertoireUIConstants.pagePadding;
-            final sectionSpacing = isSmallHeight
-                ? RepertoireUIConstants.sectionSpacingCompact
-                : RepertoireUIConstants.sectionSpacing;
+                : Spacing.sm;
+            final sectionSpacing = isSmallHeight ? Spacing.xs : Spacing.sm;
 
             return Padding(
               padding: EdgeInsets.all(padding),
@@ -68,17 +65,16 @@ class _RepertoirePageState extends State<RepertoirePage> {
                       padding: EdgeInsets.all(
                         isSmallHeight
                             ? RepertoireUIConstants.headerPaddingCompact
-                            : RepertoireUIConstants.headerPadding,
+                            : Spacing.md,
                       ),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
                             colorScheme.primary.withValues(
-                              alpha: RepertoireUIConstants.gradientPrimaryAlpha,
+                              alpha: OpacityValues.gradientStart,
                             ),
                             colorScheme.secondary.withValues(
-                              alpha:
-                                  RepertoireUIConstants.gradientSecondaryAlpha,
+                              alpha: OpacityValues.gradientStart,
                             ),
                           ],
                           begin: Alignment.topLeft,
@@ -89,16 +85,14 @@ class _RepertoirePageState extends State<RepertoirePage> {
                         ),
                         border: Border.all(
                           color: colorScheme.primary.withValues(
-                            alpha: RepertoireUIConstants.borderAlpha,
+                            alpha: OpacityValues.borderSubtle,
                           ),
                         ),
                       ),
                       child: Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(
-                              RepertoireUIConstants.iconContainerPadding,
-                            ),
+                            padding: const EdgeInsets.all(Spacing.sm),
                             decoration: BoxDecoration(
                               color: colorScheme.surface,
                               borderRadius: BorderRadius.circular(
@@ -107,7 +101,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                               boxShadow: [
                                 BoxShadow(
                                   color: colorScheme.primary.withValues(
-                                    alpha: RepertoireUIConstants.shadowAlpha,
+                                    alpha: OpacityValues.shadowMedium,
                                   ),
                                   blurRadius: Spacing.sm,
                                   offset: const Offset(0, 2),
@@ -118,8 +112,8 @@ class _RepertoirePageState extends State<RepertoirePage> {
                               Icons.library_music,
                               color: colorScheme.primary,
                               size: isSmallHeight
-                                  ? RepertoireUIConstants.headerIconSizeCompact
-                                  : RepertoireUIConstants.headerIconSize,
+                                  ? ComponentDimensions.iconSizeMedium
+                                  : ComponentDimensions.iconSizeLarge,
                             ),
                           ),
                           SizedBox(
@@ -133,10 +127,14 @@ class _RepertoirePageState extends State<RepertoirePage> {
                                   "Repertoire Practice",
                                   style: TextStyle(
                                     fontSize: isSmallHeight
-                                        ? RepertoireUIConstants
-                                              .headerTitleFontSizeCompact
-                                        : RepertoireUIConstants
-                                              .headerTitleFontSize,
+                                        ? theme
+                                              .textTheme
+                                              .headlineSmall
+                                              ?.fontSize
+                                        : theme
+                                              .textTheme
+                                              .headlineMedium
+                                              ?.fontSize,
                                     fontWeight: FontWeight.bold,
                                     color: colorScheme.primary,
                                     letterSpacing: RepertoireUIConstants
@@ -147,11 +145,10 @@ class _RepertoirePageState extends State<RepertoirePage> {
                                   Text(
                                     "Build your musical repertoire",
                                     style: TextStyle(
-                                      fontSize: RepertoireUIConstants
-                                          .subtitleFontSize,
+                                      fontSize:
+                                          theme.textTheme.bodyMedium?.fontSize,
                                       color: colorScheme.primary.withValues(
-                                        alpha:
-                                            RepertoireUIConstants.subtitleAlpha,
+                                        alpha: OpacityValues.textMuted,
                                       ),
                                     ),
                                   ),
@@ -162,7 +159,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                                     fontSize: isSmallHeight
                                         ? RepertoireUIConstants
                                               .helperFontSizeCompact
-                                        : RepertoireUIConstants.helperFontSize,
+                                        : theme.textTheme.bodySmall?.fontSize,
                                     color: colorScheme.tertiary,
                                     fontStyle: FontStyle.italic,
                                   ),
@@ -188,16 +185,14 @@ class _RepertoirePageState extends State<RepertoirePage> {
                                 hint:
                                     "Opens modal with practice guidance and app recommendations",
                                 child: Padding(
-                                  padding: const EdgeInsets.all(
-                                    RepertoireUIConstants.helpButtonPadding,
-                                  ),
+                                  padding: const EdgeInsets.all(Spacing.sm),
                                   child: Icon(
                                     Icons.help_outline,
                                     color: colorScheme.primary,
                                     size: isSmallHeight
                                         ? RepertoireUIConstants
                                               .helpIconSizeCompact
-                                        : RepertoireUIConstants.helpIconSize,
+                                        : ComponentDimensions.iconSizeMedium,
                                   ),
                                 ),
                               ),
@@ -259,8 +254,8 @@ class _RepertoirePageState extends State<RepertoirePage> {
     final mediaQuery = MediaQuery.of(context);
     final isLandscape = mediaQuery.size.width > mediaQuery.size.height;
     final isTablet =
-        mediaQuery.size.width >= RepertoireUIConstants.tabletWidthThreshold ||
-        mediaQuery.size.height >= RepertoireUIConstants.tabletHeightThreshold;
+        mediaQuery.size.width >= ResponsiveBreakpoints.tablet ||
+        mediaQuery.size.height >= ResponsiveBreakpoints.tablet;
 
     showModalBottomSheet<void>(
       context: context,
@@ -287,9 +282,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
           expand: false,
           builder: (context, scrollController) {
             return Padding(
-              padding: const EdgeInsets.all(
-                RepertoireUIConstants.modalContentPadding,
-              ),
+              padding: const EdgeInsets.all(Spacing.md),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -299,13 +292,13 @@ class _RepertoirePageState extends State<RepertoirePage> {
                       Icon(
                         Icons.library_music,
                         color: colorScheme.primary,
-                        size: RepertoireUIConstants.modalIconSize,
+                        size: ComponentDimensions.iconSizeLarge,
                       ),
                       const SizedBox(width: Spacing.sm),
                       Text(
                         "About Repertoire Practice",
                         style: TextStyle(
-                          fontSize: RepertoireUIConstants.modalTitleFontSize,
+                          fontSize: theme.textTheme.headlineLarge?.fontSize,
                           fontWeight: FontWeight.bold,
                           color: colorScheme.primary,
                           letterSpacing:
@@ -338,20 +331,17 @@ class _RepertoirePageState extends State<RepertoirePage> {
                           Semantics(
                             container: true,
                             child: Container(
-                              padding: const EdgeInsets.all(
-                                RepertoireUIConstants.infoContainerPadding,
-                              ),
+                              padding: const EdgeInsets.all(Spacing.md),
                               decoration: BoxDecoration(
                                 color: colorScheme.tertiary.withValues(
-                                  alpha: RepertoireUIConstants
-                                      .tertiaryBackgroundAlpha,
+                                  alpha: OpacityValues.backgroundLight,
                                 ),
                                 borderRadius: BorderRadius.circular(
                                   AppBorderRadius.medium,
                                 ),
                                 border: Border.all(
                                   color: colorScheme.tertiary.withValues(
-                                    alpha: RepertoireUIConstants.borderAlpha,
+                                    alpha: OpacityValues.borderSubtle,
                                   ),
                                 ),
                               ),
@@ -369,8 +359,10 @@ class _RepertoirePageState extends State<RepertoirePage> {
                                         child: Text(
                                           "Piano Fitness builds technical skills, but repertoire practice completes your musical journey. Use these apps for interactive sheet music and guided learning:",
                                           style: TextStyle(
-                                            fontSize: RepertoireUIConstants
-                                                .introTextFontSize,
+                                            fontSize: theme
+                                                .textTheme
+                                                .bodyLarge
+                                                ?.fontSize,
                                             color: colorScheme.tertiary,
                                             height: RepertoireUIConstants
                                                 .introTextLineHeight,
@@ -392,7 +384,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                               "Recommended Apps",
                               style: TextStyle(
                                 fontSize:
-                                    RepertoireUIConstants.sectionHeaderFontSize,
+                                    theme.textTheme.headlineMedium?.fontSize,
                                 fontWeight: FontWeight.bold,
                                 color: colorScheme.primary,
                               ),
@@ -424,20 +416,17 @@ class _RepertoirePageState extends State<RepertoirePage> {
                           Semantics(
                             container: true,
                             child: Container(
-                              padding: const EdgeInsets.all(
-                                RepertoireUIConstants.infoContainerPadding,
-                              ),
+                              padding: const EdgeInsets.all(Spacing.md),
                               decoration: BoxDecoration(
                                 color: colorScheme.primary.withValues(
-                                  alpha: RepertoireUIConstants
-                                      .tertiaryBackgroundAlpha,
+                                  alpha: OpacityValues.backgroundLight,
                                 ),
                                 borderRadius: BorderRadius.circular(
                                   AppBorderRadius.medium,
                                 ),
                                 border: Border.all(
                                   color: colorScheme.primary.withValues(
-                                    alpha: RepertoireUIConstants.borderAlpha,
+                                    alpha: OpacityValues.borderSubtle,
                                   ),
                                 ),
                               ),
@@ -454,8 +443,10 @@ class _RepertoirePageState extends State<RepertoirePage> {
                                       Text(
                                         "Practice Timer",
                                         style: TextStyle(
-                                          fontSize: RepertoireUIConstants
-                                              .sectionHeaderFontSize,
+                                          fontSize: theme
+                                              .textTheme
+                                              .headlineMedium
+                                              ?.fontSize,
                                           fontWeight: FontWeight.bold,
                                           color: colorScheme.primary,
                                         ),
@@ -466,8 +457,8 @@ class _RepertoirePageState extends State<RepertoirePage> {
                                   Text(
                                     "Use the timer below to set focused practice sessions. Start the timer, then switch to your repertoire app or sheet music for distraction-free practice.",
                                     style: TextStyle(
-                                      fontSize: RepertoireUIConstants
-                                          .practiceTimerDescFontSize,
+                                      fontSize:
+                                          theme.textTheme.bodyLarge?.fontSize,
                                       height: RepertoireUIConstants
                                           .descriptionLineHeight,
                                     ),
@@ -501,18 +492,14 @@ class _RepertoirePageState extends State<RepertoirePage> {
     return Semantics(
       container: true,
       child: Container(
-        padding: const EdgeInsets.all(
-          RepertoireUIConstants.appRecommendationPadding,
-        ),
+        padding: const EdgeInsets.all(Spacing.sm),
         decoration: BoxDecoration(
           color: colorScheme.surface,
           borderRadius: BorderRadius.circular(
             RepertoireUIConstants.containerBorderRadius,
           ),
           border: Border.all(
-            color: color.withValues(
-              alpha: RepertoireUIConstants.appRecommendationBorderAlpha,
-            ),
+            color: color.withValues(alpha: OpacityValues.borderMedium),
           ),
         ),
         child: Row(
@@ -522,9 +509,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                 RepertoireUIConstants.appIconPadding,
               ),
               decoration: BoxDecoration(
-                color: color.withValues(
-                  alpha: RepertoireUIConstants.appIconBackgroundAlpha,
-                ),
+                color: color.withValues(alpha: OpacityValues.backgroundLight),
                 borderRadius: BorderRadius.circular(
                   RepertoireUIConstants.containerBorderRadius,
                 ),
@@ -543,7 +528,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                   Text(
                     name,
                     style: TextStyle(
-                      fontSize: RepertoireUIConstants.appNameFontSize,
+                      fontSize: theme.textTheme.bodyMedium?.fontSize,
                       fontWeight: FontWeight.bold,
                       color: color,
                     ),
@@ -551,7 +536,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                   Text(
                     description,
                     style: TextStyle(
-                      fontSize: RepertoireUIConstants.appDescriptionFontSize,
+                      fontSize: theme.textTheme.bodySmall?.fontSize,
                       height: RepertoireUIConstants.appDescriptionLineHeight,
                     ),
                   ),
@@ -571,12 +556,10 @@ class _RepertoirePageState extends State<RepertoirePage> {
                   size: RepertoireUIConstants.appRecommendationIconSize,
                 ),
                 tooltip: "Open $name",
-                padding: const EdgeInsets.all(
-                  RepertoireUIConstants.iconButtonPadding,
-                ),
+                padding: const EdgeInsets.all(Spacing.xs),
                 constraints: const BoxConstraints(
-                  minWidth: RepertoireUIConstants.iconButtonMinWidth,
-                  minHeight: RepertoireUIConstants.iconButtonMinHeight,
+                  minWidth: ComponentDimensions.iconSizeXLarge,
+                  minHeight: ComponentDimensions.iconSizeXLarge,
                 ),
               ),
             ),

@@ -1,8 +1,14 @@
 /// Constants for Repertoire page UI elements and timer logic.
 ///
 /// Contains feature-specific constants for repertoire interface including
-/// timer durations, opacity values, font sizes, and responsive breakpoints.
-/// For common spacing/sizing values, see [lib/shared/constants/ui_constants.dart].
+/// timer durations, responsive font sizes, and modal configurations.
+/// Common spacing, sizing, and opacity values have been moved to shared constants.
+///
+/// See [lib/shared/constants/ui_constants.dart] for:
+/// - Spacing (xs, sm, md, lg, xl, xxl)
+/// - ComponentDimensions (iconSizes, minTouchTarget)
+/// - OpacityValues (borders, shadows, gradients)
+/// - ResponsiveBreakpoints (tablet, compactHeight)
 class RepertoireUIConstants {
   RepertoireUIConstants._(); // Private constructor to prevent instantiation
 
@@ -16,7 +22,7 @@ class RepertoireUIConstants {
   /// Seconds per minute conversion constant
   static const int secondsPerMinute = 60;
 
-  /// Timer tick interval
+  /// Timer tick interval (use AnimationDurations.xLong from shared constants)
   static const Duration timerTickDuration = Duration(seconds: 1);
 
   /// Minimum padding for zero value in time formatting
@@ -25,114 +31,26 @@ class RepertoireUIConstants {
   /// Padding character for time formatting
   static const String timePaddingChar = "0";
 
-  // Opacity Values
-  /// Primary gradient opacity for header
-  static const double gradientPrimaryAlpha = 0.1;
+  // Responsive Font Sizes (Compact Layouts)
+  // Note: Standard font sizes should use Theme.of(context).textTheme instead
+  // These compact sizes are for responsive layouts with height < 600px
 
-  /// Secondary gradient opacity for header
-  static const double gradientSecondaryAlpha = 0.1;
-
-  /// Border opacity for containers
-  static const double borderAlpha = 0.2;
-
-  /// Shadow/highlight opacity for icons
-  static const double shadowAlpha = 0.1;
-
-  /// Tertiary container background opacity
-  static const double tertiaryBackgroundAlpha = 0.1;
-
-  /// App recommendation border opacity
-  static const double appRecommendationBorderAlpha = 0.3;
-
-  /// App icon background opacity
-  static const double appIconBackgroundAlpha = 0.1;
-
-  /// Subtitle text opacity
-  static const double subtitleAlpha = 0.7;
-
-  // Font Sizes
-  /// Header title font size (standard)
-  static const double headerTitleFontSize = 18.0;
-
-  /// Header title font size (compact)
-  static const double headerTitleFontSizeCompact = 16.0;
-
-  /// Subtitle font size (standard)
-  static const double subtitleFontSize = 14.0;
-
-  /// Helper text font size (standard)
-  static const double helperFontSize = 12.0;
-
-  /// Helper text font size (compact)
+  /// Helper text font size (compact) - for very small screens
   static const double helperFontSizeCompact = 11.0;
 
-  /// Modal title font size
-  static const double modalTitleFontSize = 20.0;
-
-  /// Section header font size
-  static const double sectionHeaderFontSize = 18.0;
-
-  /// Introduction text font size
-  static const double introTextFontSize = 15.0;
-
-  /// Practice timer description font size
-  static const double practiceTimerDescFontSize = 16.0;
-
-  /// App name font size
-  static const double appNameFontSize = 14.0;
-
-  /// App description font size
-  static const double appDescriptionFontSize = 12.0;
-
-  // Responsive Breakpoints
-  /// Height threshold for compact layout
-  static const double compactHeightThreshold = 600.0;
-
-  /// Width threshold for tablet detection
-  static const double tabletWidthThreshold = 768.0;
-
-  /// Height threshold for tablet detection
-  static const double tabletHeightThreshold = 768.0;
-
-  // Responsive Padding & Spacing
-  /// Page padding (standard)
-  static const double pagePadding = 8.0;
-
-  /// Page padding (compact)
+  /// Page padding (compact) - for very small screens
   static const double pagePaddingCompact = 6.0;
-
-  /// Section spacing (standard)
-  static const double sectionSpacing = 8.0;
-
-  /// Section spacing (compact)
-  static const double sectionSpacingCompact = 4.0;
-
-  /// Header padding (standard)
-  static const double headerPadding = 16.0;
 
   /// Header padding (compact)
   static const double headerPaddingCompact = 12.0;
 
-  // Icon Sizes
-  /// Header icon size (standard)
-  static const double headerIconSize = 24.0;
-
-  /// Header icon size (compact)
-  static const double headerIconSizeCompact = 20.0;
-
-  /// Help icon size (standard)
-  static const double helpIconSize = 20.0;
-
   /// Help icon size (compact)
   static const double helpIconSizeCompact = 18.0;
-
-  /// Modal header icon size
-  static const double modalIconSize = 24.0;
 
   /// App recommendation icon size
   static const double appRecommendationIconSize = 18.0;
 
-  // Line Heights
+  // Line Heights & Typography
   /// Letter spacing for titles
   static const double titleLetterSpacing = -0.3;
 
@@ -164,36 +82,11 @@ class RepertoireUIConstants {
   /// Minimum sheet size for portrait
   static const double modalMinSizePortrait = 0.5;
 
-  // Container Padding & Sizing
-  /// Icon container padding
-  static const double iconContainerPadding = 8.0;
-
-  /// Modal content padding
-  static const double modalContentPadding = 16.0;
-
-  /// Info container padding
-  static const double infoContainerPadding = 16.0;
-
-  /// App recommendation container padding
-  static const double appRecommendationPadding = 8.0;
-
+  // Container Padding (Feature-Specific)
   /// App icon container padding
   static const double appIconPadding = 6.0;
 
-  /// Help button padding
-  static const double helpButtonPadding = 8.0;
-
-  /// Icon button padding
-  static const double iconButtonPadding = 4.0;
-
-  // Sizing Constraints
-  /// Minimum width for icon button
-  static const double iconButtonMinWidth = 32.0;
-
-  /// Minimum height for icon button
-  static const double iconButtonMinHeight = 32.0;
-
-  // Border Radius
+  // Border Radius (Feature-Specific)
   /// Container border radius
   static const double containerBorderRadius = 6.0;
 

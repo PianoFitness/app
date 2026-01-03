@@ -59,9 +59,7 @@ class _PlayPageState extends State<PlayPage> {
                     const SizedBox(height: Spacing.lg),
                     // Educational Content Area
                     Container(
-                      padding: const EdgeInsets.all(
-                        PlayUIConstants.contentContainerPadding,
-                      ),
+                      padding: const EdgeInsets.all(Spacing.lg),
                       decoration: BoxDecoration(
                         color: colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(

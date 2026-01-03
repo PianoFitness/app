@@ -51,6 +51,39 @@ void main() async {
   runApp(const MyApp());
 }
 
+/// Creates a custom TextTheme matching the app's design system.
+///
+/// Based on the Piano Fitness design specification with consistent font sizing
+/// across display, headline, body, and label text styles.
+TextTheme _createTextTheme() {
+  return const TextTheme(
+    // Display styles - largest text
+    displayLarge: TextStyle(fontSize: 32),
+    displayMedium: TextStyle(fontSize: 28),
+    displaySmall: TextStyle(fontSize: 24),
+
+    // Headline styles - section headers
+    headlineLarge: TextStyle(fontSize: 20),
+    headlineMedium: TextStyle(fontSize: 18),
+    headlineSmall: TextStyle(fontSize: 16),
+
+    // Title styles - component titles
+    titleLarge: TextStyle(fontSize: 20),
+    titleMedium: TextStyle(fontSize: 16),
+    titleSmall: TextStyle(fontSize: 14),
+
+    // Body styles - main content
+    bodyLarge: TextStyle(fontSize: 16),
+    bodyMedium: TextStyle(fontSize: 14),
+    bodySmall: TextStyle(fontSize: 12),
+
+    // Label styles - buttons, chips, small text
+    labelLarge: TextStyle(fontSize: 14),
+    labelMedium: TextStyle(fontSize: 12),
+    labelSmall: TextStyle(fontSize: 10),
+  );
+}
+
 /// The root widget of the Piano Fitness application.
 ///
 /// Sets up the app theme and defines the initial navigation structure.
@@ -67,6 +100,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+        textTheme: _createTextTheme(),
         extensions: const <ThemeExtension<dynamic>>[SemanticColors.light],
       ),
       darkTheme: ThemeData(
@@ -75,6 +109,7 @@ class MyApp extends StatelessWidget {
           brightness: Brightness.dark,
         ),
         useMaterial3: true,
+        textTheme: _createTextTheme(),
         extensions: const <ThemeExtension<dynamic>>[SemanticColors.dark],
       ),
       home: const MainNavigation(),

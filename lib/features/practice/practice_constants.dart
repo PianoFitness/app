@@ -3,6 +3,13 @@
 /// These constants are specific to the practice feature and not reusable
 /// across the broader application. For shared UI constants, see
 /// [lib/shared/constants/ui_constants.dart].
+///
+/// ## Migration Notes
+/// The following constants have been moved to shared constants:
+/// - progressLabelSpacing (4.0) → Spacing.xs
+/// - progressBarSpacing (8.0) → Spacing.sm
+/// - completionDisplayDuration (2s) → AnimationDurations.snackbar
+/// - panelPadding (20.0) → Spacing.lg
 library;
 
 import "package:flutter/material.dart";
@@ -19,13 +26,7 @@ class PracticeUIConstants {
     vertical: 12,
   );
 
-  /// Duration to display the completion overlay before auto-dismissing.
-  static const Duration completionDisplayDuration = Duration(seconds: 2);
-
   // ==================== Practice Settings Panel ====================
-
-  /// Padding inside the practice settings panel container.
-  static const double panelPadding = 20.0;
 
   /// Icon size for practice status indicators.
   static const double statusIconSize = 20.0;
@@ -43,10 +44,4 @@ class PracticeUIConstants {
 
   /// Padding for the progress display container.
   static const EdgeInsets progressPadding = EdgeInsets.all(12);
-
-  /// Spacing between progress label and value.
-  static const double progressLabelSpacing = 4.0;
-
-  /// Spacing between progress bar and surrounding elements.
-  static const double progressBarSpacing = 8.0;
 }

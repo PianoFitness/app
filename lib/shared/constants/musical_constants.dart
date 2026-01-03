@@ -104,4 +104,39 @@ class MusicalConstants {
 
   /// B note offset (11 semitones from C).
   static const int bOffset = 11;
+
+  // Display names for musical concepts
+
+  /// Human-readable display names for scale types.
+  ///
+  /// Maps scale type identifiers to their proper display names.
+  static const Map<String, String> scaleTypeNames = {
+    "major": "Major",
+    "minor": "Minor",
+    "dorian": "Dorian",
+    "phrygian": "Phrygian",
+    "lydian": "Lydian",
+    "mixolydian": "Mixolydian",
+    "aeolian": "Aeolian",
+    "locrian": "Locrian",
+  };
+
+  /// Human-readable display names for chord types.
+  ///
+  /// Maps chord type identifiers to their proper display names.
+  static const Map<String, String> chordTypeNames = {
+    "major": "Major",
+    "minor": "Minor",
+    "diminished": "Diminished",
+    "augmented": "Augmented",
+  };
+
+  /// Human-readable display names for chord inversions.
+  ///
+  /// Maps inversion identifiers to their proper display names.
+  static const Map<String, String> chordInversionNames = {
+    "root": "Root Position",
+    "first": "1st Inversion",
+    "second": "2nd Inversion",
+  };
 }

@@ -121,10 +121,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
         gradient: LinearGradient(
           colors: [
             colorScheme.primaryContainer.withValues(
-              alpha: NotificationsUIConstants.gradientPrimaryAlpha,
+              alpha: OpacityValues.gradientEnd,
             ),
             colorScheme.secondaryContainer.withValues(
-              alpha: NotificationsUIConstants.gradientSecondaryAlpha,
+              alpha: OpacityValues.gradientMid,
             ),
           ],
           begin: Alignment.topLeft,
@@ -133,7 +133,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         borderRadius: BorderRadius.circular(AppBorderRadius.large),
         border: Border.all(
           color: colorScheme.primary.withValues(
-            alpha: NotificationsUIConstants.borderAlpha,
+            alpha: OpacityValues.borderSubtle,
           ),
         ),
       ),
@@ -163,7 +163,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
               ),
             ],
           ),
-          const SizedBox(height: NotificationsUIConstants.sectionSmallSpacing),
+          const SizedBox(height: Spacing.sm),
           Text(
             settings.permissionGranted
                 ? "Notifications are enabled and ready to use."
@@ -195,13 +195,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
         borderRadius: BorderRadius.circular(AppBorderRadius.large),
         border: Border.all(
           color: colorScheme.outline.withValues(
-            alpha: NotificationsUIConstants.borderAlpha,
+            alpha: OpacityValues.borderSubtle,
           ),
         ),
         boxShadow: [
           BoxShadow(
             color: colorScheme.shadow.withValues(
-              alpha: NotificationsUIConstants.shadowAlpha,
+              alpha: OpacityValues.shadowSubtle,
             ),
             blurRadius: ShadowConfig.subtleBlur,
             offset: ShadowConfig.subtleOffset,
@@ -252,7 +252,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
               ),
             ],
           ),
-          const SizedBox(height: NotificationsUIConstants.sectionSmallSpacing),
+          const SizedBox(height: Spacing.sm),
           Text(
             "Get notified when your practice timer completes, even when the app is in the background.",
             style: theme.textTheme.bodyMedium?.copyWith(
@@ -283,13 +283,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
         borderRadius: BorderRadius.circular(AppBorderRadius.large),
         border: Border.all(
           color: colorScheme.outline.withValues(
-            alpha: NotificationsUIConstants.borderAlpha,
+            alpha: OpacityValues.borderSubtle,
           ),
         ),
         boxShadow: [
           BoxShadow(
             color: colorScheme.shadow.withValues(
-              alpha: NotificationsUIConstants.shadowAlpha,
+              alpha: OpacityValues.shadowSubtle,
             ),
             blurRadius: ShadowConfig.subtleBlur,
             offset: ShadowConfig.subtleOffset,
@@ -349,7 +349,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
               ),
             ],
           ),
-          const SizedBox(height: NotificationsUIConstants.sectionSmallSpacing),
+          const SizedBox(height: Spacing.sm),
           if (settings.practiceRemindersEnabled &&
               settings.dailyReminderTime != null) ...[
             Row(
@@ -374,9 +374,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 ),
               ],
             ),
-            const SizedBox(
-              height: NotificationsUIConstants.sectionSmallSpacing,
-            ),
+            const SizedBox(height: Spacing.sm),
           ],
           Text(
             "Receive a daily notification at your chosen time to remind you to practice piano.",
@@ -406,17 +404,17 @@ class _NotificationsPageState extends State<NotificationsPage> {
         gradient: LinearGradient(
           colors: [
             context.semanticColors.warning.withValues(
-              alpha: NotificationsUIConstants.shadowAlpha * 2,
+              alpha: OpacityValues.shadowMedium,
             ),
             colorScheme.tertiaryContainer.withValues(
-              alpha: NotificationsUIConstants.shadowAlpha * 2,
+              alpha: OpacityValues.shadowMedium,
             ),
           ],
         ),
         borderRadius: BorderRadius.circular(AppBorderRadius.large),
         border: Border.all(
           color: context.semanticColors.warning.withValues(
-            alpha: NotificationsUIConstants.gradientPrimaryAlpha,
+            alpha: OpacityValues.gradientEnd,
           ),
         ),
       ),
@@ -436,7 +434,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: NotificationsUIConstants.sectionSmallSpacing),
+          const SizedBox(height: Spacing.sm),
           Text(
             "To use notification features, please grant permission when prompted.",
             style: theme.textTheme.bodyMedium?.copyWith(
@@ -444,9 +442,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(
-            height: NotificationsUIConstants.permissionPromptSpacing,
-          ),
+          const SizedBox(height: Spacing.md),
           ElevatedButton(
             onPressed: () => _requestPermissions(context, viewModel),
             style: ElevatedButton.styleFrom(
@@ -481,7 +477,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Notification permission is required for this feature"),
-          duration: NotificationsUIConstants.snackbarDuration,
+          duration: AnimationDurations.snackbar,
         ),
       );
     }

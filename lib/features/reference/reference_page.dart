@@ -3,6 +3,8 @@ import "package:piano/piano.dart";
 import "package:piano_fitness/features/reference/reference_constants.dart";
 import "package:piano_fitness/features/reference/reference_page_view_model.dart";
 import "package:piano_fitness/shared/accessibility/config/accessibility_labels.dart";
+import "package:piano_fitness/shared/constants/musical_constants.dart";
+import "package:piano_fitness/shared/constants/ui_constants.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_range_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as scales;
@@ -43,7 +45,7 @@ class _ReferencePageState extends State<ReferencePage> {
 
   @override
   Widget build(BuildContext context) {
-    // ...existing code...
+    final theme = Theme.of(context);
 
     return Scaffold(
       body: Column(
@@ -53,25 +55,21 @@ class _ReferencePageState extends State<ReferencePage> {
             child: SafeArea(
               bottom: false,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(
-                  ReferenceUIConstants.containerPadding,
-                ),
+                padding: const EdgeInsets.all(Spacing.md),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // Mode Selection
                     Container(
-                      padding: const EdgeInsets.all(
-                        ReferenceUIConstants.containerPadding,
-                      ),
+                      padding: const EdgeInsets.all(Spacing.md),
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(
-                          ReferenceUIConstants.containerBorderRadius,
+                          AppBorderRadius.medium,
                         ),
                         border: Border.all(
                           color: Theme.of(context).colorScheme.primary
-                              .withAlpha(ReferenceUIConstants.borderAlpha),
+                              .withValues(alpha: OpacityValues.borderMedium),
                         ),
                       ),
                       child: Column(
@@ -79,7 +77,8 @@ class _ReferencePageState extends State<ReferencePage> {
                           Text(
                             "Reference Mode",
                             style: TextStyle(
-                              fontSize: ReferenceUIConstants.titleFontSize,
+                              fontSize:
+                                  theme.textTheme.headlineMedium?.fontSize,
                               fontWeight: FontWeight.bold,
                               color: Theme.of(
                                 context,
@@ -125,7 +124,7 @@ class _ReferencePageState extends State<ReferencePage> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: ReferenceUIConstants.sectionSpacing),
+                    const SizedBox(height: Spacing.md),
 
                     // Selection Controls
                     ListenableBuilder(
@@ -204,15 +203,13 @@ class _ReferencePageState extends State<ReferencePage> {
         // Key Selection
         Container(
           key: const Key("scales_key_selection"),
-          padding: const EdgeInsets.all(ReferenceUIConstants.containerPadding),
+          padding: const EdgeInsets.all(Spacing.md),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.secondaryContainer,
-            borderRadius: BorderRadius.circular(
-              ReferenceUIConstants.containerBorderRadius,
-            ),
+            borderRadius: BorderRadius.circular(AppBorderRadius.medium),
             border: Border.all(
-              color: Theme.of(context).colorScheme.secondary.withAlpha(
-                ReferenceUIConstants.borderAlpha,
+              color: Theme.of(context).colorScheme.secondary.withValues(
+                alpha: OpacityValues.borderMedium,
               ),
             ),
           ),
@@ -221,16 +218,15 @@ class _ReferencePageState extends State<ReferencePage> {
             children: [
               Text(
                 "Key",
-                style: TextStyle(
-                  fontSize: ReferenceUIConstants.sectionHeaderFontSize,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.onSecondaryContainer,
                 ),
               ),
-              const SizedBox(height: ReferenceUIConstants.chipSpacing),
+              const SizedBox(height: Spacing.sm),
               Wrap(
-                spacing: ReferenceUIConstants.chipSpacing,
-                runSpacing: ReferenceUIConstants.chipRunSpacing,
+                spacing: Spacing.sm,
+                runSpacing: Spacing.sm,
                 children: scales.Key.values.map((scales.Key key) {
                   final isSelected = _viewModel.selectedKey == key;
                   return FilterChip(
@@ -243,7 +239,7 @@ class _ReferencePageState extends State<ReferencePage> {
                       }
                     },
                     selectedColor: Theme.of(context).colorScheme.secondary
-                        .withAlpha(ReferenceUIConstants.selectedChipAlpha),
+                        .withValues(alpha: OpacityValues.backgroundMedium),
                     checkmarkColor: Theme.of(context).colorScheme.secondary,
                   );
                 }).toList(),
@@ -251,17 +247,15 @@ class _ReferencePageState extends State<ReferencePage> {
             ],
           ),
         ),
-        const SizedBox(height: ReferenceUIConstants.sectionSpacing),
+        const SizedBox(height: Spacing.md),
 
         // Scale Type Selection
         Container(
           key: const Key("scales_type_selection"),
-          padding: const EdgeInsets.all(ReferenceUIConstants.containerPadding),
+          padding: const EdgeInsets.all(Spacing.md),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.secondaryContainer,
-            borderRadius: BorderRadius.circular(
-              ReferenceUIConstants.containerBorderRadius,
-            ),
+            borderRadius: BorderRadius.circular(AppBorderRadius.medium),
             border: Border.all(color: Theme.of(context).colorScheme.outline),
           ),
           child: Column(
@@ -269,23 +263,21 @@ class _ReferencePageState extends State<ReferencePage> {
             children: [
               Text(
                 "Scale Type",
-                style: TextStyle(
-                  fontSize: ReferenceUIConstants.sectionHeaderFontSize,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.secondary,
                 ),
               ),
-              const SizedBox(height: ReferenceUIConstants.chipSpacing),
+              const SizedBox(height: Spacing.sm),
               Wrap(
-                spacing: ReferenceUIConstants.chipSpacing,
-                runSpacing: ReferenceUIConstants.chipRunSpacing,
+                spacing: Spacing.sm,
+                runSpacing: Spacing.sm,
                 children: scales.ScaleType.values.map((scales.ScaleType type) {
                   final isSelected = _viewModel.selectedScaleType == type;
                   return FilterChip(
                     key: Key("scales_type_${type.name}"),
                     label: Text(
-                      ReferenceUIConstants.scaleTypeNames[type.name] ??
-                          type.name,
+                      MusicalConstants.scaleTypeNames[type.name] ?? type.name,
                     ),
                     selected: isSelected,
                     onSelected: (selected) {
@@ -313,12 +305,10 @@ class _ReferencePageState extends State<ReferencePage> {
         // Key Selection
         Container(
           key: const Key("chords_root_selection"),
-          padding: const EdgeInsets.all(ReferenceUIConstants.containerPadding),
+          padding: const EdgeInsets.all(Spacing.md),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.tertiaryContainer,
-            borderRadius: BorderRadius.circular(
-              ReferenceUIConstants.containerBorderRadius,
-            ),
+            borderRadius: BorderRadius.circular(AppBorderRadius.medium),
             border: Border.all(color: Theme.of(context).colorScheme.outline),
           ),
           child: Column(
@@ -326,16 +316,15 @@ class _ReferencePageState extends State<ReferencePage> {
             children: [
               Text(
                 "Root Note",
-                style: TextStyle(
-                  fontSize: ReferenceUIConstants.sectionHeaderFontSize,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.tertiary,
                 ),
               ),
-              const SizedBox(height: ReferenceUIConstants.chipSpacing),
+              const SizedBox(height: Spacing.sm),
               Wrap(
-                spacing: ReferenceUIConstants.chipSpacing,
-                runSpacing: ReferenceUIConstants.chipRunSpacing,
+                spacing: Spacing.sm,
+                runSpacing: Spacing.sm,
                 children: scales.Key.values.map((scales.Key key) {
                   final isSelected = _viewModel.selectedKey == key;
                   return FilterChip(
@@ -357,17 +346,15 @@ class _ReferencePageState extends State<ReferencePage> {
             ],
           ),
         ),
-        const SizedBox(height: ReferenceUIConstants.sectionSpacing),
+        const SizedBox(height: Spacing.md),
 
         // Chord Type Selection
         Container(
           key: const Key("chords_type_selection"),
-          padding: const EdgeInsets.all(ReferenceUIConstants.containerPadding),
+          padding: const EdgeInsets.all(Spacing.md),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.tertiaryContainer,
-            borderRadius: BorderRadius.circular(
-              ReferenceUIConstants.containerBorderRadius,
-            ),
+            borderRadius: BorderRadius.circular(AppBorderRadius.medium),
             border: Border.all(color: Theme.of(context).colorScheme.outline),
           ),
           child: Column(
@@ -375,23 +362,21 @@ class _ReferencePageState extends State<ReferencePage> {
             children: [
               Text(
                 "Chord Type",
-                style: TextStyle(
-                  fontSize: ReferenceUIConstants.sectionHeaderFontSize,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.tertiary,
                 ),
               ),
-              const SizedBox(height: ReferenceUIConstants.chipSpacing),
+              const SizedBox(height: Spacing.sm),
               Wrap(
-                spacing: ReferenceUIConstants.chipSpacing,
-                runSpacing: ReferenceUIConstants.chipRunSpacing,
+                spacing: Spacing.sm,
+                runSpacing: Spacing.sm,
                 children: ChordType.values.map((type) {
                   final isSelected = _viewModel.selectedChordType == type;
                   return FilterChip(
                     key: Key("chords_type_${type.name}"),
                     label: Text(
-                      ReferenceUIConstants.chordTypeNames[type.name] ??
-                          type.name,
+                      MusicalConstants.chordTypeNames[type.name] ?? type.name,
                     ),
                     selected: isSelected,
                     onSelected: (selected) {
@@ -409,17 +394,15 @@ class _ReferencePageState extends State<ReferencePage> {
             ],
           ),
         ),
-        const SizedBox(height: ReferenceUIConstants.sectionSpacing),
+        const SizedBox(height: Spacing.md),
 
         // Chord Inversion Selection
         Container(
           key: const Key("chords_inversion_selection"),
-          padding: const EdgeInsets.all(ReferenceUIConstants.containerPadding),
+          padding: const EdgeInsets.all(Spacing.md),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.tertiaryContainer,
-            borderRadius: BorderRadius.circular(
-              ReferenceUIConstants.containerBorderRadius,
-            ),
+            borderRadius: BorderRadius.circular(AppBorderRadius.medium),
             border: Border.all(color: Theme.of(context).colorScheme.outline),
           ),
           child: Column(
@@ -427,24 +410,22 @@ class _ReferencePageState extends State<ReferencePage> {
             children: [
               Text(
                 "Inversion",
-                style: TextStyle(
-                  fontSize: ReferenceUIConstants.sectionHeaderFontSize,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.tertiary,
                 ),
               ),
-              const SizedBox(height: ReferenceUIConstants.chipSpacing),
+              const SizedBox(height: Spacing.sm),
               Wrap(
-                spacing: ReferenceUIConstants.chipSpacing,
-                runSpacing: ReferenceUIConstants.chipRunSpacing,
+                spacing: Spacing.sm,
+                runSpacing: Spacing.sm,
                 children: ChordInversion.values.map((inversion) {
                   final isSelected =
                       _viewModel.selectedChordInversion == inversion;
                   return FilterChip(
                     key: Key("chords_inversion_${inversion.name}"),
                     label: Text(
-                      ReferenceUIConstants.chordInversionNames[inversion
-                              .name] ??
+                      MusicalConstants.chordInversionNames[inversion.name] ??
                           inversion.name,
                     ),
                     selected: isSelected,

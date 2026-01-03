@@ -280,7 +280,7 @@ class PracticeSettingsPanel extends StatelessWidget {
 
     return Container(
       key: panelKey,
-      padding: const EdgeInsets.all(PracticeUIConstants.panelPadding),
+      padding: const EdgeInsets.all(Spacing.lg),
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(AppBorderRadius.medium),

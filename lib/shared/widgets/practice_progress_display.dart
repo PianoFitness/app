@@ -82,7 +82,7 @@ class PracticeProgressDisplay extends StatelessWidget {
                 TextStyle(color: colorScheme.onSurface),
           ),
           if (stepDisplayName != null) ...[
-            const SizedBox(height: PracticeUIConstants.progressLabelSpacing),
+            const SizedBox(height: Spacing.xs),
             Text(
               stepDisplayName,
               style:
@@ -92,7 +92,7 @@ class PracticeProgressDisplay extends StatelessWidget {
                   TextStyle(color: colorScheme.onSurfaceVariant),
             ),
           ],
-          const SizedBox(height: PracticeUIConstants.progressBarSpacing),
+          const SizedBox(height: Spacing.sm),
           LinearProgressIndicator(
             value: ((currentStepIndex + 1).clamp(0, totalSteps)) / totalSteps,
             backgroundColor: colorScheme.outline.withValues(alpha: 0.2),
