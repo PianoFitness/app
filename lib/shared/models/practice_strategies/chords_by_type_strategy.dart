@@ -33,19 +33,12 @@ class ChordsByTypeStrategy implements PracticeStrategy {
   /// The starting octave for the chords.
   final int startOctave;
 
-  /// The generated chord exercise (populated after initialization).
-  ChordByType? _exercise;
-
-  /// Returns the generated chord exercise, or null if not yet initialized.
-  ChordByType? get exercise => _exercise;
-
   @override
   PracticeExercise initializeExercise() {
     final exercise = ChordByTypeDefinitions.getChordTypeExercise(
       chordType,
       includeInversions: includeInversions,
     );
-    _exercise = exercise;
 
     final chordProgression = exercise.generateChordSequence();
 

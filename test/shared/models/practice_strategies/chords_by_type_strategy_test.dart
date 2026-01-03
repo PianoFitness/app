@@ -19,7 +19,6 @@ void main() {
       expect(exercise.metadata?["exerciseType"], "chordsByType");
       expect(exercise.metadata?["chordType"], "major");
       expect(exercise.metadata?["handSelection"], "both");
-      expect(strategy.exercise, isNotNull);
       // 12 keys without inversions
       expect(exercise.steps.length, 12);
     });
@@ -38,7 +37,6 @@ void main() {
       expect(exercise.metadata?["exerciseType"], "chordsByType");
       expect(exercise.metadata?["chordType"], "minor");
       expect(exercise.metadata?["handSelection"], "right");
-      expect(strategy.exercise, isNotNull);
       // 12 keys * 3 inversions = 36 chords
       expect(exercise.steps.length, 36);
     });
@@ -75,22 +73,6 @@ void main() {
       expect(exercise.metadata?["chordType"], "augmented");
       expect(exercise.metadata?["handSelection"], "both");
       expect(exercise.steps.length, 12);
-    });
-
-    test("should populate exercise property after initialization", () {
-      final strategy = ChordsByTypeStrategy(
-        chordType: ChordType.major,
-        includeInversions: false,
-        handSelection: HandSelection.both,
-        startOctave: 4,
-      );
-
-      expect(strategy.exercise, isNull);
-
-      strategy.initializeExercise();
-
-      expect(strategy.exercise, isNotNull);
-      expect(strategy.exercise!.type, ChordType.major);
     });
 
     test("should handle left hand selection correctly", () {

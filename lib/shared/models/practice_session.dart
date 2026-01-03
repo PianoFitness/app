@@ -52,7 +52,6 @@ class PracticeSession {
   // Chord type-specific state
   ChordType _selectedChordType = ChordType.major;
   bool _includeInversions = true;
-  ChordByType? _selectedChordByType;
 
   // Hand selection state
   HandSelection _selectedHandSelection = HandSelection.both;
@@ -90,9 +89,6 @@ class PracticeSession {
 
   /// Whether to include inversions in chord type exercises.
   bool get includeInversions => _includeInversions;
-
-  /// The currently selected chord by type exercise.
-  ChordByType? get selectedChordByType => _selectedChordByType;
 
   /// The currently selected hand for practice exercises.
   HandSelection get selectedHandSelection => _selectedHandSelection;
@@ -253,12 +249,6 @@ class PracticeSession {
     _currentExercise = strategy.initializeExercise();
     _currentStepIndex = 0;
     _currentlyHeldNotes.clear();
-
-    // Update chord-specific state for chordsByType mode
-    if (_practiceMode == PracticeMode.chordsByType &&
-        strategy is ChordsByTypeStrategy) {
-      _selectedChordByType = strategy.exercise;
-    }
 
     // Update chord progression for chordProgressions mode
     if (_practiceMode == PracticeMode.chordProgressions &&
