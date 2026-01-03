@@ -1,8 +1,10 @@
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
-import "package:piano_fitness/shared/theme/semantic_colors.dart";
+import "package:piano_fitness/features/notifications/notifications_constants.dart";
 import "package:piano_fitness/features/notifications/notifications_page_view_model.dart";
 import "package:piano_fitness/features/notifications/widgets/notification_permission_dialog.dart";
+import "package:piano_fitness/shared/constants/ui_constants.dart";
+import "package:piano_fitness/shared/theme/semantic_colors.dart";
 
 /// Notifications configuration page for managing user notification preferences.
 ///
@@ -71,8 +73,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
         final isTablet = constraints.maxWidth >= 768;
         final isLandscape = constraints.maxWidth > constraints.maxHeight;
         final padding = isTablet
-            ? (isLandscape ? 24.0 : 20.0)
-            : (isLandscape ? 16.0 : 12.0);
+            ? (isLandscape ? Spacing.lg : Spacing.md)
+            : (isLandscape ? Spacing.md : Spacing.sm);
 
         return SingleChildScrollView(
           padding: EdgeInsets.all(padding),
@@ -105,7 +107,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
     final settings = viewModel.settings;
 
     return Container(
-      padding: EdgeInsets.all(isTablet ? 20.0 : 16.0),
+      padding: EdgeInsets.all(
+        NotificationsUIConstants.sectionPadding(isTablet),
+      ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -115,7 +119,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppBorderRadius.large),
         border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
       ),
       child: Column(
@@ -130,9 +134,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 color: settings.permissionGranted
                     ? context.semanticColors.success
                     : colorScheme.outline,
-                size: isTablet ? 24 : 20,
+                size: NotificationsUIConstants.sectionIconSize(isTablet),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: Spacing.sm),
               Expanded(
                 child: Text(
                   "Notification Permission",
@@ -144,7 +148,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: NotificationsUIConstants.sectionSmallSpacing),
           Text(
             settings.permissionGranted
                 ? "Notifications are enabled and ready to use."
@@ -168,16 +172,18 @@ class _NotificationsPageState extends State<NotificationsPage> {
     final settings = viewModel.settings;
 
     return Container(
-      padding: EdgeInsets.all(isTablet ? 20.0 : 16.0),
+      padding: EdgeInsets.all(
+        NotificationsUIConstants.sectionPadding(isTablet),
+      ),
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppBorderRadius.large),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
             color: colorScheme.shadow.withValues(alpha: 0.05),
             blurRadius: 8,
-            offset: const Offset(0, 2),
+            offset: NotificationsUIConstants.shadowOffset,
           ),
         ],
       ),
@@ -189,9 +195,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
               Icon(
                 Icons.timer,
                 color: colorScheme.tertiary,
-                size: isTablet ? 24 : 20,
+                size: NotificationsUIConstants.sectionIconSize(isTablet),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: Spacing.sm),
               Expanded(
                 child: Text(
                   "Practice Timer Completion",
@@ -225,7 +231,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: NotificationsUIConstants.sectionSmallSpacing),
           Text(
             "Get notified when your practice timer completes, even when the app is in the background.",
             style: theme.textTheme.bodyMedium?.copyWith(
@@ -248,16 +254,18 @@ class _NotificationsPageState extends State<NotificationsPage> {
     final settings = viewModel.settings;
 
     return Container(
-      padding: EdgeInsets.all(isTablet ? 20.0 : 16.0),
+      padding: EdgeInsets.all(
+        NotificationsUIConstants.sectionPadding(isTablet),
+      ),
       decoration: BoxDecoration(
         color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppBorderRadius.large),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
             color: colorScheme.shadow.withValues(alpha: 0.05),
             blurRadius: 8,
-            offset: const Offset(0, 2),
+            offset: NotificationsUIConstants.shadowOffset,
           ),
         ],
       ),
@@ -269,9 +277,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
               Icon(
                 Icons.schedule,
                 color: colorScheme.secondary,
-                size: isTablet ? 24 : 20,
+                size: NotificationsUIConstants.sectionIconSize(isTablet),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: Spacing.sm),
               Expanded(
                 child: Text(
                   "Daily Practice Reminder",
@@ -314,12 +322,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: NotificationsUIConstants.sectionSmallSpacing),
           if (settings.practiceRemindersEnabled &&
               settings.dailyReminderTime != null) ...[
             Row(
               children: [
-                const SizedBox(width: 32),
+                const SizedBox(width: Spacing.xl),
                 Text(
                   "Reminder time: ${settings.dailyReminderTime!.format(context)}",
                   style: theme.textTheme.bodyMedium?.copyWith(
@@ -339,7 +347,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(
+              height: NotificationsUIConstants.sectionSmallSpacing,
+            ),
           ],
           Text(
             "Receive a daily notification at your chosen time to remind you to practice piano.",
@@ -362,7 +372,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
     final colorScheme = theme.colorScheme;
 
     return Container(
-      padding: EdgeInsets.all(isTablet ? 20.0 : 16.0),
+      padding: EdgeInsets.all(
+        NotificationsUIConstants.sectionPadding(isTablet),
+      ),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -370,7 +382,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             colorScheme.tertiaryContainer.withValues(alpha: 0.1),
           ],
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppBorderRadius.large),
         border: Border.all(
           color: context.semanticColors.warning.withValues(alpha: 0.3),
         ),
@@ -380,9 +392,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
           Icon(
             Icons.notifications_active,
             color: context.semanticColors.warning,
-            size: isTablet ? 32 : 28,
+            size: NotificationsUIConstants.permissionPromptIconSize(isTablet),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: NotificationsUIConstants.sectionInnerSpacing),
           Text(
             "Enable Notifications",
             style: theme.textTheme.titleMedium?.copyWith(
@@ -391,7 +403,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: NotificationsUIConstants.sectionSmallSpacing),
           Text(
             "To use notification features, please grant permission when prompted.",
             style: theme.textTheme.bodyMedium?.copyWith(
@@ -399,18 +411,17 @@ class _NotificationsPageState extends State<NotificationsPage> {
             ),
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(
+            height: NotificationsUIConstants.permissionPromptSpacing,
+          ),
           ElevatedButton(
             onPressed: () => _requestPermissions(context, viewModel),
             style: ElevatedButton.styleFrom(
               backgroundColor: context.semanticColors.warning,
               foregroundColor: colorScheme.onTertiary,
-              padding: EdgeInsets.symmetric(
-                horizontal: isTablet ? 32 : 24,
-                vertical: isTablet ? 16 : 12,
-              ),
+              padding: NotificationsUIConstants.buttonPadding(isTablet),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppBorderRadius.medium),
               ),
             ),
             child: const Text("Grant Permission"),
@@ -437,7 +448,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Notification permission is required for this feature"),
-          duration: Duration(seconds: 2),
+          duration: NotificationsUIConstants.snackbarDuration,
         ),
       );
     }
@@ -460,11 +471,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Future<TimeOfDay?> _showTimePicker(BuildContext context) async {
-    const defaultTime = TimeOfDay(hour: 18, minute: 0); // 6:00 PM default
-
     return showTimePicker(
       context: context,
-      initialTime: defaultTime,
+      initialTime: NotificationsUIConstants.defaultReminderTime,
       helpText: "Select practice reminder time",
       builder: (context, child) {
         return Theme(
