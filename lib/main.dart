@@ -1,6 +1,7 @@
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:logging/logging.dart";
+import "package:piano_fitness/shared/constants/typography_constants.dart";
 import "package:piano_fitness/shared/services/notification_service.dart";
 import "package:piano_fitness/shared/theme/semantic_colors.dart";
 import "package:piano_fitness/shared/widgets/main_navigation.dart";
@@ -54,33 +55,34 @@ void main() async {
 /// Creates a custom TextTheme matching the app's design system.
 ///
 /// Based on the Piano Fitness design specification with consistent font sizing
-/// across display, headline, body, and label text styles.
+/// across display, headline, body, and label text styles. Font sizes are defined
+/// in [FontSizes] for maintainability.
 TextTheme _createTextTheme() {
   return const TextTheme(
     // Display styles - largest text
-    displayLarge: TextStyle(fontSize: 32),
-    displayMedium: TextStyle(fontSize: 28),
-    displaySmall: TextStyle(fontSize: 24),
+    displayLarge: TextStyle(fontSize: FontSizes.displayLarge),
+    displayMedium: TextStyle(fontSize: FontSizes.displayMedium),
+    displaySmall: TextStyle(fontSize: FontSizes.displaySmall),
 
     // Headline styles - section headers
-    headlineLarge: TextStyle(fontSize: 20),
-    headlineMedium: TextStyle(fontSize: 18),
-    headlineSmall: TextStyle(fontSize: 16),
+    headlineLarge: TextStyle(fontSize: FontSizes.headlineLarge),
+    headlineMedium: TextStyle(fontSize: FontSizes.headlineMedium),
+    headlineSmall: TextStyle(fontSize: FontSizes.headlineSmall),
 
     // Title styles - component titles
-    titleLarge: TextStyle(fontSize: 20),
-    titleMedium: TextStyle(fontSize: 16),
-    titleSmall: TextStyle(fontSize: 14),
+    titleLarge: TextStyle(fontSize: FontSizes.titleLarge),
+    titleMedium: TextStyle(fontSize: FontSizes.titleMedium),
+    titleSmall: TextStyle(fontSize: FontSizes.titleSmall),
 
     // Body styles - main content
-    bodyLarge: TextStyle(fontSize: 16),
-    bodyMedium: TextStyle(fontSize: 14),
-    bodySmall: TextStyle(fontSize: 12),
+    bodyLarge: TextStyle(fontSize: FontSizes.bodyLarge),
+    bodyMedium: TextStyle(fontSize: FontSizes.bodyMedium),
+    bodySmall: TextStyle(fontSize: FontSizes.bodySmall),
 
     // Label styles - buttons, chips, small text
-    labelLarge: TextStyle(fontSize: 14),
-    labelMedium: TextStyle(fontSize: 12),
-    labelSmall: TextStyle(fontSize: 10),
+    labelLarge: TextStyle(fontSize: FontSizes.labelLarge),
+    labelMedium: TextStyle(fontSize: FontSizes.labelMedium),
+    labelSmall: TextStyle(fontSize: FontSizes.labelSmall),
   );
 }
 
