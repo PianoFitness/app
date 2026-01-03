@@ -3,7 +3,9 @@ import "package:piano/piano.dart";
 import "package:piano_fitness/shared/constants/musical_constants.dart";
 import "package:piano_fitness/shared/models/chord_progression_type.dart";
 import "package:piano_fitness/shared/models/hand_selection.dart";
+import "package:piano_fitness/shared/models/practice_exercise.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
+import "package:piano_fitness/shared/models/practice_strategies/practice_strategies.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
 import "package:piano_fitness/shared/utils/chords.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
@@ -231,91 +233,108 @@ class PracticeSession {
     _initializeSequence();
   }
 
+  /// Creates the appropriate strategy based on the current practice mode.
+  PracticeStrategy _createStrategy() {
+    switch (_practiceMode) {
+      case PracticeMode.scales:
+        return ScalesStrategy(
+          key: _selectedKey,
+          scaleType: _selectedScaleType,
+          handSelection: _selectedHandSelection,
+          startOctave: defaultStartOctave,
+        );
+      case PracticeMode.arpeggios:
+        return ArpeggiosStrategy(
+          rootNote: _selectedRootNote,
+          arpeggioType: _selectedArpeggioType,
+          arpeggioOctaves: _selectedArpeggioOctaves,
+          handSelection: _selectedHandSelection,
+          startOctave: defaultStartOctave,
+        );
+      case PracticeMode.chordsByKey:
+        return ChordsByKeyStrategy(
+          key: _selectedKey,
+          scaleType: _selectedScaleType,
+          startOctave: defaultStartOctave,
+        );
+      case PracticeMode.chordsByType:
+        return ChordsByTypeStrategy(
+          chordType: _selectedChordType,
+          includeInversions: _includeInversions,
+          startOctave: defaultStartOctave,
+        );
+      case PracticeMode.chordProgressions:
+        return ChordProgressionsStrategy(
+          key: _selectedKey,
+          chordProgression: _selectedChordProgression,
+          startOctave: defaultStartOctave,
+        );
+    }
+  }
+
   void _initializeSequence() {
-    if (_practiceMode == PracticeMode.scales) {
-      final scale = music.ScaleDefinitions.getScale(
-        _selectedKey,
-        _selectedScaleType,
-      );
-      _currentSequence = scale.getHandSequence(
-        defaultStartOctave,
-        _selectedHandSelection,
-      );
-      _currentNoteIndex = 0;
-      _updateHighlightedNotes();
-    } else if (_practiceMode == PracticeMode.chordsByKey) {
-      _currentChordProgression = ChordDefinitions.getSmoothKeyTriadProgression(
-        _selectedKey,
-        _selectedScaleType,
-      );
-      _currentSequence = ChordDefinitions.getSmoothChordProgressionMidiSequence(
-        _selectedKey,
-        _selectedScaleType,
-        defaultStartOctave,
-      );
-      _currentNoteIndex = 0;
-      _currentChordIndex = 0;
-      _currentlyHeldNotes.clear();
-      _updateHighlightedNotes();
-    } else if (_practiceMode == PracticeMode.arpeggios) {
-      final arpeggio = ArpeggioDefinitions.getArpeggio(
-        _selectedRootNote,
-        _selectedArpeggioType,
-        _selectedArpeggioOctaves,
-      );
-      _currentSequence = arpeggio.getHandSequence(
-        defaultStartOctave,
-        _selectedHandSelection,
-      );
-      _currentNoteIndex = 0;
-      _updateHighlightedNotes();
-    } else if (_practiceMode == PracticeMode.chordsByType) {
-      // Generate chord type exercise - always use all 12 keys for chord planing
-      final exercise = ChordByTypeDefinitions.getChordTypeExercise(
-        _selectedChordType,
-        includeInversions: _includeInversions,
-      );
-      _selectedChordByType = exercise;
-      _currentChordProgression = exercise.generateChordSequence();
-      _currentSequence = exercise.getMidiSequenceFrom(
-        _currentChordProgression,
-        defaultStartOctave,
-      );
-      _currentNoteIndex = 0;
-      _currentChordIndex = 0;
-      _currentlyHeldNotes.clear();
-      _updateHighlightedNotes();
-    } else if (_practiceMode == PracticeMode.chordProgressions) {
-      // For chord progressions, generate based on the selected progression
-      if (_selectedChordProgression != null) {
-        _currentChordProgression = _selectedChordProgression!.generateChords(
-          _selectedKey,
-        );
-        _currentSequence = _generateChordProgressionMidiSequence(
-          _currentChordProgression,
-          defaultStartOctave,
-        );
-      } else {
-        // Default to I-V if no progression selected
-        final defaultProgression = ChordProgressionLibrary.getProgressionByName(
-          "I - V",
-        );
-        if (defaultProgression != null) {
-          _selectedChordProgression = defaultProgression;
-          _currentChordProgression = defaultProgression.generateChords(
-            _selectedKey,
-          );
-          _currentSequence = _generateChordProgressionMidiSequence(
-            _currentChordProgression,
-            defaultStartOctave,
-          );
+    final strategy = _createStrategy();
+    final exercise = strategy.initializeExercise();
+
+    // Extract sequence and chord progression from unified exercise model
+    // TODO: Fully migrate to PracticeExercise in future refactoring
+    _currentSequence = exercise.steps.expand((step) => step.notes).toList();
+    _currentChordProgression = _extractChordProgression(exercise);
+    _currentNoteIndex = 0;
+    _currentChordIndex = 0;
+    _currentlyHeldNotes.clear();
+
+    // Update chord-specific state for chordsByType mode
+    if (_practiceMode == PracticeMode.chordsByType &&
+        strategy is ChordsByTypeStrategy) {
+      _selectedChordByType = strategy.exercise;
+    }
+
+    // Update chord progression for chordProgressions mode
+    if (_practiceMode == PracticeMode.chordProgressions &&
+        strategy is ChordProgressionsStrategy) {
+      _selectedChordProgression = strategy.chordProgression;
+    }
+
+    _updateHighlightedNotes();
+  }
+
+  /// Extracts chord progression from exercise for chord-based modes.
+  /// Returns empty list for non-chord exercises.
+  List<ChordInfo> _extractChordProgression(PracticeExercise exercise) {
+    final exerciseType = exercise.metadata?["exerciseType"] as String?;
+
+    // Only extract chord progression for chord-based exercises
+    if (exerciseType == null ||
+        ![
+          "chordsByKey",
+          "chordsByType",
+          "chordProgressions",
+        ].contains(exerciseType)) {
+      return [];
+    }
+
+    // Rebuild ChordInfo objects from step metadata
+    final chords = <ChordInfo>[];
+    for (final step in exercise.steps) {
+      if (step.type == StepType.simultaneous && step.metadata != null) {
+        final metadata = step.metadata!;
+        final rootNoteName = metadata["rootNote"] as String?;
+        final chordTypeName = metadata["chordType"] as String?;
+        final inversionName = metadata["inversion"] as String?;
+
+        if (rootNoteName != null &&
+            chordTypeName != null &&
+            inversionName != null) {
+          final rootNote = MusicalNote.values.byName(rootNoteName);
+          final chordType = ChordType.values.byName(chordTypeName);
+          final inversion = ChordInversion.values.byName(inversionName);
+
+          chords.add(ChordDefinitions.getChord(rootNote, chordType, inversion));
         }
       }
-      _currentNoteIndex = 0;
-      _currentChordIndex = 0;
-      _currentlyHeldNotes.clear();
-      _updateHighlightedNotes();
     }
+    return chords;
   }
 
   void _updateHighlightedNotes() {
@@ -497,24 +516,6 @@ class PracticeSession {
     _currentChordIndex = 0;
     _currentlyHeldNotes.clear();
     _updateHighlightedNotes();
-  }
-
-  /// Generates a MIDI note sequence from a list of ChordInfo objects.
-  ///
-  /// Returns a flattened list of MIDI note numbers representing all the notes
-  /// in the chord progression, starting from the specified octave.
-  List<int> _generateChordProgressionMidiSequence(
-    List<ChordInfo> chordProgression,
-    int startOctave,
-  ) {
-    final midiSequence = <int>[];
-
-    for (final chord in chordProgression) {
-      final chordMidi = chord.getMidiNotes(startOctave);
-      midiSequence.addAll(chordMidi);
-    }
-
-    return midiSequence;
   }
 
   /// Starts a new practice session with the current exercise configuration.
