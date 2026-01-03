@@ -61,20 +61,18 @@ class ArpeggiosStrategy implements PracticeStrategy {
       // Both hands: notes are paired [L1, R1, L2, R2, ...]
       // Each pair should be played simultaneously
       for (var i = 0; i < sequence.length; i += 2) {
-        if (i + 1 < sequence.length) {
-          final position = (i ~/ 2) + 1;
-          steps.add(
-            PracticeStep(
-              notes: [sequence[i], sequence[i + 1]],
-              type: StepType.paired,
-              metadata: {
-                "hand": "both",
-                "position": position,
-                "displayName": "Note $position (Both Hands)",
-              },
-            ),
-          );
-        }
+        final position = (i ~/ 2) + 1;
+        steps.add(
+          PracticeStep(
+            notes: [sequence[i], sequence[i + 1]],
+            type: StepType.paired,
+            metadata: {
+              "hand": "both",
+              "position": position,
+              "displayName": "Note $position (Both Hands)",
+            },
+          ),
+        );
       }
     } else {
       // Single hand: each note is played sequentially
