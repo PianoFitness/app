@@ -103,7 +103,7 @@ class _RepertoirePageState extends State<RepertoirePage> {
                                   color: colorScheme.primary.withValues(
                                     alpha: OpacityValues.shadowMedium,
                                   ),
-                                  blurRadius: Spacing.sm,
+                                  blurRadius: 8.0, // Standard card shadow blur
                                   offset: const Offset(0, 2),
                                 ),
                               ],
