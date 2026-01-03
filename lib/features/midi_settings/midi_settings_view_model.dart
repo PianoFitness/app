@@ -4,6 +4,7 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:logging/logging.dart";
+import "package:piano_fitness/shared/constants/ui_constants.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/services/midi_connection_service.dart";
 import "package:piano_fitness/shared/services/midi_service.dart";
@@ -226,7 +227,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
       _log.info("Waiting for Bluetooth initialization");
 
       await _midiCommand.waitUntilBluetoothIsInitialized().timeout(
-        const Duration(seconds: 5),
+        MidiConstants.bluetoothInitTimeout,
         onTimeout: () {
           _log.warning("Failed to initialize Bluetooth in time");
         },
@@ -245,7 +246,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
 
         showSnackBar("Scanning for Bluetooth MIDI devices...");
 
-        await Future<void>.delayed(const Duration(seconds: 3));
+        await Future<void>.delayed(MidiConstants.scanningDuration);
         await updateDeviceList();
 
         _midiStatus = _devices.isEmpty

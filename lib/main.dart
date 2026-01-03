@@ -1,6 +1,7 @@
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:logging/logging.dart";
+import "package:piano_fitness/shared/constants/typography_constants.dart";
 import "package:piano_fitness/shared/services/notification_service.dart";
 import "package:piano_fitness/shared/theme/semantic_colors.dart";
 import "package:piano_fitness/shared/widgets/main_navigation.dart";
@@ -51,6 +52,40 @@ void main() async {
   runApp(const MyApp());
 }
 
+/// Creates a custom TextTheme matching the app's design system.
+///
+/// Based on the Piano Fitness design specification with consistent font sizing
+/// across display, headline, body, and label text styles. Font sizes are defined
+/// in [FontSizes] for maintainability.
+TextTheme _createTextTheme() {
+  return const TextTheme(
+    // Display styles - largest text
+    displayLarge: TextStyle(fontSize: FontSizes.displayLarge),
+    displayMedium: TextStyle(fontSize: FontSizes.displayMedium),
+    displaySmall: TextStyle(fontSize: FontSizes.displaySmall),
+
+    // Headline styles - section headers
+    headlineLarge: TextStyle(fontSize: FontSizes.headlineLarge),
+    headlineMedium: TextStyle(fontSize: FontSizes.headlineMedium),
+    headlineSmall: TextStyle(fontSize: FontSizes.headlineSmall),
+
+    // Title styles - component titles
+    titleLarge: TextStyle(fontSize: FontSizes.titleLarge),
+    titleMedium: TextStyle(fontSize: FontSizes.titleMedium),
+    titleSmall: TextStyle(fontSize: FontSizes.titleSmall),
+
+    // Body styles - main content
+    bodyLarge: TextStyle(fontSize: FontSizes.bodyLarge),
+    bodyMedium: TextStyle(fontSize: FontSizes.bodyMedium),
+    bodySmall: TextStyle(fontSize: FontSizes.bodySmall),
+
+    // Label styles - buttons, chips, small text
+    labelLarge: TextStyle(fontSize: FontSizes.labelLarge),
+    labelMedium: TextStyle(fontSize: FontSizes.labelMedium),
+    labelSmall: TextStyle(fontSize: FontSizes.labelSmall),
+  );
+}
+
 /// The root widget of the Piano Fitness application.
 ///
 /// Sets up the app theme and defines the initial navigation structure.
@@ -67,6 +102,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
+        textTheme: _createTextTheme(),
         extensions: const <ThemeExtension<dynamic>>[SemanticColors.light],
       ),
       darkTheme: ThemeData(
@@ -75,6 +111,7 @@ class MyApp extends StatelessWidget {
           brightness: Brightness.dark,
         ),
         useMaterial3: true,
+        textTheme: _createTextTheme(),
         extensions: const <ThemeExtension<dynamic>>[SemanticColors.dark],
       ),
       home: const MainNavigation(),

@@ -1,4 +1,6 @@
 import "package:flutter/material.dart";
+import "package:piano_fitness/features/practice/practice_constants.dart";
+import "package:piano_fitness/shared/constants/ui_constants.dart";
 import "package:piano_fitness/shared/models/practice_exercise.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/practice_accessibility_utils.dart";
@@ -63,33 +65,34 @@ class PracticeProgressDisplay extends StatelessWidget {
 
     return Container(
       key: const Key("ppd_container"),
-      padding: const EdgeInsets.all(12),
+      padding: PracticeUIConstants.progressPadding,
       decoration: BoxDecoration(
         color: colorScheme.secondaryContainer.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppBorderRadius.small),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.5)),
       ),
       child: Column(
         children: [
           Text(
             "Step ${currentStepIndex + 1}/$totalSteps",
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: colorScheme.onSurface,
-            ),
+            style:
+                theme.textTheme.titleMedium?.copyWith(
+                  color: colorScheme.onSurface,
+                ) ??
+                TextStyle(color: colorScheme.onSurface),
           ),
           if (stepDisplayName != null) ...[
-            const SizedBox(height: 4),
+            const SizedBox(height: Spacing.xs),
             Text(
               stepDisplayName,
-              style: TextStyle(
-                fontSize: 14,
-                color: colorScheme.onSurfaceVariant,
-                fontWeight: FontWeight.w500,
-              ),
+              style:
+                  theme.textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ) ??
+                  TextStyle(color: colorScheme.onSurfaceVariant),
             ),
           ],
-          const SizedBox(height: 8),
+          const SizedBox(height: Spacing.sm),
           LinearProgressIndicator(
             value: ((currentStepIndex + 1).clamp(0, totalSteps)) / totalSteps,
             backgroundColor: colorScheme.outline.withValues(alpha: 0.2),

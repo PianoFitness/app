@@ -1,7 +1,9 @@
 import "package:flutter/material.dart";
 import "package:piano/piano.dart";
+import "package:piano_fitness/features/play/play_constants.dart";
 import "package:piano_fitness/features/play/play_page_view_model.dart";
 import "package:piano_fitness/shared/accessibility/config/accessibility_labels.dart";
+import "package:piano_fitness/shared/constants/ui_constants.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_range_utils.dart";
 import "package:piano_fitness/shared/utils/piano_accessibility_utils.dart";
@@ -50,55 +52,65 @@ class _PlayPageState extends State<PlayPage> {
             child: SafeArea(
               bottom: false,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(Spacing.md),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 20),
+                    const SizedBox(height: Spacing.lg),
                     // Educational Content Area
                     Container(
-                      padding: const EdgeInsets.all(20),
+                      padding: const EdgeInsets.all(Spacing.lg),
                       decoration: BoxDecoration(
                         color: colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(
+                          AppBorderRadius.medium,
+                        ),
                         border: Border.all(color: colorScheme.outline),
                       ),
                       child: Column(
                         children: [
                           Icon(
                             Icons.piano,
-                            size: 32,
+                            size: ComponentDimensions.iconSizeXLarge,
                             color: colorScheme.primary,
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(height: Spacing.sm),
                           Text(
                             "Free Play Mode",
                             key: const Key("playPageTitle"),
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: colorScheme.onPrimaryContainer,
-                            ),
+                            style:
+                                Theme.of(
+                                  context,
+                                ).textTheme.headlineSmall?.copyWith(
+                                  color: colorScheme.onPrimaryContainer,
+                                ) ??
+                                TextStyle(
+                                  color: colorScheme.onPrimaryContainer,
+                                ),
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: Spacing.sm),
                           Text(
                             "Explore and play freely with the interactive piano. "
                             "Connect a MIDI keyboard for enhanced experience or use the virtual keys below.",
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: colorScheme.onPrimaryContainer,
-                            ),
+                            style:
+                                Theme.of(
+                                  context,
+                                ).textTheme.bodyMedium?.copyWith(
+                                  color: colorScheme.onPrimaryContainer,
+                                ) ??
+                                TextStyle(
+                                  color: colorScheme.onPrimaryContainer,
+                                ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: Spacing.md),
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
+                            padding: PlayUIConstants.infoBannerPadding,
                             decoration: BoxDecoration(
                               color: colorScheme.surface,
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(
+                                AppBorderRadius.small,
+                              ),
                               border: Border.all(color: colorScheme.outline),
                             ),
                             child: Row(
@@ -106,18 +118,20 @@ class _PlayPageState extends State<PlayPage> {
                               children: [
                                 Icon(
                                   Icons.info_outline,
-                                  size: 16,
+                                  size: ComponentDimensions.iconSizeSmall,
                                   color: colorScheme.onSurface,
                                 ),
-                                const SizedBox(width: 8),
+                                const SizedBox(width: Spacing.sm),
                                 Flexible(
                                   child: Text(
                                     "Looking for structured practice? Visit the Practice tab!",
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: colorScheme.onSurface,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                                    style:
+                                        Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall?.copyWith(
+                                          color: colorScheme.onSurface,
+                                        ) ??
+                                        TextStyle(color: colorScheme.onSurface),
                                   ),
                                 ),
                               ],

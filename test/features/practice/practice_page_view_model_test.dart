@@ -180,14 +180,11 @@ void main() {
     test("should handle virtual note playing without throwing", () async {
       const testNote = 60;
 
-      // This test verifies the method handles missing MIDI state gracefully
+      // This test verifies the method handles missing practice session gracefully
       final uninitializedViewModel = PracticePageViewModel();
 
-      // Should not crash when no MIDI state is set
-      expect(
-        () async => uninitializedViewModel.playVirtualNote(testNote),
-        returnsNormally,
-      );
+      // Should not crash when no practice session is initialized
+      await uninitializedViewModel.playVirtualNote(testNote, mounted: false);
 
       uninitializedViewModel.dispose();
     });

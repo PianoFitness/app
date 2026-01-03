@@ -8,7 +8,6 @@ import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/models/practice_session.dart";
 import "package:piano_fitness/shared/services/midi_connection_service.dart";
-import "package:piano_fitness/shared/services/midi_service.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
 import "package:piano_fitness/shared/utils/chords.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
@@ -94,39 +93,26 @@ class PracticePageViewModel extends ChangeNotifier {
       _log.severe("MIDI connection error: $error");
     };
 
-    _midiConnectionService.registerDataHandler(_dataHandler);
-    _midiConnectionService.registerErrorHandler(_errorHandler);
-    _midiConnectionService.connect();
+    _midiConnectionService
+      ..registerDataHandler(_dataHandler)
+      ..registerErrorHandler(_errorHandler)
+      ..connect();
   }
 
-  /// Handles incoming MIDI data and updates local state.
+  /// Handles incoming MIDI data using service-level helper.
+  ///
+  /// Delegates to [MidiConnectionService.handlePracticeMidiData] which
+  /// processes MIDI events, updates MIDI state, and coordinates with
+  /// the practice session (including auto-start logic).
+  ///
+  /// This method is public for testing purposes.
+  @visibleForTesting
   void handleMidiData(Uint8List data) {
-    MidiService.handleMidiData(data, (MidiEvent event) {
-      switch (event.type) {
-        case MidiEventType.noteOn:
-          _localMidiState.noteOn(event.data1, event.data2, event.channel);
-          if (_practiceSession != null) {
-            // Auto-start practice on first MIDI note if not already active
-            if (!_practiceSession!.practiceActive) {
-              _practiceSession!.startPractice();
-            }
-            _practiceSession?.handleNotePressed(event.data1);
-          }
-          break;
-        case MidiEventType.noteOff:
-          _localMidiState.noteOff(event.data1, event.channel);
-          if (_practiceSession != null) {
-            _practiceSession?.handleNoteReleased(event.data1);
-          }
-          break;
-        case MidiEventType.controlChange:
-        case MidiEventType.programChange:
-        case MidiEventType.pitchBend:
-        case MidiEventType.other:
-          _localMidiState.setLastNote(event.displayMessage);
-          break;
-      }
-    });
+    MidiConnectionService.handlePracticeMidiData(
+      data,
+      _localMidiState,
+      _practiceSession,
+    );
   }
 
   /// Starts the current practice session.
@@ -202,18 +188,13 @@ class PracticePageViewModel extends ChangeNotifier {
   }
 
   /// Plays a virtual note through MIDI output and triggers practice session.
+  ///
+  /// The practice session handles its own auto-start logic when notes are pressed.
   Future<void> playVirtualNote(int note, {bool mounted = true}) async {
-    if (_practiceSession == null) return;
-
-    // Auto-start practice on virtual note if not already active
-    if (!_practiceSession!.practiceActive) {
-      _practiceSession!.startPractice();
-    }
-
     await VirtualPianoUtils.playVirtualNote(
       note,
       _localMidiState,
-      _practiceSession!.handleNotePressed,
+      (note) => _practiceSession?.handleNotePressed(note),
       mounted: mounted,
     );
   }

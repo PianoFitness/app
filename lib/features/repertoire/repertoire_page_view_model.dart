@@ -2,6 +2,7 @@ import "dart:async";
 import "package:audioplayers/audioplayers.dart";
 import "package:flutter/foundation.dart";
 import "package:flutter/services.dart";
+import "package:piano_fitness/features/repertoire/repertoire_constants.dart";
 import "package:piano_fitness/shared/services/notification_manager.dart";
 import "package:piano_fitness/shared/services/notification_service.dart";
 
@@ -19,13 +20,15 @@ class RepertoirePageViewModel extends ChangeNotifier {
   Timer? _timer;
 
   // Timer state
-  int _selectedDurationMinutes = 15; // Default 15 minutes
-  int _remainingSeconds = 15 * 60; // 15 minutes in seconds
+  int _selectedDurationMinutes = RepertoireUIConstants.defaultDurationMinutes;
+  int _remainingSeconds =
+      RepertoireUIConstants.defaultDurationMinutes *
+      RepertoireUIConstants.secondsPerMinute;
   bool _isRunning = false;
   bool _isPaused = false;
 
   /// Available timer duration options in minutes.
-  static const List<int> timerDurations = [5, 10, 15, 20, 30];
+  static const List<int> timerDurations = RepertoireUIConstants.timerDurations;
 
   /// Currently selected timer duration in minutes.
   int get selectedDurationMinutes => _selectedDurationMinutes;
@@ -50,18 +53,21 @@ class RepertoirePageViewModel extends ChangeNotifier {
 
   /// Whether the timer can be reset.
   bool get canReset =>
-      _isRunning || _remainingSeconds != _selectedDurationMinutes * 60;
+      _isRunning ||
+      _remainingSeconds !=
+          _selectedDurationMinutes * RepertoireUIConstants.secondsPerMinute;
 
   /// Formatted remaining time as MM:SS.
   String get formattedTime {
-    final minutes = _remainingSeconds ~/ 60;
-    final seconds = _remainingSeconds % 60;
-    return "${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
+    final minutes = _remainingSeconds ~/ RepertoireUIConstants.secondsPerMinute;
+    final seconds = _remainingSeconds % RepertoireUIConstants.secondsPerMinute;
+    return "${minutes.toString().padLeft(RepertoireUIConstants.timePaddingWidth, RepertoireUIConstants.timePaddingChar)}:${seconds.toString().padLeft(RepertoireUIConstants.timePaddingWidth, RepertoireUIConstants.timePaddingChar)}";
   }
 
   /// Progress value between 0.0 and 1.0.
   double get progress {
-    final totalSeconds = _selectedDurationMinutes * 60;
+    final totalSeconds =
+        _selectedDurationMinutes * RepertoireUIConstants.secondsPerMinute;
     if (totalSeconds == 0) return 1.0;
     return 1.0 - (_remainingSeconds / totalSeconds);
   }
@@ -129,11 +135,12 @@ class RepertoirePageViewModel extends ChangeNotifier {
     _timer?.cancel();
     _isRunning = false;
     _isPaused = false;
-    _remainingSeconds = _selectedDurationMinutes * 60;
+    _remainingSeconds =
+        _selectedDurationMinutes * RepertoireUIConstants.secondsPerMinute;
   }
 
   void _startCountdown() {
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(RepertoireUIConstants.timerTickDuration, (timer) {
       if (_remainingSeconds > 0) {
         _remainingSeconds--;
         notifyListeners();
@@ -162,10 +169,10 @@ class RepertoirePageViewModel extends ChangeNotifier {
       final settings = await NotificationManager.loadSettings();
       if (settings.timerCompletionEnabled && settings.permissionGranted) {
         await NotificationService.showInstantNotification(
-          title: "Great Practice Session! 🎹",
+          title: RepertoireUIConstants.notificationTitle,
           body:
               "You completed $_selectedDurationMinutes minutes of practice. Well done!",
-          payload: "timer_completion",
+          payload: RepertoireUIConstants.notificationPayload,
         );
       }
     } catch (e) {
