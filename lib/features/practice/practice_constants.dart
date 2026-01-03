@@ -22,9 +22,6 @@ class PracticeUIConstants {
   /// Duration to display the completion overlay before auto-dismissing.
   static const Duration completionDisplayDuration = Duration(seconds: 2);
 
-  /// Shadow offset for the completion overlay (subtle depth effect).
-  static const Offset completionShadowOffset = Offset(0, 2);
-
   // ==================== Practice Settings Panel ====================
 
   /// Padding inside the practice settings panel container.

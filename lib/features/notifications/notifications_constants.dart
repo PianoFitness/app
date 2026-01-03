@@ -4,6 +4,8 @@ import "package:flutter/material.dart";
 ///
 /// Contains feature-specific constants for notifications interface including
 /// responsive layout values, icon sizes, and component spacing.
+/// For common icon sizes and shadow configuration, see
+/// [lib/shared/constants/ui_constants.dart].
 
 /// Notifications page UI constants
 ///
@@ -32,13 +34,9 @@ class NotificationsUIConstants {
   static const double sectionSmallSpacing = 8.0;
   static const double permissionPromptSpacing = 16.0;
 
-  // Shadow configuration
-  static const Offset shadowOffset = Offset(0, 2);
-  static const double shadowBlurRadius = 4.0;
-
-  // Snackbar duration
+  // Timing constants
   static const Duration snackbarDuration = Duration(seconds: 2);
 
-  // Time picker default
+  // Default values
   static const TimeOfDay defaultReminderTime = TimeOfDay(hour: 18, minute: 0);
 }

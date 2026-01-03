@@ -4,6 +4,8 @@
 /// consistent, maintainable UIs throughout Piano Fitness.
 library;
 
+import "dart:ui";
+
 /// Standardized spacing values following Material Design guidelines.
 ///
 /// Use these for consistent padding, margins, and gaps throughout the app.
@@ -72,6 +74,9 @@ class ComponentDimensions {
 
   /// Extra large icon size: 32.0 logical pixels
   static const double iconSizeXLarge = 32.0;
+
+  /// Header/feature icon size: 80.0 logical pixels
+  static const double iconSizeHeader = 80.0;
 }
 
 /// Standardized animation and transition durations.
@@ -91,4 +96,53 @@ class AnimationDurations {
 
   /// Extra long animation: 1 second
   static const Duration xLong = Duration(seconds: 1);
+}
+
+/// Common shadow configurations for elevated components.
+///
+/// Use these for consistent depth and elevation effects.
+class ShadowConfig {
+  ShadowConfig._(); // Private constructor to prevent instantiation
+
+  /// Subtle shadow offset for slight elevation
+  static const Offset subtleOffset = Offset(0, 2);
+
+  /// Standard blur radius for subtle shadows
+  static const double subtleBlur = 4.0;
+}
+
+/// MIDI protocol standard ranges and default values.
+///
+/// These constants define the valid ranges for MIDI messages according
+/// to the MIDI specification.
+class MidiConstants {
+  MidiConstants._(); // Private constructor to prevent instantiation
+
+  // Channel ranges
+  /// Minimum MIDI channel (0-based): 0
+  static const int channelMin = 0;
+
+  /// Maximum MIDI channel (0-based): 15
+  static const int channelMax = 15;
+
+  // Controller and value ranges
+  /// Maximum value for MIDI controllers and data bytes: 127
+  static const int controllerMax = 127;
+
+  /// Maximum value for MIDI program numbers: 127
+  static const int programMax = 127;
+
+  // Pitch bend ranges
+  /// Minimum pitch bend value (normalized): -1.0
+  static const double pitchBendMin = -1.0;
+
+  /// Maximum pitch bend value (normalized): 1.0
+  static const double pitchBendMax = 1.0;
+
+  /// Pitch bend slider divisions for UI controls: 100
+  static const int pitchBendDivisions = 100;
+
+  // Default values
+  /// Standard default velocity for note messages: 64 (medium velocity)
+  static const int defaultVelocity = 64;
 }

@@ -202,9 +202,8 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                 Expanded(
                   child: Slider(
                     value: viewModel.ccController.toDouble(),
-                    max: DeviceControllerUIConstants.midiControllerMax
-                        .toDouble(),
-                    divisions: DeviceControllerUIConstants.midiControllerMax,
+                    max: MidiConstants.controllerMax.toDouble(),
+                    divisions: MidiConstants.controllerMax,
                     label: viewModel.ccController.toString(),
                     onChanged: (value) =>
                         viewModel.setCCController(value.toInt()),
@@ -219,9 +218,8 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                 Expanded(
                   child: Slider(
                     value: viewModel.ccValue.toDouble(),
-                    max: DeviceControllerUIConstants.midiControllerMax
-                        .toDouble(),
-                    divisions: DeviceControllerUIConstants.midiControllerMax,
+                    max: MidiConstants.controllerMax.toDouble(),
+                    divisions: MidiConstants.controllerMax,
                     label: viewModel.ccValue.toString(),
                     onChanged: (value) => viewModel.setCCValue(value.toInt()),
                   ),
@@ -253,8 +251,8 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                 Expanded(
                   child: Slider(
                     value: viewModel.programNumber.toDouble(),
-                    max: DeviceControllerUIConstants.midiProgramMax.toDouble(),
-                    divisions: DeviceControllerUIConstants.midiProgramMax,
+                    max: MidiConstants.programMax.toDouble(),
+                    divisions: MidiConstants.programMax,
                     label: viewModel.programNumber.toString(),
                     onChanged: (value) =>
                         viewModel.setProgramNumber(value.toInt()),
@@ -283,8 +281,8 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
             const SizedBox(height: Spacing.md),
             Slider(
               value: viewModel.pitchBend,
-              min: DeviceControllerUIConstants.pitchBendMin,
-              divisions: DeviceControllerUIConstants.pitchBendDivisions,
+              min: MidiConstants.pitchBendMin,
+              divisions: MidiConstants.pitchBendDivisions,
               label: viewModel.pitchBend.toStringAsFixed(2),
               onChanged: viewModel.setPitchBend,
               onChangeEnd: (_) => viewModel.resetPitchBend(),

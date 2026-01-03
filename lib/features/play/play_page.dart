@@ -73,7 +73,7 @@ class _PlayPageState extends State<PlayPage> {
                         children: [
                           Icon(
                             Icons.piano,
-                            size: PlayUIConstants.headerIconSize,
+                            size: ComponentDimensions.iconSizeXLarge,
                             color: colorScheme.primary,
                           ),
                           const SizedBox(height: Spacing.sm),
@@ -120,7 +120,7 @@ class _PlayPageState extends State<PlayPage> {
                               children: [
                                 Icon(
                                   Icons.info_outline,
-                                  size: PlayUIConstants.infoBannerIconSize,
+                                  size: ComponentDimensions.iconSizeSmall,
                                   color: colorScheme.onSurface,
                                 ),
                                 const SizedBox(width: Spacing.sm),

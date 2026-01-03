@@ -1,13 +1,9 @@
 /// Constants for MIDI Settings page UI elements
 ///
-/// Contains feature-specific constants for MIDI configuration interface including
-/// icon sizes, spacing values, and scanning/connection timeouts.
+/// Contains feature-specific constants for MIDI configuration interface.
+/// For common icon sizes and MIDI ranges, see [lib/shared/constants/ui_constants.dart].
 class MidiSettingsUIConstants {
   MidiSettingsUIConstants._();
-
-  // Icon sizes
-  static const double headerIconSize = 80.0;
-  static const double resetInfoIconSize = 32.0;
 
   // Scanning and connection timeouts
   static const Duration bluetoothInitTimeout = Duration(seconds: 5);

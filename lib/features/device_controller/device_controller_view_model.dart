@@ -2,7 +2,7 @@ import "package:flutter/foundation.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_midi_command/flutter_midi_command_messages.dart";
 import "package:logging/logging.dart";
-import "package:piano_fitness/features/device_controller/device_controller_constants.dart";
+import "package:piano_fitness/shared/constants/ui_constants.dart"; // For MidiConstants
 import "package:piano_fitness/shared/services/midi_connection_service.dart";
 import "package:piano_fitness/shared/services/midi_service.dart";
 
@@ -51,8 +51,8 @@ class DeviceControllerViewModel extends ChangeNotifier {
 
   /// Sets the selected MIDI channel.
   void setSelectedChannel(int channel) {
-    if (channel >= DeviceControllerUIConstants.midiChannelMin &&
-        channel <= DeviceControllerUIConstants.midiChannelMax &&
+    if (channel >= MidiConstants.channelMin &&
+        channel <= MidiConstants.channelMax &&
         channel != _selectedChannel) {
       _selectedChannel = channel;
       notifyListeners();
@@ -61,7 +61,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
 
   /// Increments the selected MIDI channel.
   void incrementChannel() {
-    if (_selectedChannel < DeviceControllerUIConstants.midiChannelMax) {
+    if (_selectedChannel < MidiConstants.channelMax) {
       _selectedChannel++;
       notifyListeners();
     }
@@ -69,7 +69,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
 
   /// Decrements the selected MIDI channel.
   void decrementChannel() {
-    if (_selectedChannel > DeviceControllerUIConstants.midiChannelMin) {
+    if (_selectedChannel > MidiConstants.channelMin) {
       _selectedChannel--;
       notifyListeners();
     }
@@ -78,7 +78,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
   /// Sets the CC controller number.
   void setCCController(int controller) {
     if (controller >= 0 &&
-        controller <= DeviceControllerUIConstants.midiControllerMax &&
+        controller <= MidiConstants.controllerMax &&
         controller != _ccController) {
       _ccController = controller;
       notifyListeners();
@@ -87,7 +87,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
 
   /// Sets the CC value and sends the control change message.
   void setCCValue(int value) {
-    if (value >= 0 && value <= DeviceControllerUIConstants.midiControllerMax) {
+    if (value >= 0 && value <= MidiConstants.controllerMax) {
       _ccValue = value;
       notifyListeners();
       sendControlChange();
@@ -96,7 +96,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
 
   /// Sets the program number and sends the program change message.
   void setProgramNumber(int program) {
-    if (program >= 0 && program <= DeviceControllerUIConstants.midiProgramMax) {
+    if (program >= 0 && program <= MidiConstants.programMax) {
       _programNumber = program;
       notifyListeners();
       sendProgramChange();
@@ -105,8 +105,8 @@ class DeviceControllerViewModel extends ChangeNotifier {
 
   /// Sets the pitch bend value and sends the pitch bend message.
   void setPitchBend(double bend) {
-    if (bend >= DeviceControllerUIConstants.pitchBendMin &&
-        bend <= DeviceControllerUIConstants.pitchBendMax) {
+    if (bend >= MidiConstants.pitchBendMin &&
+        bend <= MidiConstants.pitchBendMax) {
       _pitchBend = bend;
       notifyListeners();
       sendPitchBend();
@@ -154,7 +154,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
   /// Sends a note on message for the specified MIDI note.
   void sendNoteOn(
     int midiNote, {
-    int velocity = DeviceControllerUIConstants.defaultVelocity,
+    int velocity = MidiConstants.defaultVelocity,
   }) {
     try {
       NoteOnMessage(

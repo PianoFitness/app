@@ -182,8 +182,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
         boxShadow: [
           BoxShadow(
             color: colorScheme.shadow.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: NotificationsUIConstants.shadowOffset,
+            blurRadius: ShadowConfig.subtleBlur,
+            offset: ShadowConfig.subtleOffset,
           ),
         ],
       ),
@@ -264,8 +264,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
         boxShadow: [
           BoxShadow(
             color: colorScheme.shadow.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: NotificationsUIConstants.shadowOffset,
+            blurRadius: ShadowConfig.subtleBlur,
+            offset: ShadowConfig.subtleOffset,
           ),
         ],
       ),

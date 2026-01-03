@@ -93,8 +93,8 @@ class _PracticePageState extends State<PracticePage> {
               boxShadow: [
                 BoxShadow(
                   color: Theme.of(context).shadowColor,
-                  blurRadius: 4,
-                  offset: PracticeUIConstants.completionShadowOffset,
+                  blurRadius: ShadowConfig.subtleBlur,
+                  offset: ShadowConfig.subtleOffset,
                 ),
               ],
             ),

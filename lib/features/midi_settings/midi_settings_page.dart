@@ -1,7 +1,6 @@
 import "package:flutter/material.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:piano_fitness/features/device_controller/device_controller_page.dart";
-import "package:piano_fitness/features/midi_settings/midi_settings_constants.dart";
 import "package:piano_fitness/features/midi_settings/midi_settings_view_model.dart";
 import "package:piano_fitness/shared/constants/ui_constants.dart";
 import "package:piano_fitness/shared/theme/semantic_colors.dart";
@@ -52,7 +51,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                     Center(
                       child: Icon(
                         Icons.bluetooth_audio,
-                        size: MidiSettingsUIConstants.headerIconSize,
+                        size: ComponentDimensions.iconSizeHeader,
                         color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
@@ -223,7 +222,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
           Icon(
             Icons.lightbulb_outline,
             color: semanticColors.onInfoContainer,
-            size: MidiSettingsUIConstants.resetInfoIconSize,
+            size: ComponentDimensions.iconSizeXLarge,
           ),
           const SizedBox(height: Spacing.sm),
           Text(
@@ -337,7 +336,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                   Icon(
                     Icons.music_note,
                     color: semanticColors.success,
-                    size: MidiSettingsUIConstants.resetInfoIconSize,
+                    size: ComponentDimensions.iconSizeXLarge,
                   ),
                   const SizedBox(height: Spacing.sm),
                   Text("MIDI Activity:", style: theme.textTheme.titleMedium),
