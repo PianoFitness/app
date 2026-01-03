@@ -41,6 +41,13 @@ class ScalesStrategy implements PracticeStrategy {
     final steps = <PracticeStep>[];
 
     if (handSelection == HandSelection.both) {
+      // Validate even number of notes for paired hands
+      if (sequence.length.isOdd) {
+        throw ArgumentError(
+          "Both hands mode requires an even number of notes in the sequence. "
+          "Got ${sequence.length} notes for $key ${scaleType.name} scale.",
+        );
+      }
       // Both hands: notes are paired [L1, R1, L2, R2, ...]
       // Each pair should be played simultaneously
       for (var i = 0; i < sequence.length; i += 2) {
