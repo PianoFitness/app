@@ -329,11 +329,11 @@ class PracticeSettingsPanel extends StatelessWidget {
                   },
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: Spacing.sm),
               Expanded(child: _buildSecondarySelector(context)),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: Spacing.sm),
           SegmentedButton<HandSelection>(
             segments: [
               ButtonSegment(
@@ -342,13 +342,19 @@ class PracticeSettingsPanel extends StatelessWidget {
                 icon: Transform(
                   alignment: Alignment.center,
                   transform: Matrix4.rotationY(math.pi),
-                  child: const Icon(Icons.back_hand, size: 16),
+                  child: const Icon(
+                    Icons.back_hand,
+                    size: ComponentDimensions.iconSizeSmall,
+                  ),
                 ),
               ),
               const ButtonSegment(
                 value: HandSelection.right,
                 label: Text("Right Hand"),
-                icon: Icon(Icons.back_hand, size: 16),
+                icon: Icon(
+                  Icons.back_hand,
+                  size: ComponentDimensions.iconSizeSmall,
+                ),
               ),
               ButtonSegment(
                 value: HandSelection.both,
@@ -359,10 +365,16 @@ class PracticeSettingsPanel extends StatelessWidget {
                     Transform(
                       alignment: Alignment.center,
                       transform: Matrix4.rotationY(math.pi),
-                      child: const Icon(Icons.back_hand, size: 16),
+                      child: const Icon(
+                        Icons.back_hand,
+                        size: ComponentDimensions.iconSizeSmall,
+                      ),
                     ),
-                    const SizedBox(width: 2),
-                    const Icon(Icons.back_hand, size: 16),
+                    const SizedBox(width: PracticeUIConstants.handIconSpacing),
+                    const Icon(
+                      Icons.back_hand,
+                      size: ComponentDimensions.iconSizeSmall,
+                    ),
                   ],
                 ),
               ),
@@ -375,7 +387,7 @@ class PracticeSettingsPanel extends StatelessWidget {
             style: const ButtonStyle(visualDensity: VisualDensity.compact),
           ),
           if (practiceMode == PracticeMode.scales) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: Spacing.sm),
             DropdownButtonFormField<music.ScaleType>(
               initialValue: selectedScaleType,
               decoration: const InputDecoration(
@@ -396,7 +408,7 @@ class PracticeSettingsPanel extends StatelessWidget {
             ),
           ],
           if (practiceMode == PracticeMode.arpeggios) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: Spacing.sm),
             Row(
               children: [
                 Expanded(
@@ -419,7 +431,7 @@ class PracticeSettingsPanel extends StatelessWidget {
                     },
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: Spacing.sm),
                 Expanded(
                   child: DropdownButtonFormField<ArpeggioOctaves>(
                     initialValue: selectedArpeggioOctaves,
@@ -444,7 +456,7 @@ class PracticeSettingsPanel extends StatelessWidget {
             ),
           ],
           if (practiceMode == PracticeMode.chordProgressions) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: Spacing.sm),
             DropdownButtonFormField<ChordProgression>(
               initialValue: selectedChordProgression,
               decoration: const InputDecoration(
@@ -467,7 +479,7 @@ class PracticeSettingsPanel extends StatelessWidget {
             ),
           ],
           if (practiceMode == PracticeMode.chordsByType) ...[
-            const SizedBox(height: 12),
+            const SizedBox(height: Spacing.sm),
             Semantics(
               label: "Include 1st and 2nd inversions in chord exercises",
               child: CheckboxListTile(
@@ -483,7 +495,7 @@ class PracticeSettingsPanel extends StatelessWidget {
               ),
             ),
           ],
-          const SizedBox(height: 16),
+          const SizedBox(height: Spacing.md),
           // Show practice status and reset button
           Column(
             children: [
