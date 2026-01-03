@@ -1,3 +1,4 @@
+import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/models/practice_exercise.dart";
 import "package:piano_fitness/shared/models/practice_strategies/practice_strategy.dart";
 import "package:piano_fitness/shared/utils/chords.dart";
@@ -11,10 +12,12 @@ class ChordsByTypeStrategy implements PracticeStrategy {
   ///
   /// Requires [chordType] to specify which chord quality to practice,
   /// [includeInversions] to determine if inversions should be included,
+  /// [handSelection] to specify which hand(s) to practice,
   /// and [startOctave] for the base pitch.
   ChordsByTypeStrategy({
     required this.chordType,
     required this.includeInversions,
+    required this.handSelection,
     required this.startOctave,
   });
 
@@ -23,6 +26,9 @@ class ChordsByTypeStrategy implements PracticeStrategy {
 
   /// Whether to include chord inversions in the exercise.
   final bool includeInversions;
+
+  /// Which hand(s) to practice (left, right, or both).
+  final HandSelection handSelection;
 
   /// The starting octave for the chords.
   final int startOctave;
@@ -48,7 +54,7 @@ class ChordsByTypeStrategy implements PracticeStrategy {
 
     for (var i = 0; i < chordProgression.length; i++) {
       final chord = chordProgression[i];
-      final chordNotes = chord.getMidiNotes(startOctave);
+      final chordNotes = chord.getMidiNotesForHand(startOctave, handSelection);
 
       steps.add(
         PracticeStep(
@@ -61,6 +67,7 @@ class ChordsByTypeStrategy implements PracticeStrategy {
             "inversion": chord.inversion.name,
             "position": i + 1,
             "displayName": chord.name,
+            "hand": handSelection.name,
           },
         ),
       );
@@ -72,6 +79,7 @@ class ChordsByTypeStrategy implements PracticeStrategy {
         "exerciseType": "chordsByType",
         "chordType": chordType.name,
         "includeInversions": includeInversions,
+        "handSelection": handSelection.name,
       },
     );
   }

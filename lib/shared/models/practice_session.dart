@@ -228,18 +228,21 @@ class PracticeSession {
         return ChordsByKeyStrategy(
           key: _selectedKey,
           scaleType: _selectedScaleType,
+          handSelection: _selectedHandSelection,
           startOctave: defaultStartOctave,
         );
       case PracticeMode.chordsByType:
         return ChordsByTypeStrategy(
           chordType: _selectedChordType,
           includeInversions: _includeInversions,
+          handSelection: _selectedHandSelection,
           startOctave: defaultStartOctave,
         );
       case PracticeMode.chordProgressions:
         return ChordProgressionsStrategy(
           key: _selectedKey,
           chordProgression: _selectedChordProgression,
+          handSelection: _selectedHandSelection,
           startOctave: defaultStartOctave,
         );
     }

@@ -1,3 +1,4 @@
+import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/models/practice_exercise.dart";
 import "package:piano_fitness/shared/models/practice_strategies/practice_strategy.dart";
 import "package:piano_fitness/shared/utils/chords.dart";
@@ -11,10 +12,12 @@ class ChordsByKeyStrategy implements PracticeStrategy {
   /// Creates a chords-by-key strategy.
   ///
   /// Requires [key] and [scaleType] to determine which chords belong
-  /// to the key, and [startOctave] for the base pitch.
+  /// to the key, [handSelection] to specify which hand(s) to practice,
+  /// and [startOctave] for the base pitch.
   const ChordsByKeyStrategy({
     required this.key,
     required this.scaleType,
+    required this.handSelection,
     required this.startOctave,
   });
 
@@ -23,6 +26,9 @@ class ChordsByKeyStrategy implements PracticeStrategy {
 
   /// The scale type (major, minor, etc.) that determines chord qualities.
   final music.ScaleType scaleType;
+
+  /// Which hand(s) to practice (left, right, or both).
+  final HandSelection handSelection;
 
   /// The starting octave for the chords.
   final int startOctave;
@@ -40,7 +46,7 @@ class ChordsByKeyStrategy implements PracticeStrategy {
 
     for (var i = 0; i < chordProgression.length; i++) {
       final chord = chordProgression[i];
-      final chordNotes = chord.getMidiNotes(startOctave);
+      final chordNotes = chord.getMidiNotesForHand(startOctave, handSelection);
 
       steps.add(
         PracticeStep(
@@ -53,6 +59,7 @@ class ChordsByKeyStrategy implements PracticeStrategy {
             "inversion": chord.inversion.name,
             "position": i + 1,
             "displayName": chord.name,
+            "hand": handSelection.name,
           },
         ),
       );
@@ -64,6 +71,7 @@ class ChordsByKeyStrategy implements PracticeStrategy {
         "exerciseType": "chordsByKey",
         "key": key.displayName,
         "scaleType": scaleType.name,
+        "handSelection": handSelection.name,
       },
     );
   }
