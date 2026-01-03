@@ -1,7 +1,9 @@
 import "package:flutter/material.dart";
 import "package:piano/piano.dart";
+import "package:piano_fitness/features/practice/practice_constants.dart";
 import "package:piano_fitness/features/practice/practice_page_view_model.dart";
 import "package:piano_fitness/shared/accessibility/config/accessibility_labels.dart";
+import "package:piano_fitness/shared/constants/ui_constants.dart";
 import "package:piano_fitness/shared/models/chord_progression_type.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
@@ -78,21 +80,21 @@ class _PracticePageState extends State<PracticePage> {
 
     overlayEntry = OverlayEntry(
       builder: (context) => Positioned(
-        top: MediaQuery.of(context).padding.top + 20,
-        left: 20,
-        right: 20,
+        top: MediaQuery.of(context).padding.top + Spacing.lg,
+        left: Spacing.lg,
+        right: Spacing.lg,
         child: Material(
           color: Colors.transparent,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: PracticeUIConstants.completionOverlayPadding,
             decoration: BoxDecoration(
               color: context.semanticColors.success,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppBorderRadius.small),
               boxShadow: [
                 BoxShadow(
                   color: Theme.of(context).shadowColor,
                   blurRadius: 4,
-                  offset: const Offset(0, 2),
+                  offset: PracticeUIConstants.completionShadowOffset,
                 ),
               ],
             ),
@@ -103,7 +105,7 @@ class _PracticePageState extends State<PracticePage> {
                   Icons.check_circle,
                   color: Theme.of(context).colorScheme.onPrimary,
                 ),
-                SizedBox(width: 8),
+                const SizedBox(width: Spacing.sm),
                 Text(
                   "Exercise completed! Well done!",
                   style: TextStyle(
@@ -120,8 +122,8 @@ class _PracticePageState extends State<PracticePage> {
 
     overlay.insert(overlayEntry);
 
-    // Remove the overlay after 2 seconds
-    Future.delayed(const Duration(seconds: 2), () {
+    // Remove the overlay after configured duration
+    Future.delayed(PracticeUIConstants.completionDisplayDuration, () {
       overlayEntry.remove();
     });
   }
@@ -151,11 +153,11 @@ class _PracticePageState extends State<PracticePage> {
             child: SafeArea(
               bottom: false,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(Spacing.md),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 20),
+                    const SizedBox(height: Spacing.lg),
                     AnimatedBuilder(
                       animation: _viewModel,
                       builder: (context, child) {
@@ -213,7 +215,7 @@ class _PracticePageState extends State<PracticePage> {
                         );
                       },
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: Spacing.md),
                     AnimatedBuilder(
                       animation: _viewModel,
                       builder: (context, child) {

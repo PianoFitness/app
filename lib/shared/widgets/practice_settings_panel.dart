@@ -1,6 +1,8 @@
 import "dart:math" as math;
 
 import "package:flutter/material.dart";
+import "package:piano_fitness/features/practice/practice_constants.dart";
+import "package:piano_fitness/shared/constants/ui_constants.dart";
 import "package:piano_fitness/shared/models/chord_progression_type.dart";
 import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/models/practice_mode.dart";
@@ -278,29 +280,33 @@ class PracticeSettingsPanel extends StatelessWidget {
 
     return Container(
       key: panelKey,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(PracticeUIConstants.panelPadding),
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppBorderRadius.medium),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.5)),
       ),
       child: Column(
         children: [
           Row(
             children: [
-              Icon(Icons.fitness_center, size: 24, color: colorScheme.primary),
-              const SizedBox(width: 8),
+              Icon(
+                Icons.fitness_center,
+                size: ComponentDimensions.iconSizeLarge,
+                color: colorScheme.primary,
+              ),
+              const SizedBox(width: Spacing.sm),
               Text(
                 "Practice Settings",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.onSurface,
-                ),
+                style:
+                    theme.textTheme.headlineSmall?.copyWith(
+                      color: colorScheme.onSurface,
+                    ) ??
+                    TextStyle(color: colorScheme.onSurface),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: Spacing.md),
           Row(
             children: [
               Expanded(
@@ -488,15 +494,12 @@ class PracticeSettingsPanel extends StatelessWidget {
                     : "Ready - Play Any Note to Start",
                 child: Container(
                   key: statusKey,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 8,
-                    horizontal: 12,
-                  ),
+                  padding: PracticeUIConstants.statusContainerPadding,
                   decoration: BoxDecoration(
                     color: practiceActive
                         ? colorScheme.primaryContainer
                         : colorScheme.secondaryContainer,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppBorderRadius.small),
                     border: Border.all(
                       color: practiceActive
                           ? colorScheme.primary.withValues(alpha: 0.5)
@@ -511,9 +514,9 @@ class PracticeSettingsPanel extends StatelessWidget {
                         color: practiceActive
                             ? colorScheme.onPrimaryContainer
                             : colorScheme.onSecondaryContainer,
-                        size: 20,
+                        size: PracticeUIConstants.statusIconSize,
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: Spacing.sm),
                       Text(
                         practiceActive
                             ? "Practice Active - Keep Playing!"
@@ -529,7 +532,7 @@ class PracticeSettingsPanel extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: Spacing.sm),
               ElevatedButton.icon(
                 onPressed: onResetPractice,
                 icon: const Icon(Icons.refresh),

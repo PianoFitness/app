@@ -290,6 +290,7 @@ class PracticeSession {
 
   /// Handles MIDI note press events during practice sessions.
   ///
+  /// Automatically starts the practice session on the first note if not already active.
   /// Processes incoming MIDI note data and advances the exercise if the
   /// correct note is played. Behavior varies by step type:
   /// - Sequential: Expects one note at a time
@@ -298,8 +299,12 @@ class PracticeSession {
   ///
   /// The [midiNote] parameter should be the MIDI note number (0-127).
   void handleNotePressed(int midiNote) {
-    if (!_practiceActive ||
-        _currentExercise == null ||
+    // Auto-start practice on first MIDI note if not already active
+    if (!_practiceActive) {
+      startPractice();
+    }
+
+    if (_currentExercise == null ||
         _currentStepIndex >= _currentExercise!.steps.length) {
       return;
     }
