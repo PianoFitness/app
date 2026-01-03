@@ -365,7 +365,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 const Spacer(),
                 TextButton(
                   onPressed: () async {
-                    final time = await _showTimePicker(context);
+                    final time = await _showTimePicker(
+                      context,
+                      currentTime: settings.dailyReminderTime,
+                    );
                     if (time != null) {
                       await viewModel.updateDailyReminderTime(time);
                     }
@@ -499,10 +502,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
     return granted;
   }
 
-  Future<TimeOfDay?> _showTimePicker(BuildContext context) async {
+  Future<TimeOfDay?> _showTimePicker(
+    BuildContext context, {
+    TimeOfDay? currentTime,
+  }) async {
     return showTimePicker(
       context: context,
-      initialTime: NotificationsUIConstants.defaultReminderTime,
+      initialTime: currentTime ?? NotificationsUIConstants.defaultReminderTime,
       helpText: "Select practice reminder time",
       builder: (context, child) {
         return Theme(
