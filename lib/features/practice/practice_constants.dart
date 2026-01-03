@@ -6,6 +6,7 @@
 library;
 
 import "package:flutter/material.dart";
+import "package:piano_fitness/shared/constants/ui_constants.dart";
 
 /// Practice-specific UI dimension and timing constants.
 class PracticeUIConstants {
@@ -15,8 +16,8 @@ class PracticeUIConstants {
 
   /// Padding for the exercise completion overlay message.
   static const EdgeInsets completionOverlayPadding = EdgeInsets.symmetric(
-    horizontal: 16,
-    vertical: 12,
+    horizontal: Spacing.md,
+    vertical: Spacing.sm,
   );
 
   // ==================== Practice Settings Panel ====================
@@ -29,12 +30,12 @@ class PracticeUIConstants {
 
   /// Padding for the practice status container.
   static const EdgeInsets statusContainerPadding = EdgeInsets.symmetric(
-    vertical: 8,
-    horizontal: 12,
+    vertical: Spacing.sm,
+    horizontal: Spacing.sm,
   );
 
   // ==================== Practice Progress Display ====================
 
   /// Padding for the progress display container.
-  static const EdgeInsets progressPadding = EdgeInsets.all(12);
+  static const EdgeInsets progressPadding = EdgeInsets.all(Spacing.sm);
 }
