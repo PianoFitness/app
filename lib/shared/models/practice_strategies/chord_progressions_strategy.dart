@@ -14,7 +14,6 @@ class ChordProgressionsStrategy implements PracticeStrategy {
   /// Requires [key] for the tonal center, [chordProgression] defining the
   /// progression pattern, [handSelection] to specify which hand(s) to practice,
   /// and [startOctave] for the base pitch.
-  /// If [chordProgression] is null, defaults to I-V progression.
   ChordProgressionsStrategy({
     required this.key,
     required this.chordProgression,
@@ -26,8 +25,7 @@ class ChordProgressionsStrategy implements PracticeStrategy {
   final music.Key key;
 
   /// The chord progression pattern to practice.
-  /// If null, will default to I-V.
-  ChordProgression? chordProgression;
+  final ChordProgression chordProgression;
 
   /// Which hand(s) to practice (left, right, or both).
   final HandSelection handSelection;
@@ -37,20 +35,7 @@ class ChordProgressionsStrategy implements PracticeStrategy {
 
   @override
   PracticeExercise initializeExercise() {
-    // Default to I-V if no progression selected
-    final progression =
-        chordProgression ??
-        ChordProgressionLibrary.getProgressionByName("I - V");
-
-    if (progression == null) {
-      // Fallback to empty exercise if default progression not found
-      return const PracticeExercise(steps: []);
-    }
-
-    // Update the stored progression if we used the default
-    chordProgression = progression;
-
-    final generatedChords = progression.generateChords(key);
+    final generatedChords = chordProgression.generateChords(key);
 
     // Convert chord progression to PracticeSteps
     final steps = <PracticeStep>[];
@@ -69,8 +54,9 @@ class ChordProgressionsStrategy implements PracticeStrategy {
             "chordType": chord.type.name,
             "inversion": chord.inversion.name,
             "position": i + 1,
-            "romanNumeral": progression.romanNumerals[i],
-            "displayName": "${progression.romanNumerals[i]}: ${chord.name}",
+            "romanNumeral": chordProgression.romanNumerals[i],
+            "displayName":
+                "${chordProgression.romanNumerals[i]}: ${chord.name}",
             "hand": handSelection.name,
           },
         ),
@@ -82,8 +68,8 @@ class ChordProgressionsStrategy implements PracticeStrategy {
       metadata: {
         "exerciseType": "chordProgressions",
         "key": key.displayName,
-        "progressionName": progression.name,
-        "difficulty": progression.difficulty.name,
+        "progressionName": chordProgression.name,
+        "difficulty": chordProgression.difficulty.name,
         "handSelection": handSelection.name,
       },
     );

@@ -9,7 +9,7 @@ void main() {
     test("should initialize I-V-vi-IV progression in C major", () {
       final progression = ChordProgressionLibrary.getProgressionByName(
         "I - V - vi - IV",
-      );
+      )!;
 
       final strategy = ChordProgressionsStrategy(
         key: music.Key.c,
@@ -28,7 +28,9 @@ void main() {
     });
 
     test("should initialize I-V progression when progression is provided", () {
-      final progression = ChordProgressionLibrary.getProgressionByName("I - V");
+      final progression = ChordProgressionLibrary.getProgressionByName(
+        "I - V",
+      )!;
 
       final strategy = ChordProgressionsStrategy(
         key: music.Key.c,
@@ -45,10 +47,14 @@ void main() {
       expect(exercise.steps.length, 2);
     });
 
-    test("should default to I-V when no progression provided", () {
+    test("should handle explicit I-V progression", () {
+      final progression = ChordProgressionLibrary.getProgressionByName(
+        "I - V",
+      )!;
+
       final strategy = ChordProgressionsStrategy(
         key: music.Key.c,
-        chordProgression: null,
+        chordProgression: progression,
         handSelection: HandSelection.left,
         startOctave: 4,
       );
@@ -59,14 +65,13 @@ void main() {
       expect(exercise.metadata?["exerciseType"], "chordProgressions");
       expect(exercise.metadata?["handSelection"], "left");
       expect(exercise.steps.length, 2);
-      expect(strategy.chordProgression, isNotNull);
-      expect(strategy.chordProgression!.name, "I - V");
+      expect(exercise.metadata?["progressionName"], "I - V");
     });
 
     test("should generate different sequences for different keys", () {
       final progression = ChordProgressionLibrary.getProgressionByName(
         "I - V - vi - IV",
-      );
+      )!;
 
       final cMajorStrategy = ChordProgressionsStrategy(
         key: music.Key.c,
@@ -110,7 +115,9 @@ void main() {
     });
 
     test("should handle left hand selection correctly", () {
-      final progression = ChordProgressionLibrary.getProgressionByName("I - V");
+      final progression = ChordProgressionLibrary.getProgressionByName(
+        "I - V",
+      )!;
 
       final strategy = ChordProgressionsStrategy(
         key: music.Key.c,
@@ -131,7 +138,9 @@ void main() {
     });
 
     test("should handle right hand selection correctly", () {
-      final progression = ChordProgressionLibrary.getProgressionByName("I - V");
+      final progression = ChordProgressionLibrary.getProgressionByName(
+        "I - V",
+      )!;
 
       final strategy = ChordProgressionsStrategy(
         key: music.Key.c,
@@ -152,7 +161,9 @@ void main() {
     });
 
     test("should handle both hands selection correctly", () {
-      final progression = ChordProgressionLibrary.getProgressionByName("I - V");
+      final progression = ChordProgressionLibrary.getProgressionByName(
+        "I - V",
+      )!;
 
       final strategy = ChordProgressionsStrategy(
         key: music.Key.c,

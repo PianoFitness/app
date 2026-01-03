@@ -235,9 +235,14 @@ class PracticeSession {
           startOctave: defaultStartOctave,
         );
       case PracticeMode.chordProgressions:
+        // Default to I-V progression if none selected
+        final progression =
+            _selectedChordProgression ??
+            ChordProgressionLibrary.getProgressionByName("I - V")!;
+
         return ChordProgressionsStrategy(
           key: _selectedKey,
-          chordProgression: _selectedChordProgression,
+          chordProgression: progression,
           handSelection: _selectedHandSelection,
           startOctave: defaultStartOctave,
         );
@@ -245,16 +250,18 @@ class PracticeSession {
   }
 
   void _initializeSequence() {
+    // Apply default progression if none selected (for chordProgressions mode)
+    if (_practiceMode == PracticeMode.chordProgressions &&
+        _selectedChordProgression == null) {
+      _selectedChordProgression = ChordProgressionLibrary.getProgressionByName(
+        "I - V",
+      );
+    }
+
     final strategy = _createStrategy();
     _currentExercise = strategy.initializeExercise();
     _currentStepIndex = 0;
     _currentlyHeldNotes.clear();
-
-    // Update chord progression for chordProgressions mode
-    if (_practiceMode == PracticeMode.chordProgressions &&
-        strategy is ChordProgressionsStrategy) {
-      _selectedChordProgression = strategy.chordProgression;
-    }
 
     _updateHighlightedNotes();
   }
