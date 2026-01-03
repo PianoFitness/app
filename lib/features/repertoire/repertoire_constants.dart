@@ -22,7 +22,7 @@ class RepertoireUIConstants {
   /// Seconds per minute conversion constant
   static const int secondsPerMinute = 60;
 
-  /// Timer tick interval (use AnimationDurations.xLong from shared constants)
+  /// Timer tick interval for countdown updates
   static const Duration timerTickDuration = Duration(seconds: 1);
 
   /// Minimum padding for zero value in time formatting
