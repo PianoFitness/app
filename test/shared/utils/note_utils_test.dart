@@ -1,6 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
+import "package:piano_fitness/shared/utils/scales.dart" as music;
 
 void main() {
   group("NoteUtils", () {
@@ -505,6 +506,38 @@ void main() {
           }
         }
       });
+    });
+  });
+
+  group("keyToMusicalNote", () {
+    test("should convert all 12 chromatic keys correctly", () {
+      expect(NoteUtils.keyToMusicalNote(music.Key.c), equals(MusicalNote.c));
+      expect(
+        NoteUtils.keyToMusicalNote(music.Key.cSharp),
+        equals(MusicalNote.cSharp),
+      );
+      expect(NoteUtils.keyToMusicalNote(music.Key.d), equals(MusicalNote.d));
+      expect(
+        NoteUtils.keyToMusicalNote(music.Key.dSharp),
+        equals(MusicalNote.dSharp),
+      );
+      expect(NoteUtils.keyToMusicalNote(music.Key.e), equals(MusicalNote.e));
+      expect(NoteUtils.keyToMusicalNote(music.Key.f), equals(MusicalNote.f));
+      expect(
+        NoteUtils.keyToMusicalNote(music.Key.fSharp),
+        equals(MusicalNote.fSharp),
+      );
+      expect(NoteUtils.keyToMusicalNote(music.Key.g), equals(MusicalNote.g));
+      expect(
+        NoteUtils.keyToMusicalNote(music.Key.gSharp),
+        equals(MusicalNote.gSharp),
+      );
+      expect(NoteUtils.keyToMusicalNote(music.Key.a), equals(MusicalNote.a));
+      expect(
+        NoteUtils.keyToMusicalNote(music.Key.aSharp),
+        equals(MusicalNote.aSharp),
+      );
+      expect(NoteUtils.keyToMusicalNote(music.Key.b), equals(MusicalNote.b));
     });
   });
 }

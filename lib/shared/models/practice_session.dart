@@ -443,15 +443,15 @@ class PracticeSession {
   /// an exercise is completed. It advances the selected key to the next position
   /// in the circle of fifths and regenerates the exercise with the new key.
   ///
-  /// For arpeggio mode, this also updates the root note to match the new key.
+  /// For arpeggio mode, this also updates the root note to match the new key
+  /// using the keyToMusicalNote conversion utility.
   void _progressToNextKey() {
     final nextKey = CircleOfFifths.getNextKey(_selectedKey);
     _selectedKey = nextKey;
 
     // For arpeggios, also update the root note to match the key
-    // (Key and MusicalNote enums have the same values)
     if (_practiceMode == PracticeMode.arpeggios) {
-      _selectedRootNote = MusicalNote.values[nextKey.index];
+      _selectedRootNote = NoteUtils.keyToMusicalNote(nextKey);
     }
 
     _initializeSequence();
