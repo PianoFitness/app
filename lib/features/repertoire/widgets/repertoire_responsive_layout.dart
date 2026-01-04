@@ -111,7 +111,7 @@ class RepertoireResponsiveLayout extends StatelessWidget {
               builder: (context, constraints) {
                 final layoutMode = _getLayoutMode(constraints);
 
-                return _buildContent(layoutMode, constraints);
+                return _buildContent(layoutMode);
               },
             ),
           ),
@@ -126,29 +126,23 @@ class RepertoireResponsiveLayout extends StatelessWidget {
     );
   }
 
-  Widget _buildContent(
-    RepertoireLayoutMode layoutMode,
-    BoxConstraints constraints,
-  ) {
+  Widget _buildContent(RepertoireLayoutMode layoutMode) {
     switch (layoutMode) {
       case RepertoireLayoutMode.mobilePortrait:
-        return _buildVerticalLayout(spacing: 16, isCompact: true);
+        return _buildVerticalLayout(spacing: 16);
 
       case RepertoireLayoutMode.mobileLandscape:
-        return _buildHorizontalLayout(spacing: 16, isCompact: true);
+        return _buildHorizontalLayout(spacing: 16);
 
       case RepertoireLayoutMode.tabletPortrait:
-        return _buildVerticalLayout(spacing: 24, isCompact: false);
+        return _buildVerticalLayout(spacing: 24);
 
       case RepertoireLayoutMode.tabletLandscape:
-        return _buildHorizontalLayout(spacing: 32, isCompact: false);
+        return _buildHorizontalLayout(spacing: 32);
     }
   }
 
-  Widget _buildVerticalLayout({
-    required double spacing,
-    required bool isCompact,
-  }) {
+  Widget _buildVerticalLayout({required double spacing}) {
     return Column(
       children: [
         // Duration selector at top
@@ -161,10 +155,7 @@ class RepertoireResponsiveLayout extends StatelessWidget {
     );
   }
 
-  Widget _buildHorizontalLayout({
-    required double spacing,
-    required bool isCompact,
-  }) {
+  Widget _buildHorizontalLayout({required double spacing}) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -179,7 +170,9 @@ class RepertoireResponsiveLayout extends StatelessWidget {
         Expanded(
           flex: 3, // Adjust proportion accordingly
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: isCompact ? 8.0 : 16.0),
+            padding: EdgeInsets.symmetric(
+              horizontal: spacing >= 24 ? 16.0 : 8.0,
+            ),
             child: timerDisplay,
           ),
         ),
