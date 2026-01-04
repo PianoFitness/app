@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Seventh Chord Support**: Added comprehensive seventh chord support with all inversions in practice settings (#35)
+- **Flutter Prunekit Integration**: Added dead code detection tooling for automated code quality analysis (#36)
+
+### Changed
+
+- **Dependency Updates**: Updated transitive dependency `watcher` from 1.1.4 to 1.2.0
+
+### Improved
+
+- **Practice Architecture**: Refactored PracticeExercise model using Strategy pattern with modular exercise strategies (#33, #34)
+- **UI Consistency**: Introduced centralized UI constants across all features for improved layout consistency (#34)
+- **Code Quality**: Cleaned up dead code, modularized components, and removed unused MIDI controls
+
 ## [0.4.0] - 2025-12-12
 
 ### Added
