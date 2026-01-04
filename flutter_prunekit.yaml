@@ -37,6 +37,12 @@ ignore_methods:
   - "deactivate"
   - "build"
 
+  # Future-planned accessibility announcement methods
+  - "MusicalAnnouncementsService.announceNotesChange"
+  - "MusicalAnnouncementsService.announceModeChange"
+  - "MusicalAnnouncementsService.announceMidiStatus"
+  - "MusicalAnnouncementsService.announcePracticeFeedback"
+
   # Test helper methods
   - "TestHelper.*"
   - "_test*"
