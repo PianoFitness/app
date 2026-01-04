@@ -52,6 +52,7 @@ class PracticeSession {
   // Chord type-specific state
   ChordType _selectedChordType = ChordType.major;
   bool _includeInversions = true;
+  bool _includeSeventhChords = false;
 
   // Hand selection state
   HandSelection _selectedHandSelection = HandSelection.both;
@@ -89,6 +90,9 @@ class PracticeSession {
 
   /// Whether to include inversions in chord type exercises.
   bool get includeInversions => _includeInversions;
+
+  /// Whether to include seventh chords in chord-by-key exercises.
+  bool get includeSeventhChords => _includeSeventhChords;
 
   /// The currently selected hand for practice exercises.
   HandSelection get selectedHandSelection => _selectedHandSelection;
@@ -187,6 +191,18 @@ class PracticeSession {
     _applyConfigChange(() => _includeInversions = includeInversions);
   }
 
+  /// Sets whether to include seventh chords in chord-by-key exercises.
+  ///
+  /// When enabled, chord-by-key exercises will use seventh chords (4 notes)
+  /// instead of triads (3 notes). This allows practicing diatonic seventh
+  /// chord progressions (e.g., Imaj7, ii7, V7 in major keys).
+  ///
+  /// Automatically stops any active practice session and regenerates
+  /// the chord sequence with the new setting.
+  void setIncludeSeventhChords(bool includeSeventhChords) {
+    _applyConfigChange(() => _includeSeventhChords = includeSeventhChords);
+  }
+
   /// Sets the hand selection for practice exercises.
   ///
   /// Automatically stops any active practice session and regenerates
@@ -226,6 +242,7 @@ class PracticeSession {
           scaleType: _selectedScaleType,
           handSelection: _selectedHandSelection,
           startOctave: defaultStartOctave,
+          includeSeventhChords: _includeSeventhChords,
         );
       case PracticeMode.chordsByType:
         return ChordsByTypeStrategy(

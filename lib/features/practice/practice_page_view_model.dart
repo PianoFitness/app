@@ -181,6 +181,12 @@ class PracticePageViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Changes the include seventh chords setting and updates the session.
+  void setIncludeSeventhChords(bool includeSeventhChords) {
+    _practiceSession?.setIncludeSeventhChords(includeSeventhChords);
+    notifyListeners();
+  }
+
   /// Changes the selected hand and updates the session.
   void setSelectedHandSelection(HandSelection handSelection) {
     _practiceSession?.setSelectedHandSelection(handSelection);

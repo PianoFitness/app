@@ -172,6 +172,8 @@ class ChordInversionUtils {
         return "1st Inversion";
       case ChordInversion.second:
         return "2nd Inversion";
+      case ChordInversion.third:
+        return "3rd Inversion";
     }
   }
 
@@ -188,6 +190,20 @@ class ChordInversionUtils {
         return "Diminished";
       case ChordType.augmented:
         return "Augmented";
+      case ChordType.major7:
+        return "Major 7th";
+      case ChordType.dominant7:
+        return "Dominant 7th";
+      case ChordType.minor7:
+        return "Minor 7th";
+      case ChordType.halfDiminished7:
+        return "Half-Diminished 7th";
+      case ChordType.diminished7:
+        return "Diminished 7th";
+      case ChordType.minorMajor7:
+        return "Minor-Major 7th";
+      case ChordType.augmented7:
+        return "Augmented 7th";
     }
   }
 }

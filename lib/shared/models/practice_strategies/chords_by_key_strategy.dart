@@ -6,19 +6,22 @@ import "package:piano_fitness/shared/utils/scales.dart" as music;
 
 /// Strategy for initializing chord-by-key practice sequences.
 ///
-/// Generates smooth triad progressions through all chords in a key
+/// Generates smooth chord progressions through all chords in a key
 /// (e.g., I, ii, iii, IV, V, vi, vii° in C major).
+/// Can generate either triad or seventh chord progressions based on configuration.
 class ChordsByKeyStrategy implements PracticeStrategy {
   /// Creates a chords-by-key strategy.
   ///
   /// Requires [key] and [scaleType] to determine which chords belong
   /// to the key, [handSelection] to specify which hand(s) to practice,
-  /// and [startOctave] for the base pitch.
+  /// [startOctave] for the base pitch, and [includeSeventhChords] to
+  /// toggle between triads (3 notes) and seventh chords (4 notes).
   const ChordsByKeyStrategy({
     required this.key,
     required this.scaleType,
     required this.handSelection,
     required this.startOctave,
+    required this.includeSeventhChords,
   });
 
   /// The musical key for the chord progression.
@@ -33,12 +36,15 @@ class ChordsByKeyStrategy implements PracticeStrategy {
   /// The starting octave for the chords.
   final int startOctave;
 
+  /// Whether to use seventh chords (4 notes) instead of triads (3 notes).
+  final bool includeSeventhChords;
+
   @override
   PracticeExercise initializeExercise() {
-    final chordProgression = ChordDefinitions.getSmoothKeyTriadProgression(
-      key,
-      scaleType,
-    );
+    // Generate either triad or seventh chord progression based on toggle
+    final chordProgression = includeSeventhChords
+        ? ChordDefinitions.getSmoothKeySeventhChordProgression(key, scaleType)
+        : ChordDefinitions.getSmoothKeyTriadProgression(key, scaleType);
 
     // Convert chord progression to PracticeSteps
     // Each chord is a simultaneous step
