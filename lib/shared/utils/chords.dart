@@ -718,8 +718,10 @@ class ChordByType {
   ///
   /// Returns a list of [ChordInfo] objects representing all chords
   /// in the practice sequence, optionally including inversions.
+  /// Seventh chords include third inversion when inversions are enabled.
   List<ChordInfo> generateChordSequence() {
     final chords = <ChordInfo>[];
+    final isSeventhChord = _isSeventhChordType(type);
 
     for (final rootNote in rootNotes) {
       // Add root position
@@ -735,10 +737,28 @@ class ChordByType {
         chords.add(
           ChordDefinitions.getChord(rootNote, type, ChordInversion.second),
         );
+
+        // Add third inversion for seventh chords
+        if (isSeventhChord) {
+          chords.add(
+            ChordDefinitions.getChord(rootNote, type, ChordInversion.third),
+          );
+        }
       }
     }
 
     return chords;
+  }
+
+  /// Helper to determine if a chord type is a seventh chord
+  bool _isSeventhChordType(ChordType type) {
+    return type == ChordType.major7 ||
+        type == ChordType.dominant7 ||
+        type == ChordType.minor7 ||
+        type == ChordType.halfDiminished7 ||
+        type == ChordType.diminished7 ||
+        type == ChordType.minorMajor7 ||
+        type == ChordType.augmented7;
   }
 
   /// Returns the complete MIDI note sequence for this chord type practice.

@@ -229,4 +229,116 @@ void main() {
       },
     );
   });
+
+  group("ChordByType - Seventh Chord Support", () {
+    test(
+      "generateChordSequence includes third inversion for seventh chords with inversions",
+      () {
+        final major7Exercise = ChordByType(
+          type: ChordType.major7,
+          rootNotes: [MusicalNote.c, MusicalNote.d, MusicalNote.e],
+          includeInversions: true,
+          name: "Major 7 Test",
+        );
+
+        final chords = major7Exercise.generateChordSequence();
+
+        // Should have 12 chords (3 root notes × 4 positions each)
+        expect(chords.length, equals(12));
+
+        // First four chords should be C major7 in all inversions
+        expect(chords[0].rootNote, equals(MusicalNote.c));
+        expect(chords[0].type, equals(ChordType.major7));
+        expect(chords[0].inversion, equals(ChordInversion.root));
+
+        expect(chords[1].rootNote, equals(MusicalNote.c));
+        expect(chords[1].type, equals(ChordType.major7));
+        expect(chords[1].inversion, equals(ChordInversion.first));
+
+        expect(chords[2].rootNote, equals(MusicalNote.c));
+        expect(chords[2].type, equals(ChordType.major7));
+        expect(chords[2].inversion, equals(ChordInversion.second));
+
+        expect(chords[3].rootNote, equals(MusicalNote.c));
+        expect(chords[3].type, equals(ChordType.major7));
+        expect(chords[3].inversion, equals(ChordInversion.third));
+      },
+    );
+
+    test(
+      "generateChordSequence without inversions only includes root position for seventh chords",
+      () {
+        final dominant7Exercise = ChordByType(
+          type: ChordType.dominant7,
+          rootNotes: [MusicalNote.c, MusicalNote.d],
+          includeInversions: false,
+          name: "Dominant 7 Test",
+        );
+
+        final chords = dominant7Exercise.generateChordSequence();
+
+        // Should have 2 chords (2 root notes × 1 position each)
+        expect(chords.length, equals(2));
+
+        // Both should be root position only
+        expect(chords[0].inversion, equals(ChordInversion.root));
+        expect(chords[1].inversion, equals(ChordInversion.root));
+      },
+    );
+
+    test(
+      "getMidiSequence length equals chords.length * 4 for seventh chords",
+      () {
+        final minor7Exercise = ChordByType(
+          type: ChordType.minor7,
+          rootNotes: [MusicalNote.c, MusicalNote.d],
+          includeInversions: true,
+          name: "Minor 7 Test",
+        );
+
+        final chords = minor7Exercise.generateChordSequence();
+        final midiSequence = minor7Exercise.getMidiSequence(4);
+
+        // Each seventh chord has 4 notes, so MIDI sequence should be 4x chord count
+        expect(midiSequence.length, equals(chords.length * 4));
+        expect(midiSequence.length, equals(8 * 4)); // 32 total notes
+      },
+    );
+
+    test("all seventh chord types generate correct inversion counts", () {
+      final seventhChordTypes = [
+        ChordType.major7,
+        ChordType.dominant7,
+        ChordType.minor7,
+        ChordType.halfDiminished7,
+        ChordType.diminished7,
+        ChordType.minorMajor7,
+        ChordType.augmented7,
+      ];
+
+      for (final chordType in seventhChordTypes) {
+        final exercise = ChordByType(
+          type: chordType,
+          rootNotes: [MusicalNote.c],
+          includeInversions: true,
+          name: "Test $chordType",
+        );
+
+        final chords = exercise.generateChordSequence();
+
+        // Should have 4 chords (1 root note × 4 positions)
+        expect(
+          chords.length,
+          equals(4),
+          reason: "$chordType should generate 4 inversions",
+        );
+
+        // Verify all inversions are present
+        expect(chords[0].inversion, equals(ChordInversion.root));
+        expect(chords[1].inversion, equals(ChordInversion.first));
+        expect(chords[2].inversion, equals(ChordInversion.second));
+        expect(chords[3].inversion, equals(ChordInversion.third));
+      }
+    });
+  });
 }
