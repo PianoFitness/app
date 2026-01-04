@@ -193,6 +193,16 @@ class PracticePageViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Enables or disables automatic key progression through the circle of fifths.
+  ///
+  /// When enabled, completing an exercise will automatically advance to the next
+  /// key in the circle of fifths. The progression starts from the currently selected
+  /// key and continues cycling through all twelve keys.
+  void setAutoKeyProgression(bool enable) {
+    _practiceSession?.setAutoKeyProgression(enable);
+    notifyListeners();
+  }
+
   /// Plays a virtual note through MIDI output and triggers practice session.
   ///
   /// The practice session handles its own auto-start logic when notes are pressed.

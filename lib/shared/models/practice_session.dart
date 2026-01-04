@@ -8,6 +8,7 @@ import "package:piano_fitness/shared/models/practice_mode.dart";
 import "package:piano_fitness/shared/models/practice_strategies/practice_strategies.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
 import "package:piano_fitness/shared/utils/chords.dart";
+import "package:piano_fitness/shared/utils/circle_of_fifths.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as music;
 
@@ -57,6 +58,9 @@ class PracticeSession {
   // Hand selection state
   HandSelection _selectedHandSelection = HandSelection.both;
 
+  // Auto key progression state
+  bool _autoProgressKeys = false;
+
   // Current exercise state using unified model
   PracticeExercise? _currentExercise;
   int _currentStepIndex = 0;
@@ -93,6 +97,13 @@ class PracticeSession {
 
   /// Whether to include seventh chords in chord-by-key exercises.
   bool get includeSeventhChords => _includeSeventhChords;
+
+  /// Whether to automatically progress through keys following the circle of fifths.
+  ///
+  /// When enabled, completing an exercise will automatically advance to the next
+  /// key in the circle of fifths progression, allowing continuous practice through
+  /// all twelve keys without manual key selection.
+  bool get autoProgressKeys => _autoProgressKeys;
 
   /// The currently selected hand for practice exercises.
   HandSelection get selectedHandSelection => _selectedHandSelection;
@@ -209,6 +220,18 @@ class PracticeSession {
   /// the exercise sequence for the selected hand(s).
   void setSelectedHandSelection(HandSelection handSelection) {
     _applyConfigChange(() => _selectedHandSelection = handSelection);
+  }
+
+  /// Enables or disables automatic key progression through the circle of fifths.
+  ///
+  /// When enabled, completing an exercise will automatically advance to the next
+  /// key in the circle of fifths. The progression starts from the currently selected
+  /// key and continues cycling through all twelve keys.
+  ///
+  /// This setting does not regenerate the current exercise, only affects behavior
+  /// upon exercise completion.
+  void setAutoKeyProgression(bool enable) {
+    _autoProgressKeys = enable;
   }
 
   /// Applies a config mutation, then resets practice state and rebuilds the sequence.
@@ -403,10 +426,35 @@ class PracticeSession {
     _practiceActive = false;
     onExerciseCompleted();
 
+    // If auto-progression is enabled, advance to the next key in the circle of fifths
+    if (_autoProgressKeys) {
+      _progressToNextKey();
+    }
+
     // Reset for immediate repetition - ready for next practice session
     _currentStepIndex = 0;
     _currentlyHeldNotes.clear();
     _updateHighlightedNotes();
+  }
+
+  /// Progresses to the next key in the circle of fifths.
+  ///
+  /// This method is called automatically when auto-progression is enabled and
+  /// an exercise is completed. It advances the selected key to the next position
+  /// in the circle of fifths and regenerates the exercise with the new key.
+  ///
+  /// For arpeggio mode, this also updates the root note to match the new key.
+  void _progressToNextKey() {
+    final nextKey = CircleOfFifths.getNextKey(_selectedKey);
+    _selectedKey = nextKey;
+
+    // For arpeggios, also update the root note to match the key
+    // (Key and MusicalNote enums have the same values)
+    if (_practiceMode == PracticeMode.arpeggios) {
+      _selectedRootNote = MusicalNote.values[nextKey.index];
+    }
+
+    _initializeSequence();
   }
 
   /// Starts a new practice session with the current exercise configuration.

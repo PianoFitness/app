@@ -181,6 +181,7 @@ class _PracticePageState extends State<PracticePage> {
                           includeInversions: session.includeInversions,
                           includeSeventhChords: session.includeSeventhChords,
                           selectedHandSelection: session.selectedHandSelection,
+                          autoProgressKeys: session.autoProgressKeys,
                           practiceActive: session.practiceActive,
                           onResetPractice: _resetPractice,
                           onPracticeModeChanged: (mode) {
@@ -215,6 +216,9 @@ class _PracticePageState extends State<PracticePage> {
                           },
                           onHandSelectionChanged: (handSelection) {
                             _viewModel.setSelectedHandSelection(handSelection);
+                          },
+                          onAutoProgressKeysChanged: (enable) {
+                            _viewModel.setAutoKeyProgression(enable);
                           },
                         );
                       },
