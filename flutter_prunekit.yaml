@@ -58,6 +58,8 @@ ignore_parameters:
   - "_*"
   - "context" # BuildContext parameters are often required but unused
 
-# Optional checks - disabled for initial scan
-check_catch_variables: false
-check_build_context_parameters: false
+# Optional checks configuration
+# Disabled to reduce noise from common Flutter patterns and framework requirements
+# Re-enable once core dead code cleanup is complete for more granular analysis
+check_catch_variables: false # Catch block variables (e, error, stackTrace) are often unused but required by syntax
+check_build_context_parameters: false # BuildContext params required by framework but often unused in simple widgets
