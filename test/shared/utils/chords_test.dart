@@ -4,6 +4,28 @@ import "package:piano_fitness/shared/utils/chords.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart";
 
+/// Helper to determine expected note count based on chord type.
+///
+/// Returns 3 for triads (major, minor, diminished, augmented) and
+/// 4 for seventh chords (all *7 variants).
+int _expectedNoteCount(ChordType type) {
+  switch (type) {
+    case ChordType.major:
+    case ChordType.minor:
+    case ChordType.diminished:
+    case ChordType.augmented:
+      return 3; // Triads
+    case ChordType.major7:
+    case ChordType.dominant7:
+    case ChordType.minor7:
+    case ChordType.halfDiminished7:
+    case ChordType.diminished7:
+    case ChordType.minorMajor7:
+    case ChordType.augmented7:
+      return 4; // Seventh chords
+  }
+}
+
 void main() {
   group("ChordDefinitions", () {
     group("Basic chord generation", () {
@@ -357,25 +379,6 @@ void main() {
     });
 
     group("All chord types in all keys", () {
-      // Helper to determine expected note count based on chord type
-      int expectedNoteCount(ChordType type) {
-        switch (type) {
-          case ChordType.major:
-          case ChordType.minor:
-          case ChordType.diminished:
-          case ChordType.augmented:
-            return 3; // Triads
-          case ChordType.major7:
-          case ChordType.dominant7:
-          case ChordType.minor7:
-          case ChordType.halfDiminished7:
-          case ChordType.diminished7:
-          case ChordType.minorMajor7:
-          case ChordType.augmented7:
-            return 4; // Seventh chords
-        }
-      }
-
       test("should generate chords for all chord types and keys", () {
         for (final note in MusicalNote.values) {
           for (final type in ChordType.values) {
@@ -394,7 +397,7 @@ void main() {
 
             for (final inversion in inversions) {
               final chord = ChordDefinitions.getChord(note, type, inversion);
-              final expectedNotes = expectedNoteCount(type);
+              final expectedNotes = _expectedNoteCount(type);
 
               expect(chord.rootNote, equals(note));
               expect(chord.type, equals(type));
@@ -518,25 +521,6 @@ void main() {
     });
 
     group("Additional comprehensive coverage", () {
-      // Helper to determine expected note count based on chord type
-      int expectedNoteCount(ChordType type) {
-        switch (type) {
-          case ChordType.major:
-          case ChordType.minor:
-          case ChordType.diminished:
-          case ChordType.augmented:
-            return 3; // Triads
-          case ChordType.major7:
-          case ChordType.dominant7:
-          case ChordType.minor7:
-          case ChordType.halfDiminished7:
-          case ChordType.diminished7:
-          case ChordType.minorMajor7:
-          case ChordType.augmented7:
-            return 4; // Seventh chords
-        }
-      }
-
       test("should handle all combinations of notes, types, and inversions", () {
         var totalCombinations = 0;
 
@@ -557,7 +541,7 @@ void main() {
 
             for (final inversion in inversions) {
               final chord = ChordDefinitions.getChord(note, type, inversion);
-              final expectedNotes = expectedNoteCount(type);
+              final expectedNotes = _expectedNoteCount(type);
 
               // Basic validations
               expect(chord.rootNote, equals(note));
@@ -658,7 +642,7 @@ void main() {
         () {
           for (final note in MusicalNote.values) {
             for (final type in ChordType.values) {
-              final expectedNotes = expectedNoteCount(type);
+              final expectedNotes = _expectedNoteCount(type);
 
               // Skip third inversion for triads (only valid for seventh chords)
               final inversions =
