@@ -11,6 +11,7 @@ void main() {
         scaleType: music.ScaleType.major,
         handSelection: HandSelection.both,
         startOctave: 4,
+        includeSeventhChords: false,
       );
 
       final exercise = strategy.initializeExercise();
@@ -30,6 +31,7 @@ void main() {
         scaleType: music.ScaleType.minor,
         handSelection: HandSelection.right,
         startOctave: 4,
+        includeSeventhChords: false,
       );
 
       final exercise = strategy.initializeExercise();
@@ -49,6 +51,7 @@ void main() {
         scaleType: music.ScaleType.major,
         handSelection: HandSelection.both,
         startOctave: 4,
+        includeSeventhChords: false,
       );
 
       final gMajorStrategy = ChordsByKeyStrategy(
@@ -56,6 +59,7 @@ void main() {
         scaleType: music.ScaleType.major,
         handSelection: HandSelection.both,
         startOctave: 4,
+        includeSeventhChords: false,
       );
 
       final cExercise = cMajorStrategy.initializeExercise();
@@ -70,6 +74,7 @@ void main() {
         scaleType: music.ScaleType.major,
         handSelection: HandSelection.left,
         startOctave: 4,
+        includeSeventhChords: false,
       );
 
       final exercise = strategy.initializeExercise();
@@ -90,6 +95,7 @@ void main() {
         scaleType: music.ScaleType.major,
         handSelection: HandSelection.right,
         startOctave: 4,
+        includeSeventhChords: false,
       );
 
       final exercise = strategy.initializeExercise();
@@ -109,6 +115,7 @@ void main() {
         scaleType: music.ScaleType.major,
         handSelection: HandSelection.both,
         startOctave: 4,
+        includeSeventhChords: false,
       );
 
       final exercise = strategy.initializeExercise();

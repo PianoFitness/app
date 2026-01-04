@@ -4,6 +4,50 @@ import "package:piano_fitness/shared/utils/chords.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart";
 
+/// Helper to determine expected note count based on chord type.
+///
+/// Returns 3 for triads (major, minor, diminished, augmented) and
+/// 4 for seventh chords (all *7 variants).
+int _expectedNoteCount(ChordType type) {
+  switch (type) {
+    case ChordType.major:
+    case ChordType.minor:
+    case ChordType.diminished:
+    case ChordType.augmented:
+      return 3; // Triads
+    case ChordType.major7:
+    case ChordType.dominant7:
+    case ChordType.minor7:
+    case ChordType.halfDiminished7:
+    case ChordType.diminished7:
+    case ChordType.minorMajor7:
+    case ChordType.augmented7:
+      return 4; // Seventh chords
+  }
+}
+
+/// Returns valid inversions for the given chord type.
+///
+/// Triads support root, first, second inversions only.
+/// Seventh chords support all inversions (root, first, second, third).
+List<ChordInversion> _validInversions(ChordType type) {
+  switch (type) {
+    case ChordType.major:
+    case ChordType.minor:
+    case ChordType.diminished:
+    case ChordType.augmented:
+      return [ChordInversion.root, ChordInversion.first, ChordInversion.second];
+    case ChordType.major7:
+    case ChordType.dominant7:
+    case ChordType.minor7:
+    case ChordType.halfDiminished7:
+    case ChordType.diminished7:
+    case ChordType.minorMajor7:
+    case ChordType.augmented7:
+      return ChordInversion.values;
+  }
+}
+
 void main() {
   group("ChordDefinitions", () {
     group("Basic chord generation", () {
@@ -360,22 +404,29 @@ void main() {
       test("should generate chords for all chord types and keys", () {
         for (final note in MusicalNote.values) {
           for (final type in ChordType.values) {
-            for (final inversion in ChordInversion.values) {
+            for (final inversion in _validInversions(type)) {
               final chord = ChordDefinitions.getChord(note, type, inversion);
+              final expectedNotes = _expectedNoteCount(type);
 
               expect(chord.rootNote, equals(note));
               expect(chord.type, equals(type));
               expect(chord.inversion, equals(inversion));
-              expect(chord.notes.length, equals(3));
+              expect(chord.notes.length, equals(expectedNotes));
               expect(chord.name, isNotEmpty);
 
               // Test MIDI generation
               final midiNotes = chord.getMidiNotes(4);
-              expect(midiNotes.length, equals(3));
+              expect(midiNotes.length, equals(expectedNotes));
 
               // MIDI notes should be in ascending order for proper voicing
-              expect(midiNotes[0], lessThan(midiNotes[1]));
-              expect(midiNotes[1], lessThan(midiNotes[2]));
+              for (var i = 0; i < midiNotes.length - 1; i++) {
+                expect(
+                  midiNotes[i],
+                  lessThan(midiNotes[i + 1]),
+                  reason:
+                      "MIDI notes should be ascending for $note $type ($inversion)",
+                );
+              }
             }
           }
         }
@@ -479,47 +530,51 @@ void main() {
     });
 
     group("Additional comprehensive coverage", () {
-      test(
-        "should handle all combinations of notes, types, and inversions",
-        () {
-          var totalCombinations = 0;
+      test("should handle all combinations of notes, types, and inversions", () {
+        var totalCombinations = 0;
 
-          for (final note in MusicalNote.values) {
-            for (final type in ChordType.values) {
-              for (final inversion in ChordInversion.values) {
-                final chord = ChordDefinitions.getChord(note, type, inversion);
+        for (final note in MusicalNote.values) {
+          for (final type in ChordType.values) {
+            for (final inversion in _validInversions(type)) {
+              final chord = ChordDefinitions.getChord(note, type, inversion);
+              final expectedNotes = _expectedNoteCount(type);
 
-                // Basic validations
-                expect(chord.rootNote, equals(note));
-                expect(chord.type, equals(type));
-                expect(chord.inversion, equals(inversion));
-                expect(chord.notes, hasLength(3));
-                expect(chord.name, isNotEmpty);
+              // Basic validations
+              expect(chord.rootNote, equals(note));
+              expect(chord.type, equals(type));
+              expect(chord.inversion, equals(inversion));
+              expect(chord.notes, hasLength(expectedNotes));
+              expect(chord.name, isNotEmpty);
 
-                // MIDI notes should be valid
-                final midiNotes = chord.getMidiNotes(4);
-                expect(midiNotes, hasLength(3));
-                for (final midi in midiNotes) {
-                  expect(midi, greaterThanOrEqualTo(0));
-                  expect(midi, lessThanOrEqualTo(127));
-                }
-
-                // MIDI notes should be in ascending order
-                expect(midiNotes[0], lessThan(midiNotes[1]));
-                expect(midiNotes[1], lessThan(midiNotes[2]));
-
-                totalCombinations++;
+              // MIDI notes should be valid
+              final midiNotes = chord.getMidiNotes(4);
+              expect(midiNotes, hasLength(expectedNotes));
+              for (final midi in midiNotes) {
+                expect(midi, greaterThanOrEqualTo(0));
+                expect(midi, lessThanOrEqualTo(127));
               }
+
+              // MIDI notes should be in ascending order
+              for (var i = 0; i < midiNotes.length - 1; i++) {
+                expect(
+                  midiNotes[i],
+                  lessThan(midiNotes[i + 1]),
+                  reason:
+                      "MIDI notes should be ascending for $note $type ($inversion)",
+                );
+              }
+
+              totalCombinations++;
             }
           }
+        }
 
-          // Ensure we tested all expected combinations
-          expect(
-            totalCombinations,
-            equals(12 * 4 * 3),
-          ); // 12 notes × 4 types × 3 inversions = 144
-        },
-      );
+        // Ensure we tested all expected combinations
+        // Triads: 12 notes × 4 types × 3 inversions = 144
+        // Seventh chords: 12 notes × 7 types × 4 inversions = 336
+        // Total: 144 + 336 = 480
+        expect(totalCombinations, equals(480));
+      });
 
       test("should generate correct MIDI notes across different octaves", () {
         final chord = ChordDefinitions.getChord(
@@ -583,39 +638,43 @@ void main() {
         () {
           for (final note in MusicalNote.values) {
             for (final type in ChordType.values) {
-              final root = ChordDefinitions.getChord(
-                note,
-                type,
-                ChordInversion.root,
-              );
-              final first = ChordDefinitions.getChord(
-                note,
-                type,
-                ChordInversion.first,
-              );
-              final second = ChordDefinitions.getChord(
-                note,
-                type,
-                ChordInversion.second,
-              );
+              final expectedNotes = _expectedNoteCount(type);
 
               for (var octave = 1; octave <= 7; octave++) {
-                final rootMidi = root.getMidiNotes(octave);
-                final firstMidi = first.getMidiNotes(octave);
-                final secondMidi = second.getMidiNotes(octave);
+                for (final inversion in _validInversions(type)) {
+                  final chord = ChordDefinitions.getChord(
+                    note,
+                    type,
+                    inversion,
+                  );
+                  final midiNotes = chord.getMidiNotes(octave);
 
-                // All should be ascending
-                expect(rootMidi[0], lessThan(rootMidi[1]));
-                expect(rootMidi[1], lessThan(rootMidi[2]));
-                expect(firstMidi[0], lessThan(firstMidi[1]));
-                expect(firstMidi[1], lessThan(firstMidi[2]));
-                expect(secondMidi[0], lessThan(secondMidi[1]));
-                expect(secondMidi[1], lessThan(secondMidi[2]));
+                  // Verify correct number of notes
+                  expect(
+                    midiNotes.length,
+                    equals(expectedNotes),
+                    reason:
+                        "Should have $expectedNotes notes for ${type.name} ${inversion.name}",
+                  );
 
-                // Should span reasonable range
-                expect(rootMidi[2] - rootMidi[0], lessThanOrEqualTo(24));
-                expect(firstMidi[2] - firstMidi[0], lessThanOrEqualTo(24));
-                expect(secondMidi[2] - secondMidi[0], lessThanOrEqualTo(24));
+                  // All notes should be ascending
+                  for (var i = 0; i < midiNotes.length - 1; i++) {
+                    expect(
+                      midiNotes[i],
+                      lessThan(midiNotes[i + 1]),
+                      reason:
+                          "Notes should be ascending for ${note.name} ${type.name} ${inversion.name} in octave $octave",
+                    );
+                  }
+
+                  // Should span reasonable range (within 2 octaves)
+                  expect(
+                    midiNotes.last - midiNotes.first,
+                    lessThanOrEqualTo(24),
+                    reason:
+                        "Chord span should be ≤24 semitones for ${note.name} ${type.name} ${inversion.name}",
+                  );
+                }
               }
             }
           }
@@ -817,6 +876,793 @@ void main() {
         // Left hand (all -12): E3,G3,C4 -> [52, 55, 60]
         // Combined: [52, 55, 60, 64, 67, 72]
         expect(bothHandsNotes, equals([52, 55, 60, 64, 67, 72]));
+      });
+    });
+
+    group("Seventh chords", () {
+      group("Major 7th chords", () {
+        test("should create C Major 7th chord correctly", () {
+          final chord = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.major7,
+            ChordInversion.root,
+          );
+
+          expect(chord.rootNote, equals(MusicalNote.c));
+          expect(chord.type, equals(ChordType.major7));
+          expect(chord.inversion, equals(ChordInversion.root));
+          expect(chord.name, equals("Cmaj7"));
+          expect(chord.notes.length, equals(4));
+          expect(
+            chord.notes,
+            equals([
+              MusicalNote.c,
+              MusicalNote.e,
+              MusicalNote.g,
+              MusicalNote.b,
+            ]),
+          );
+        });
+
+        test("should create all inversions of C Major 7th chord", () {
+          // Root position: C-E-G-B
+          final root = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.major7,
+            ChordInversion.root,
+          );
+          expect(
+            root.notes,
+            equals([
+              MusicalNote.c,
+              MusicalNote.e,
+              MusicalNote.g,
+              MusicalNote.b,
+            ]),
+          );
+          expect(root.name, equals("Cmaj7"));
+
+          // 1st inversion: E-G-B-C
+          final first = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.major7,
+            ChordInversion.first,
+          );
+          expect(
+            first.notes,
+            equals([
+              MusicalNote.e,
+              MusicalNote.g,
+              MusicalNote.b,
+              MusicalNote.c,
+            ]),
+          );
+          expect(first.name, equals("Cmaj7 (1st inv)"));
+
+          // 2nd inversion: G-B-C-E
+          final second = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.major7,
+            ChordInversion.second,
+          );
+          expect(
+            second.notes,
+            equals([
+              MusicalNote.g,
+              MusicalNote.b,
+              MusicalNote.c,
+              MusicalNote.e,
+            ]),
+          );
+          expect(second.name, equals("Cmaj7 (2nd inv)"));
+
+          // 3rd inversion: B-C-E-G
+          final third = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.major7,
+            ChordInversion.third,
+          );
+          expect(
+            third.notes,
+            equals([
+              MusicalNote.b,
+              MusicalNote.c,
+              MusicalNote.e,
+              MusicalNote.g,
+            ]),
+          );
+          expect(third.name, equals("Cmaj7 (3rd inv)"));
+        });
+      });
+
+      group("Dominant 7th chords", () {
+        test("should create C Dominant 7th chord correctly", () {
+          final chord = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.dominant7,
+            ChordInversion.root,
+          );
+
+          expect(chord.rootNote, equals(MusicalNote.c));
+          expect(chord.type, equals(ChordType.dominant7));
+          expect(chord.inversion, equals(ChordInversion.root));
+          expect(chord.name, equals("C7"));
+          expect(chord.notes.length, equals(4));
+          expect(
+            chord.notes,
+            equals([
+              MusicalNote.c,
+              MusicalNote.e,
+              MusicalNote.g,
+              MusicalNote.aSharp,
+            ]),
+          );
+        });
+
+        test("should create all inversions of C Dominant 7th chord", () {
+          // Root position: C-E-G-Bb
+          final root = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.dominant7,
+            ChordInversion.root,
+          );
+          expect(
+            root.notes,
+            equals([
+              MusicalNote.c,
+              MusicalNote.e,
+              MusicalNote.g,
+              MusicalNote.aSharp,
+            ]),
+          );
+
+          // 1st inversion: E-G-Bb-C
+          final first = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.dominant7,
+            ChordInversion.first,
+          );
+          expect(
+            first.notes,
+            equals([
+              MusicalNote.e,
+              MusicalNote.g,
+              MusicalNote.aSharp,
+              MusicalNote.c,
+            ]),
+          );
+
+          // 2nd inversion: G-Bb-C-E
+          final second = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.dominant7,
+            ChordInversion.second,
+          );
+          expect(
+            second.notes,
+            equals([
+              MusicalNote.g,
+              MusicalNote.aSharp,
+              MusicalNote.c,
+              MusicalNote.e,
+            ]),
+          );
+
+          // 3rd inversion: Bb-C-E-G
+          final third = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.dominant7,
+            ChordInversion.third,
+          );
+          expect(
+            third.notes,
+            equals([
+              MusicalNote.aSharp,
+              MusicalNote.c,
+              MusicalNote.e,
+              MusicalNote.g,
+            ]),
+          );
+        });
+      });
+
+      group("Minor 7th chords", () {
+        test("should create C Minor 7th chord correctly", () {
+          final chord = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.minor7,
+            ChordInversion.root,
+          );
+
+          expect(chord.rootNote, equals(MusicalNote.c));
+          expect(chord.type, equals(ChordType.minor7));
+          expect(chord.inversion, equals(ChordInversion.root));
+          expect(chord.name, equals("Cm7"));
+          expect(chord.notes.length, equals(4));
+          expect(
+            chord.notes,
+            equals([
+              MusicalNote.c,
+              MusicalNote.dSharp,
+              MusicalNote.g,
+              MusicalNote.aSharp,
+            ]),
+          );
+        });
+
+        test("should create all inversions of C Minor 7th chord", () {
+          // Root position: C-Eb-G-Bb
+          final root = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.minor7,
+            ChordInversion.root,
+          );
+          expect(
+            root.notes,
+            equals([
+              MusicalNote.c,
+              MusicalNote.dSharp,
+              MusicalNote.g,
+              MusicalNote.aSharp,
+            ]),
+          );
+
+          // 1st inversion: Eb-G-Bb-C
+          final first = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.minor7,
+            ChordInversion.first,
+          );
+          expect(
+            first.notes,
+            equals([
+              MusicalNote.dSharp,
+              MusicalNote.g,
+              MusicalNote.aSharp,
+              MusicalNote.c,
+            ]),
+          );
+
+          // 2nd inversion: G-Bb-C-Eb
+          final second = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.minor7,
+            ChordInversion.second,
+          );
+          expect(
+            second.notes,
+            equals([
+              MusicalNote.g,
+              MusicalNote.aSharp,
+              MusicalNote.c,
+              MusicalNote.dSharp,
+            ]),
+          );
+
+          // 3rd inversion: Bb-C-Eb-G
+          final third = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.minor7,
+            ChordInversion.third,
+          );
+          expect(
+            third.notes,
+            equals([
+              MusicalNote.aSharp,
+              MusicalNote.c,
+              MusicalNote.dSharp,
+              MusicalNote.g,
+            ]),
+          );
+        });
+      });
+
+      group("Half Diminished 7th chords", () {
+        test("should create C Half Diminished 7th chord correctly", () {
+          final chord = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.halfDiminished7,
+            ChordInversion.root,
+          );
+
+          expect(chord.rootNote, equals(MusicalNote.c));
+          expect(chord.type, equals(ChordType.halfDiminished7));
+          expect(chord.inversion, equals(ChordInversion.root));
+          expect(chord.name, equals("Cø7"));
+          expect(chord.notes.length, equals(4));
+          expect(
+            chord.notes,
+            equals([
+              MusicalNote.c,
+              MusicalNote.dSharp,
+              MusicalNote.fSharp,
+              MusicalNote.aSharp,
+            ]),
+          );
+        });
+
+        test("should create all inversions of C Half Diminished 7th chord", () {
+          // Root position: C-Eb-Gb-Bb
+          final root = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.halfDiminished7,
+            ChordInversion.root,
+          );
+          expect(
+            root.notes,
+            equals([
+              MusicalNote.c,
+              MusicalNote.dSharp,
+              MusicalNote.fSharp,
+              MusicalNote.aSharp,
+            ]),
+          );
+
+          // 1st inversion: Eb-Gb-Bb-C
+          final first = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.halfDiminished7,
+            ChordInversion.first,
+          );
+          expect(
+            first.notes,
+            equals([
+              MusicalNote.dSharp,
+              MusicalNote.fSharp,
+              MusicalNote.aSharp,
+              MusicalNote.c,
+            ]),
+          );
+
+          // 2nd inversion: Gb-Bb-C-Eb
+          final second = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.halfDiminished7,
+            ChordInversion.second,
+          );
+          expect(
+            second.notes,
+            equals([
+              MusicalNote.fSharp,
+              MusicalNote.aSharp,
+              MusicalNote.c,
+              MusicalNote.dSharp,
+            ]),
+          );
+
+          // 3rd inversion: Bb-C-Eb-Gb
+          final third = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.halfDiminished7,
+            ChordInversion.third,
+          );
+          expect(
+            third.notes,
+            equals([
+              MusicalNote.aSharp,
+              MusicalNote.c,
+              MusicalNote.dSharp,
+              MusicalNote.fSharp,
+            ]),
+          );
+        });
+      });
+
+      group("Diminished 7th chords", () {
+        test("should create C Diminished 7th chord correctly", () {
+          final chord = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.diminished7,
+            ChordInversion.root,
+          );
+
+          expect(chord.rootNote, equals(MusicalNote.c));
+          expect(chord.type, equals(ChordType.diminished7));
+          expect(chord.inversion, equals(ChordInversion.root));
+          expect(chord.name, equals("C°7"));
+          expect(chord.notes.length, equals(4));
+          expect(
+            chord.notes,
+            equals([
+              MusicalNote.c,
+              MusicalNote.dSharp,
+              MusicalNote.fSharp,
+              MusicalNote.a,
+            ]),
+          );
+        });
+
+        test("should create all inversions of C Diminished 7th chord", () {
+          // Root position: C-Eb-Gb-A
+          final root = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.diminished7,
+            ChordInversion.root,
+          );
+          expect(
+            root.notes,
+            equals([
+              MusicalNote.c,
+              MusicalNote.dSharp,
+              MusicalNote.fSharp,
+              MusicalNote.a,
+            ]),
+          );
+
+          // 1st inversion: Eb-Gb-A-C
+          final first = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.diminished7,
+            ChordInversion.first,
+          );
+          expect(
+            first.notes,
+            equals([
+              MusicalNote.dSharp,
+              MusicalNote.fSharp,
+              MusicalNote.a,
+              MusicalNote.c,
+            ]),
+          );
+
+          // 2nd inversion: Gb-A-C-Eb
+          final second = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.diminished7,
+            ChordInversion.second,
+          );
+          expect(
+            second.notes,
+            equals([
+              MusicalNote.fSharp,
+              MusicalNote.a,
+              MusicalNote.c,
+              MusicalNote.dSharp,
+            ]),
+          );
+
+          // 3rd inversion: A-C-Eb-Gb
+          final third = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.diminished7,
+            ChordInversion.third,
+          );
+          expect(
+            third.notes,
+            equals([
+              MusicalNote.a,
+              MusicalNote.c,
+              MusicalNote.dSharp,
+              MusicalNote.fSharp,
+            ]),
+          );
+        });
+      });
+
+      group("Minor/Major 7th chords", () {
+        test("should create C Minor/Major 7th chord correctly", () {
+          final chord = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.minorMajor7,
+            ChordInversion.root,
+          );
+
+          expect(chord.rootNote, equals(MusicalNote.c));
+          expect(chord.type, equals(ChordType.minorMajor7));
+          expect(chord.inversion, equals(ChordInversion.root));
+          expect(chord.name, equals("Cm(maj7)"));
+          expect(chord.notes.length, equals(4));
+          expect(
+            chord.notes,
+            equals([
+              MusicalNote.c,
+              MusicalNote.dSharp,
+              MusicalNote.g,
+              MusicalNote.b,
+            ]),
+          );
+        });
+
+        test("should create all inversions of C Minor/Major 7th chord", () {
+          // Root position: C-Eb-G-B
+          final root = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.minorMajor7,
+            ChordInversion.root,
+          );
+          expect(
+            root.notes,
+            equals([
+              MusicalNote.c,
+              MusicalNote.dSharp,
+              MusicalNote.g,
+              MusicalNote.b,
+            ]),
+          );
+
+          // 1st inversion: Eb-G-B-C
+          final first = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.minorMajor7,
+            ChordInversion.first,
+          );
+          expect(
+            first.notes,
+            equals([
+              MusicalNote.dSharp,
+              MusicalNote.g,
+              MusicalNote.b,
+              MusicalNote.c,
+            ]),
+          );
+
+          // 2nd inversion: G-B-C-Eb
+          final second = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.minorMajor7,
+            ChordInversion.second,
+          );
+          expect(
+            second.notes,
+            equals([
+              MusicalNote.g,
+              MusicalNote.b,
+              MusicalNote.c,
+              MusicalNote.dSharp,
+            ]),
+          );
+
+          // 3rd inversion: B-C-Eb-G
+          final third = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.minorMajor7,
+            ChordInversion.third,
+          );
+          expect(
+            third.notes,
+            equals([
+              MusicalNote.b,
+              MusicalNote.c,
+              MusicalNote.dSharp,
+              MusicalNote.g,
+            ]),
+          );
+        });
+      });
+
+      group("Augmented 7th chords", () {
+        test("should create C Augmented 7th chord correctly", () {
+          final chord = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.augmented7,
+            ChordInversion.root,
+          );
+
+          expect(chord.rootNote, equals(MusicalNote.c));
+          expect(chord.type, equals(ChordType.augmented7));
+          expect(chord.inversion, equals(ChordInversion.root));
+          expect(chord.name, equals("Caug7"));
+          expect(chord.notes.length, equals(4));
+          expect(
+            chord.notes,
+            equals([
+              MusicalNote.c,
+              MusicalNote.e,
+              MusicalNote.gSharp,
+              MusicalNote.aSharp,
+            ]),
+          );
+        });
+
+        test("should create all inversions of C Augmented 7th chord", () {
+          // Root position: C-E-G#-Bb
+          final root = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.augmented7,
+            ChordInversion.root,
+          );
+          expect(
+            root.notes,
+            equals([
+              MusicalNote.c,
+              MusicalNote.e,
+              MusicalNote.gSharp,
+              MusicalNote.aSharp,
+            ]),
+          );
+
+          // 1st inversion: E-G#-Bb-C
+          final first = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.augmented7,
+            ChordInversion.first,
+          );
+          expect(
+            first.notes,
+            equals([
+              MusicalNote.e,
+              MusicalNote.gSharp,
+              MusicalNote.aSharp,
+              MusicalNote.c,
+            ]),
+          );
+
+          // 2nd inversion: G#-Bb-C-E
+          final second = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.augmented7,
+            ChordInversion.second,
+          );
+          expect(
+            second.notes,
+            equals([
+              MusicalNote.gSharp,
+              MusicalNote.aSharp,
+              MusicalNote.c,
+              MusicalNote.e,
+            ]),
+          );
+
+          // 3rd inversion: Bb-C-E-G#
+          final third = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.augmented7,
+            ChordInversion.third,
+          );
+          expect(
+            third.notes,
+            equals([
+              MusicalNote.aSharp,
+              MusicalNote.c,
+              MusicalNote.e,
+              MusicalNote.gSharp,
+            ]),
+          );
+        });
+      });
+
+      group("Seventh chord MIDI generation", () {
+        test("should generate correct MIDI notes for seventh chords", () {
+          final chord = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.major7,
+            ChordInversion.root,
+          );
+          final midiNotes = chord.getMidiNotes(4);
+
+          // C4=60, E4=64, G4=67, B4=71
+          expect(midiNotes, equals([60, 64, 67, 71]));
+          expect(midiNotes.length, equals(4));
+        });
+
+        test(
+          "should generate MIDI notes in ascending order for all inversions",
+          () {
+            for (final inversion in ChordInversion.values) {
+              final chord = ChordDefinitions.getChord(
+                MusicalNote.c,
+                ChordType.dominant7,
+                inversion,
+              );
+              final midiNotes = chord.getMidiNotes(4);
+
+              // Verify ascending order
+              for (int i = 0; i < midiNotes.length - 1; i++) {
+                expect(
+                  midiNotes[i] < midiNotes[i + 1],
+                  isTrue,
+                  reason: "MIDI notes should be ascending for $inversion",
+                );
+              }
+            }
+          },
+        );
+
+        test("should handle both hands with seventh chords (8 total notes)", () {
+          final chord = ChordDefinitions.getChord(
+            MusicalNote.c,
+            ChordType.major7,
+            ChordInversion.root,
+          );
+          final bothHandsNotes = chord.getMidiNotesForHand(
+            4,
+            HandSelection.both,
+          );
+          final regularMidi = chord.getMidiNotes(4);
+
+          // Both hands: 4 notes in left (octave down) + 4 notes in right = 8 total
+          expect(bothHandsNotes.length, equals(8));
+          expect(bothHandsNotes.length, equals(regularMidi.length * 2));
+
+          // Verify first 4 notes are octave down, last 4 are regular
+          // C4maj7 regular: [60, 64, 67, 71]
+          // Left hand: [48, 52, 55, 59]
+          // Combined: [48, 52, 55, 59, 60, 64, 67, 71]
+          expect(bothHandsNotes, equals([48, 52, 55, 59, 60, 64, 67, 71]));
+        });
+      });
+
+      group("Diatonic seventh chord determination", () {
+        test("should return correct seventh chord types for C major scale", () {
+          final seventhChords = ChordDefinitions.getSeventhChordsInKey(
+            Key.c,
+            ScaleType.major,
+          );
+
+          // I=maj7, ii=m7, iii=m7, IV=maj7, V=7, vi=m7, vii=ø7
+          expect(seventhChords.length, equals(7));
+          expect(seventhChords[0], equals(ChordType.major7));
+          expect(seventhChords[1], equals(ChordType.minor7));
+          expect(seventhChords[2], equals(ChordType.minor7));
+          expect(seventhChords[3], equals(ChordType.major7));
+          expect(seventhChords[4], equals(ChordType.dominant7));
+          expect(seventhChords[5], equals(ChordType.minor7));
+          expect(seventhChords[6], equals(ChordType.halfDiminished7));
+        });
+
+        test("should return correct seventh chord types for A minor scale", () {
+          final seventhChords = ChordDefinitions.getSeventhChordsInKey(
+            Key.a,
+            ScaleType.minor,
+          );
+
+          // i=m7, ii=ø7, III=maj7, iv=m7, v=m7, VI=maj7, VII=7
+          expect(seventhChords.length, equals(7));
+          expect(seventhChords[0], equals(ChordType.minor7));
+          expect(seventhChords[1], equals(ChordType.halfDiminished7));
+          expect(seventhChords[2], equals(ChordType.major7));
+          expect(seventhChords[3], equals(ChordType.minor7));
+          expect(seventhChords[4], equals(ChordType.minor7));
+          expect(seventhChords[5], equals(ChordType.major7));
+          expect(seventhChords[6], equals(ChordType.dominant7));
+        });
+      });
+
+      group("Seventh chord progressions", () {
+        test("should generate smooth seventh chord progression in C major", () {
+          final progression =
+              ChordDefinitions.getSmoothKeySeventhChordProgression(
+                Key.c,
+                ScaleType.major,
+              );
+
+          // Should get 7 scale degrees × 6 chords per degree (root→1st→2nd→3rd→2nd→1st) = 42 total
+          expect(progression.length, equals(42));
+
+          // Verify first 6 chords are Cmaj7 with proper inversion sequence
+          expect(progression[0].type, equals(ChordType.major7)); // Cmaj7 root
+          expect(progression[0].inversion, equals(ChordInversion.root));
+          expect(progression[1].type, equals(ChordType.major7)); // Cmaj7 1st
+          expect(progression[1].inversion, equals(ChordInversion.first));
+          expect(progression[2].type, equals(ChordType.major7)); // Cmaj7 2nd
+          expect(progression[2].inversion, equals(ChordInversion.second));
+          expect(progression[3].type, equals(ChordType.major7)); // Cmaj7 3rd
+          expect(progression[3].inversion, equals(ChordInversion.third));
+          expect(progression[4].type, equals(ChordType.major7)); // Cmaj7 2nd
+          expect(progression[4].inversion, equals(ChordInversion.second));
+          expect(progression[5].type, equals(ChordType.major7)); // Cmaj7 1st
+          expect(progression[5].inversion, equals(ChordInversion.first));
+
+          // Verify next 6 chords are Dm7
+          expect(progression[6].type, equals(ChordType.minor7)); // Dm7 root
+          expect(progression[7].type, equals(ChordType.minor7)); // Dm7 1st
+        });
+
+        test(
+          "should generate seventh chord progression with all 4-note chords",
+          () {
+            final progression =
+                ChordDefinitions.getSmoothKeySeventhChordProgression(
+                  Key.c,
+                  ScaleType.major,
+                );
+
+            // Every chord should have 4 notes
+            for (final chord in progression) {
+              expect(chord.notes.length, equals(4));
+            }
+          },
+        );
       });
     });
   });

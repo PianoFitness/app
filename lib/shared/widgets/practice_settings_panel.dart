@@ -31,6 +31,7 @@ class PracticeSettingsPanel extends StatelessWidget {
     required this.selectedChordProgression,
     required this.selectedChordType,
     required this.includeInversions,
+    required this.includeSeventhChords,
     required this.selectedHandSelection,
     required this.practiceActive,
     required this.onResetPractice,
@@ -43,6 +44,7 @@ class PracticeSettingsPanel extends StatelessWidget {
     required this.onChordProgressionChanged,
     required this.onChordTypeChanged,
     required this.onIncludeInversionsChanged,
+    required this.onIncludeSeventhChordsChanged,
     required this.onHandSelectionChanged,
     super.key,
   });
@@ -154,6 +156,9 @@ class PracticeSettingsPanel extends StatelessWidget {
   /// Whether to include inversions in chord type exercises.
   final bool includeInversions;
 
+  /// Whether to include seventh chords in chord-by-key exercises.
+  final bool includeSeventhChords;
+
   /// The selected hand for practice exercises.
   final HandSelection selectedHandSelection;
 
@@ -189,6 +194,9 @@ class PracticeSettingsPanel extends StatelessWidget {
 
   /// Callback fired when the user changes the inversion setting.
   final ValueChanged<bool> onIncludeInversionsChanged;
+
+  /// Callback fired when the user changes the seventh chord setting.
+  final ValueChanged<bool> onIncludeSeventhChordsChanged;
 
   /// Callback fired when the user changes the hand selection.
   final ValueChanged<HandSelection> onHandSelectionChanged;
@@ -476,6 +484,23 @@ class PracticeSettingsPanel extends StatelessWidget {
                   onChordProgressionChanged(value);
                 }
               },
+            ),
+          ],
+          if (practiceMode == PracticeMode.chordsByKey) ...[
+            const SizedBox(height: Spacing.sm),
+            Semantics(
+              label: "Include seventh chords in chord-by-key exercises",
+              child: CheckboxListTile(
+                title: const Text("Include Seventh Chords"),
+                subtitle: const Text("Add 7th note to triads"),
+                value: includeSeventhChords,
+                onChanged: (value) {
+                  if (value != null) {
+                    onIncludeSeventhChordsChanged(value);
+                  }
+                },
+                controlAffinity: ListTileControlAffinity.leading,
+              ),
             ),
           ],
           if (practiceMode == PracticeMode.chordsByType) ...[
