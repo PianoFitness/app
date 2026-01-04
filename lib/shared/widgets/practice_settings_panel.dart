@@ -33,6 +33,7 @@ class PracticeSettingsPanel extends StatelessWidget {
     required this.includeInversions,
     required this.includeSeventhChords,
     required this.selectedHandSelection,
+    required this.autoProgressKeys,
     required this.practiceActive,
     required this.onResetPractice,
     required this.onPracticeModeChanged,
@@ -46,6 +47,7 @@ class PracticeSettingsPanel extends StatelessWidget {
     required this.onIncludeInversionsChanged,
     required this.onIncludeSeventhChordsChanged,
     required this.onHandSelectionChanged,
+    required this.onAutoProgressKeysChanged,
     super.key,
   });
 
@@ -162,6 +164,9 @@ class PracticeSettingsPanel extends StatelessWidget {
   /// The selected hand for practice exercises.
   final HandSelection selectedHandSelection;
 
+  /// Whether to automatically progress through keys following the circle of fifths.
+  final bool autoProgressKeys;
+
   /// Whether a practice session is currently active.
   final bool practiceActive;
 
@@ -201,6 +206,9 @@ class PracticeSettingsPanel extends StatelessWidget {
   /// Callback fired when the user changes the hand selection.
   final ValueChanged<HandSelection> onHandSelectionChanged;
 
+  /// Callback fired when the user toggles auto key progression.
+  final ValueChanged<bool> onAutoProgressKeysChanged;
+
   String _getPracticeModeString(PracticeMode mode) {
     switch (mode) {
       case PracticeMode.scales:
@@ -214,6 +222,22 @@ class PracticeSettingsPanel extends StatelessWidget {
       case PracticeMode.chordProgressions:
         return "Chord Progressions";
     }
+  }
+
+  /// Returns true if the current practice mode supports key-based progression.
+  ///
+  /// Auto key progression is available for modes that use the [selectedKey] field:
+  /// - Scales (practice scales in different keys)
+  /// - Chords by Key (practice diatonic chords in different keys)
+  /// - Chord Progressions (practice progressions in different keys)
+  /// - Arpeggios (practice arpeggios starting from different root notes)
+  ///
+  /// Modes that use chord types (chords by type) are excluded.
+  bool _supportsKeyProgression() {
+    return practiceMode == PracticeMode.scales ||
+        practiceMode == PracticeMode.chordsByKey ||
+        practiceMode == PracticeMode.chordProgressions ||
+        practiceMode == PracticeMode.arpeggios;
   }
 
   String _getKeyString(music.Key key) {
@@ -341,6 +365,21 @@ class PracticeSettingsPanel extends StatelessWidget {
               Expanded(child: _buildSecondarySelector(context)),
             ],
           ),
+          // Auto key progression toggle (shown only for key-based modes)
+          if (_supportsKeyProgression()) ...[
+            const SizedBox(height: Spacing.sm),
+            SwitchListTile(
+              title: const Text("Auto-progress through keys"),
+              subtitle: const Text(
+                "Follow circle of fifths after each exercise",
+              ),
+              value: autoProgressKeys,
+              onChanged: onAutoProgressKeysChanged,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: Spacing.sm,
+              ),
+            ),
+          ],
           const SizedBox(height: Spacing.sm),
           SegmentedButton<HandSelection>(
             segments: [

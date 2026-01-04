@@ -312,6 +312,33 @@ class NoteUtils {
     return _noteToString[noteInfo.note]!;
   }
 
+  /// Converts a musical Key to a MusicalNote.
+  ///
+  /// This is useful when you need to convert a Key enum (used in scales, chords,
+  /// and progressions) to a MusicalNote enum (used for arpeggios and MIDI).
+  /// Both enums follow the same chromatic ordering (c, cSharp, d, etc.).
+  ///
+  /// Example: `keyToMusicalNote(music.Key.c)` returns `MusicalNote.c`.
+  /// Example: `keyToMusicalNote(music.Key.fSharp)` returns `MusicalNote.fSharp`.
+  static MusicalNote keyToMusicalNote(music.Key key) {
+    const keyToNote = {
+      music.Key.c: MusicalNote.c,
+      music.Key.cSharp: MusicalNote.cSharp,
+      music.Key.d: MusicalNote.d,
+      music.Key.dSharp: MusicalNote.dSharp,
+      music.Key.e: MusicalNote.e,
+      music.Key.f: MusicalNote.f,
+      music.Key.fSharp: MusicalNote.fSharp,
+      music.Key.g: MusicalNote.g,
+      music.Key.gSharp: MusicalNote.gSharp,
+      music.Key.a: MusicalNote.a,
+      music.Key.aSharp: MusicalNote.aSharp,
+      music.Key.b: MusicalNote.b,
+    };
+
+    return keyToNote[key]!;
+  }
+
   /// Converts a musical Key to its corresponding MIDI note number in the base octave.
   ///
   /// This is useful for chord progression calculations where you need the root

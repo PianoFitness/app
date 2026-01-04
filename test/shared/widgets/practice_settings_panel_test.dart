@@ -36,6 +36,7 @@ void main() {
             includeInversions: false,
             includeSeventhChords: false,
             selectedHandSelection: selectedHandSelection,
+            autoProgressKeys: false,
             practiceActive: false,
             onResetPractice: () {},
             onPracticeModeChanged: (_) {},
@@ -49,6 +50,7 @@ void main() {
             onIncludeInversionsChanged: (_) {},
             onIncludeSeventhChordsChanged: (_) {},
             onHandSelectionChanged: onHandSelectionChanged,
+            onAutoProgressKeysChanged: (_) {},
           ),
         ),
       );
