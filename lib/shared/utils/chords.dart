@@ -1,3 +1,4 @@
+import "package:flutter/foundation.dart" show kDebugMode;
 import "package:piano_fitness/shared/constants/musical_constants.dart";
 import "package:piano_fitness/shared/models/hand_selection.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
@@ -491,6 +492,14 @@ class ChordDefinitions {
       }
       // Default to dominant7 for unexpected interval combinations
       else {
+        if (kDebugMode) {
+          print(
+            "Unexpected interval combination in getSeventhChordsInKey: "
+            "scale degree=$i, root=${scaleNotes[i].name}, "
+            "firstInterval=$firstInterval, secondInterval=$secondInterval, "
+            "thirdInterval=$thirdInterval",
+          );
+        }
         chords.add(ChordType.dominant7);
       }
     }
