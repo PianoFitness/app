@@ -1,0 +1,65 @@
+# Flutter Prunekit Configuration
+# Dead code detection settings for Piano Fitness
+
+exclude:
+  # Platform-specific code
+  - "android/**"
+  - "ios/**"
+  - "macos/**"
+  - "windows/**"
+  - "linux/**"
+  - "web/**"
+
+  # Build artifacts and tooling
+  - "build/**"
+  - "**/.dart_tool/**"
+
+  # Generated code (future-proofing)
+  - "**/*.g.dart"
+  - "**/*.freezed.dart"
+
+  # Tooling scripts (used by git hooks)
+  - "lib/scripts/**"
+
+  # Entry point
+  - "lib/main.dart"
+
+  # Test infrastructure
+  - "test/shared/midi_mocks.dart"
+
+# Ignore method patterns that may appear unused but are intentional
+ignore_methods:
+  # Flutter lifecycle methods (handled automatically but being explicit)
+  - "initState"
+  - "dispose"
+  - "didChangeDependencies"
+  - "didUpdateWidget"
+  - "deactivate"
+  - "build"
+
+  # Future-planned accessibility announcement methods
+  - "MusicalAnnouncementsService.announceNotesChange"
+  - "MusicalAnnouncementsService.announceModeChange"
+  - "MusicalAnnouncementsService.announceMidiStatus"
+  - "MusicalAnnouncementsService.announcePracticeFeedback"
+
+  # Test helper methods
+  - "TestHelper.*"
+  - "_test*"
+
+# Variable patterns to ignore
+ignore_variables:
+  - "debug*"
+  - "_unused*"
+
+# Parameter patterns to ignore
+ignore_parameters:
+  - "_"
+  - "_*"
+  - "context" # BuildContext parameters are often required but unused
+
+# Optional checks configuration
+# Disabled to reduce noise from common Flutter patterns and framework requirements
+# Re-enable once core dead code cleanup is complete for more granular analysis
+check_catch_variables: false # Catch block variables (e, error, stackTrace) are often unused but required by syntax
+check_build_context_parameters: false # BuildContext params required by framework but often unused in simple widgets

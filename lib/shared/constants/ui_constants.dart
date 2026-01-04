@@ -112,6 +112,12 @@ class ShadowConfig {
 
   /// Standard blur radius for subtle shadows
   static const double subtleBlur = 4.0;
+
+  /// Medium shadow offset for standard elevation
+  static const Offset mediumOffset = Offset(0, 4);
+
+  /// Standard blur radius for medium shadows
+  static const double mediumBlur = 12.0;
 }
 
 /// MIDI protocol standard ranges and default values.

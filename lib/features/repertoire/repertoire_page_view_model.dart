@@ -140,7 +140,7 @@ class RepertoirePageViewModel extends ChangeNotifier {
   }
 
   void _startCountdown() {
-    _timer = Timer.periodic(RepertoireUIConstants.timerTickDuration, (timer) {
+    _timer = Timer.periodic(RepertoireUIConstants.timerTickDuration, (_) {
       if (_remainingSeconds > 0) {
         _remainingSeconds--;
         notifyListeners();
