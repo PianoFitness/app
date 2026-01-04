@@ -26,6 +26,28 @@ int _expectedNoteCount(ChordType type) {
   }
 }
 
+/// Returns valid inversions for the given chord type.
+///
+/// Triads support root, first, second inversions only.
+/// Seventh chords support all inversions (root, first, second, third).
+List<ChordInversion> _validInversions(ChordType type) {
+  switch (type) {
+    case ChordType.major:
+    case ChordType.minor:
+    case ChordType.diminished:
+    case ChordType.augmented:
+      return [ChordInversion.root, ChordInversion.first, ChordInversion.second];
+    case ChordType.major7:
+    case ChordType.dominant7:
+    case ChordType.minor7:
+    case ChordType.halfDiminished7:
+    case ChordType.diminished7:
+    case ChordType.minorMajor7:
+    case ChordType.augmented7:
+      return ChordInversion.values;
+  }
+}
+
 void main() {
   group("ChordDefinitions", () {
     group("Basic chord generation", () {
@@ -382,20 +404,7 @@ void main() {
       test("should generate chords for all chord types and keys", () {
         for (final note in MusicalNote.values) {
           for (final type in ChordType.values) {
-            // Skip third inversion for triads (only valid for seventh chords)
-            final inversions =
-                type == ChordType.major ||
-                    type == ChordType.minor ||
-                    type == ChordType.diminished ||
-                    type == ChordType.augmented
-                ? [
-                    ChordInversion.root,
-                    ChordInversion.first,
-                    ChordInversion.second,
-                  ]
-                : ChordInversion.values;
-
-            for (final inversion in inversions) {
+            for (final inversion in _validInversions(type)) {
               final chord = ChordDefinitions.getChord(note, type, inversion);
               final expectedNotes = _expectedNoteCount(type);
 
@@ -526,20 +535,7 @@ void main() {
 
         for (final note in MusicalNote.values) {
           for (final type in ChordType.values) {
-            // Skip third inversion for triads (only valid for seventh chords)
-            final inversions =
-                type == ChordType.major ||
-                    type == ChordType.minor ||
-                    type == ChordType.diminished ||
-                    type == ChordType.augmented
-                ? [
-                    ChordInversion.root,
-                    ChordInversion.first,
-                    ChordInversion.second,
-                  ]
-                : ChordInversion.values;
-
-            for (final inversion in inversions) {
+            for (final inversion in _validInversions(type)) {
               final chord = ChordDefinitions.getChord(note, type, inversion);
               final expectedNotes = _expectedNoteCount(type);
 
@@ -644,21 +640,8 @@ void main() {
             for (final type in ChordType.values) {
               final expectedNotes = _expectedNoteCount(type);
 
-              // Skip third inversion for triads (only valid for seventh chords)
-              final inversions =
-                  type == ChordType.major ||
-                      type == ChordType.minor ||
-                      type == ChordType.diminished ||
-                      type == ChordType.augmented
-                  ? [
-                      ChordInversion.root,
-                      ChordInversion.first,
-                      ChordInversion.second,
-                    ]
-                  : ChordInversion.values;
-
               for (var octave = 1; octave <= 7; octave++) {
-                for (final inversion in inversions) {
+                for (final inversion in _validInversions(type)) {
                   final chord = ChordDefinitions.getChord(
                     note,
                     type,
