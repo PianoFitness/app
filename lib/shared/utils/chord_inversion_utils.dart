@@ -92,42 +92,6 @@ class ChordInversionUtils {
     return true;
   }
 
-  /// Gets a progression of chord inversions that flow smoothly.
-  ///
-  /// Returns a list of chord progressions where each chord transitions
-  /// smoothly to its inversions, maintaining good voice leading.
-  ///
-  /// This is useful for practice exercises where students need to
-  /// practice chord inversions in a musical context.
-  static List<List<int>> getInversionProgression({
-    required MusicalNote rootNote,
-    required ChordType chordType,
-    required int octave,
-  }) {
-    final root = getChordMidiNotes(
-      rootNote: rootNote,
-      chordType: chordType,
-      inversion: ChordInversion.root,
-      octave: octave,
-    );
-
-    final first = getChordMidiNotes(
-      rootNote: rootNote,
-      chordType: chordType,
-      inversion: ChordInversion.first,
-      octave: octave,
-    );
-
-    final second = getChordMidiNotes(
-      rootNote: rootNote,
-      chordType: chordType,
-      inversion: ChordInversion.second,
-      octave: octave,
-    );
-
-    return [root, first, second];
-  }
-
   /// Converts a scales.Key to a MusicalNote.
   ///
   /// This is a utility method to bridge between the scales module

@@ -209,52 +209,6 @@ void main() {
       }
     });
 
-    test("ChordInversionUtils inversion progressions flow smoothly", () {
-      final testChords = [
-        (MusicalNote.c, ChordType.major),
-        (MusicalNote.g, ChordType.major),
-        (MusicalNote.a, ChordType.minor),
-        (MusicalNote.f, ChordType.major),
-      ];
-
-      for (final (rootNote, chordType) in testChords) {
-        final progression = ChordInversionUtils.getInversionProgression(
-          rootNote: rootNote,
-          chordType: chordType,
-          octave: 4,
-        );
-
-        expect(
-          progression.length,
-          equals(3),
-          reason: "Should have root, 1st, 2nd inversions",
-        );
-
-        final [root, first, second] = progression;
-
-        // Each chord should be valid
-        expect(ChordInversionUtils.validateChordVoicing(root), isTrue);
-        expect(ChordInversionUtils.validateChordVoicing(first), isTrue);
-        expect(ChordInversionUtils.validateChordVoicing(second), isTrue);
-
-        // Should progress left-to-right
-        expect(
-          root.first <= first.first,
-          isTrue,
-          reason: "Root->1st should progress left-to-right",
-        );
-        expect(
-          first.first <= second.first,
-          isTrue,
-          reason: "1st->2nd should progress left-to-right",
-        );
-
-        log.info(
-          "${rootNote.name} ${chordType.name}: $root -> $first -> $second",
-        );
-      }
-    });
-
     test("Scale MIDI notes are generated correctly", () {
       final cMajorNotes = ChordInversionUtils.getScaleMidiNotes(
         key: Key.c,
