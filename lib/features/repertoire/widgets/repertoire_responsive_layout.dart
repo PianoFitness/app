@@ -1,4 +1,7 @@
 import "package:flutter/material.dart";
+import "package:piano_fitness/features/repertoire/repertoire_constants.dart";
+import "package:piano_fitness/shared/constants/typography_constants.dart";
+import "package:piano_fitness/shared/constants/ui_constants.dart";
 
 /// Layout modes for different screen sizes and orientations.
 enum RepertoireLayoutMode {
@@ -20,7 +23,9 @@ RepertoireLayoutMode _getLayoutMode(BoxConstraints constraints) {
   final width = constraints.maxWidth;
   final height = constraints.maxHeight;
   final isLandscape = width > height;
-  final isTablet = width >= 768 || height >= 768;
+  final isTablet =
+      width >= ResponsiveBreakpoints.tablet ||
+      height >= ResponsiveBreakpoints.tablet;
 
   if (isTablet) {
     return isLandscape
@@ -63,7 +68,7 @@ class RepertoireResponsiveLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(Spacing.md),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -73,15 +78,15 @@ class RepertoireResponsiveLayout extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(AppBorderRadius.xLarge),
         border: Border.all(
           color: const Color(0xFF6366F1).withValues(alpha: 0.1),
         ),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF6366F1).withValues(alpha: 0.1),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            blurRadius: ShadowConfig.mediumBlur,
+            offset: ShadowConfig.mediumOffset,
           ),
         ],
       ),
@@ -90,20 +95,24 @@ class RepertoireResponsiveLayout extends StatelessWidget {
           // Timer Header
           Row(
             children: [
-              Icon(Icons.schedule, color: const Color(0xFF6366F1), size: 20),
-              const SizedBox(width: 8),
+              Icon(
+                Icons.schedule,
+                color: const Color(0xFF6366F1),
+                size: ComponentDimensions.iconSizeMedium,
+              ),
+              const SizedBox(width: Spacing.sm),
               Text(
                 "Practice Timer",
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: FontSizes.bodyLarge,
                   fontWeight: FontWeight.bold,
                   color: const Color(0xFF6366F1),
-                  letterSpacing: -0.2,
+                  letterSpacing: RepertoireUIConstants.headerLetterSpacing,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: Spacing.md),
 
           // Responsive Content Layout
           Expanded(
@@ -118,7 +127,7 @@ class RepertoireResponsiveLayout extends StatelessWidget {
 
           // Instructions at bottom
           if (instructions != null) ...[
-            const SizedBox(height: 8),
+            const SizedBox(height: Spacing.sm),
             instructions!,
           ],
         ],
@@ -129,16 +138,16 @@ class RepertoireResponsiveLayout extends StatelessWidget {
   Widget _buildContent(RepertoireLayoutMode layoutMode) {
     switch (layoutMode) {
       case RepertoireLayoutMode.mobilePortrait:
-        return _buildVerticalLayout(spacing: 16);
+        return _buildVerticalLayout(spacing: Spacing.md);
 
       case RepertoireLayoutMode.mobileLandscape:
-        return _buildHorizontalLayout(spacing: 16);
+        return _buildHorizontalLayout(spacing: Spacing.md);
 
       case RepertoireLayoutMode.tabletPortrait:
-        return _buildVerticalLayout(spacing: 24);
+        return _buildVerticalLayout(spacing: Spacing.lg);
 
       case RepertoireLayoutMode.tabletLandscape:
-        return _buildHorizontalLayout(spacing: 32);
+        return _buildHorizontalLayout(spacing: Spacing.xl);
     }
   }
 
@@ -161,17 +170,17 @@ class RepertoireResponsiveLayout extends StatelessWidget {
       children: [
         // Duration selector - generous space allocation to prevent wrapping
         Flexible(
-          flex: 4, // More space to prevent button wrapping
+          flex: RepertoireUIConstants.durationSelectorFlex,
           child: durationSelector,
         ),
         SizedBox(width: spacing),
 
         // Timer display - takes remaining space with elegant spacing
         Expanded(
-          flex: 3, // Adjust proportion accordingly
+          flex: RepertoireUIConstants.timerDisplayFlex,
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: spacing >= 24 ? 16.0 : 8.0,
+              horizontal: spacing >= Spacing.lg ? Spacing.md : Spacing.sm,
             ),
             child: timerDisplay,
           ),

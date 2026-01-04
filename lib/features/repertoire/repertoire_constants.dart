@@ -82,6 +82,17 @@ class RepertoireUIConstants {
   /// Minimum sheet size for portrait
   static const double modalMinSizePortrait = 0.5;
 
+  // Layout Flex Values
+  /// Duration selector flex weight in horizontal layouts
+  static const int durationSelectorFlex = 4;
+
+  /// Timer display flex weight in horizontal layouts
+  static const int timerDisplayFlex = 3;
+
+  // Typography (Feature-Specific)
+  /// Timer header letter spacing
+  static const double headerLetterSpacing = -0.2;
+
   // Container Padding (Feature-Specific)
   /// App icon container padding
   static const double appIconPadding = 6.0;
