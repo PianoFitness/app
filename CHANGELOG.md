@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Auto-Progress Through Circle of Fifths**: Practice exercises can now automatically progress through all 12 keys following the circle of fifths when you complete each exercise (#38)
 - **Seventh Chord Support**: Added comprehensive seventh chord support with all inversions in practice settings (#35)
 - **Flutter Prunekit Integration**: Added dead code detection tooling for automated code quality analysis (#36)
 
