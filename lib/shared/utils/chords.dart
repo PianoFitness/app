@@ -100,6 +100,25 @@ extension ChordTypeDisplay on ChordType {
         return "Augmented 7th Chords";
     }
   }
+
+  /// Returns true if this chord type is a seventh chord (4 notes).
+  bool get isSeventhChord {
+    switch (this) {
+      case ChordType.major:
+      case ChordType.minor:
+      case ChordType.diminished:
+      case ChordType.augmented:
+        return false;
+      case ChordType.major7:
+      case ChordType.dominant7:
+      case ChordType.minor7:
+      case ChordType.halfDiminished7:
+      case ChordType.diminished7:
+      case ChordType.minorMajor7:
+      case ChordType.augmented7:
+        return true;
+    }
+  }
 }
 
 /// The different inversions available for chord practice.
@@ -360,9 +379,16 @@ class ChordDefinitions {
       case ChordInversion.third:
         // Seventh in bass: only for seventh chords (4 notes)
         // Move root, third, and fifth to end
-        return notes.length == 4
-            ? [notes[3], notes[0], notes[1], notes[2]]
-            : notes; // Return unchanged for triads (invalid inversion)
+        if (notes.length == 4) {
+          return [notes[3], notes[0], notes[1], notes[2]];
+        } else {
+          if (kDebugMode) {
+            print(
+              "Warning: Third inversion requested for triad (${notes.length} notes)",
+            );
+          }
+          return notes; // Return unchanged for triads (invalid inversion)
+        }
     }
   }
 
@@ -721,7 +747,6 @@ class ChordByType {
   /// Seventh chords include third inversion when inversions are enabled.
   List<ChordInfo> generateChordSequence() {
     final chords = <ChordInfo>[];
-    final isSeventhChord = _isSeventhChordType(type);
 
     for (final rootNote in rootNotes) {
       // Add root position
@@ -739,7 +764,7 @@ class ChordByType {
         );
 
         // Add third inversion for seventh chords
-        if (isSeventhChord) {
+        if (type.isSeventhChord) {
           chords.add(
             ChordDefinitions.getChord(rootNote, type, ChordInversion.third),
           );
@@ -748,17 +773,6 @@ class ChordByType {
     }
 
     return chords;
-  }
-
-  /// Helper to determine if a chord type is a seventh chord
-  bool _isSeventhChordType(ChordType type) {
-    return type == ChordType.major7 ||
-        type == ChordType.dominant7 ||
-        type == ChordType.minor7 ||
-        type == ChordType.halfDiminished7 ||
-        type == ChordType.diminished7 ||
-        type == ChordType.minorMajor7 ||
-        type == ChordType.augmented7;
   }
 
   /// Returns the complete MIDI note sequence for this chord type practice.
