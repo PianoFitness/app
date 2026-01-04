@@ -658,39 +658,56 @@ void main() {
         () {
           for (final note in MusicalNote.values) {
             for (final type in ChordType.values) {
-              final root = ChordDefinitions.getChord(
-                note,
-                type,
-                ChordInversion.root,
-              );
-              final first = ChordDefinitions.getChord(
-                note,
-                type,
-                ChordInversion.first,
-              );
-              final second = ChordDefinitions.getChord(
-                note,
-                type,
-                ChordInversion.second,
-              );
+              final expectedNotes = expectedNoteCount(type);
+
+              // Skip third inversion for triads (only valid for seventh chords)
+              final inversions =
+                  type == ChordType.major ||
+                      type == ChordType.minor ||
+                      type == ChordType.diminished ||
+                      type == ChordType.augmented
+                  ? [
+                      ChordInversion.root,
+                      ChordInversion.first,
+                      ChordInversion.second,
+                    ]
+                  : ChordInversion.values;
 
               for (var octave = 1; octave <= 7; octave++) {
-                final rootMidi = root.getMidiNotes(octave);
-                final firstMidi = first.getMidiNotes(octave);
-                final secondMidi = second.getMidiNotes(octave);
+                for (final inversion in inversions) {
+                  final chord = ChordDefinitions.getChord(
+                    note,
+                    type,
+                    inversion,
+                  );
+                  final midiNotes = chord.getMidiNotes(octave);
 
-                // All should be ascending
-                expect(rootMidi[0], lessThan(rootMidi[1]));
-                expect(rootMidi[1], lessThan(rootMidi[2]));
-                expect(firstMidi[0], lessThan(firstMidi[1]));
-                expect(firstMidi[1], lessThan(firstMidi[2]));
-                expect(secondMidi[0], lessThan(secondMidi[1]));
-                expect(secondMidi[1], lessThan(secondMidi[2]));
+                  // Verify correct number of notes
+                  expect(
+                    midiNotes.length,
+                    equals(expectedNotes),
+                    reason:
+                        "Should have $expectedNotes notes for ${type.name} ${inversion.name}",
+                  );
 
-                // Should span reasonable range
-                expect(rootMidi[2] - rootMidi[0], lessThanOrEqualTo(24));
-                expect(firstMidi[2] - firstMidi[0], lessThanOrEqualTo(24));
-                expect(secondMidi[2] - secondMidi[0], lessThanOrEqualTo(24));
+                  // All notes should be ascending
+                  for (var i = 0; i < midiNotes.length - 1; i++) {
+                    expect(
+                      midiNotes[i],
+                      lessThan(midiNotes[i + 1]),
+                      reason:
+                          "Notes should be ascending for ${note.name} ${type.name} ${inversion.name} in octave $octave",
+                    );
+                  }
+
+                  // Should span reasonable range (within 2 octaves)
+                  expect(
+                    midiNotes.last - midiNotes.first,
+                    lessThanOrEqualTo(24),
+                    reason:
+                        "Chord span should be ≤24 semitones for ${note.name} ${type.name} ${inversion.name}",
+                  );
+                }
               }
             }
           }
