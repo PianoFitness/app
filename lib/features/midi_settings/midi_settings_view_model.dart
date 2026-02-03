@@ -11,8 +11,11 @@ import "package:piano_fitness/presentation/constants/ui_constants.dart";
 /// Bluetooth management, and device configuration.
 class MidiSettingsViewModel extends ChangeNotifier {
   /// Creates a new MidiSettingsViewModel with injected dependencies.
-  MidiSettingsViewModel({int initialChannel = 0})
-    : _selectedChannel = initialChannel {
+  MidiSettingsViewModel({
+    int initialChannel = 0,
+    midi_cmd.MidiCommand? midiCommand,
+  }) : _selectedChannel = initialChannel,
+       _midiCommand = midiCommand ?? midi_cmd.MidiCommand() {
     _setupMidi();
   }
 
@@ -20,7 +23,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
 
   StreamSubscription<String>? _setupSubscription;
   StreamSubscription<midi_cmd.BluetoothState>? _bluetoothStateSubscription;
-  final midi_cmd.MidiCommand _midiCommand = midi_cmd.MidiCommand();
+  final midi_cmd.MidiCommand _midiCommand;
 
   List<midi_cmd.MidiDevice> _devices = [];
   String _midiStatus = "Initializing MIDI...";

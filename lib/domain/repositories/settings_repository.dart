@@ -28,7 +28,7 @@ abstract class ISettingsRepository {
 
 /// Scheduled notification metadata
 class ScheduledNotificationData {
-  ScheduledNotificationData({
+  const ScheduledNotificationData({
     required this.id,
     required this.title,
     required this.body,
@@ -39,4 +39,17 @@ class ScheduledNotificationData {
   final String title;
   final String body;
   final DateTime scheduledTime;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ScheduledNotificationData &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          title == other.title &&
+          body == other.body &&
+          scheduledTime == other.scheduledTime;
+
+  @override
+  int get hashCode => Object.hash(id, title, body, scheduledTime);
 }
