@@ -53,29 +53,24 @@ class PracticePage extends StatelessWidget {
           initialChannel: midiChannel,
         );
 
-        // Initialize practice session after creation
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          viewModel.initializePracticeSession(
-            onExerciseCompleted: () {
-              // Will be handled by _PracticePageView
-            },
-            onHighlightedNotesChanged: (notes) {
-              // Notes are automatically updated in ViewModel
-            },
-            initialMode: initialMode,
-            initialChordProgression: initialChordProgression,
-          );
-        });
-
         return viewModel;
       },
-      child: const _PracticePageView(),
+      child: _PracticePageView(
+        initialMode: initialMode,
+        initialChordProgression: initialChordProgression,
+      ),
     );
   }
 }
 
 class _PracticePageView extends StatefulWidget {
-  const _PracticePageView();
+  const _PracticePageView({
+    required this.initialMode,
+    this.initialChordProgression,
+  });
+
+  final PracticeMode initialMode;
+  final ChordProgression? initialChordProgression;
 
   @override
   State<_PracticePageView> createState() => _PracticePageViewState();
@@ -87,15 +82,15 @@ class _PracticePageViewState extends State<_PracticePageView> {
     super.initState();
     final viewModel = context.read<PracticePageViewModel>();
 
-    // Update completion callback to work with current context
+    // Initialize practice session with proper callbacks
     WidgetsBinding.instance.addPostFrameCallback((_) {
       viewModel.initializePracticeSession(
         onExerciseCompleted: _completeExercise,
         onHighlightedNotesChanged: (notes) {
           // Notes are automatically updated in ViewModel
         },
-        initialMode:
-            viewModel.practiceSession?.practiceMode ?? PracticeMode.scales,
+        initialMode: widget.initialMode,
+        initialChordProgression: widget.initialChordProgression,
       );
     });
   }
