@@ -280,6 +280,26 @@ class MidiSettingsViewModel extends ChangeNotifier {
     }
   }
 
+  /// Cleans up resources synchronously for disposal.
+  void _cleanupResourcesSync() {
+    // Cancel stream subscriptions without await - safe for disposal
+    _setupSubscription?.cancel();
+    _setupSubscription = null;
+
+    _bluetoothStateSubscription?.cancel();
+    _bluetoothStateSubscription = null;
+
+    // Stop any ongoing Bluetooth scanning
+    if (_isScanning) {
+      try {
+        _midiCommand.stopScanningForBluetoothDevices();
+      } on Exception catch (e) {
+        _log.warning("Error stopping Bluetooth scan: $e");
+      }
+      _isScanning = false;
+    }
+  }
+
   /// Connects or disconnects from a MIDI device.
   Future<void> connectToDevice(
     midi_cmd.MidiDevice device,
@@ -384,10 +404,8 @@ class MidiSettingsViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    // Use the cleanup helper method to ensure consistent resource cleanup
-    _cleanupResources().catchError((Object e) {
-      _log.warning("Error during disposal cleanup: $e");
-    });
+    // Use synchronous cleanup to ensure resources are cleaned before disposal
+    _cleanupResourcesSync();
     super.dispose();
   }
 }
