@@ -11,9 +11,12 @@ import "package:piano_fitness/domain/repositories/midi_repository.dart";
 /// Wraps the singleton MidiConnectionService to provide repository interface.
 /// MidiConnectionService maintains its singleton pattern internally.
 class MidiRepositoryImpl implements IMidiRepository {
-  MidiRepositoryImpl() : _service = MidiConnectionService();
+  MidiRepositoryImpl()
+    : _service = MidiConnectionService(),
+      _midiCommand = midi_cmd.MidiCommand();
 
   final MidiConnectionService _service;
+  final midi_cmd.MidiCommand _midiCommand;
   final StreamController<Uint8List> _midiDataController =
       StreamController<Uint8List>.broadcast();
 
@@ -23,7 +26,7 @@ class MidiRepositoryImpl implements IMidiRepository {
   @override
   Future<List<MidiDevice>> listDevices() async {
     try {
-      final devices = await midi_cmd.MidiCommand().devices;
+      final devices = await _midiCommand.devices;
       return devices
               ?.map(
                 (device) => MidiDevice(
@@ -46,10 +49,10 @@ class MidiRepositoryImpl implements IMidiRepository {
   @override
   Future<void> connectToDevice(String deviceId) async {
     try {
-      final devices = await midi_cmd.MidiCommand().devices;
+      final devices = await _midiCommand.devices;
       final device = devices?.firstWhere((d) => d.id == deviceId);
       if (device != null) {
-        await midi_cmd.MidiCommand().connectToDevice(device);
+        await _midiCommand.connectToDevice(device);
       }
     } catch (e, stackTrace) {
       if (kDebugMode) {
@@ -76,7 +79,7 @@ class MidiRepositoryImpl implements IMidiRepository {
   @override
   Future<void> sendData(Uint8List data) async {
     try {
-      midi_cmd.MidiCommand().sendData(data);
+      _midiCommand.sendData(data);
     } catch (e, stackTrace) {
       if (kDebugMode) {
         print("Error sending MIDI data: $e");
