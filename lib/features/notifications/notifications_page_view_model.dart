@@ -233,7 +233,6 @@ class NotificationsPageViewModel extends ChangeNotifier {
       }
 
       await _notificationRepository.scheduleDailyNotification(
-        id: 1,
         title: "Time to Practice Piano! 🎹",
         body: "Ready to make some music? Your daily practice session awaits.",
         scheduledTime: scheduledTime,

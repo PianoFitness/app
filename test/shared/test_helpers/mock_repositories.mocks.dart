@@ -138,6 +138,12 @@ class MockIMidiRepository extends _i1.Mock implements _i5.IMidiRepository {
         Invocation.method(#unregisterDataHandler, [handler]),
         returnValueForMissingStub: null,
       );
+
+  @override
+  void dispose() => super.noSuchMethod(
+    Invocation.method(#dispose, []),
+    returnValueForMissingStub: null,
+  );
 }
 
 /// A class which mocks [INotificationRepository].
@@ -167,14 +173,12 @@ class MockINotificationRepository extends _i1.Mock
 
   @override
   _i4.Future<void> scheduleDailyNotification({
-    required int? id,
     required String? title,
     required String? body,
     required DateTime? scheduledTime,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#scheduleDailyNotification, [], {
-              #id: id,
               #title: title,
               #body: body,
               #scheduledTime: scheduledTime,

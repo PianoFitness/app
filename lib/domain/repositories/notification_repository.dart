@@ -11,7 +11,6 @@ abstract class INotificationRepository {
 
   /// Schedule daily notification at specified time
   Future<void> scheduleDailyNotification({
-    required int id,
     required String title,
     required String body,
     required DateTime scheduledTime,

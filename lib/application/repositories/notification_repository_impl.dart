@@ -5,15 +5,19 @@ import "package:piano_fitness/domain/repositories/notification_repository.dart";
 /// Implementation of INotificationRepository wrapping NotificationService
 ///
 /// Converts static NotificationService methods to instance-based repository.
-/// Initializes notification plugin in constructor with error handling.
+/// Use NotificationRepositoryImpl.create() to ensure async initialization completes.
 class NotificationRepositoryImpl implements INotificationRepository {
-  NotificationRepositoryImpl() {
-    _initialize();
+  NotificationRepositoryImpl._();
+
+  static Future<NotificationRepositoryImpl> create() async {
+    final instance = NotificationRepositoryImpl._();
+    await instance._initializeAsync();
+    return instance;
   }
 
-  void _initialize() {
+  Future<void> _initializeAsync() async {
     try {
-      NotificationService.initialize();
+      await NotificationService.initialize();
     } catch (e, stackTrace) {
       if (kDebugMode) {
         print("Failed to initialize NotificationService: $e");
@@ -51,7 +55,6 @@ class NotificationRepositoryImpl implements INotificationRepository {
 
   @override
   Future<void> scheduleDailyNotification({
-    required int id,
     required String title,
     required String body,
     required DateTime scheduledTime,

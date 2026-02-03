@@ -26,8 +26,8 @@ void main() async {
   // Initialize timezone data for notifications
   tz.initializeTimeZones();
 
-  // No longer needed - NotificationRepositoryImpl initializes in constructor
-  // await NotificationService.initialize();
+  // Initialize notification repository with async factory
+  final notificationRepository = await NotificationRepositoryImpl.create();
 
   // Configure logging levels
   if (kDebugMode) {
@@ -60,9 +60,7 @@ void main() async {
           create: (_) => MidiRepositoryImpl(),
           dispose: (_, repository) => repository.dispose(),
         ),
-        Provider<INotificationRepository>(
-          create: (_) => NotificationRepositoryImpl(),
-        ),
+        Provider<INotificationRepository>.value(value: notificationRepository),
         Provider<ISettingsRepository>(create: (_) => SettingsRepositoryImpl()),
         Provider<IAudioService>(create: (_) => AudioServiceImpl()),
 
