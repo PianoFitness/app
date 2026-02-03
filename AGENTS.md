@@ -1,4 +1,4 @@
-# CLAUDE.md
+# AGENTS.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -330,13 +330,13 @@ All code shared across features, organized by responsibility:
    - Use existing MidiEvent structures
    - Add new message types to the domain service layer
 
-2. **State Management**: Use MVVM with Provider pattern
+6. **State Management**: Use MVVM with Provider pattern
    - **Global State**: shared/models/midi_state.dart (ChangeNotifier)
    - **Feature State**: ViewModel extends ChangeNotifier
    - **UI State**: StatefulWidget for view-specific UI state only
    - **Business State**: Models like PracticeSession in shared layer
 
-3. **Testing**: Mirror lib/ structure in test/
+7. **Testing**: Mirror lib/ structure in test/
    - Unit tests for shared/utils/, domain/services/, application/services/, and ViewModels  
    - Widget tests for feature pages and shared/widgets/
    - Integration tests for cross-feature functionality
