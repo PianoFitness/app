@@ -8,7 +8,7 @@
 /// - AppBorderRadius (xs, small, medium, large, xLarge)
 /// - OpacityValues (borders, shadows, gradients)
 ///
-/// See [lib/presentation/constants/musical_constants.dart] for:
+/// See [lib/domain/constants/musical_constants.dart] for:
 /// - scaleTypeNames, chordTypeNames, chordInversionNames
 ///
 /// Font sizes should use Theme.of(context).textTheme for consistency:
