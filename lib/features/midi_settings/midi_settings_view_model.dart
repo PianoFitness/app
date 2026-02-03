@@ -199,10 +199,12 @@ class MidiSettingsViewModel extends ChangeNotifier {
 
       _log.info("Starting Bluetooth central");
 
-      await _midiCommand.startBluetoothCentral().catchError((Object err) {
+      try {
+        await _midiCommand.startBluetoothCentral();
+      } on Exception catch (err) {
         showSnackBar("Bluetooth error: $err");
-        throw Exception(err);
-      });
+        rethrow;
+      }
 
       _log.info("Waiting for Bluetooth initialization");
 
@@ -217,12 +219,12 @@ class MidiSettingsViewModel extends ChangeNotifier {
         _midiStatus = "Scanning for MIDI devices...";
         notifyListeners();
 
-        await _midiCommand.startScanningForBluetoothDevices().catchError((
-          Object err,
-        ) {
+        try {
+          await _midiCommand.startScanningForBluetoothDevices();
+        } on Exception catch (err) {
           _log.warning("Scanning error: $err");
-          throw Exception(err);
-        });
+          rethrow;
+        }
 
         showSnackBar("Scanning for Bluetooth MIDI devices...");
 
