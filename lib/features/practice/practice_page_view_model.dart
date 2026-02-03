@@ -29,6 +29,7 @@ class PracticePageViewModel extends ChangeNotifier {
        _midiState = midiState,
        _midiChannel = initialChannel {
     _midiState.setSelectedChannel(_midiChannel);
+    _midiState.addListener(notifyListeners);
     _setupMidiHandlers();
   }
 
