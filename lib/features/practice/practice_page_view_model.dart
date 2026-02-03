@@ -8,7 +8,7 @@ import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/state/practice_session.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
-import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
+import "package:piano_fitness/domain/services/midi/midi_service.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
@@ -92,20 +92,36 @@ class PracticePageViewModel extends ChangeNotifier {
     _midiRepository.registerDataHandler(_dataHandler);
   }
 
-  /// Handles incoming MIDI data using MidiConnectionService helper.
+  /// Handles incoming MIDI data and updates state with practice session integration.
   ///
-  /// Delegates to [MidiConnectionService.handlePracticeMidiData] which
-  /// processes MIDI events, updates MIDI state, and coordinates with
-  /// the practice session (including auto-start logic).
+  /// Uses the domain service for MIDI parsing and coordinates with both
+  /// MidiState (application layer) and PracticeSession for exercise tracking.
+  /// The PracticeSession handles its own auto-start logic when notes are pressed.
   ///
   /// This method is public for testing purposes.
   @visibleForTesting
   void handleMidiData(Uint8List data) {
-    MidiConnectionService.handlePracticeMidiData(
-      data,
-      _midiState,
-      _practiceSession,
-    );
+    // Use domain service for MIDI parsing
+    MidiService.handleMidiData(data, (MidiEvent event) {
+      switch (event.type) {
+        case MidiEventType.noteOn:
+          // Update application state
+          _midiState.noteOn(event.data1, event.data2, event.channel);
+          // Coordinate with practice session for exercise tracking
+          _practiceSession?.handleNotePressed(event.data1);
+          break;
+        case MidiEventType.noteOff:
+          _midiState.noteOff(event.data1, event.channel);
+          _practiceSession?.handleNoteReleased(event.data1);
+          break;
+        case MidiEventType.controlChange:
+        case MidiEventType.programChange:
+        case MidiEventType.pitchBend:
+        case MidiEventType.other:
+          _midiState.setLastNote(event.displayMessage);
+          break;
+      }
+    });
   }
 
   /// Starts the current practice session.

@@ -2,7 +2,7 @@ import "dart:typed_data";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/features/play/play_page_view_model.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
-import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
+import "package:piano_fitness/domain/services/midi/midi_service.dart";
 import "../../shared/test_helpers/mock_repositories.mocks.dart";
 import "../../shared/midi_mocks.dart";
 
@@ -101,8 +101,23 @@ void main() {
             // Clear previous state
             midiState.setLastNote("");
 
-            // Test MIDI data handling through the centralized service
-            MidiConnectionService.handleStandardMidiData(midiData, midiState);
+            // Test MIDI data handling through the domain service
+            MidiService.handleMidiData(midiData, (event) {
+              switch (event.type) {
+                case MidiEventType.noteOn:
+                  midiState.noteOn(event.data1, event.data2, event.channel);
+                  break;
+                case MidiEventType.noteOff:
+                  midiState.noteOff(event.data1, event.channel);
+                  break;
+                case MidiEventType.controlChange:
+                case MidiEventType.programChange:
+                case MidiEventType.pitchBend:
+                case MidiEventType.other:
+                  midiState.setLastNote(event.displayMessage);
+                  break;
+              }
+            });
 
             // Verify that some update occurred (specific content depends on event type)
             expect(midiState.lastNote.isNotEmpty, isTrue);
@@ -118,14 +133,15 @@ void main() {
 
           midiState.setLastNote("Previous message");
 
-          // Test that the service filters these messages
-          MidiConnectionService.handleStandardMidiData(clockMessage, midiState);
+          // Test that MidiService filters these messages
+          MidiService.handleMidiData(clockMessage, (event) {
+            midiState.setLastNote(event.displayMessage);
+          });
           expect(midiState.lastNote, equals("Previous message"));
 
-          MidiConnectionService.handleStandardMidiData(
-            activeSenseMessage,
-            midiState,
-          );
+          MidiService.handleMidiData(activeSenseMessage, (event) {
+            midiState.setLastNote(event.displayMessage);
+          });
           expect(midiState.lastNote, equals("Previous message"));
         },
       );
