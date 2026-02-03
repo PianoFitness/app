@@ -1,12 +1,14 @@
 import "package:flutter/material.dart";
-import "package:flutter_midi_command/flutter_midi_command.dart";
+import "package:flutter_midi_command/flutter_midi_command.dart" as midi_cmd;
+import "package:provider/provider.dart";
+import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/features/device_controller/device_controller_constants.dart";
 import "package:piano_fitness/features/device_controller/device_controller_view_model.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:piano_fitness/presentation/theme/semantic_colors.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/presentation/utils/piano_key_utils.dart";
-import "package:provider/provider.dart";
 
 /// A detailed controller interface for a specific MIDI device.
 ///
@@ -18,7 +20,7 @@ class DeviceControllerPage extends StatefulWidget {
   const DeviceControllerPage({required this.device, super.key});
 
   /// The MIDI device to control and monitor.
-  final MidiDevice device;
+  final midi_cmd.MidiDevice device;
 
   @override
   State<DeviceControllerPage> createState() => _DeviceControllerPageState();
@@ -28,7 +30,11 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => DeviceControllerViewModel(device: widget.device),
+      create: (context) => DeviceControllerViewModel(
+        midiRepository: context.read<IMidiRepository>(),
+        midiState: context.read<MidiState>(),
+        device: widget.device,
+      ),
       child: Consumer<DeviceControllerViewModel>(
         builder: (context, viewModel, child) {
           return Scaffold(

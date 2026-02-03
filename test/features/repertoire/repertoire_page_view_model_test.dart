@@ -1,6 +1,8 @@
 import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/features/repertoire/repertoire_page_view_model.dart";
+import "package:mockito/mockito.dart";
+import "../../shared/test_helpers/mock_repositories.mocks.dart";
 
 // Simple test-friendly notification services for testing
 class TestNotificationService {
@@ -77,13 +79,28 @@ void setUpAudioPlayerMocks() {
 void main() {
   group("RepertoirePageViewModel", () {
     late RepertoirePageViewModel viewModel;
+    late MockIAudioService mockAudioService;
+    late MockINotificationRepository mockNotificationRepository;
+    late MockISettingsRepository mockSettingsRepository;
 
     setUpAll(() {
       setUpAudioPlayerMocks();
     });
 
     setUp(() {
-      viewModel = RepertoirePageViewModel();
+      mockAudioService = MockIAudioService();
+      mockNotificationRepository = MockINotificationRepository();
+      mockSettingsRepository = MockISettingsRepository();
+
+      // Stub the createPlayer method to return a mock AudioPlayer
+      final mockAudioPlayer = MockAudioPlayer();
+      when(mockAudioService.createPlayer()).thenReturn(mockAudioPlayer);
+
+      viewModel = RepertoirePageViewModel(
+        audioService: mockAudioService,
+        notificationRepository: mockNotificationRepository,
+        settingsRepository: mockSettingsRepository,
+      );
       TestNotificationService.clearNotifications();
       TestNotificationService.setShouldThrowError(false);
     });
@@ -291,8 +308,22 @@ void main() {
   });
 }
 
-/// Testable subclass that allows testing timer completion behavior
+/// Testable subclass that allows controlling timer behavior for testing
 class TestableRepertoirePageViewModel extends RepertoirePageViewModel {
+  TestableRepertoirePageViewModel()
+    : super(
+        audioService: _createMockAudioService(),
+        notificationRepository: MockINotificationRepository(),
+        settingsRepository: MockISettingsRepository(),
+      );
+
+  static MockIAudioService _createMockAudioService() {
+    final mockService = MockIAudioService();
+    final mockPlayer = MockAudioPlayer();
+    when(mockService.createPlayer()).thenReturn(mockPlayer);
+    return mockService;
+  }
+
   bool _testIsRunning = false;
   bool _testIsPaused = false;
   int _testRemainingSeconds = 15 * 60; // Default 15 minutes

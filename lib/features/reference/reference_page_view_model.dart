@@ -4,6 +4,7 @@ import "package:piano_fitness/domain/constants/musical_constants.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
 import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
+import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as scales;
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
@@ -27,14 +28,17 @@ enum ReferenceMode {
 /// from the shared MIDI state to prevent cross-page interference.
 class ReferencePageViewModel extends ChangeNotifier {
   /// Creates a new ReferencePageViewModel.
-  ReferencePageViewModel() {
-    _localMidiState = MidiState();
-    _initializeMidiConnection();
+  ReferencePageViewModel({
+    required IMidiRepository midiRepository,
+    required MidiState midiState,
+  }) : _midiRepository = midiRepository,
+       _localMidiState = midiState {
+    _midiRepository.registerDataHandler(_handleMidiData);
     _initializeState();
   }
 
-  final MidiConnectionService _midiConnectionService = MidiConnectionService();
-  late final MidiState _localMidiState;
+  final IMidiRepository _midiRepository;
+  final MidiState _localMidiState;
 
   // Current selections
   ReferenceMode _selectedMode = ReferenceMode.scales;
@@ -209,17 +213,11 @@ class ReferencePageViewModel extends ChangeNotifier {
     );
   }
 
-  /// Initializes the MIDI connection and sets up data handling.
-  void _initializeMidiConnection() {
-    _midiConnectionService
-      ..registerDataHandler(_handleMidiData)
-      ..connect();
-  }
-
   @override
   void dispose() {
-    _localMidiState.dispose();
-    _midiConnectionService.unregisterDataHandler(_handleMidiData);
+    // Clear reference display when disposing
+    deactivateReferenceDisplay();
+    _midiRepository.unregisterDataHandler(_handleMidiData);
     super.dispose();
   }
 }

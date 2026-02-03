@@ -5,6 +5,8 @@
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/features/device_controller/device_controller_view_model.dart";
+import "package:piano_fitness/application/state/midi_state.dart";
+import "../../shared/test_helpers/mock_repositories.mocks.dart";
 import "../../shared/midi_mocks.dart";
 
 // Mock MIDI device class for testing
@@ -25,6 +27,8 @@ void main() {
   group("DeviceControllerViewModel Tests", () {
     late MockMidiDevice mockDevice;
     late DeviceControllerViewModel viewModel;
+    late MockIMidiRepository mockMidiRepository;
+    late MidiState midiState;
 
     setUp(() {
       mockDevice = MockMidiDevice(
@@ -33,7 +37,13 @@ void main() {
         type: "BLE",
         connected: true,
       );
-      viewModel = DeviceControllerViewModel(device: mockDevice);
+      mockMidiRepository = MockIMidiRepository();
+      midiState = MidiState();
+      viewModel = DeviceControllerViewModel(
+        device: mockDevice,
+        midiRepository: mockMidiRepository,
+        midiState: midiState,
+      );
     });
 
     group("Initialization", () {

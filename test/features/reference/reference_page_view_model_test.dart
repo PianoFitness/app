@@ -1,8 +1,10 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/features/reference/reference_page_view_model.dart";
+import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as scales;
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
+import "../../shared/test_helpers/mock_repositories.mocks.dart";
 import "../../shared/midi_mocks.dart";
 
 void main() {
@@ -12,9 +14,16 @@ void main() {
 
   group("ReferencePageViewModel Tests", () {
     late ReferencePageViewModel viewModel;
+    late MockIMidiRepository mockMidiRepository;
+    late MidiState midiState;
 
     setUp(() async {
-      viewModel = ReferencePageViewModel();
+      mockMidiRepository = MockIMidiRepository();
+      midiState = MidiState();
+      viewModel = ReferencePageViewModel(
+        midiRepository: mockMidiRepository,
+        midiState: midiState,
+      );
       // Note: ReferencePageViewModel now has its own local MIDI state
       // No need to set external MIDI state
 
@@ -302,7 +311,10 @@ void main() {
       });
 
       test("should handle note playing with local MIDI state", () async {
-        final viewModelWithLocalState = ReferencePageViewModel();
+        final viewModelWithLocalState = ReferencePageViewModel(
+          midiRepository: MockIMidiRepository(),
+          midiState: MidiState(),
+        );
 
         // Should not crash and should work with local MIDI state
         await expectLater(

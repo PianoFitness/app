@@ -1,5 +1,7 @@
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
+import "package:piano_fitness/domain/repositories/notification_repository.dart";
+import "package:piano_fitness/domain/repositories/settings_repository.dart";
 import "package:piano_fitness/features/notifications/notifications_constants.dart";
 import "package:piano_fitness/features/notifications/notifications_page_view_model.dart";
 import "package:piano_fitness/features/notifications/widgets/notification_permission_dialog.dart";
@@ -11,55 +13,51 @@ import "package:piano_fitness/presentation/theme/semantic_colors.dart";
 /// This page allows users to configure practice reminders, timer completion
 /// notifications, and manage notification permissions. It follows the app's
 /// design guidelines with responsive layouts and comprehensive accessibility.
-class NotificationsPage extends StatefulWidget {
+class NotificationsPage extends StatelessWidget {
   /// Creates the notifications page.
   const NotificationsPage({super.key});
 
   @override
-  State<NotificationsPage> createState() => _NotificationsPageState();
-}
-
-class _NotificationsPageState extends State<NotificationsPage> {
-  late final NotificationsPageViewModel _viewModel;
-
-  @override
-  void initState() {
-    super.initState();
-    _viewModel = NotificationsPageViewModel();
-    _viewModel.initialize();
-  }
-
-  @override
-  void dispose() {
-    _viewModel.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<NotificationsPageViewModel>.value(
-      value: _viewModel,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: const Text("Notification Settings"),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ),
-        body: Consumer<NotificationsPageViewModel>(
-          builder: (context, viewModel, child) {
-            if (viewModel.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
+    return ChangeNotifierProvider(
+      create: (context) {
+        final viewModel = NotificationsPageViewModel(
+          notificationRepository: context.read<INotificationRepository>(),
+          settingsRepository: context.read<ISettingsRepository>(),
+        );
+        viewModel.initialize();
+        return viewModel;
+      },
+      child: Consumer<NotificationsPageViewModel>(
+        builder: (context, viewModel, child) {
+          return _buildScaffold(context, viewModel);
+        },
+      ),
+    );
+  }
 
-            return _buildNotificationSettings(context, viewModel);
+  Scaffold _buildScaffold(
+    BuildContext context,
+    NotificationsPageViewModel viewModel,
+  ) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        title: const Text("Notification Settings"),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
           },
         ),
       ),
+      body: () {
+        if (viewModel.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return _buildNotificationSettings(context, viewModel);
+      }(),
     );
   }
 

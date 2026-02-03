@@ -2,8 +2,7 @@ import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/reference/reference_page.dart";
-import "package:piano_fitness/application/state/midi_state.dart";
-import "package:provider/provider.dart";
+import "../../shared/test_helpers/widget_test_helper.dart";
 import "../../shared/midi_mocks.dart";
 
 void main() {
@@ -12,25 +11,6 @@ void main() {
   tearDownAll(MidiMocks.tearDown);
 
   group("ReferencePage Widget Tests", () {
-    late MidiState midiState;
-
-    setUp(() {
-      midiState = MidiState();
-    });
-
-    tearDown(() {
-      midiState.dispose();
-    });
-
-    Widget createTestWidget() {
-      return MaterialApp(
-        home: ChangeNotifierProvider<MidiState>.value(
-          value: midiState,
-          child: const ReferencePage(),
-        ),
-      );
-    }
-
     // Helper functions to reduce duplication
     Future<void> switchToChordsMode(WidgetTester tester) async {
       await tester.tap(find.byKey(const Key("chord_types_mode_button")));
@@ -45,7 +25,7 @@ void main() {
     testWidgets("should display reference page with initial content", (
       tester,
     ) async {
-      await tester.pumpWidget(createTestWidget());
+      await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
       // Check that mode selection is present
@@ -59,7 +39,7 @@ void main() {
     });
 
     testWidgets("should switch between scales and chords mode", (tester) async {
-      await tester.pumpWidget(createTestWidget());
+      await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
       // Initially in scales mode
@@ -86,7 +66,7 @@ void main() {
     testWidgets("should display all scale types in scales mode", (
       tester,
     ) async {
-      await tester.pumpWidget(createTestWidget());
+      await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
       // Check that all scale types are displayed
@@ -103,7 +83,7 @@ void main() {
     testWidgets("should display all chord types in chords mode", (
       tester,
     ) async {
-      await tester.pumpWidget(createTestWidget());
+      await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
       // Switch to chords mode
@@ -122,7 +102,7 @@ void main() {
     });
 
     testWidgets("should display all keys", (tester) async {
-      await tester.pumpWidget(createTestWidget());
+      await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
       // Check that all keys are displayed
@@ -141,7 +121,7 @@ void main() {
     });
 
     testWidgets("should allow selection of different keys", (tester) async {
-      await tester.pumpWidget(createTestWidget());
+      await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
       // Tap F# (G♭) via key-based selector; UI displays the flat name
@@ -158,7 +138,7 @@ void main() {
     testWidgets("should allow selection of different scale types", (
       tester,
     ) async {
-      await tester.pumpWidget(createTestWidget());
+      await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
       // Tap on Minor scale type using key-based selection
@@ -175,7 +155,7 @@ void main() {
     testWidgets("should allow selection of different chord types", (
       tester,
     ) async {
-      await tester.pumpWidget(createTestWidget());
+      await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
       // Switch to chords mode
@@ -195,7 +175,7 @@ void main() {
     testWidgets("should allow selection of different chord inversions", (
       tester,
     ) async {
-      await tester.pumpWidget(createTestWidget());
+      await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
       // Switch to chords mode
@@ -208,7 +188,7 @@ void main() {
     });
 
     testWidgets("should display interactive piano", (tester) async {
-      await tester.pumpWidget(createTestWidget());
+      await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
       // Check that InteractivePiano is present
@@ -218,7 +198,7 @@ void main() {
     testWidgets("should update piano when scale selection changes", (
       tester,
     ) async {
-      await tester.pumpWidget(createTestWidget());
+      await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
       // Change to a different scale (Minor) using key-based selection
@@ -242,7 +222,7 @@ void main() {
     testWidgets("should update piano when chord selection changes", (
       tester,
     ) async {
-      await tester.pumpWidget(createTestWidget());
+      await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
       // Switch to chords mode
@@ -268,7 +248,7 @@ void main() {
 
     group("Piano Interaction", () {
       testWidgets("should handle piano key taps", (tester) async {
-        await tester.pumpWidget(createTestWidget());
+        await tester.pumpWidget(createTestWidget(const ReferencePage()));
         await tester.pumpAndSettle();
 
         // Find the InteractivePiano widget
@@ -292,14 +272,13 @@ void main() {
     });
 
     group("Error Handling", () {
-      testWidgets("should handle initialization without provider gracefully", (
+      testWidgets("should handle initialization with provider correctly", (
         tester,
       ) async {
-        // Test with a widget that doesn't provide MidiState
-        // This should work fine since ReferencePage now uses local MIDI state
-        await tester.pumpWidget(const MaterialApp(home: ReferencePage()));
+        // Test with proper provider setup (now required for DI architecture)
+        await tester.pumpWidget(createTestWidget(const ReferencePage()));
 
-        // Should not crash and should render properly
+        // Should render properly with provider support
         await tester.pumpAndSettle();
         expect(find.text("Reference Mode"), findsOneWidget);
       });

@@ -1,5 +1,8 @@
 import "package:flutter/material.dart";
 import "package:piano/piano.dart";
+import "package:provider/provider.dart";
+import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/features/play/play_constants.dart";
 import "package:piano_fitness/features/play/play_page_view_model.dart";
 import "package:piano_fitness/presentation/accessibility/config/accessibility_labels.dart";
@@ -13,7 +16,7 @@ import "package:piano_fitness/presentation/utils/piano_accessibility_utils.dart"
 /// This page serves as the home screen and primary interface for piano interaction.
 /// It provides access to practice modes, MIDI settings, and displays an interactive
 /// piano keyboard for both MIDI input and virtual note playing.
-class PlayPage extends StatefulWidget {
+class PlayPage extends StatelessWidget {
   /// Creates the main play page with optional MIDI channel configuration.
   ///
   /// The [midiChannel] parameter sets the default MIDI channel for input/output.
@@ -23,26 +26,25 @@ class PlayPage extends StatefulWidget {
   final int midiChannel;
 
   @override
-  State<PlayPage> createState() => _PlayPageState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => PlayPageViewModel(
+        midiRepository: context.read<IMidiRepository>(),
+        midiState: context.read<MidiState>(),
+        initialChannel: midiChannel,
+      ),
+      child: const _PlayPageView(),
+    );
+  }
 }
 
-class _PlayPageState extends State<PlayPage> {
-  late final PlayPageViewModel _viewModel;
-
-  @override
-  void initState() {
-    super.initState();
-    _viewModel = PlayPageViewModel(initialChannel: widget.midiChannel);
-  }
-
-  @override
-  void dispose() {
-    _viewModel.dispose();
-    super.dispose();
-  }
+/// Internal view widget for PlayPage content.
+class _PlayPageView extends StatelessWidget {
+  const _PlayPageView();
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = context.watch<PlayPageViewModel>();
     final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
       body: Column(
@@ -147,7 +149,7 @@ class _PlayPageState extends State<PlayPage> {
           ),
           Expanded(
             child: AnimatedBuilder(
-              animation: _viewModel,
+              animation: viewModel,
               builder: (context, child) {
                 // Define a fixed 49-key range for consistent layout
                 final fixed49KeyRange = PianoRangeUtils.standard49KeyRange;
@@ -159,14 +161,14 @@ class _PlayPageState extends State<PlayPage> {
 
                 return PianoAccessibilityUtils.createAccessiblePianoWrapper(
                   highlightedNotes:
-                      _viewModel.localMidiState.highlightedNotePositions,
+                      viewModel.midiState.highlightedNotePositions,
                   mode: PianoMode.play,
                   semanticLabel: AccessibilityLabels.piano.keyboardLabel(
                     PianoMode.play,
                   ),
                   child: InteractivePiano(
                     highlightedNotes:
-                        _viewModel.localMidiState.highlightedNotePositions,
+                        viewModel.midiState.highlightedNotePositions,
                     keyWidth: dynamicKeyWidth.clamp(
                       PianoRangeUtils.minKeyWidth,
                       PianoRangeUtils.maxKeyWidth,
@@ -176,7 +178,7 @@ class _PlayPageState extends State<PlayPage> {
                       final midiNote = NoteUtils.convertNotePositionToMidi(
                         position,
                       );
-                      _viewModel.playVirtualNote(midiNote);
+                      viewModel.playVirtualNote(midiNote);
                     },
                   ),
                 );

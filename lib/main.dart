@@ -1,11 +1,21 @@
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:logging/logging.dart";
+import "package:provider/provider.dart";
+import "package:timezone/data/latest.dart" as tz;
+
+import "package:piano_fitness/application/repositories/audio_service_impl.dart";
+import "package:piano_fitness/application/repositories/midi_repository_impl.dart";
+import "package:piano_fitness/application/repositories/notification_repository_impl.dart";
+import "package:piano_fitness/application/repositories/settings_repository_impl.dart";
+import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/domain/repositories/audio_service.dart";
+import "package:piano_fitness/domain/repositories/midi_repository.dart";
+import "package:piano_fitness/domain/repositories/notification_repository.dart";
+import "package:piano_fitness/domain/repositories/settings_repository.dart";
 import "package:piano_fitness/presentation/constants/typography_constants.dart";
-import "package:piano_fitness/application/services/notifications/notification_service.dart";
 import "package:piano_fitness/presentation/theme/semantic_colors.dart";
 import "package:piano_fitness/presentation/widgets/main_navigation.dart";
-import "package:timezone/data/latest.dart" as tz;
 
 /// Entry point for the Piano Fitness application.
 ///
@@ -16,15 +26,8 @@ void main() async {
   // Initialize timezone data for notifications
   tz.initializeTimeZones();
 
-  // Initialize notification service
-  try {
-    debugPrint("About to initialize NotificationService...");
-    await NotificationService.initialize();
-    debugPrint("NotificationService initialized successfully");
-  } catch (e, stackTrace) {
-    debugPrint("Failed to initialize notification service: $e");
-    debugPrint("Stack trace: $stackTrace");
-  }
+  // No longer needed - NotificationRepositoryImpl initializes in constructor
+  // await NotificationService.initialize();
 
   // Configure logging levels
   if (kDebugMode) {
@@ -49,7 +52,26 @@ void main() async {
     );
   });
 
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        // Repository interfaces
+        Provider<IMidiRepository>(
+          create: (_) => MidiRepositoryImpl(),
+          dispose: (_, repository) {}, // Singleton persists for app lifetime
+        ),
+        Provider<INotificationRepository>(
+          create: (_) => NotificationRepositoryImpl(),
+        ),
+        Provider<ISettingsRepository>(create: (_) => SettingsRepositoryImpl()),
+        Provider<IAudioService>(create: (_) => AudioServiceImpl()),
+
+        // Global MIDI state (shared across all features)
+        ChangeNotifierProvider<MidiState>(create: (_) => MidiState()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 /// Creates a custom TextTheme matching the app's design system.

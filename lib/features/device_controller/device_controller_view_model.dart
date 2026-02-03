@@ -1,9 +1,11 @@
 import "package:flutter/foundation.dart";
-import "package:flutter_midi_command/flutter_midi_command.dart";
+import "package:flutter_midi_command/flutter_midi_command.dart" as midi_cmd;
 import "package:flutter_midi_command/flutter_midi_command_messages.dart";
 import "package:logging/logging.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart"; // For MidiConstants
 import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
+import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/services/midi/midi_service.dart";
 
 /// ViewModel for managing device controller state and MIDI operations.
@@ -11,15 +13,22 @@ import "package:piano_fitness/domain/services/midi/midi_service.dart";
 /// This class handles all business logic for controlling and monitoring a MIDI device,
 /// including sending test messages, managing MIDI parameters, and processing received data.
 class DeviceControllerViewModel extends ChangeNotifier {
-  /// Creates a new DeviceControllerViewModel for the specified MIDI device.
-  DeviceControllerViewModel({required MidiDevice device}) : _device = device {
+  /// Creates a new DeviceControllerViewModel with dependency injection.
+  DeviceControllerViewModel({
+    required IMidiRepository midiRepository,
+    required MidiState midiState,
+    required midi_cmd.MidiDevice device,
+  }) : _midiRepository = midiRepository,
+       _midiState = midiState,
+       _device = device {
     _setupMidiListener();
   }
 
   static final _log = Logger("DeviceControllerViewModel");
 
-  final MidiDevice _device;
-  final MidiConnectionService _midiService = MidiConnectionService();
+  final IMidiRepository _midiRepository;
+  final MidiState _midiState;
+  final midi_cmd.MidiDevice _device;
 
   int _selectedChannel = 0;
   int _ccController = 1;
@@ -29,7 +38,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
   String _lastReceivedMessage = "No MIDI data received yet";
 
   /// The MIDI device being controlled.
-  MidiDevice get device => _device;
+  midi_cmd.MidiDevice get device => _device;
 
   /// Currently selected MIDI channel (0-15).
   int get selectedChannel => _selectedChannel;
@@ -177,15 +186,15 @@ class DeviceControllerViewModel extends ChangeNotifier {
   }
 
   void _setupMidiListener() {
-    // Connect to the MIDI service and register our data handler
-    _midiService
-      ..connect()
-      ..registerDataHandler(_handleMidiData);
+    // Register our data handler with the repository
+    _midiRepository.registerDataHandler(_handleMidiData);
   }
 
   void _handleMidiData(Uint8List data) {
-    // Only process data from our specific device by checking device context
-    // In a real implementation, you might want to filter by device ID
+    // Process MIDI data and update global state
+    MidiConnectionService.handleStandardMidiData(data, _midiState);
+
+    // Also parse for display in device controller
     _processMidiData(data);
   }
 
@@ -221,7 +230,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _midiService.unregisterDataHandler(_handleMidiData);
+    _midiRepository.unregisterDataHandler(_handleMidiData);
     super.dispose();
   }
 }

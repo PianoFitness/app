@@ -1,10 +1,11 @@
 import "dart:async";
-import "package:audioplayers/audioplayers.dart";
+import "package:audioplayers/audioplayers.dart" as audioplayers;
 import "package:flutter/foundation.dart";
 import "package:flutter/services.dart";
+import "package:piano_fitness/domain/repositories/audio_service.dart";
+import "package:piano_fitness/domain/repositories/notification_repository.dart";
+import "package:piano_fitness/domain/repositories/settings_repository.dart";
 import "package:piano_fitness/features/repertoire/repertoire_constants.dart";
-import "package:piano_fitness/application/services/notifications/notification_manager.dart";
-import "package:piano_fitness/application/services/notifications/notification_service.dart";
 
 /// ViewModel for managing repertoire page state and logic.
 ///
@@ -12,11 +13,20 @@ import "package:piano_fitness/application/services/notifications/notification_se
 /// managing timer state and providing guidance for repertoire practice.
 class RepertoirePageViewModel extends ChangeNotifier {
   /// Creates a new RepertoirePageViewModel.
-  RepertoirePageViewModel() {
-    _player = AudioPlayer();
+  RepertoirePageViewModel({
+    required IAudioService audioService,
+    required INotificationRepository notificationRepository,
+    required ISettingsRepository settingsRepository,
+  }) : _audioService = audioService,
+       _notificationRepository = notificationRepository,
+       _settingsRepository = settingsRepository {
+    _player = _audioService.createPlayer();
   }
 
-  late final AudioPlayer _player;
+  final IAudioService _audioService;
+  final INotificationRepository _notificationRepository;
+  final ISettingsRepository _settingsRepository;
+  late final audioplayers.AudioPlayer _player;
   Timer? _timer;
 
   // Timer state
@@ -158,7 +168,7 @@ class RepertoirePageViewModel extends ChangeNotifier {
     // Play completion sound
     try {
       await _player.play(
-        AssetSource("audio/218851__kellyconidi__highbell.mp3"),
+        audioplayers.AssetSource("audio/218851__kellyconidi__highbell.mp3"),
       );
     } catch (e) {
       debugPrint("Error playing timer completion sound: $e");
@@ -166,13 +176,13 @@ class RepertoirePageViewModel extends ChangeNotifier {
 
     // Show notification if enabled
     try {
-      final settings = await NotificationManager.loadSettings();
+      final settings = await _settingsRepository.loadNotificationSettings();
       if (settings.timerCompletionEnabled && settings.permissionGranted) {
-        await NotificationService.showInstantNotification(
+        await _notificationRepository.showInstantNotification(
+          id: 0,
           title: RepertoireUIConstants.notificationTitle,
           body:
               "You completed $_selectedDurationMinutes minutes of practice. Well done!",
-          payload: RepertoireUIConstants.notificationPayload,
         );
       }
     } catch (e) {

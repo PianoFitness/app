@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/presentation/widgets/main_navigation.dart";
+import "../../shared/test_helpers/widget_test_helper.dart";
 
 /// Helper function to navigate to a specific tab by key.
 /// This avoids text-based finders and uses stable key-based navigation.
@@ -24,7 +25,7 @@ void main() {
     testWidgets("should display main navigation with initial content", (
       tester,
     ) async {
-      await tester.pumpWidget(const MaterialApp(home: MainNavigation()));
+      await tester.pumpWidget(createTestWidget(const MainNavigation()));
       await tester.pumpAndSettle();
 
       // Verify app bar with initial page (Free Play) - text appears in both app bar and bottom nav
@@ -48,7 +49,7 @@ void main() {
     testWidgets("should navigate between bottom navigation pages", (
       tester,
     ) async {
-      await tester.pumpWidget(const MaterialApp(home: MainNavigation()));
+      await tester.pumpWidget(createTestWidget(const MainNavigation()));
       await tester.pumpAndSettle();
 
       // Navigate to Practice tab using stable key
@@ -88,7 +89,7 @@ void main() {
       testWidgets("should display MIDI settings button with correct tooltip", (
         tester,
       ) async {
-        await tester.pumpWidget(const MaterialApp(home: MainNavigation()));
+        await tester.pumpWidget(createTestWidget(const MainNavigation()));
         await tester.pumpAndSettle();
 
         // Find MIDI settings button using stable key
@@ -108,7 +109,7 @@ void main() {
       testWidgets("should have interactive MIDI settings button", (
         tester,
       ) async {
-        await tester.pumpWidget(const MaterialApp(home: MainNavigation()));
+        await tester.pumpWidget(createTestWidget(const MainNavigation()));
         await tester.pumpAndSettle();
 
         // Verify MIDI settings button is interactive using stable key
@@ -123,7 +124,7 @@ void main() {
       testWidgets(
         "should display notification settings button with correct tooltip",
         (tester) async {
-          await tester.pumpWidget(const MaterialApp(home: MainNavigation()));
+          await tester.pumpWidget(createTestWidget(const MainNavigation()));
           await tester.pumpAndSettle();
 
           // Find notification settings button using stable key
@@ -146,7 +147,7 @@ void main() {
       testWidgets("should have interactive notification settings button", (
         tester,
       ) async {
-        await tester.pumpWidget(const MaterialApp(home: MainNavigation()));
+        await tester.pumpWidget(createTestWidget(const MainNavigation()));
         await tester.pumpAndSettle();
 
         // Verify notification settings button is interactive using stable key
@@ -163,7 +164,7 @@ void main() {
       testWidgets(
         "should maintain MIDI controls accessibility across all pages",
         (tester) async {
-          await tester.pumpWidget(const MaterialApp(home: MainNavigation()));
+          await tester.pumpWidget(createTestWidget(const MainNavigation()));
           await tester.pumpAndSettle();
 
           final tabKeys = [
@@ -203,7 +204,7 @@ void main() {
       testWidgets("should preserve bottom navigation state correctly", (
         tester,
       ) async {
-        await tester.pumpWidget(const MaterialApp(home: MainNavigation()));
+        await tester.pumpWidget(createTestWidget(const MainNavigation()));
         await tester.pumpAndSettle();
 
         // Navigate to Practice using stable helper
@@ -222,7 +223,7 @@ void main() {
       testWidgets("should use IndexedStack to preserve page state", (
         tester,
       ) async {
-        await tester.pumpWidget(const MaterialApp(home: MainNavigation()));
+        await tester.pumpWidget(createTestWidget(const MainNavigation()));
         await tester.pumpAndSettle();
 
         // Verify IndexedStack is used for page management
@@ -248,7 +249,7 @@ void main() {
       testWidgets("should have proper semantic headers for page titles", (
         tester,
       ) async {
-        await tester.pumpWidget(const MaterialApp(home: MainNavigation()));
+        await tester.pumpWidget(createTestWidget(const MainNavigation()));
         await tester.pumpAndSettle();
 
         // Find Semantics widgets with header property using predicate
@@ -262,7 +263,7 @@ void main() {
       });
 
       testWidgets("should provide tooltips for action buttons", (tester) async {
-        await tester.pumpWidget(const MaterialApp(home: MainNavigation()));
+        await tester.pumpWidget(createTestWidget(const MainNavigation()));
         await tester.pumpAndSettle();
 
         // Test MIDI settings tooltip using stable key

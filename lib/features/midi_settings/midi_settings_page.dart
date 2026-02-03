@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "package:flutter_midi_command/flutter_midi_command.dart";
+import "package:flutter_midi_command/flutter_midi_command.dart" as midi_cmd;
 import "package:piano_fitness/features/device_controller/device_controller_page.dart";
 import "package:piano_fitness/features/midi_settings/midi_settings_view_model.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
@@ -395,7 +395,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
   }
 
   Future<void> _openDeviceController(
-    MidiDevice device,
+    midi_cmd.MidiDevice device,
     MidiSettingsViewModel viewModel,
   ) async {
     final preparedDevice = await viewModel.prepareDeviceForController(

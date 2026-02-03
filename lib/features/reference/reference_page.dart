@@ -1,5 +1,8 @@
 import "package:flutter/material.dart";
 import "package:piano/piano.dart";
+import "package:provider/provider.dart";
+import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/features/reference/reference_constants.dart";
 import "package:piano_fitness/features/reference/reference_page_view_model.dart";
 import "package:piano_fitness/presentation/accessibility/config/accessibility_labels.dart";
@@ -17,35 +20,31 @@ import "package:piano_fitness/presentation/utils/piano_accessibility_utils.dart"
 /// This page allows students to select scales or chords and see the notes
 /// highlighted on an interactive piano keyboard. It follows the MVVM pattern
 /// with the logic handled by ReferencePageViewModel.
-class ReferencePage extends StatefulWidget {
+class ReferencePage extends StatelessWidget {
   /// Creates the reference page.
   const ReferencePage({super.key});
 
   @override
-  State<ReferencePage> createState() => _ReferencePageState();
-}
-
-class _ReferencePageState extends State<ReferencePage> {
-  late final ReferencePageViewModel _viewModel;
-
-  @override
-  void initState() {
-    super.initState();
-    _viewModel = ReferencePageViewModel();
-    // Activate the reference display once during initialization
-    _viewModel.activateReferenceDisplay();
-  }
-
-  @override
-  void dispose() {
-    // Clear reference display when page is disposed
-    _viewModel.deactivateReferenceDisplay();
-    _viewModel.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) {
+        final viewModel = ReferencePageViewModel(
+          midiRepository: context.read<IMidiRepository>(),
+          midiState: context.read<MidiState>(),
+        );
+        // Activate the reference display once during initialization
+        viewModel.activateReferenceDisplay();
+        return viewModel;
+      },
+      child: Consumer<ReferencePageViewModel>(
+        builder: (context, viewModel, child) {
+          return _buildContent(context, viewModel);
+        },
+      ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context, ReferencePageViewModel viewModel) {
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -90,7 +89,7 @@ class _ReferencePageState extends State<ReferencePage> {
                             height: ReferenceUIConstants.headerSpacing,
                           ),
                           ListenableBuilder(
-                            listenable: _viewModel,
+                            listenable: viewModel,
                             builder: (context, child) {
                               return SegmentedButton<ReferenceMode>(
                                 key: const Key("reference_mode_selector"),
@@ -112,10 +111,10 @@ class _ReferencePageState extends State<ReferencePage> {
                                     icon: Icon(Icons.piano),
                                   ),
                                 ],
-                                selected: {_viewModel.selectedMode},
+                                selected: {viewModel.selectedMode},
                                 onSelectionChanged:
                                     (Set<ReferenceMode> selection) {
-                                      _viewModel.setSelectedMode(
+                                      viewModel.setSelectedMode(
                                         selection.first,
                                       );
                                     },
@@ -129,9 +128,9 @@ class _ReferencePageState extends State<ReferencePage> {
 
                     // Selection Controls
                     ListenableBuilder(
-                      listenable: _viewModel,
+                      listenable: viewModel,
                       builder: (context, child) {
-                        return _buildSelectionControls();
+                        return _buildSelectionControls(context, viewModel);
                       },
                     ),
                   ],
@@ -150,10 +149,10 @@ class _ReferencePageState extends State<ReferencePage> {
                     PianoRangeUtils.calculateScreenBasedKeyWidth(screenWidth);
 
                 return ListenableBuilder(
-                  listenable: _viewModel,
+                  listenable: viewModel,
                   builder: (context, child) {
                     // Convert local highlighted MIDI notes to NotePositions using shared utility
-                    final localHighlightedPositions = _viewModel
+                    final localHighlightedPositions = viewModel
                         .localHighlightedNotes
                         .map<NotePosition?>(NoteUtils.midiNumberToNotePosition)
                         .where((position) => position != null)
@@ -176,7 +175,7 @@ class _ReferencePageState extends State<ReferencePage> {
                           final midiNote = NoteUtils.convertNotePositionToMidi(
                             position,
                           );
-                          _viewModel.playNote(midiNote);
+                          viewModel.playNote(midiNote);
                         },
                       ),
                     );
@@ -190,15 +189,21 @@ class _ReferencePageState extends State<ReferencePage> {
     );
   }
 
-  Widget _buildSelectionControls() {
-    if (_viewModel.selectedMode == ReferenceMode.scales) {
-      return _buildScaleControls();
+  Widget _buildSelectionControls(
+    BuildContext context,
+    ReferencePageViewModel viewModel,
+  ) {
+    if (viewModel.selectedMode == ReferenceMode.scales) {
+      return _buildScaleControls(context, viewModel);
     } else {
-      return _buildChordControls();
+      return _buildChordControls(context, viewModel);
     }
   }
 
-  Widget _buildScaleControls() {
+  Widget _buildScaleControls(
+    BuildContext context,
+    ReferencePageViewModel viewModel,
+  ) {
     return Column(
       children: [
         // Key Selection
@@ -229,14 +234,14 @@ class _ReferencePageState extends State<ReferencePage> {
                 spacing: Spacing.sm,
                 runSpacing: Spacing.sm,
                 children: scales.Key.values.map((scales.Key key) {
-                  final isSelected = _viewModel.selectedKey == key;
+                  final isSelected = viewModel.selectedKey == key;
                   return FilterChip(
                     key: Key("scales_key_${key.name}"),
                     label: Text(key.displayName),
                     selected: isSelected,
                     onSelected: (selected) {
                       if (selected) {
-                        _viewModel.setSelectedKey(key);
+                        viewModel.setSelectedKey(key);
                       }
                     },
                     selectedColor: Theme.of(context).colorScheme.secondary
@@ -274,7 +279,7 @@ class _ReferencePageState extends State<ReferencePage> {
                 spacing: Spacing.sm,
                 runSpacing: Spacing.sm,
                 children: scales.ScaleType.values.map((scales.ScaleType type) {
-                  final isSelected = _viewModel.selectedScaleType == type;
+                  final isSelected = viewModel.selectedScaleType == type;
                   return FilterChip(
                     key: Key("scales_type_${type.name}"),
                     label: Text(
@@ -283,7 +288,7 @@ class _ReferencePageState extends State<ReferencePage> {
                     selected: isSelected,
                     onSelected: (selected) {
                       if (selected) {
-                        _viewModel.setSelectedScaleType(type);
+                        viewModel.setSelectedScaleType(type);
                       }
                     },
                     selectedColor: Theme.of(
@@ -300,7 +305,10 @@ class _ReferencePageState extends State<ReferencePage> {
     );
   }
 
-  Widget _buildChordControls() {
+  Widget _buildChordControls(
+    BuildContext context,
+    ReferencePageViewModel viewModel,
+  ) {
     return Column(
       children: [
         // Key Selection
@@ -327,14 +335,14 @@ class _ReferencePageState extends State<ReferencePage> {
                 spacing: Spacing.sm,
                 runSpacing: Spacing.sm,
                 children: scales.Key.values.map((scales.Key key) {
-                  final isSelected = _viewModel.selectedKey == key;
+                  final isSelected = viewModel.selectedKey == key;
                   return FilterChip(
                     key: Key("chords_root_${key.name}"),
                     label: Text(key.displayName),
                     selected: isSelected,
                     onSelected: (selected) {
                       if (selected) {
-                        _viewModel.setSelectedKey(key);
+                        viewModel.setSelectedKey(key);
                       }
                     },
                     selectedColor: Theme.of(
@@ -373,7 +381,7 @@ class _ReferencePageState extends State<ReferencePage> {
                 spacing: Spacing.sm,
                 runSpacing: Spacing.sm,
                 children: ChordType.values.map((type) {
-                  final isSelected = _viewModel.selectedChordType == type;
+                  final isSelected = viewModel.selectedChordType == type;
                   return FilterChip(
                     key: Key("chords_type_${type.name}"),
                     label: Text(
@@ -382,7 +390,7 @@ class _ReferencePageState extends State<ReferencePage> {
                     selected: isSelected,
                     onSelected: (selected) {
                       if (selected) {
-                        _viewModel.setSelectedChordType(type);
+                        viewModel.setSelectedChordType(type);
                       }
                     },
                     selectedColor: Theme.of(
@@ -422,7 +430,7 @@ class _ReferencePageState extends State<ReferencePage> {
                 runSpacing: Spacing.sm,
                 children: ChordInversion.values.map((inversion) {
                   final isSelected =
-                      _viewModel.selectedChordInversion == inversion;
+                      viewModel.selectedChordInversion == inversion;
                   return FilterChip(
                     key: Key("chords_inversion_${inversion.name}"),
                     label: Text(
@@ -432,7 +440,7 @@ class _ReferencePageState extends State<ReferencePage> {
                     selected: isSelected,
                     onSelected: (selected) {
                       if (selected) {
-                        _viewModel.setSelectedChordInversion(inversion);
+                        viewModel.setSelectedChordInversion(inversion);
                       }
                     },
                     selectedColor: Theme.of(

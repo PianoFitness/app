@@ -1,8 +1,8 @@
 import "package:flutter/material.dart";
 import "package:logging/logging.dart";
 import "package:piano_fitness/application/models/notification_settings.dart";
-import "package:piano_fitness/application/services/notifications/notification_manager.dart";
-import "package:piano_fitness/application/services/notifications/notification_service.dart";
+import "package:piano_fitness/domain/repositories/notification_repository.dart";
+import "package:piano_fitness/domain/repositories/settings_repository.dart";
 
 /// ViewModel for managing notifications page state and business logic.
 ///
@@ -10,9 +10,16 @@ import "package:piano_fitness/application/services/notifications/notification_se
 /// loading/saving settings, managing permissions, and scheduling notifications.
 /// It follows the MVVM pattern and provides reactive updates to the UI.
 class NotificationsPageViewModel extends ChangeNotifier {
-  NotificationsPageViewModel();
+  NotificationsPageViewModel({
+    required INotificationRepository notificationRepository,
+    required ISettingsRepository settingsRepository,
+  }) : _notificationRepository = notificationRepository,
+       _settingsRepository = settingsRepository;
 
   static final _log = Logger("NotificationsPageViewModel");
+
+  final INotificationRepository _notificationRepository;
+  final ISettingsRepository _settingsRepository;
 
   NotificationSettings _settings = const NotificationSettings();
   bool _isLoading = true;
@@ -59,7 +66,7 @@ class NotificationsPageViewModel extends ChangeNotifier {
     _log.info("Requesting notification permissions");
 
     try {
-      final granted = await NotificationService.requestPermissions();
+      final granted = await _notificationRepository.requestPermissions();
 
       if (granted) {
         _settings = _settings.copyWith(permissionGranted: true);
@@ -122,9 +129,7 @@ class NotificationsPageViewModel extends ChangeNotifier {
         _settings = _settings.copyWith(practiceRemindersEnabled: false);
 
         // Cancel existing daily reminders
-        await NotificationService.cancelNotification(
-          NotificationService.dailyReminderNotificationId,
-        );
+        await _notificationRepository.cancelNotification(1);
       }
 
       await _saveSettings();
@@ -174,7 +179,7 @@ class NotificationsPageViewModel extends ChangeNotifier {
   /// Loads notification settings from persistent storage.
   Future<void> _loadSettings() async {
     try {
-      _settings = await NotificationManager.loadSettings();
+      _settings = await _settingsRepository.loadNotificationSettings();
       _log.fine("Loaded notification settings: $_settings");
     } catch (e) {
       _log.warning("Failed to load settings: $e");
@@ -185,7 +190,7 @@ class NotificationsPageViewModel extends ChangeNotifier {
   /// Saves current settings to persistent storage.
   Future<void> _saveSettings() async {
     try {
-      await NotificationManager.saveSettings(_settings);
+      await _settingsRepository.saveNotificationSettings(_settings);
       _log.fine("Saved notification settings: $_settings");
     } catch (e) {
       _log.warning("Failed to save settings: $e");
@@ -196,8 +201,8 @@ class NotificationsPageViewModel extends ChangeNotifier {
   /// Refreshes the permission status from the system.
   Future<void> _refreshPermissionStatus() async {
     try {
-      final permissionsGranted =
-          await NotificationService.arePermissionsGranted();
+      final permissionsGranted = await _notificationRepository
+          .arePermissionsGranted();
 
       if (_settings.permissionGranted != permissionsGranted) {
         _settings = _settings.copyWith(permissionGranted: permissionsGranted);
@@ -227,11 +232,11 @@ class NotificationsPageViewModel extends ChangeNotifier {
         scheduledTime = scheduledTime.add(const Duration(days: 1));
       }
 
-      await NotificationService.scheduleDailyNotification(
+      await _notificationRepository.scheduleDailyNotification(
+        id: 1,
         title: "Time to Practice Piano! 🎹",
         body: "Ready to make some music? Your daily practice session awaits.",
-        time: scheduledTime,
-        payload: "daily_practice_reminder",
+        scheduledTime: scheduledTime,
       );
 
       _log.info(

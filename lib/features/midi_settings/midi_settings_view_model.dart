@@ -1,20 +1,16 @@
 import "dart:async";
-import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:flutter/services.dart";
-import "package:flutter_midi_command/flutter_midi_command.dart";
+import "package:flutter_midi_command/flutter_midi_command.dart" as midi_cmd;
 import "package:logging/logging.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
-import "package:piano_fitness/application/state/midi_state.dart";
-import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
-import "package:piano_fitness/domain/services/midi/midi_service.dart";
 
 /// ViewModel for managing MIDI settings state and operations.
 ///
 /// This class handles all business logic for MIDI device discovery, connection,
 /// Bluetooth management, and device configuration.
 class MidiSettingsViewModel extends ChangeNotifier {
-  /// Creates a new MidiSettingsViewModel with optional initial channel.
+  /// Creates a new MidiSettingsViewModel with injected dependencies.
   MidiSettingsViewModel({int initialChannel = 0})
     : _selectedChannel = initialChannel {
     _setupMidi();
@@ -23,11 +19,10 @@ class MidiSettingsViewModel extends ChangeNotifier {
   static final _log = Logger("MidiSettingsViewModel");
 
   StreamSubscription<String>? _setupSubscription;
-  StreamSubscription<BluetoothState>? _bluetoothStateSubscription;
-  final MidiConnectionService _midiConnectionService = MidiConnectionService();
-  final MidiCommand _midiCommand = MidiCommand();
+  StreamSubscription<midi_cmd.BluetoothState>? _bluetoothStateSubscription;
+  final midi_cmd.MidiCommand _midiCommand = midi_cmd.MidiCommand();
 
-  List<MidiDevice> _devices = [];
+  List<midi_cmd.MidiDevice> _devices = [];
   String _midiStatus = "Initializing MIDI...";
   String _lastNote = "";
   bool _didAskForBluetoothPermissions = false;
@@ -35,7 +30,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
   int _selectedChannel = 0;
 
   /// List of available MIDI devices.
-  List<MidiDevice> get devices => List.unmodifiable(_devices);
+  List<midi_cmd.MidiDevice> get devices => List.unmodifiable(_devices);
 
   /// Current MIDI status message.
   String get midiStatus => _midiStatus;
@@ -53,7 +48,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
   int get selectedChannel => _selectedChannel;
 
   /// MIDI command instance for low-level operations.
-  MidiCommand get midiCommand => _midiCommand;
+  midi_cmd.MidiCommand get midiCommand => _midiCommand;
 
   /// Sets the selected MIDI channel.
   void setSelectedChannel(int channel) {
@@ -142,9 +137,6 @@ class MidiSettingsViewModel extends ChangeNotifier {
         },
       );
 
-      await _midiConnectionService.connect();
-      _midiConnectionService.registerDataHandler(_handleMidiDataBytes);
-
       await updateDeviceList();
 
       _midiStatus = _devices.isEmpty
@@ -168,38 +160,6 @@ class MidiSettingsViewModel extends ChangeNotifier {
     } on Exception catch (e) {
       _log.warning("Error updating device list: $e");
     }
-  }
-
-  /// Handles incoming MIDI data bytes from the connection service.
-  void _handleMidiDataBytes(Uint8List data) {
-    _log.fine("Received MIDI data: $data");
-    try {
-      handleMidiData(data.toList());
-    } on Exception catch (e) {
-      _log.warning("MIDI data handler error: $e");
-    }
-  }
-
-  /// Handles incoming MIDI data and updates state.
-  void handleMidiData(List<int> data, {MidiState? midiState}) {
-    MidiService.handleMidiData(Uint8List.fromList(data), (MidiEvent event) {
-      switch (event.type) {
-        case MidiEventType.noteOn:
-          midiState?.noteOn(event.data1, event.data2, event.channel);
-          _lastNote = event.displayMessage;
-          notifyListeners();
-        case MidiEventType.noteOff:
-          midiState?.noteOff(event.data1, event.channel);
-          _lastNote = event.displayMessage;
-          notifyListeners();
-        case MidiEventType.controlChange:
-        case MidiEventType.programChange:
-        case MidiEventType.pitchBend:
-        case MidiEventType.other:
-          _lastNote = event.displayMessage;
-          notifyListeners();
-      }
-    });
   }
 
   /// Scans for available MIDI devices.
@@ -233,7 +193,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
         },
       );
 
-      if (_midiCommand.bluetoothState == BluetoothState.poweredOn) {
+      if (_midiCommand.bluetoothState == midi_cmd.BluetoothState.poweredOn) {
         _midiStatus = "Scanning for MIDI devices...";
         notifyListeners();
 
@@ -306,9 +266,6 @@ class MidiSettingsViewModel extends ChangeNotifier {
     await _bluetoothStateSubscription?.cancel();
     _bluetoothStateSubscription = null;
 
-    // Unregister from MIDI connection service
-    _midiConnectionService.unregisterDataHandler(_handleMidiDataBytes);
-
     // Stop any ongoing Bluetooth scanning
     if (_isScanning) {
       try {
@@ -322,7 +279,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
 
   /// Connects or disconnects from a MIDI device.
   Future<void> connectToDevice(
-    MidiDevice device,
+    midi_cmd.MidiDevice device,
     void Function(String message, [Color? color]) showSnackBar,
   ) async {
     try {
@@ -344,8 +301,8 @@ class MidiSettingsViewModel extends ChangeNotifier {
   }
 
   /// Opens device controller for a connected device.
-  Future<MidiDevice?> prepareDeviceForController(
-    MidiDevice device,
+  Future<midi_cmd.MidiDevice?> prepareDeviceForController(
+    midi_cmd.MidiDevice device,
     void Function(String message, [Color? color]) showSnackBar,
   ) async {
     var currentDevice = device;
@@ -405,14 +362,17 @@ class MidiSettingsViewModel extends ChangeNotifier {
 
   String _getBluetoothErrorMessage() {
     final messages = {
-      BluetoothState.unsupported: "Bluetooth is not supported on this device.",
-      BluetoothState.poweredOff: "Please switch on Bluetooth and try again.",
-      BluetoothState.resetting:
+      midi_cmd.BluetoothState.unsupported:
+          "Bluetooth is not supported on this device.",
+      midi_cmd.BluetoothState.poweredOff:
+          "Please switch on Bluetooth and try again.",
+      midi_cmd.BluetoothState.resetting:
           "Bluetooth is currently resetting. Try again later.",
-      BluetoothState.unauthorized:
+      midi_cmd.BluetoothState.unauthorized:
           "This app needs Bluetooth permissions. Please open Settings, find Piano Fitness and assign Bluetooth access rights.",
-      BluetoothState.unknown: "Bluetooth is not ready yet. Try again later.",
-      BluetoothState.other: "Unknown Bluetooth error occurred.",
+      midi_cmd.BluetoothState.unknown:
+          "Bluetooth is not ready yet. Try again later.",
+      midi_cmd.BluetoothState.other: "Unknown Bluetooth error occurred.",
     };
 
     return messages[_midiCommand.bluetoothState] ??

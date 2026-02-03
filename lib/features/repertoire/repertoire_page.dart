@@ -1,4 +1,8 @@
 import "package:flutter/material.dart";
+import "package:provider/provider.dart";
+import "package:piano_fitness/domain/repositories/audio_service.dart";
+import "package:piano_fitness/domain/repositories/notification_repository.dart";
+import "package:piano_fitness/domain/repositories/settings_repository.dart";
 import "package:piano_fitness/features/repertoire/repertoire_constants.dart";
 import "package:piano_fitness/features/repertoire/repertoire_page_view_model.dart";
 import "package:piano_fitness/features/repertoire/widgets/repertoire_duration_selector.dart";
@@ -14,31 +18,30 @@ import "package:url_launcher/url_launcher.dart";
 /// This page provides guidance on repertoire practice and recommends
 /// dedicated apps for piece study while offering a practice timer.
 /// It follows the MVVM pattern with logic handled by RepertoirePageViewModel.
-class RepertoirePage extends StatefulWidget {
+class RepertoirePage extends StatelessWidget {
   /// Creates the repertoire page.
   const RepertoirePage({super.key});
 
   @override
-  State<RepertoirePage> createState() => _RepertoirePageState();
-}
-
-class _RepertoirePageState extends State<RepertoirePage> {
-  late final RepertoirePageViewModel _viewModel;
-
-  @override
-  void initState() {
-    super.initState();
-    _viewModel = RepertoirePageViewModel();
-  }
-
-  @override
-  void dispose() {
-    _viewModel.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => RepertoirePageViewModel(
+        audioService: context.read<IAudioService>(),
+        notificationRepository: context.read<INotificationRepository>(),
+        settingsRepository: context.read<ISettingsRepository>(),
+      ),
+      child: Consumer<RepertoirePageViewModel>(
+        builder: (context, viewModel, child) {
+          return _buildContent(context, viewModel);
+        },
+      ),
+    );
+  }
+
+  Widget _buildContent(
+    BuildContext context,
+    RepertoirePageViewModel viewModel,
+  ) {
     return Scaffold(
       body: SafeArea(
         child: LayoutBuilder(
@@ -67,37 +70,36 @@ class _RepertoirePageState extends State<RepertoirePage> {
                   // Responsive Timer Section
                   Expanded(
                     child: ListenableBuilder(
-                      listenable: _viewModel,
+                      listenable: viewModel,
                       builder: (context, child) {
                         return RepertoireResponsiveLayout(
                           durationSelector: RepertoireDurationSelector(
                             availableDurations:
                                 RepertoirePageViewModel.timerDurations,
-                            selectedDuration:
-                                _viewModel.selectedDurationMinutes,
-                            onDurationChanged: _viewModel.setDuration,
-                            canInteract: _viewModel.canStart,
+                            selectedDuration: viewModel.selectedDurationMinutes,
+                            onDurationChanged: viewModel.setDuration,
+                            canInteract: viewModel.canStart,
                             isCompact: isSmallHeight,
                           ),
                           timerDisplay: RepertoireTimerDisplay(
                             state: TimerState(
-                              formattedTime: _viewModel.formattedTime,
-                              progress: _viewModel.progress,
-                              isRunning: _viewModel.isRunning,
-                              isPaused: _viewModel.isPaused,
-                              remainingSeconds: _viewModel.remainingSeconds,
+                              formattedTime: viewModel.formattedTime,
+                              progress: viewModel.progress,
+                              isRunning: viewModel.isRunning,
+                              isPaused: viewModel.isPaused,
+                              remainingSeconds: viewModel.remainingSeconds,
                               selectedDurationMinutes:
-                                  _viewModel.selectedDurationMinutes,
+                                  viewModel.selectedDurationMinutes,
                             ),
                             actions: TimerActions(
-                              canStart: _viewModel.canStart,
-                              canResume: _viewModel.canResume,
-                              canPause: _viewModel.canPause,
-                              canReset: _viewModel.canReset,
-                              onStart: _viewModel.startTimer,
-                              onResume: _viewModel.resumeTimer,
-                              onPause: _viewModel.pauseTimer,
-                              onReset: _viewModel.resetTimer,
+                              canStart: viewModel.canStart,
+                              canResume: viewModel.canResume,
+                              canPause: viewModel.canPause,
+                              canReset: viewModel.canReset,
+                              onStart: viewModel.startTimer,
+                              onResume: viewModel.resumeTimer,
+                              onPause: viewModel.pauseTimer,
+                              onReset: viewModel.resetTimer,
                             ),
                             isCompact: isSmallHeight,
                           ),
@@ -124,15 +126,17 @@ class _RepertoirePageState extends State<RepertoirePage> {
         ),
       ),
       builder: (BuildContext context) {
-        return RepertoireInfoModal(onLaunchUrl: _launchUrl);
+        return RepertoireInfoModal(
+          onLaunchUrl: (url) => _launchUrl(context, url),
+        );
       },
     );
   }
 
-  Future<void> _launchUrl(String urlString) async {
+  Future<void> _launchUrl(BuildContext context, String urlString) async {
     final uri = Uri.parse(urlString);
     if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
-      if (mounted) {
+      if (context.mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("Could not open $urlString")));

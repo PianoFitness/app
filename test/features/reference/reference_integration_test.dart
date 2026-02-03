@@ -3,7 +3,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/presentation/widgets/main_navigation.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
-import "package:provider/provider.dart";
+import "../../shared/test_helpers/widget_test_helper.dart";
 import "../../shared/midi_mocks.dart";
 
 void main() {
@@ -23,11 +23,11 @@ void main() {
     });
 
     Widget createTestApp() {
-      return MaterialApp(
-        home: ChangeNotifierProvider<MidiState>.value(
-          value: midiState,
-          child: const MainNavigation(),
-        ),
+      // Use the helper variant that allows us to inject a specific MidiState
+      // so we can verify it in tests
+      return createTestWidgetWithMocks(
+        child: const MainNavigation(),
+        midiState: midiState,
       );
     }
 
@@ -251,6 +251,10 @@ void main() {
         // Should have functional UI (no longer testing shared MIDI state)
         expect(find.byType(InteractivePiano), findsOneWidget);
       }
+
+      // Wait for any pending async operations (e.g., MIDI activity timers)
+      await tester.pump(const Duration(milliseconds: 1100));
+      await tester.pumpAndSettle();
     });
 
     testWidgets("should handle bottom navigation edge cases", (tester) async {
@@ -293,11 +297,9 @@ void main() {
     });
 
     Widget createTestApp() {
-      return MaterialApp(
-        home: ChangeNotifierProvider<MidiState>.value(
-          value: midiState,
-          child: const MainNavigation(),
-        ),
+      return createTestWidgetWithMocks(
+        child: const MainNavigation(),
+        midiState: midiState,
       );
     }
 
