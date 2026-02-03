@@ -125,6 +125,21 @@ class MidiRepositoryImpl implements IMidiRepository {
 
   @override
   void dispose() {
+    // Clean up MIDI command resources
+    try {
+      // Disconnect any active connections through the cached _midiCommand
+      _service.disconnect().catchError((Object e) {
+        if (kDebugMode) {
+          print("Error disconnecting during disposal: $e");
+        }
+      });
+    } catch (e) {
+      if (kDebugMode) {
+        print("Error during MIDI cleanup: $e");
+      }
+    }
+
+    // Close the stream controller
     _midiDataController.close();
   }
 }
