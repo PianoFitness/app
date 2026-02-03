@@ -49,7 +49,7 @@ List<ChordInversion> _validInversions(ChordType type) {
 }
 
 void main() {
-  group("ChordDefinitions", () {
+  group("ChordBuilder", () {
     group("Basic chord generation", () {
       test("should create C Major chord correctly", () {
         final chord = ChordBuilder.getChord(
