@@ -56,4 +56,16 @@ class MidiDevice {
   final String id;
   final String name;
   final String type;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MidiDevice &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          name == other.name &&
+          type == other.type;
+
+  @override
+  int get hashCode => Object.hash(id, name, type);
 }
