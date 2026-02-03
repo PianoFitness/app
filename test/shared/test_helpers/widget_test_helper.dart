@@ -22,7 +22,6 @@ Widget createTestWidget(Widget child) {
   final mockNotificationRepository = MockINotificationRepository();
   final mockSettingsRepository = MockISettingsRepository();
   final mockAudioService = MockIAudioService();
-  final midiState = MidiState();
 
   // Stub createPlayer for AudioService to prevent MissingStubError
   final mockAudioPlayer = MockAudioPlayerHandle();
@@ -36,7 +35,7 @@ Widget createTestWidget(Widget child) {
       ),
       Provider<ISettingsRepository>.value(value: mockSettingsRepository),
       Provider<IAudioService>.value(value: mockAudioService),
-      ChangeNotifierProvider<MidiState>.value(value: midiState),
+      ChangeNotifierProvider<MidiState>(create: (_) => MidiState()),
     ],
     child: MaterialApp(home: child),
   );
@@ -70,7 +69,6 @@ Widget createTestWidgetWithMocks({
   final mockSettingsRepository =
       settingsRepository ?? MockISettingsRepository();
   final mockAudioService = audioService ?? MockIAudioService();
-  final testMidiState = midiState ?? MidiState();
 
   // Stub createPlayer for AudioService if not already stubbed
   if (audioService == null) {
@@ -86,7 +84,11 @@ Widget createTestWidgetWithMocks({
       ),
       Provider<ISettingsRepository>.value(value: mockSettingsRepository),
       Provider<IAudioService>.value(value: mockAudioService),
-      ChangeNotifierProvider<MidiState>.value(value: testMidiState),
+      // Use .value() if custom MidiState provided, otherwise use create for auto-disposal
+      if (midiState != null)
+        ChangeNotifierProvider<MidiState>.value(value: midiState)
+      else
+        ChangeNotifierProvider<MidiState>(create: (_) => MidiState()),
     ],
     child: MaterialApp(home: child),
   );
