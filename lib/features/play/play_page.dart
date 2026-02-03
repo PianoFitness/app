@@ -152,7 +152,7 @@ class _PlayPageView extends StatelessWidget {
               animation: viewModel,
               builder: (context, child) {
                 // Define a fixed 49-key range for consistent layout
-                final fixed49KeyRange = PianoRangeUtils.standard49KeyRange;
+                final fixed49KeyRange = viewModel.getFixed49KeyRange();
 
                 // Calculate dynamic key width based on screen width
                 final screenWidth = MediaQuery.of(context).size.width;

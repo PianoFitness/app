@@ -1,9 +1,11 @@
 import "dart:async";
 import "package:flutter/foundation.dart";
+import "package:piano/piano.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/services/midi/midi_service.dart";
+import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
 
 /// ViewModel for managing play page state and MIDI operations.
 ///
@@ -74,6 +76,11 @@ class PlayPageViewModel extends ChangeNotifier {
       _midiState,
       (_) {}, // No specific callback needed for play page
     );
+  }
+
+  /// Returns the fixed 49-key range (C2 to C6) for consistent layout.
+  NoteRange getFixed49KeyRange() {
+    return PianoRangeUtils.standard49KeyRange;
   }
 
   @override
