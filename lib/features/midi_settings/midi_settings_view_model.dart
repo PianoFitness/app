@@ -9,6 +9,23 @@ import "package:piano_fitness/presentation/constants/ui_constants.dart";
 ///
 /// This class handles all business logic for MIDI device discovery, connection,
 /// Bluetooth management, and device configuration.
+///
+/// ## Architecture Note: Direct MidiCommand Usage
+///
+/// Unlike other ViewModels (PlayPageViewModel, PracticePageViewModel,
+/// DeviceControllerViewModel) which use IMidiRepository for MIDI data handling,
+/// this ViewModel directly uses flutter_midi_command's MidiCommand because it
+/// requires low-level Bluetooth management capabilities not abstracted by the
+/// repository interface:
+///
+/// - Bluetooth state monitoring (onBluetoothStateChanged)
+/// - MIDI setup change detection (onMidiSetupChanged)
+/// - Bluetooth scanning control (startScanningForBluetoothDevices)
+/// - Bluetooth initialization (startBluetoothCentral, waitUntilBluetoothIsInitialized)
+///
+/// This separation is intentional: IMidiRepository focuses on MIDI data streams
+/// and message handling, while MidiSettingsViewModel handles the platform-specific
+/// device discovery and Bluetooth lifecycle concerns.
 class MidiSettingsViewModel extends ChangeNotifier {
   /// Creates a new MidiSettingsViewModel with injected dependencies.
   MidiSettingsViewModel({
