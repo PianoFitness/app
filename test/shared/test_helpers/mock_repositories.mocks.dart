@@ -156,6 +156,14 @@ class MockINotificationRepository extends _i1.Mock
   }
 
   @override
+  int get dailyReminderNotificationId =>
+      (super.noSuchMethod(
+            Invocation.getter(#dailyReminderNotificationId),
+            returnValue: 0,
+          )
+          as int);
+
+  @override
   _i4.Future<bool> requestPermissions() =>
       (super.noSuchMethod(
             Invocation.method(#requestPermissions, []),

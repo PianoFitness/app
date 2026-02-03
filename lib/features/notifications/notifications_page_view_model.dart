@@ -129,7 +129,9 @@ class NotificationsPageViewModel extends ChangeNotifier {
         _settings = _settings.copyWith(practiceRemindersEnabled: false);
 
         // Cancel existing daily reminders
-        await _notificationRepository.cancelNotification(1);
+        await _notificationRepository.cancelNotification(
+          _notificationRepository.dailyReminderNotificationId,
+        );
       }
 
       await _saveSettings();

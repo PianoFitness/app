@@ -3,6 +3,9 @@
 /// Handles local notification scheduling, permission management,
 /// and notification display.
 abstract class INotificationRepository {
+  /// Notification ID used for daily practice reminders
+  int get dailyReminderNotificationId;
+
   /// Request notification permissions from user
   Future<bool> requestPermissions();
 

@@ -28,6 +28,10 @@ class NotificationRepositoryImpl implements INotificationRepository {
   }
 
   @override
+  int get dailyReminderNotificationId =>
+      NotificationService.dailyReminderNotificationId;
+
+  @override
   Future<bool> requestPermissions() async {
     try {
       return await NotificationService.requestPermissions();
