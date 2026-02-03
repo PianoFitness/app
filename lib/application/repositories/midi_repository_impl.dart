@@ -3,13 +3,16 @@ import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart" as midi_cmd;
 import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
-import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 
 /// Implementation of IMidiRepository wrapping MidiConnectionService
 ///
 /// Wraps the singleton MidiConnectionService to provide repository interface.
 /// MidiConnectionService maintains its singleton pattern internally.
+///
+/// This implementation provides raw MIDI data via [midiDataStream].
+/// MIDI parsing should be done using domain services (e.g., MidiService),
+/// and state management should be handled in the application layer.
 class MidiRepositoryImpl implements IMidiRepository {
   MidiRepositoryImpl()
     : _service = MidiConnectionService(),
@@ -114,11 +117,6 @@ class MidiRepositoryImpl implements IMidiRepository {
   void unregisterDataHandler(void Function(Uint8List) handler) {
     _service.unregisterDataHandler(handler);
     _registeredHandlers.remove(handler);
-  }
-
-  @override
-  void processMidiData(Uint8List data, MidiState midiState) {
-    MidiConnectionService.handleStandardMidiData(data, midiState);
   }
 
   @override

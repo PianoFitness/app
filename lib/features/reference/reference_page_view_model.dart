@@ -4,6 +4,7 @@ import "package:piano_fitness/domain/constants/musical_constants.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
+import "package:piano_fitness/domain/services/midi/midi_service.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as scales;
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
@@ -182,7 +183,23 @@ class ReferencePageViewModel extends ChangeNotifier {
 
   /// Handles incoming MIDI data and updates state.
   void _handleMidiData(Uint8List data) {
-    _midiRepository.processMidiData(data, _localMidiState);
+    // Use domain service for MIDI parsing and update local application state
+    MidiService.handleMidiData(data, (MidiEvent event) {
+      switch (event.type) {
+        case MidiEventType.noteOn:
+          _localMidiState.noteOn(event.data1, event.data2, event.channel);
+          break;
+        case MidiEventType.noteOff:
+          _localMidiState.noteOff(event.data1, event.channel);
+          break;
+        case MidiEventType.controlChange:
+        case MidiEventType.programChange:
+        case MidiEventType.pitchBend:
+        case MidiEventType.other:
+          _localMidiState.setLastNote(event.displayMessage);
+          break;
+      }
+    });
   }
 
   /// Applies a config mutation, then resets/stops any ongoing operations and rebuilds the display.

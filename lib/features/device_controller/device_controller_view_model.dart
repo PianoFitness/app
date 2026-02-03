@@ -190,8 +190,23 @@ class DeviceControllerViewModel extends ChangeNotifier {
   }
 
   void _handleMidiData(Uint8List data) {
-    // Process MIDI data and update global state
-    _midiRepository.processMidiData(data, _midiState);
+    // Use domain service for MIDI parsing and update application state
+    MidiService.handleMidiData(data, (MidiEvent event) {
+      switch (event.type) {
+        case MidiEventType.noteOn:
+          _midiState.noteOn(event.data1, event.data2, event.channel);
+          break;
+        case MidiEventType.noteOff:
+          _midiState.noteOff(event.data1, event.channel);
+          break;
+        case MidiEventType.controlChange:
+        case MidiEventType.programChange:
+        case MidiEventType.pitchBend:
+        case MidiEventType.other:
+          _midiState.setLastNote(event.displayMessage);
+          break;
+      }
+    });
 
     // Also parse for display in device controller
     _processMidiData(data);
