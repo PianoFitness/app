@@ -156,163 +156,160 @@ class _PracticePageViewState extends State<_PracticePageView> {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = context.watch<PracticePageViewModel>();
-
     return Scaffold(
       key: const Key("practice_page_scaffold"),
-      appBar: AppBar(
-        title: const Text("Practice Session"),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        leading: IconButton(
-          key: const Key("practice_back_button"),
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-          tooltip: "Back to Practice Hub",
+      appBar: _buildAppBar(context),
+      body: Column(
+        children: [_buildContentArea(context), _buildPianoSection(context)],
+      ),
+    );
+  }
+
+  /// Builds the app bar with navigation and title.
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      title: const Text("Practice Session"),
+      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      leading: IconButton(
+        key: const Key("practice_back_button"),
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () => Navigator.of(context).pop(),
+        tooltip: "Back to Practice Hub",
+      ),
+    );
+  }
+
+  /// Builds the content area containing settings panel and progress display.
+  Widget _buildContentArea(BuildContext context) {
+    final viewModel = context.watch<PracticePageViewModel>();
+
+    return Expanded(
+      flex: 4,
+      child: SafeArea(
+        bottom: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(Spacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: Spacing.lg),
+              _buildSettingsPanel(viewModel),
+              const SizedBox(height: Spacing.md),
+              _buildProgressDisplay(viewModel),
+            ],
+          ),
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            flex: 4,
-            child: SafeArea(
-              bottom: false,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(Spacing.md),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: Spacing.lg),
-                    AnimatedBuilder(
-                      animation: viewModel,
-                      builder: (context, child) {
-                        final session = viewModel.practiceSession;
-                        if (session == null) {
-                          return const CircularProgressIndicator();
-                        }
+    );
+  }
 
-                        return PracticeSettingsPanel(
-                          key: const Key("practice_settings_panel"),
-                          practiceMode: session.practiceMode,
-                          selectedKey: session.selectedKey,
-                          selectedScaleType: session.selectedScaleType,
-                          selectedRootNote: session.selectedRootNote,
-                          selectedArpeggioType: session.selectedArpeggioType,
-                          selectedArpeggioOctaves:
-                              session.selectedArpeggioOctaves,
-                          selectedChordProgression:
-                              session.selectedChordProgression,
-                          selectedChordType: session.selectedChordType,
-                          includeInversions: session.includeInversions,
-                          includeSeventhChords: session.includeSeventhChords,
-                          selectedHandSelection: session.selectedHandSelection,
-                          autoProgressKeys: session.autoProgressKeys,
-                          practiceActive: session.practiceActive,
-                          onResetPractice: _resetPractice,
-                          onPracticeModeChanged: (mode) {
-                            viewModel.setPracticeMode(mode);
-                          },
-                          onKeyChanged: (key) {
-                            viewModel.setSelectedKey(key);
-                          },
-                          onScaleTypeChanged: (type) {
-                            viewModel.setSelectedScaleType(type);
-                          },
-                          onRootNoteChanged: (rootNote) {
-                            viewModel.setSelectedRootNote(rootNote);
-                          },
-                          onArpeggioTypeChanged: (type) {
-                            viewModel.setSelectedArpeggioType(type);
-                          },
-                          onArpeggioOctavesChanged: (octaves) {
-                            viewModel.setSelectedArpeggioOctaves(octaves);
-                          },
-                          onChordProgressionChanged: (progression) {
-                            viewModel.setSelectedChordProgression(progression);
-                          },
-                          onChordTypeChanged: (type) {
-                            viewModel.setSelectedChordType(type);
-                          },
-                          onIncludeInversionsChanged: (include) {
-                            viewModel.setIncludeInversions(include);
-                          },
-                          onIncludeSeventhChordsChanged: (include) {
-                            viewModel.setIncludeSeventhChords(include);
-                          },
-                          onHandSelectionChanged: (handSelection) {
-                            viewModel.setSelectedHandSelection(handSelection);
-                          },
-                          onAutoProgressKeysChanged: (enable) {
-                            viewModel.setAutoKeyProgression(enable);
-                          },
-                        );
-                      },
-                    ),
-                    const SizedBox(height: Spacing.md),
-                    AnimatedBuilder(
-                      animation: viewModel,
-                      builder: (context, child) {
-                        final session = viewModel.practiceSession;
-                        if (session == null) {
-                          return const SizedBox.shrink();
-                        }
+  /// Builds the practice settings panel with animated state updates.
+  Widget _buildSettingsPanel(PracticePageViewModel viewModel) {
+    return AnimatedBuilder(
+      animation: viewModel,
+      builder: (context, child) {
+        final session = viewModel.practiceSession;
+        if (session == null) {
+          return const CircularProgressIndicator();
+        }
 
-                        return PracticeProgressDisplay(
-                          practiceMode: session.practiceMode,
-                          practiceActive: session.practiceActive,
-                          currentExercise: session.currentExercise,
-                          currentStepIndex: session.currentStepIndex,
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
+        return PracticeSettingsPanel(
+          key: const Key("practice_settings_panel"),
+          practiceMode: session.practiceMode,
+          selectedKey: session.selectedKey,
+          selectedScaleType: session.selectedScaleType,
+          selectedRootNote: session.selectedRootNote,
+          selectedArpeggioType: session.selectedArpeggioType,
+          selectedArpeggioOctaves: session.selectedArpeggioOctaves,
+          selectedChordProgression: session.selectedChordProgression,
+          selectedChordType: session.selectedChordType,
+          includeInversions: session.includeInversions,
+          includeSeventhChords: session.includeSeventhChords,
+          selectedHandSelection: session.selectedHandSelection,
+          autoProgressKeys: session.autoProgressKeys,
+          practiceActive: session.practiceActive,
+          onResetPractice: _resetPractice,
+          onPracticeModeChanged: (mode) => viewModel.setPracticeMode(mode),
+          onKeyChanged: (key) => viewModel.setSelectedKey(key),
+          onScaleTypeChanged: (type) => viewModel.setSelectedScaleType(type),
+          onRootNoteChanged: (rootNote) =>
+              viewModel.setSelectedRootNote(rootNote),
+          onArpeggioTypeChanged: (type) =>
+              viewModel.setSelectedArpeggioType(type),
+          onArpeggioOctavesChanged: (octaves) =>
+              viewModel.setSelectedArpeggioOctaves(octaves),
+          onChordProgressionChanged: (progression) =>
+              viewModel.setSelectedChordProgression(progression),
+          onChordTypeChanged: (type) => viewModel.setSelectedChordType(type),
+          onIncludeInversionsChanged: (include) =>
+              viewModel.setIncludeInversions(include),
+          onIncludeSeventhChordsChanged: (include) =>
+              viewModel.setIncludeSeventhChords(include),
+          onHandSelectionChanged: (handSelection) =>
+              viewModel.setSelectedHandSelection(handSelection),
+          onAutoProgressKeysChanged: (enable) =>
+              viewModel.setAutoKeyProgression(enable),
+        );
+      },
+    );
+  }
+
+  /// Builds the practice progress display with animated state updates.
+  Widget _buildProgressDisplay(PracticePageViewModel viewModel) {
+    return AnimatedBuilder(
+      animation: viewModel,
+      builder: (context, child) {
+        final session = viewModel.practiceSession;
+        if (session == null) {
+          return const SizedBox.shrink();
+        }
+
+        return PracticeProgressDisplay(
+          practiceMode: session.practiceMode,
+          practiceActive: session.practiceActive,
+          currentExercise: session.currentExercise,
+          currentStepIndex: session.currentStepIndex,
+        );
+      },
+    );
+  }
+
+  /// Builds the interactive piano section with dynamic range and highlighting.
+  Widget _buildPianoSection(BuildContext context) {
+    final viewModel = context.watch<PracticePageViewModel>();
+
+    return Expanded(
+      child: AnimatedBuilder(
+        animation: viewModel,
+        builder: (context, child) {
+          final highlightedNotes = viewModel.getDisplayHighlightedNotes();
+          final practiceRange = viewModel.calculatePracticeRange();
+          final screenWidth = MediaQuery.of(context).size.width;
+          final dynamicKeyWidth = PianoRangeUtils.calculateScreenBasedKeyWidth(
+            screenWidth,
+          );
+
+          return PianoAccessibilityUtils.createAccessiblePianoWrapper(
+            highlightedNotes: highlightedNotes,
+            mode: PianoMode.practice,
+            semanticLabel: AccessibilityLabels.piano.keyboardLabel(
+              PianoMode.practice,
             ),
-          ),
-          Expanded(
-            child: AnimatedBuilder(
-              animation: viewModel,
-              builder: (context, child) {
-                // Calculate highlighted notes for display using local state
-                final highlightedNotes = viewModel.getDisplayHighlightedNotes();
-
-                // Calculate 49-key range centered around practice exercise
-                final practiceRange = viewModel.calculatePracticeRange();
-
-                // Calculate dynamic key width based on screen width
-                final screenWidth = MediaQuery.of(context).size.width;
-                final dynamicKeyWidth =
-                    PianoRangeUtils.calculateScreenBasedKeyWidth(screenWidth);
-
-                return PianoAccessibilityUtils.createAccessiblePianoWrapper(
-                  highlightedNotes: highlightedNotes,
-                  mode: PianoMode.practice,
-                  semanticLabel: AccessibilityLabels.piano.keyboardLabel(
-                    PianoMode.practice,
-                  ),
-                  child: InteractivePiano(
-                    key: const Key("practice_interactive_piano"),
-                    highlightedNotes: highlightedNotes,
-                    keyWidth: dynamicKeyWidth.clamp(
-                      PianoRangeUtils.minKeyWidth,
-                      PianoRangeUtils.maxKeyWidth,
-                    ),
-                    noteRange: practiceRange,
-                    onNotePositionTapped: (position) async {
-                      final midiNote = NoteUtils.convertNotePositionToMidi(
-                        position,
-                      );
-                      await viewModel.playVirtualNote(
-                        midiNote,
-                        mounted: mounted,
-                      );
-                    },
-                  ),
-                );
+            child: InteractivePiano(
+              key: const Key("practice_interactive_piano"),
+              highlightedNotes: highlightedNotes,
+              keyWidth: dynamicKeyWidth.clamp(
+                PianoRangeUtils.minKeyWidth,
+                PianoRangeUtils.maxKeyWidth,
+              ),
+              noteRange: practiceRange,
+              onNotePositionTapped: (position) async {
+                final midiNote = NoteUtils.convertNotePositionToMidi(position);
+                await viewModel.playVirtualNote(midiNote, mounted: mounted);
               },
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
