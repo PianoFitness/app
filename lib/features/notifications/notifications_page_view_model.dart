@@ -1,6 +1,8 @@
 import "package:flutter/material.dart";
 import "package:logging/logging.dart";
+import "package:piano_fitness/application/converters/notification_settings_converter.dart";
 import "package:piano_fitness/application/models/notification_settings.dart";
+import "package:piano_fitness/domain/models/notification_settings_data.dart";
 import "package:piano_fitness/domain/repositories/notification_repository.dart";
 import "package:piano_fitness/domain/repositories/settings_repository.dart";
 
@@ -21,12 +23,13 @@ class NotificationsPageViewModel extends ChangeNotifier {
   final INotificationRepository _notificationRepository;
   final ISettingsRepository _settingsRepository;
 
-  NotificationSettings _settings = const NotificationSettings();
+  NotificationSettingsData _settingsData = const NotificationSettingsData();
   bool _isLoading = true;
   String? _errorMessage;
 
-  /// Current notification settings.
-  NotificationSettings get settings => _settings;
+  /// Current notification settings (converted to application model for UI).
+  NotificationSettings get settings =>
+      NotificationSettingsConverter.toApplicationModel(_settingsData);
 
   /// Whether the ViewModel is currently loading data.
   bool get isLoading => _isLoading;
@@ -69,7 +72,7 @@ class NotificationsPageViewModel extends ChangeNotifier {
       final granted = await _notificationRepository.requestPermissions();
 
       if (granted) {
-        _settings = _settings.copyWith(permissionGranted: true);
+        _settingsData = _settingsData.copyWith(permissionGranted: true);
         await _saveSettings();
         _log.info("Notification permissions granted");
       } else {
@@ -91,7 +94,7 @@ class NotificationsPageViewModel extends ChangeNotifier {
     _log.info("Setting timer completion notifications: $enabled");
 
     try {
-      _settings = _settings.copyWith(timerCompletionEnabled: enabled);
+      _settingsData = _settingsData.copyWith(timerCompletionEnabled: enabled);
       await _saveSettings();
 
       _log.info(
@@ -117,16 +120,17 @@ class NotificationsPageViewModel extends ChangeNotifier {
     try {
       if (enabled && reminderTime != null) {
         // Enable reminders with the specified time
-        _settings = _settings.copyWith(
+        _settingsData = _settingsData.copyWith(
           practiceRemindersEnabled: true,
-          dailyReminderTime: reminderTime,
+          dailyReminderHour: reminderTime.hour,
+          dailyReminderMinute: reminderTime.minute,
         );
 
         // Schedule the daily notification
         await _scheduleDailyReminder(reminderTime);
       } else if (!enabled) {
         // Disable reminders and cancel scheduled notifications
-        _settings = _settings.copyWith(practiceRemindersEnabled: false);
+        _settingsData = _settingsData.copyWith(practiceRemindersEnabled: false);
 
         // Cancel existing daily reminders
         await _notificationRepository.cancelNotification(
@@ -153,11 +157,14 @@ class NotificationsPageViewModel extends ChangeNotifier {
     _log.info("Updating daily reminder time: $newTime");
 
     try {
-      _settings = _settings.copyWith(dailyReminderTime: newTime);
+      _settingsData = _settingsData.copyWith(
+        dailyReminderHour: newTime.hour,
+        dailyReminderMinute: newTime.minute,
+      );
       await _saveSettings();
 
       // Reschedule the daily reminder
-      if (_settings.practiceRemindersEnabled) {
+      if (_settingsData.practiceRemindersEnabled) {
         await _scheduleDailyReminder(newTime);
       }
 
@@ -181,19 +188,19 @@ class NotificationsPageViewModel extends ChangeNotifier {
   /// Loads notification settings from persistent storage.
   Future<void> _loadSettings() async {
     try {
-      _settings = await _settingsRepository.loadNotificationSettings();
-      _log.fine("Loaded notification settings: $_settings");
+      _settingsData = await _settingsRepository.loadNotificationSettings();
+      _log.fine("Loaded notification settings: $_settingsData");
     } catch (e) {
       _log.warning("Failed to load settings: $e");
-      _settings = const NotificationSettings();
+      _settingsData = const NotificationSettingsData();
     }
   }
 
   /// Saves current settings to persistent storage.
   Future<void> _saveSettings() async {
     try {
-      await _settingsRepository.saveNotificationSettings(_settings);
-      _log.fine("Saved notification settings: $_settings");
+      await _settingsRepository.saveNotificationSettings(_settingsData);
+      _log.fine("Saved notification settings: $_settingsData");
     } catch (e) {
       _log.warning("Failed to save settings: $e");
       rethrow;
@@ -206,8 +213,10 @@ class NotificationsPageViewModel extends ChangeNotifier {
       final permissionsGranted = await _notificationRepository
           .arePermissionsGranted();
 
-      if (_settings.permissionGranted != permissionsGranted) {
-        _settings = _settings.copyWith(permissionGranted: permissionsGranted);
+      if (_settingsData.permissionGranted != permissionsGranted) {
+        _settingsData = _settingsData.copyWith(
+          permissionGranted: permissionsGranted,
+        );
         await _saveSettings();
         _log.info("Updated permission status: $permissionsGranted");
       }

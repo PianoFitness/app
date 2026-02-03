@@ -7,7 +7,7 @@ import 'dart:async' as _i5;
 import 'dart:typed_data' as _i6;
 
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:piano_fitness/application/models/notification_settings.dart'
+import 'package:piano_fitness/domain/models/notification_settings_data.dart'
     as _i2;
 import 'package:piano_fitness/domain/repositories/audio_service.dart' as _i3;
 import 'package:piano_fitness/domain/repositories/midi_repository.dart' as _i4;
@@ -31,9 +31,9 @@ import 'package:piano_fitness/domain/repositories/settings_repository.dart'
 // ignore_for_file: subtype_of_sealed_class
 // ignore_for_file: invalid_use_of_internal_member
 
-class _FakeNotificationSettings_0 extends _i1.SmartFake
-    implements _i2.NotificationSettings {
-  _FakeNotificationSettings_0(Object parent, Invocation parentInvocation)
+class _FakeNotificationSettingsData_0 extends _i1.SmartFake
+    implements _i2.NotificationSettingsData {
+  _FakeNotificationSettingsData_0(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -241,21 +241,21 @@ class MockISettingsRepository extends _i1.Mock
   }
 
   @override
-  _i5.Future<_i2.NotificationSettings> loadNotificationSettings() =>
+  _i5.Future<_i2.NotificationSettingsData> loadNotificationSettings() =>
       (super.noSuchMethod(
             Invocation.method(#loadNotificationSettings, []),
-            returnValue: _i5.Future<_i2.NotificationSettings>.value(
-              _FakeNotificationSettings_0(
+            returnValue: _i5.Future<_i2.NotificationSettingsData>.value(
+              _FakeNotificationSettingsData_0(
                 this,
                 Invocation.method(#loadNotificationSettings, []),
               ),
             ),
           )
-          as _i5.Future<_i2.NotificationSettings>);
+          as _i5.Future<_i2.NotificationSettingsData>);
 
   @override
   _i5.Future<void> saveNotificationSettings(
-    _i2.NotificationSettings? settings,
+    _i2.NotificationSettingsData? settings,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#saveNotificationSettings, [settings]),

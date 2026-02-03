@@ -1,4 +1,4 @@
-import "package:piano_fitness/application/models/notification_settings.dart";
+import "package:piano_fitness/domain/models/notification_settings_data.dart";
 
 /// Repository interface for settings persistence
 ///
@@ -6,10 +6,10 @@ import "package:piano_fitness/application/models/notification_settings.dart";
 /// notification preferences and scheduled notifications.
 abstract class ISettingsRepository {
   /// Load notification settings from persistent storage
-  Future<NotificationSettings> loadNotificationSettings();
+  Future<NotificationSettingsData> loadNotificationSettings();
 
   /// Save notification settings to persistent storage
-  Future<void> saveNotificationSettings(NotificationSettings settings);
+  Future<void> saveNotificationSettings(NotificationSettingsData settings);
 
   /// Save scheduled notification metadata
   Future<void> saveScheduledNotification({

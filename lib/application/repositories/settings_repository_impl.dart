@@ -1,30 +1,39 @@
 import "package:flutter/foundation.dart";
-import "package:piano_fitness/application/models/notification_settings.dart";
+import "package:piano_fitness/application/converters/notification_settings_converter.dart";
 import "package:piano_fitness/application/services/notifications/notification_manager.dart";
+import "package:piano_fitness/domain/models/notification_settings_data.dart";
 import "package:piano_fitness/domain/repositories/settings_repository.dart";
 
 /// Implementation of ISettingsRepository wrapping NotificationManager
 ///
 /// Provides instance-based access to settings persistence.
+/// Converts between domain models (NotificationSettingsData) and
+/// application models (NotificationSettings with Flutter types).
 class SettingsRepositoryImpl implements ISettingsRepository {
   @override
-  Future<NotificationSettings> loadNotificationSettings() async {
+  Future<NotificationSettingsData> loadNotificationSettings() async {
     try {
-      return await NotificationManager.loadSettings();
+      final appSettings = await NotificationManager.loadSettings();
+      return NotificationSettingsConverter.toDomainModel(appSettings);
     } catch (e, stackTrace) {
       if (kDebugMode) {
         print("Error loading notification settings: $e");
         print(stackTrace);
       }
       // Return default settings on error
-      return const NotificationSettings();
+      return const NotificationSettingsData();
     }
   }
 
   @override
-  Future<void> saveNotificationSettings(NotificationSettings settings) async {
+  Future<void> saveNotificationSettings(
+    NotificationSettingsData settings,
+  ) async {
     try {
-      await NotificationManager.saveSettings(settings);
+      final appSettings = NotificationSettingsConverter.toApplicationModel(
+        settings,
+      );
+      await NotificationManager.saveSettings(appSettings);
     } catch (e, stackTrace) {
       if (kDebugMode) {
         print("Error saving notification settings: $e");
