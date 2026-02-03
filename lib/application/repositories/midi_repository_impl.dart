@@ -20,6 +20,9 @@ class MidiRepositoryImpl implements IMidiRepository {
   final StreamController<Uint8List> _midiDataController =
       StreamController<Uint8List>.broadcast();
 
+  /// Tracks all handlers registered via registerDataHandler() for cleanup in dispose()
+  final Set<void Function(Uint8List)> _registeredHandlers = {};
+
   @override
   Stream<Uint8List> get midiDataStream => _midiDataController.stream;
 
@@ -104,11 +107,13 @@ class MidiRepositoryImpl implements IMidiRepository {
   @override
   void registerDataHandler(void Function(Uint8List) handler) {
     _service.registerDataHandler(handler);
+    _registeredHandlers.add(handler);
   }
 
   @override
   void unregisterDataHandler(void Function(Uint8List) handler) {
     _service.unregisterDataHandler(handler);
+    _registeredHandlers.remove(handler);
   }
 
   @override
@@ -125,6 +130,18 @@ class MidiRepositoryImpl implements IMidiRepository {
 
   @override
   void dispose() {
+    // Unregister all tracked handlers to prevent memory leaks
+    for (final handler in _registeredHandlers) {
+      try {
+        _service.unregisterDataHandler(handler);
+      } catch (e) {
+        if (kDebugMode) {
+          print("Error unregistering MIDI handler: $e");
+        }
+      }
+    }
+    _registeredHandlers.clear();
+
     // Clean up MIDI command resources
     try {
       // Disconnect any active connections through the cached _midiCommand
