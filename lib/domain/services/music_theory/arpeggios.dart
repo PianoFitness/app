@@ -1,5 +1,5 @@
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
-import "package:piano_fitness/shared/utils/note_utils.dart";
+import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 
 /// The different types of arpeggio chord qualities supported by Piano Fitness.
 ///

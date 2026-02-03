@@ -4,7 +4,7 @@ import "package:piano_fitness/features/device_controller/device_controller_const
 import "package:piano_fitness/features/device_controller/device_controller_view_model.dart";
 import "package:piano_fitness/shared/constants/ui_constants.dart";
 import "package:piano_fitness/shared/theme/semantic_colors.dart";
-import "package:piano_fitness/shared/utils/note_utils.dart";
+import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_key_utils.dart";
 import "package:provider/provider.dart";
 

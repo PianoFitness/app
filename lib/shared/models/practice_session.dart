@@ -6,11 +6,12 @@ import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/models/practice/strategies/practice_strategies.dart";
-import "package:piano_fitness/shared/utils/arpeggios.dart";
+import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
-import "package:piano_fitness/shared/utils/circle_of_fifths.dart";
-import "package:piano_fitness/shared/utils/note_utils.dart";
-import "package:piano_fitness/shared/utils/scales.dart" as music;
+import "package:piano_fitness/domain/services/music_theory/circle_of_fifths.dart";
+import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
+import "package:piano_fitness/domain/services/music_theory/scales.dart"
+    as music;
 
 /// Manages the state and logic for piano practice sessions.
 ///

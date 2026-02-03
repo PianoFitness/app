@@ -8,10 +8,11 @@ import "package:piano/piano.dart";
 
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/shared/models/practice_session.dart";
-import "package:piano_fitness/shared/utils/arpeggios.dart";
-import "package:piano_fitness/shared/utils/circle_of_fifths.dart";
-import "package:piano_fitness/shared/utils/note_utils.dart";
-import "package:piano_fitness/shared/utils/scales.dart" as music;
+import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
+import "package:piano_fitness/domain/services/music_theory/circle_of_fifths.dart";
+import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
+import "package:piano_fitness/domain/services/music_theory/scales.dart"
+    as music;
 
 void main() {
   group("PracticeSession Auto Key Progression Tests", () {

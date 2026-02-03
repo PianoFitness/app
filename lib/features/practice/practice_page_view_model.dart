@@ -9,10 +9,11 @@ import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
 import "package:piano_fitness/shared/models/practice_session.dart";
 import "package:piano_fitness/shared/services/midi_connection_service.dart";
-import "package:piano_fitness/shared/utils/arpeggios.dart";
-import "package:piano_fitness/shared/utils/note_utils.dart";
+import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
+import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_range_utils.dart";
-import "package:piano_fitness/shared/utils/scales.dart" as music;
+import "package:piano_fitness/domain/services/music_theory/scales.dart"
+    as music;
 import "package:piano_fitness/shared/utils/virtual_piano_utils.dart";
 
 /// ViewModel for managing practice page state and operations.

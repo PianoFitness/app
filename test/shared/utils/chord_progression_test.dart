@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
-import "package:piano_fitness/shared/utils/note_utils.dart";
-import "package:piano_fitness/shared/utils/scales.dart";
+import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
+import "package:piano_fitness/domain/services/music_theory/scales.dart";
 
 void main() {
   group("Smooth Chord Progression Tests", () {

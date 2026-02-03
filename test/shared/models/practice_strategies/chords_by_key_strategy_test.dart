@@ -1,7 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/strategies/chords_by_key_strategy.dart";
-import "package:piano_fitness/shared/utils/scales.dart" as music;
+import "package:piano_fitness/domain/services/music_theory/scales.dart"
+    as music;
 
 void main() {
   group("ChordsByKeyStrategy", () {

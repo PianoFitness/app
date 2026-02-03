@@ -1,6 +1,6 @@
 import "package:piano_fitness/domain/services/music_theory/chord_builder.dart";
 import "package:piano_fitness/domain/services/music_theory/chord_definitions.dart";
-import "package:piano_fitness/shared/utils/note_utils.dart";
+import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 
 /// Represents a chord planing practice exercise focusing on a specific chord type.
 ///

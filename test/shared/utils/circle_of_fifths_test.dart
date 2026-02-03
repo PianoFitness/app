@@ -1,6 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:piano_fitness/shared/utils/circle_of_fifths.dart";
-import "package:piano_fitness/shared/utils/scales.dart" as music;
+import "package:piano_fitness/domain/services/music_theory/circle_of_fifths.dart";
+import "package:piano_fitness/domain/services/music_theory/scales.dart"
+    as music;
 
 void main() {
   group("CircleOfFifths", () {

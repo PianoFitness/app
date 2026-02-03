@@ -1,6 +1,7 @@
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
-import "package:piano_fitness/shared/utils/note_utils.dart";
-import "package:piano_fitness/shared/utils/scales.dart" as scales;
+import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
+import "package:piano_fitness/domain/services/music_theory/scales.dart"
+    as scales;
 
 /// Utility class for chord inversion calculations and MIDI note generation.
 ///

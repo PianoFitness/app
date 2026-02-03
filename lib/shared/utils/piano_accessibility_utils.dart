@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/shared/accessibility/config/accessibility_labels.dart";
 import "package:piano_fitness/shared/accessibility/services/musical_announcements_service.dart";
-import "package:piano_fitness/shared/utils/note_utils.dart";
+import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 
 /// Utility class providing accessibility enhancements for piano widgets.
 ///

@@ -3,9 +3,10 @@ import "package:flutter_test/flutter_test.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/practice/practice_page_view_model.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
-import "package:piano_fitness/shared/utils/arpeggios.dart";
+import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
-import "package:piano_fitness/shared/utils/scales.dart" as music;
+import "package:piano_fitness/domain/services/music_theory/scales.dart"
+    as music;
 import "../../shared/midi_mocks.dart";
 
 void main() {

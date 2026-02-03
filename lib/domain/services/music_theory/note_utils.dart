@@ -1,6 +1,7 @@
 import "package:piano/piano.dart";
 import "package:piano_fitness/domain/constants/musical_constants.dart";
-import "package:piano_fitness/shared/utils/scales.dart" as music;
+import "package:piano_fitness/domain/services/music_theory/scales.dart"
+    as music;
 
 /// The twelve chromatic musical notes in Western music.
 ///

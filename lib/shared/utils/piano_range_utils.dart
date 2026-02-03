@@ -1,7 +1,7 @@
 import "package:piano/piano.dart";
 
 import "package:piano_fitness/domain/constants/musical_constants.dart";
-import "package:piano_fitness/shared/utils/note_utils.dart";
+import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 
 /// Utility class for calculating optimal piano keyboard ranges
 /// based on highlighted notes during exercises.

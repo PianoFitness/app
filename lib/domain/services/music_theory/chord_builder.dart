@@ -1,8 +1,8 @@
 import "package:flutter/foundation.dart" show kDebugMode;
 import "package:piano_fitness/domain/constants/musical_constants.dart";
 import "package:piano_fitness/domain/services/music_theory/chord_definitions.dart";
-import "package:piano_fitness/shared/utils/note_utils.dart";
-import "package:piano_fitness/shared/utils/scales.dart";
+import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
+import "package:piano_fitness/domain/services/music_theory/scales.dart";
 
 /// Provides static definitions and factory methods for creating chords.
 ///

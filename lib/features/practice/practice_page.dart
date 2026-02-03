@@ -6,7 +6,7 @@ import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/features/practice/practice_page_view_model.dart";
 import "package:piano_fitness/shared/accessibility/config/accessibility_labels.dart";
 import "package:piano_fitness/shared/constants/ui_constants.dart";
-import "package:piano_fitness/shared/utils/note_utils.dart";
+import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/shared/utils/piano_range_utils.dart";
 import "package:piano_fitness/shared/widgets/practice_progress_display.dart";
 import "package:piano_fitness/shared/widgets/practice_settings_panel.dart";

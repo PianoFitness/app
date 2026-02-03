@@ -2,7 +2,8 @@ import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/strategies/chord_progressions_strategy.dart";
-import "package:piano_fitness/shared/utils/scales.dart" as music;
+import "package:piano_fitness/domain/services/music_theory/scales.dart"
+    as music;
 
 void main() {
   group("ChordProgressionsStrategy", () {

@@ -1,5 +1,5 @@
 import "package:piano_fitness/domain/models/practice/exercise.dart";
-import "package:piano_fitness/shared/utils/note_utils.dart";
+import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 
 /// Utilities for generating accessibility semantics for practice exercises.
 ///
