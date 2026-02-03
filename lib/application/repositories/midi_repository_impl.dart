@@ -2,6 +2,7 @@ import "dart:async";
 
 import "package:flutter/foundation.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart" as midi_cmd;
+import "package:logging/logging.dart";
 import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 
@@ -14,9 +15,12 @@ import "package:piano_fitness/domain/repositories/midi_repository.dart";
 /// MIDI parsing should be done using domain services (e.g., MidiService),
 /// and state management should be handled in the application layer.
 class MidiRepositoryImpl implements IMidiRepository {
-  MidiRepositoryImpl()
-    : _service = MidiConnectionService(),
-      _midiCommand = midi_cmd.MidiCommand();
+  MidiRepositoryImpl({
+    this.maxConnectionAttempts = 5,
+    this.initialRetryDelayMs = 200,
+    this.retryDelayMultiplier = 2,
+  }) : _service = MidiConnectionService(),
+       _midiCommand = midi_cmd.MidiCommand();
 
   final MidiConnectionService _service;
   final midi_cmd.MidiCommand _midiCommand;
@@ -26,13 +30,70 @@ class MidiRepositoryImpl implements IMidiRepository {
   /// Tracks all handlers registered via registerDataHandler() for cleanup in dispose()
   final Set<void Function(Uint8List)> _registeredHandlers = {};
 
+  /// Maximum number of connection attempts before giving up
+  final int maxConnectionAttempts;
+
+  /// Initial delay in milliseconds before retrying connection
+  final int initialRetryDelayMs;
+
+  /// Multiplier for exponential backoff (delay *= multiplier each attempt)
+  final int retryDelayMultiplier;
+
+  static final Logger _log = Logger("MidiRepositoryImpl");
+
   /// Initializes the MIDI repository and starts listening for MIDI data.
   ///
   /// This method must be called after construction to activate MIDI listening.
   /// It starts the MidiConnectionService which will distribute MIDI data to
   /// all registered handlers.
+  ///
+  /// Implements retry with exponential backoff for robust connection handling.
   Future<void> initialize() async {
-    await _service.connect();
+    await _connectWithRetry();
+  }
+
+  /// Attempts to connect with exponential backoff retry logic.
+  ///
+  /// Retries up to [maxConnectionAttempts] times with increasing delays.
+  /// The delay follows an exponential backoff pattern:
+  /// delay = initialRetryDelayMs * (retryDelayMultiplier ^ attempt)
+  Future<void> _connectWithRetry() async {
+    var delayMs = initialRetryDelayMs;
+    Object? lastError;
+
+    for (var attempt = 0; attempt < maxConnectionAttempts; attempt++) {
+      try {
+        await _service.connect();
+        if (attempt > 0) {
+          _log.info(
+            "MIDI connection successful after $attempt retry attempt(s)",
+          );
+        }
+        return;
+      } catch (e) {
+        lastError = e;
+        _log.warning(
+          "MIDI connection attempt ${attempt + 1}/$maxConnectionAttempts failed: $e",
+        );
+
+        // If this was the last attempt, rethrow the error
+        if (attempt == maxConnectionAttempts - 1) {
+          _log.severe(
+            "MIDI connection failed after $maxConnectionAttempts attempts",
+          );
+          rethrow;
+        }
+
+        // Wait before retrying with exponential backoff
+        await Future<void>.delayed(Duration(milliseconds: delayMs));
+        delayMs *= retryDelayMultiplier;
+      }
+    }
+
+    // Should not reach here, but throw last error as fallback
+    if (lastError != null) {
+      throw lastError;
+    }
   }
 
   @override
