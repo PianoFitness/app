@@ -139,6 +139,69 @@ Uses **MVVM with ChangeNotifier and Provider pattern**:
 - **StreamSubscriptions**: Real-time MIDI events handled in ViewModels
 - **Resource Management**: Proper subscription cleanup in ViewModel dispose() methods
 
+### Dependency Injection Pattern (Phase 2 Complete ✅)
+
+**Repository Interfaces** define contracts for external dependencies:
+
+```dart
+// domain/repositories/midi_repository.dart
+abstract class IMidiRepository {
+  Stream<MidiMessage> get messageStream;
+  Future<void> connect();
+  Future<void> disconnect();
+  Future<void> sendMessage(MidiMessage message);
+}
+```
+
+**ViewModels receive dependencies via constructor:**
+
+```dart
+class PlayPageViewModel extends ChangeNotifier {
+  final IMidiRepository _midiRepository;
+  
+  PlayPageViewModel({required IMidiRepository midiRepository})
+      : _midiRepository = midiRepository;
+}
+```
+
+**Pages provide ViewModels using ChangeNotifierProvider:**
+
+```dart
+ChangeNotifierProvider(
+  create: (context) => PlayPageViewModel(
+    midiRepository: context.read<IMidiRepository>(),
+  ),
+  child: PlayPageContent(),
+)
+```
+
+**Provider configuration in main.dart:**
+
+```dart
+MultiProvider(
+  providers: [
+    Provider<IMidiRepository>(create: (_) => MidiConnectionService.instance),
+    ChangeNotifierProvider(create: (_) => MidiState()),
+  ],
+  child: MyApp(),
+)
+```
+
+**Tests use mock repositories:**
+
+```dart
+final mockMidiRepository = MockMidiRepository();
+final viewModel = PlayPageViewModel(midiRepository: mockMidiRepository);
+```
+
+See `test/shared/test_helpers/mock_repositories.dart` for available mocks.
+
+**Benefits of DI:**
+- ✅ Testability: Easy to mock dependencies in tests
+- ✅ Flexibility: Swap implementations without changing ViewModels
+- ✅ Clarity: Explicit dependencies visible in constructor
+- ✅ Coverage: Enables 80%+ test coverage for ViewModels
+
 ### Error Handling Patterns
 
 **MIDI Connection Errors**:

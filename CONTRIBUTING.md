@@ -145,13 +145,47 @@ web/                              # Web platform files
 
 ### Architecture Pattern: MVVM with Clean Architecture
 
-Piano Fitness follows a **feature-based MVVM architecture**:
+Piano Fitness follows a **feature-based MVVM architecture** with **dependency injection**:
 
 - **View (Page)**: Pure UI layer, handles user interactions
-- **ViewModel**: Business logic layer, manages state and coordinates between View and shared services
-- **Model**: Data structures and business rules (in shared layer)
+- **ViewModel**: Business logic layer, manages state and coordinates between View and repositories
+- **Model**: Data structures and business rules (in domain layer)
+- **Repository**: Interface-based abstraction for external dependencies (MIDI, settings, etc.)
 
-Each feature is self-contained with its own View and ViewModel, while sharing common functionality through the `shared/` layer.
+Each feature is self-contained with its own View and ViewModel, using **Provider** for dependency injection and state management.
+
+#### Dependency Injection Pattern
+
+**ViewModels receive dependencies via constructor injection:**
+
+```dart
+class PlayPageViewModel extends ChangeNotifier {
+  final IMidiRepository _midiRepository;
+  
+  PlayPageViewModel({required IMidiRepository midiRepository})
+      : _midiRepository = midiRepository;
+}
+```
+
+**Pages provide ViewModels using ChangeNotifierProvider:**
+
+```dart
+ChangeNotifierProvider(
+  create: (context) => PlayPageViewModel(
+    midiRepository: context.read<IMidiRepository>(),
+  ),
+  child: PlayPageContent(),
+)
+```
+
+**Tests use mock repositories:**
+
+```dart
+final mockMidiRepository = MockMidiRepository();
+final viewModel = PlayPageViewModel(midiRepository: mockMidiRepository);
+```
+
+See `test/shared/test_helpers/mock_repositories.dart` for available mocks.
 
 ## 📋 Development Guidelines
 
