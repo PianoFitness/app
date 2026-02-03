@@ -178,7 +178,11 @@ class _PlayPageView extends StatelessWidget {
                       final midiNote = NoteUtils.convertNotePositionToMidi(
                         position,
                       );
-                      viewModel.playVirtualNote(midiNote);
+                      viewModel.playVirtualNote(midiNote).catchError((
+                        Object e,
+                      ) {
+                        debugPrint("Error playing note: $e");
+                      });
                     },
                   ),
                 );
