@@ -57,7 +57,12 @@ void main() async {
       providers: [
         // Repository interfaces
         Provider<IMidiRepository>(
-          create: (_) => MidiRepositoryImpl(),
+          create: (_) {
+            final repository = MidiRepositoryImpl();
+            // Initialize MIDI listening on startup
+            repository.initialize();
+            return repository;
+          },
           dispose: (_, repository) => repository.dispose(),
         ),
         Provider<INotificationRepository>.value(value: notificationRepository),

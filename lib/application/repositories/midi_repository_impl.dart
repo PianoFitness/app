@@ -26,6 +26,15 @@ class MidiRepositoryImpl implements IMidiRepository {
   /// Tracks all handlers registered via registerDataHandler() for cleanup in dispose()
   final Set<void Function(Uint8List)> _registeredHandlers = {};
 
+  /// Initializes the MIDI repository and starts listening for MIDI data.
+  ///
+  /// This method must be called after construction to activate MIDI listening.
+  /// It starts the MidiConnectionService which will distribute MIDI data to
+  /// all registered handlers.
+  Future<void> initialize() async {
+    await _service.connect();
+  }
+
   @override
   Stream<Uint8List> get midiDataStream => _midiDataController.stream;
 
