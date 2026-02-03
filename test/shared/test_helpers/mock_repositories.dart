@@ -39,7 +39,7 @@ class MockMidiRepositoryHelper {
 
   /// Simulate receiving MIDI data for testing
   void simulateMidiData(Uint8List data) {
-    for (final handler in _handlers) {
+    for (final handler in List<void Function(Uint8List)>.from(_handlers)) {
       handler(data);
     }
   }
