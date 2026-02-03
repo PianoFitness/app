@@ -29,12 +29,24 @@ import "package:piano_fitness/presentation/constants/ui_constants.dart";
 /// device discovery and Bluetooth lifecycle concerns.
 class MidiSettingsViewModel extends ChangeNotifier {
   /// Creates a new MidiSettingsViewModel with injected dependencies.
+  ///
+  /// Throws [RangeError] if [initialChannel] is not between 0 and 15 (inclusive).
   MidiSettingsViewModel({
     int initialChannel = 0,
     midi_cmd.MidiCommand? midiCommand,
-  }) : _selectedChannel = initialChannel,
+  }) : _selectedChannel = _validateChannel(initialChannel),
        _midiCommand = midiCommand ?? midi_cmd.MidiCommand() {
     _setupMidi();
+  }
+
+  /// Validates that a channel number is within the valid MIDI range (0-15).
+  static int _validateChannel(int channel) {
+    if (channel < 0 || channel > 15) {
+      throw RangeError(
+        "initialChannel must be between 0 and 15 (inclusive), but got $channel",
+      );
+    }
+    return channel;
   }
 
   static final _log = Logger("MidiSettingsViewModel");

@@ -45,6 +45,40 @@ void main() {
         final defaultViewModel = MidiSettingsViewModel();
         expect(defaultViewModel.selectedChannel, equals(0));
       });
+
+      test("should throw RangeError for invalid initialChannel below 0", () {
+        expect(
+          () => MidiSettingsViewModel(initialChannel: -1),
+          throwsA(
+            isA<RangeError>().having(
+              (e) => e.toString(),
+              "message",
+              contains("initialChannel must be between 0 and 15"),
+            ),
+          ),
+        );
+      });
+
+      test("should throw RangeError for invalid initialChannel above 15", () {
+        expect(
+          () => MidiSettingsViewModel(initialChannel: 16),
+          throwsA(
+            isA<RangeError>().having(
+              (e) => e.toString(),
+              "message",
+              contains("initialChannel must be between 0 and 15"),
+            ),
+          ),
+        );
+      });
+
+      test("should accept valid initialChannel at boundaries", () {
+        final viewModelZero = MidiSettingsViewModel();
+        expect(viewModelZero.selectedChannel, equals(0));
+
+        final viewModelFifteen = MidiSettingsViewModel(initialChannel: 15);
+        expect(viewModelFifteen.selectedChannel, equals(15));
+      });
     });
 
     group("Channel Management", () {
