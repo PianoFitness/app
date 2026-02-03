@@ -61,7 +61,10 @@ void main() async {
           dispose: (_, repository) => repository.dispose(),
         ),
         Provider<INotificationRepository>.value(value: notificationRepository),
-        Provider<ISettingsRepository>(create: (_) => SettingsRepositoryImpl()),
+        Provider<ISettingsRepository>(
+          create: (_) => SettingsRepositoryImpl(),
+          lazy: false,
+        ),
         Provider<IAudioService>(create: (_) => AudioServiceImpl()),
 
         // Global MIDI state (shared across all features)
