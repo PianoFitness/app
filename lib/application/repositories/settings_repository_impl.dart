@@ -72,14 +72,23 @@ class SettingsRepositoryImpl implements ISettingsRepository {
       final notificationsMap =
           await NotificationManager.getScheduledNotifications();
       return notificationsMap.values
-          .map(
-            (n) => ScheduledNotificationData(
-              id: n["id"] as int,
-              title: n["title"] as String,
-              body: n["body"] as String,
-              scheduledTime: DateTime.parse(n["scheduledTime"] as String),
-            ),
-          )
+          .map((n) {
+            try {
+              final scheduledTime = DateTime.tryParse(
+                n["scheduledTime"] as String? ?? "",
+              );
+              if (scheduledTime == null) return null;
+              return ScheduledNotificationData(
+                id: n["id"] as int,
+                title: n["title"] as String,
+                body: n["body"] as String,
+                scheduledTime: scheduledTime,
+              );
+            } catch (_) {
+              return null;
+            }
+          })
+          .whereType<ScheduledNotificationData>()
           .toList();
     } catch (e, stackTrace) {
       if (kDebugMode) {
