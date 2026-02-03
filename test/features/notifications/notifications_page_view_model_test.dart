@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/features/notifications/notifications_page_view_model.dart";
-import "package:piano_fitness/shared/models/notification_settings.dart";
+import "package:piano_fitness/application/models/notification_settings.dart";
 
 // Test doubles for NotificationManager and NotificationService
 class TestNotificationManager {

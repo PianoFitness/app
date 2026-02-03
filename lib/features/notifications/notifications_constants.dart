@@ -1,12 +1,12 @@
 import "package:flutter/material.dart";
-import "package:piano_fitness/shared/constants/ui_constants.dart";
+import "package:piano_fitness/presentation/constants/ui_constants.dart";
 
 /// Constants for Notifications page UI elements
 ///
 /// Contains feature-specific responsive functions and default values.
 /// Common spacing, opacity, and timing values moved to shared constants.
 ///
-/// See [lib/shared/constants/ui_constants.dart] for:
+/// See [lib/presentation/constants/ui_constants.dart] for:
 /// - Spacing (xl=32.0, md=16.0, sm=8.0)
 /// - ComponentDimensions (iconSizeLarge=24, iconSizeMedium=20, iconSizeXLarge=32)
 /// - OpacityValues (borderSubtle, shadowSubtle, gradientMid, gradientEnd)

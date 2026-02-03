@@ -1,8 +1,8 @@
 import "dart:async";
 import "package:flutter/foundation.dart";
-import "package:piano_fitness/shared/models/midi_state.dart";
-import "package:piano_fitness/shared/services/midi_connection_service.dart";
-import "package:piano_fitness/shared/utils/virtual_piano_utils.dart";
+import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
+import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
 
 /// ViewModel for managing play page state and MIDI operations.
 ///

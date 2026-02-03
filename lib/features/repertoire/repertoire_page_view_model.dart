@@ -3,8 +3,8 @@ import "package:audioplayers/audioplayers.dart";
 import "package:flutter/foundation.dart";
 import "package:flutter/services.dart";
 import "package:piano_fitness/features/repertoire/repertoire_constants.dart";
-import "package:piano_fitness/shared/services/notification_manager.dart";
-import "package:piano_fitness/shared/services/notification_service.dart";
+import "package:piano_fitness/application/services/notifications/notification_manager.dart";
+import "package:piano_fitness/application/services/notifications/notification_service.dart";
 
 /// ViewModel for managing repertoire page state and logic.
 ///

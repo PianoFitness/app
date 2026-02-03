@@ -6,7 +6,7 @@ import "package:piano_fitness/features/repertoire/widgets/repertoire_header.dart
 import "package:piano_fitness/features/repertoire/widgets/repertoire_info_modal.dart";
 import "package:piano_fitness/features/repertoire/widgets/repertoire_responsive_layout.dart";
 import "package:piano_fitness/features/repertoire/widgets/repertoire_timer_display.dart";
-import "package:piano_fitness/shared/constants/ui_constants.dart";
+import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:url_launcher/url_launcher.dart";
 
 /// Repertoire page for practicing pieces with time management.
@@ -80,21 +80,25 @@ class _RepertoirePageState extends State<RepertoirePage> {
                             isCompact: isSmallHeight,
                           ),
                           timerDisplay: RepertoireTimerDisplay(
-                            formattedTime: _viewModel.formattedTime,
-                            progress: _viewModel.progress,
-                            isRunning: _viewModel.isRunning,
-                            isPaused: _viewModel.isPaused,
-                            remainingSeconds: _viewModel.remainingSeconds,
-                            canStart: _viewModel.canStart,
-                            canResume: _viewModel.canResume,
-                            canPause: _viewModel.canPause,
-                            canReset: _viewModel.canReset,
-                            onStart: _viewModel.startTimer,
-                            onResume: _viewModel.resumeTimer,
-                            onPause: _viewModel.pauseTimer,
-                            onReset: _viewModel.resetTimer,
-                            selectedDurationMinutes:
-                                _viewModel.selectedDurationMinutes,
+                            state: TimerState(
+                              formattedTime: _viewModel.formattedTime,
+                              progress: _viewModel.progress,
+                              isRunning: _viewModel.isRunning,
+                              isPaused: _viewModel.isPaused,
+                              remainingSeconds: _viewModel.remainingSeconds,
+                              selectedDurationMinutes:
+                                  _viewModel.selectedDurationMinutes,
+                            ),
+                            actions: TimerActions(
+                              canStart: _viewModel.canStart,
+                              canResume: _viewModel.canResume,
+                              canPause: _viewModel.canPause,
+                              canReset: _viewModel.canReset,
+                              onStart: _viewModel.startTimer,
+                              onResume: _viewModel.resumeTimer,
+                              onPause: _viewModel.pauseTimer,
+                              onReset: _viewModel.resetTimer,
+                            ),
                             isCompact: isSmallHeight,
                           ),
                         );

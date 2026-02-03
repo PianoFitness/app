@@ -5,7 +5,7 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/features/midi_settings/midi_settings_page.dart";
-import "package:piano_fitness/shared/models/midi_state.dart";
+import "package:piano_fitness/application/state/midi_state.dart";
 import "package:provider/provider.dart";
 
 void main() {
@@ -110,6 +110,7 @@ void main() {
           home: Builder(
             builder: (context) => Scaffold(
               body: ElevatedButton(
+                key: const Key("open_midi_settings_test_button"),
                 onPressed: () async {
                   await Navigator.of(context).push<int>(
                     MaterialPageRoute(
@@ -128,7 +129,7 @@ void main() {
       await tester.pumpWidget(testWidget);
 
       // Open MIDI settings
-      await tester.tap(find.text("Open MIDI Settings"));
+      await tester.tap(find.byKey(const Key("open_midi_settings_test_button")));
       await tester.pumpAndSettle();
 
       // Verify we're on the MIDI settings page

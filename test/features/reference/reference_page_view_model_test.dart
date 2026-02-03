@@ -1,7 +1,8 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/features/reference/reference_page_view_model.dart";
-import "package:piano_fitness/shared/utils/scales.dart" as scales;
-import "package:piano_fitness/shared/utils/chords.dart";
+import "package:piano_fitness/domain/services/music_theory/scales.dart"
+    as scales;
+import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "../../shared/midi_mocks.dart";
 
 void main() {

@@ -1,13 +1,14 @@
 import "dart:async";
 import "package:flutter/foundation.dart";
-import "package:piano_fitness/shared/constants/musical_constants.dart";
-import "package:piano_fitness/shared/models/midi_state.dart";
-import "package:piano_fitness/shared/services/midi_connection_service.dart";
-import "package:piano_fitness/shared/utils/virtual_piano_utils.dart";
-import "package:piano_fitness/shared/utils/scales.dart" as scales;
-import "package:piano_fitness/shared/utils/chords.dart";
-import "package:piano_fitness/shared/utils/note_utils.dart";
-import "package:piano_fitness/shared/utils/chord_inversion_utils.dart";
+import "package:piano_fitness/domain/constants/musical_constants.dart";
+import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
+import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
+import "package:piano_fitness/domain/services/music_theory/scales.dart"
+    as scales;
+import "package:piano_fitness/domain/services/music_theory/chords.dart";
+import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
+import "package:piano_fitness/domain/services/music_theory/chord_inversion_utils.dart";
 
 /// Reference mode options for the reference page.
 enum ReferenceMode {

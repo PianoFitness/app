@@ -1,7 +1,7 @@
 /// Constants for Device Controller page UI elements
 ///
 /// Contains feature-specific constants for device controller interface.
-/// For common UI constants, see [lib/shared/constants/ui_constants.dart].
+/// For common UI constants, see [lib/presentation/constants/ui_constants.dart].
 /// For MIDI parameter ranges, see [MidiConstants] in ui_constants.dart.
 class DeviceControllerUIConstants {
   DeviceControllerUIConstants._();

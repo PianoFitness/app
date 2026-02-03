@@ -4,7 +4,7 @@
 /// timer durations, responsive font sizes, and modal configurations.
 /// Common spacing, sizing, and opacity values have been moved to shared constants.
 ///
-/// See [lib/shared/constants/ui_constants.dart] for:
+/// See [lib/presentation/constants/ui_constants.dart] for:
 /// - Spacing (xs, sm, md, lg, xl, xxl)
 /// - ComponentDimensions (iconSizes, minTouchTarget)
 /// - OpacityValues (borders, shadows, gradients)

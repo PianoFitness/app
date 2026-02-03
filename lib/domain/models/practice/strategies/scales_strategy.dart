@@ -1,0 +1,101 @@
+import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/practice/exercise.dart";
+import "package:piano_fitness/domain/models/practice/strategies/practice_strategy.dart";
+import "package:piano_fitness/domain/services/music_theory/scales.dart"
+    as music;
+
+/// Strategy for initializing scale practice exercises.
+///
+/// Generates scale exercises based on the selected key, scale type,
+/// and hand selection (left, right, or both hands).
+class ScalesStrategy implements PracticeStrategy {
+  /// Creates a scales strategy.
+  ///
+  /// Requires [key] and [scaleType] to define the scale, [handSelection]
+  /// to specify which hand(s) to practice, and [startOctave] for the
+  /// starting pitch.
+  const ScalesStrategy({
+    required this.key,
+    required this.scaleType,
+    required this.handSelection,
+    required this.startOctave,
+  });
+
+  /// The musical key for the scale.
+  final music.Key key;
+
+  /// The type of scale (major, minor, modal, etc.).
+  final music.ScaleType scaleType;
+
+  /// Which hand(s) to practice (left, right, or both).
+  final HandSelection handSelection;
+
+  /// The starting octave for the scale.
+  final int startOctave;
+
+  @override
+  PracticeExercise initializeExercise() {
+    final scale = music.ScaleDefinitions.getScale(key, scaleType);
+    final sequence = scale.getHandSequence(startOctave, handSelection);
+
+    // Convert the sequence to PracticeSteps based on hand selection
+    final steps = <PracticeStep>[];
+
+    if (handSelection == HandSelection.both) {
+      // Validate even number of notes for paired hands
+      if (sequence.length.isOdd) {
+        throw ArgumentError(
+          "Both hands mode requires an even number of notes in the sequence. "
+          "Got ${sequence.length} notes for $key ${scaleType.name} scale.",
+        );
+      }
+      // Both hands: notes are paired [L1, R1, L2, R2, ...]
+      // Each pair should be played simultaneously
+      for (var i = 0; i < sequence.length; i += 2) {
+        if (i + 1 < sequence.length) {
+          final degree = (i ~/ 2) + 1;
+          steps.add(
+            PracticeStep(
+              notes: [sequence[i], sequence[i + 1]],
+              type: StepType.paired,
+              metadata: {
+                "hand": "both",
+                "degree": degree,
+                "displayName": "Degree $degree (Both Hands)",
+              },
+            ),
+          );
+        }
+      }
+    } else {
+      // Single hand: each note is played sequentially
+      for (var i = 0; i < sequence.length; i++) {
+        final degree = i + 1;
+        final handDisplay = handSelection == HandSelection.left
+            ? "Left"
+            : "Right";
+        steps.add(
+          PracticeStep(
+            notes: [sequence[i]],
+            type: StepType.sequential,
+            metadata: {
+              "hand": handSelection == HandSelection.left ? "left" : "right",
+              "degree": degree,
+              "displayName": "Degree $degree ($handDisplay Hand)",
+            },
+          ),
+        );
+      }
+    }
+
+    return PracticeExercise(
+      steps: steps,
+      metadata: {
+        "exerciseType": "scale",
+        "key": key.displayName,
+        "scaleType": scaleType.name,
+        "handSelection": handSelection.name,
+      },
+    );
+  }
+}

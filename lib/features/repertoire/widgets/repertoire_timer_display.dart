@@ -1,26 +1,16 @@
 import "package:flutter/material.dart";
-import "package:piano_fitness/shared/accessibility/services/musical_announcements_service.dart";
+import "package:piano_fitness/presentation/accessibility/services/musical_announcements_service.dart";
 
-/// Reusable widget for displaying practice timer with controls.
-class RepertoireTimerDisplay extends StatelessWidget {
-  /// Creates a timer display widget.
-  const RepertoireTimerDisplay({
+/// Configuration object for timer state.
+class TimerState {
+  /// Creates a timer state configuration.
+  const TimerState({
     required this.formattedTime,
     required this.progress,
     required this.isRunning,
     required this.isPaused,
     required this.remainingSeconds,
-    required this.canStart,
-    required this.canResume,
-    required this.canPause,
-    required this.canReset,
-    required this.onStart,
-    required this.onResume,
-    required this.onPause,
-    required this.onReset,
     required this.selectedDurationMinutes,
-    this.isCompact = false,
-    super.key,
   });
 
   /// Formatted time display string.
@@ -37,6 +27,24 @@ class RepertoireTimerDisplay extends StatelessWidget {
 
   /// Remaining seconds.
   final int remainingSeconds;
+
+  /// Selected duration in minutes for semantic announcements.
+  final int selectedDurationMinutes;
+}
+
+/// Configuration object for timer actions.
+class TimerActions {
+  /// Creates a timer actions configuration.
+  const TimerActions({
+    required this.canStart,
+    required this.canResume,
+    required this.canPause,
+    required this.canReset,
+    required this.onStart,
+    required this.onResume,
+    required this.onPause,
+    required this.onReset,
+  });
 
   /// Whether start action is available.
   final bool canStart;
@@ -61,9 +69,23 @@ class RepertoireTimerDisplay extends StatelessWidget {
 
   /// Callback for reset action.
   final VoidCallback onReset;
+}
 
-  /// Selected duration in minutes for semantic announcements.
-  final int selectedDurationMinutes;
+/// Reusable widget for displaying practice timer with controls.
+class RepertoireTimerDisplay extends StatelessWidget {
+  /// Creates a timer display widget.
+  const RepertoireTimerDisplay({
+    required this.state,
+    required this.actions,
+    this.isCompact = false,
+    super.key,
+  });
+
+  /// Timer state configuration.
+  final TimerState state;
+
+  /// Timer actions configuration.
+  final TimerActions actions;
 
   /// Whether to use compact styling for smaller screens.
   final bool isCompact;
@@ -151,11 +173,11 @@ class RepertoireTimerDisplay extends StatelessWidget {
                 children: [
                   // Gradient Progress Ring
                   CircularProgressIndicator(
-                    value: progress,
+                    value: state.progress,
                     strokeWidth: isVeryConstrained ? 4 : 6,
                     backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
                     valueColor: AlwaysStoppedAnimation<Color>(
-                      isRunning
+                      state.isRunning
                           ? colorScheme
                                 .tertiary // Green when running
                           : colorScheme.primary, // Primary when paused/stopped
@@ -177,7 +199,7 @@ class RepertoireTimerDisplay extends StatelessWidget {
                   ),
                   // Time Display
                   Semantics(
-                    label: "Timer display: $formattedTime remaining",
+                    label: "Timer display: ${state.formattedTime} remaining",
                     liveRegion: true,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -186,12 +208,12 @@ class RepertoireTimerDisplay extends StatelessWidget {
                           Icon(
                             Icons.music_note,
                             size: timerFontSize * 0.8,
-                            color: isRunning
+                            color: state.isRunning
                                 ? colorScheme.tertiary
                                 : colorScheme.primary,
                           ),
                         Text(
-                          formattedTime,
+                          state.formattedTime,
                           style: TextStyle(
                             fontSize: timerFontSize,
                             fontWeight: FontWeight.bold,
@@ -211,10 +233,10 @@ class RepertoireTimerDisplay extends StatelessWidget {
         // Create action buttons
         final actionButtons = [
           // Enhanced Start/Resume Button
-          if (canStart || canResume)
+          if (actions.canStart || actions.canResume)
             Semantics(
               button: true,
-              label: canStart ? "Start timer" : "Resume timer",
+              label: actions.canStart ? "Start timer" : "Resume timer",
               child: Container(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
@@ -237,16 +259,16 @@ class RepertoireTimerDisplay extends StatelessWidget {
                   ],
                 ),
                 child: ElevatedButton(
-                  onPressed: canStart
+                  onPressed: actions.canStart
                       ? () {
-                          onStart();
+                          actions.onStart();
                           MusicalAnnouncementsService.announceTimerChange(
                             context,
                             "Timer started",
                           );
                         }
                       : () {
-                          onResume();
+                          actions.onResume();
                           MusicalAnnouncementsService.announceTimerChange(
                             context,
                             "Timer resumed",
@@ -270,7 +292,7 @@ class RepertoireTimerDisplay extends StatelessWidget {
             ),
 
           // Enhanced Pause Button
-          if (canPause)
+          if (actions.canPause)
             Semantics(
               button: true,
               label: "Pause timer",
@@ -297,7 +319,7 @@ class RepertoireTimerDisplay extends StatelessWidget {
                 ),
                 child: ElevatedButton(
                   onPressed: () {
-                    onPause();
+                    actions.onPause();
                     MusicalAnnouncementsService.announceTimerChange(
                       context,
                       "Timer paused",
@@ -321,7 +343,7 @@ class RepertoireTimerDisplay extends StatelessWidget {
             ),
 
           // Enhanced Reset Button
-          if (canReset)
+          if (actions.canReset)
             Semantics(
               button: true,
               label: "Reset timer",
@@ -341,10 +363,10 @@ class RepertoireTimerDisplay extends StatelessWidget {
                 ),
                 child: OutlinedButton(
                   onPressed: () {
-                    onReset();
+                    actions.onReset();
                     MusicalAnnouncementsService.announceTimerChange(
                       context,
-                      "Timer reset to $selectedDurationMinutes minutes",
+                      "Timer reset to ${state.selectedDurationMinutes} minutes",
                     );
                   },
                   style: OutlinedButton.styleFrom(
@@ -487,11 +509,11 @@ class RepertoireTimerDisplay extends StatelessWidget {
   }
 
   String _getTimerStatusText() {
-    if (isRunning && !isPaused) {
+    if (state.isRunning && !state.isPaused) {
       return "Timer Running";
-    } else if (isPaused) {
+    } else if (state.isPaused) {
       return "Timer Paused";
-    } else if (remainingSeconds == 0) {
+    } else if (state.remainingSeconds == 0) {
       return "Session Complete!";
     } else {
       return "Ready to Start";
@@ -500,17 +522,17 @@ class RepertoireTimerDisplay extends StatelessWidget {
 
   String _getTimerStatusDescription() {
     final status = _getTimerStatusText();
-    final time = formattedTime;
+    final time = state.formattedTime;
     return "$status. $time remaining.";
   }
 
   Color _getStatusColor() {
     // Use hardcoded colors in helper methods since we don't have access to context
-    if (isRunning && !isPaused) {
+    if (state.isRunning && !state.isPaused) {
       return const Color(0xFF4CAF50); // Green for running
-    } else if (isPaused) {
+    } else if (state.isPaused) {
       return const Color(0xFFFF9800); // Amber for paused
-    } else if (remainingSeconds == 0) {
+    } else if (state.remainingSeconds == 0) {
       return const Color(0xFF9C27B0); // Purple for completed
     } else {
       return const Color(0xFF3F51B5); // Indigo for ready
@@ -518,11 +540,11 @@ class RepertoireTimerDisplay extends StatelessWidget {
   }
 
   IconData _getStatusIcon() {
-    if (isRunning && !isPaused) {
+    if (state.isRunning && !state.isPaused) {
       return Icons.play_circle_filled;
-    } else if (isPaused) {
+    } else if (state.isPaused) {
       return Icons.pause_circle_filled;
-    } else if (remainingSeconds == 0) {
+    } else if (state.remainingSeconds == 0) {
       return Icons.celebration;
     } else {
       return Icons.schedule;

@@ -3,8 +3,8 @@ import "package:provider/provider.dart";
 import "package:piano_fitness/features/notifications/notifications_constants.dart";
 import "package:piano_fitness/features/notifications/notifications_page_view_model.dart";
 import "package:piano_fitness/features/notifications/widgets/notification_permission_dialog.dart";
-import "package:piano_fitness/shared/constants/ui_constants.dart";
-import "package:piano_fitness/shared/theme/semantic_colors.dart";
+import "package:piano_fitness/presentation/constants/ui_constants.dart";
+import "package:piano_fitness/presentation/theme/semantic_colors.dart";
 
 /// Notifications configuration page for managing user notification preferences.
 ///

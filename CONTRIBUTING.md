@@ -204,6 +204,21 @@ Tests mirror the `lib/` structure for easy navigation:
 
 ```text
 test/
+├── domain/                       # Domain layer tests
+│   ├── models/                   # Domain model unit tests
+│   │   ├── music/                # Musical concepts (chord types, progressions)
+│   │   └── practice/             # Practice domain models
+│   ├── services/                 # Domain service tests
+│   │   └── music_theory/         # Music theory business logic
+│   └── constants/                # Domain constant tests
+├── application/                  # Application layer tests
+│   └── services/                 # Application service tests
+│       ├── midi/                 # MIDI connection and management
+│       └── notifications/        # Notification services
+├── presentation/                 # Presentation layer tests
+│   ├── shared/                   # Shared presentation code tests
+│   │   └── widgets/              # Reusable widget tests
+│   └── utils/                    # Presentation utility tests
 ├── features/                     # Feature-based MVVM tests
 │   ├── device_controller/
 │   │   ├── device_controller_page_test.dart          # UI tests
@@ -227,11 +242,6 @@ test/
 │   └── repertoire/
 │       ├── repertoire_page_test.dart                 # UI tests
 │       └── repertoire_page_view_model_test.dart      # Business logic tests
-├── shared/                       # Shared code tests
-│   ├── models/                   # Data model unit tests
-│   ├── services/                 # Service layer unit tests
-│   ├── utils/                    # Music theory and utility tests
-│   └── widgets/                  # Shared widget tests
 └── widget_integration_test.dart  # Cross-feature integration tests
 ```
 
@@ -245,8 +255,9 @@ flutter test
 flutter test --coverage
 
 # Run specific test categories
+flutter test test/domain/              # Domain layer tests
+flutter test test/application/         # Application layer tests
 flutter test test/features/play/       # Play feature tests
-flutter test test/shared/models/       # Shared model tests
 
 # Generate and view coverage report
 flutter test --coverage && genhtml coverage/lcov.info -o coverage/html

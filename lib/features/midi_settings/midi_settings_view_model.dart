@@ -4,10 +4,10 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:logging/logging.dart";
-import "package:piano_fitness/shared/constants/ui_constants.dart";
-import "package:piano_fitness/shared/models/midi_state.dart";
-import "package:piano_fitness/shared/services/midi_connection_service.dart";
-import "package:piano_fitness/shared/services/midi_service.dart";
+import "package:piano_fitness/presentation/constants/ui_constants.dart";
+import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
+import "package:piano_fitness/domain/services/midi/midi_service.dart";
 
 /// ViewModel for managing MIDI settings state and operations.
 ///
