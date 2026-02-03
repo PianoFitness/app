@@ -3,8 +3,8 @@ import "package:shared_preferences/shared_preferences.dart";
 import "package:flutter_local_notifications/flutter_local_notifications.dart";
 import "package:timezone/timezone.dart" as tz;
 import "package:timezone/data/latest.dart" as tz_data;
-import "package:piano_fitness/shared/services/notification_service.dart";
-import "package:piano_fitness/shared/services/notification_manager.dart";
+import "package:piano_fitness/application/services/notifications/notification_service.dart";
+import "package:piano_fitness/application/services/notifications/notification_manager.dart";
 
 /// Simple test spy to track plugin method calls
 class NotificationPluginSpy {

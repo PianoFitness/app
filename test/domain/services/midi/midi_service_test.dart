@@ -4,7 +4,7 @@
 
 import "dart:typed_data";
 import "package:flutter_test/flutter_test.dart";
-import "package:piano_fitness/shared/services/midi_service.dart";
+import "package:piano_fitness/domain/services/midi/midi_service.dart";
 
 void main() {
   group("MidiService Tests", () {

@@ -3,8 +3,8 @@ import "dart:typed_data";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/shared/models/midi_state.dart";
-import "package:piano_fitness/shared/services/midi_connection_service.dart";
-import "../../shared/midi_mocks.dart";
+import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
+import "../../../shared/midi_mocks.dart";
 
 void main() {
   setUpAll(MidiMocks.setUp);

@@ -1,8 +1,8 @@
 import "package:flutter/material.dart";
 import "package:logging/logging.dart";
 import "package:piano_fitness/shared/models/notification_settings.dart";
-import "package:piano_fitness/shared/services/notification_manager.dart";
-import "package:piano_fitness/shared/services/notification_service.dart";
+import "package:piano_fitness/application/services/notifications/notification_manager.dart";
+import "package:piano_fitness/application/services/notifications/notification_service.dart";
 
 /// ViewModel for managing notifications page state and business logic.
 ///

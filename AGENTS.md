@@ -246,12 +246,24 @@ All code shared across features, organized by responsibility:
   - Exercise state, progress tracking, mode-specific logic
   - Bridges MIDI input with music theory utilities
 
-**shared/services/** - Business Logic and External Integrations
+**domain/services/** - Pure Business Logic (No External Dependencies)
 
-- **midi_service.dart**: MIDI message parsing and event handling
+- **midi/midi_service.dart**: MIDI protocol parsing and event handling
   - Converts raw MIDI bytes to structured MidiEvent objects
   - Handles all MIDI message types with validation and filtering
   - Use this for any MIDI protocol-level functionality
+
+**application/services/** - Infrastructure and Platform Integrations
+
+- **midi/midi_connection_service.dart**: MIDI device lifecycle management
+  - Wraps flutter_midi_command plugin for device discovery and connection
+  - Singleton pattern for centralized MIDI connection state
+- **notifications/notification_service.dart**: Local notification management
+  - Wraps flutter_local_notifications plugin for scheduling and display
+  - Platform-specific setup for iOS, Android, macOS
+- **notifications/notification_manager.dart**: Notification settings persistence
+  - Uses SharedPreferences for storing notification preferences
+  - Manages NotificationSettings data model
 
 **shared/utils/** - Music Theory and Helper Functions
 
@@ -307,16 +319,16 @@ All code shared across features, organized by responsibility:
    - **Widgets**: Reusable UI components
 
 **Development Guidelines**:
-4. **Music Theory**: Always extend existing shared/utils/ classes
+4. **Music Theory**: Always extend existing domain/services/music_theory/ classes
 
 - Don't duplicate note conversion logic
 - Use existing scale/chord/arpeggio definitions  
-- Add new music theory to shared utilities, not features
+- Add new music theory to domain services, not features
 
-1. **MIDI Handling**: Centralize through shared/services/midi_service.dart
+5. **MIDI Handling**: Centralize through domain/services/midi/midi_service.dart
    - Don't parse MIDI messages directly in ViewModels
    - Use existing MidiEvent structures
-   - Add new message types to the shared service layer
+   - Add new message types to the domain service layer
 
 2. **State Management**: Use MVVM with Provider pattern
    - **Global State**: shared/models/midi_state.dart (ChangeNotifier)
@@ -325,7 +337,7 @@ All code shared across features, organized by responsibility:
    - **Business State**: Models like PracticeSession in shared layer
 
 3. **Testing**: Mirror lib/ structure in test/
-   - Unit tests for shared/utils/, shared/services/, and ViewModels  
+   - Unit tests for shared/utils/, domain/services/, application/services/, and ViewModels  
    - Widget tests for feature pages and shared/widgets/
    - Integration tests for cross-feature functionality
 
@@ -336,6 +348,8 @@ All code shared across features, organized by responsibility:
 3. Third-party packages (`package:piano/piano.dart`)
 4. Local imports in order:
    - Feature imports: `package:piano_fitness/features/...`
+   - Domain imports: `package:piano_fitness/domain/...`
+   - Application imports: `package:piano_fitness/application/...`
    - Shared imports: `package:piano_fitness/shared/...`
 
 **Import Examples**:
@@ -343,7 +357,7 @@ All code shared across features, organized by responsibility:
 ```dart
 // ViewModel importing shared utilities
 import "package:piano_fitness/shared/models/midi_state.dart";
-import "package:piano_fitness/shared/services/midi_service.dart";
+import "package:piano_fitness/domain/services/midi/midi_service.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 
 // Page importing its ViewModel and shared widgets

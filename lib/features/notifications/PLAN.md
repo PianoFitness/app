@@ -14,7 +14,7 @@ This plan outlines the implementation of a minimal viable notifications feature 
 
 ### 2. Feature Components
 
-#### A. Notification Service (`lib/shared/services/notification_service.dart`)
+#### A. Notification Service (`lib/application/services/notifications/notification_service.dart`)
 
 - Centralized notification management
 - Platform-specific permission handling

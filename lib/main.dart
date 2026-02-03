@@ -2,7 +2,7 @@ import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:logging/logging.dart";
 import "package:piano_fitness/shared/constants/typography_constants.dart";
-import "package:piano_fitness/shared/services/notification_service.dart";
+import "package:piano_fitness/application/services/notifications/notification_service.dart";
 import "package:piano_fitness/shared/theme/semantic_colors.dart";
 import "package:piano_fitness/shared/widgets/main_navigation.dart";
 import "package:timezone/data/latest.dart" as tz;

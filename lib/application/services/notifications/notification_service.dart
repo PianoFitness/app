@@ -5,7 +5,7 @@ import "package:flutter_local_notifications/flutter_local_notifications.dart";
 import "package:logging/logging.dart";
 import "package:timezone/timezone.dart" as tz;
 
-import "package:piano_fitness/shared/services/notification_manager.dart";
+import "package:piano_fitness/application/services/notifications/notification_manager.dart";
 
 /// Service for managing local notifications across platforms.
 ///
