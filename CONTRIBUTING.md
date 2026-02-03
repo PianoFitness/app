@@ -189,6 +189,22 @@ flutter pub upgrade    # upgrade to latest compatible
 
 **Never manually edit `pubspec.yaml` for adding/removing dependencies.**
 
+### Architecture Decision Records
+
+**When to Create an ADR:**
+
+- Architectural changes affecting multiple features
+- New external dependencies or third-party integrations
+- Foundational pattern changes (state management, navigation, etc.)
+- Security, performance, or accessibility decisions
+- Changes to testing strategies or development workflows
+
+**ADR Documentation:**
+
+All architectural decisions are documented in `docs/ADRs/` using the MADR (Markdown Any Decision Records) format. Before making significant architectural changes, consult existing ADRs and create a new one following the template in `docs/ADRs/template.md`.
+
+See the [ADR README](../docs/ADRs/README.md) for a complete index of architectural decisions.
+
 ## 🧪 Testing Guidelines
 
 ### Test Coverage Requirements

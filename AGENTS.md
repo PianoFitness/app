@@ -70,6 +70,8 @@ flutter build macos  # macOS
 
 Piano Fitness is a Flutter app focused on piano practice with MIDI integration. The app follows **Clean Architecture** with MVVM pattern in the presentation layer.
 
+**Architecture Decisions:** All major architectural decisions are documented as ADRs (Architecture Decision Records) in `docs/ADRs/`. See the [ADR README](docs/ADRs/README.md) for a complete index.
+
 ### Core Architecture Pattern
 
 **Clean Architecture with MVVM**: The app uses a three-layer architecture with clear separation of concerns:
