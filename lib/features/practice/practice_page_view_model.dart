@@ -6,15 +6,15 @@ import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
-import "package:piano_fitness/shared/models/midi_state.dart";
-import "package:piano_fitness/shared/models/practice_session.dart";
+import "package:piano_fitness/presentation/state/midi_state.dart";
+import "package:piano_fitness/presentation/state/practice_session.dart";
 import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
-import "package:piano_fitness/shared/utils/piano_range_utils.dart";
+import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;
-import "package:piano_fitness/shared/utils/virtual_piano_utils.dart";
+import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
 
 /// ViewModel for managing practice page state and operations.
 ///

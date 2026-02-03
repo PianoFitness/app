@@ -6,7 +6,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:piano/piano.dart";
 
-import "package:piano_fitness/shared/models/midi_state.dart";
+import "package:piano_fitness/presentation/state/midi_state.dart";
 
 void main() {
   group("MidiState Unit Tests", () {

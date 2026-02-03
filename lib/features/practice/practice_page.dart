@@ -4,14 +4,14 @@ import "package:piano_fitness/domain/constants/practice_constants.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/features/practice/practice_page_view_model.dart";
-import "package:piano_fitness/shared/accessibility/config/accessibility_labels.dart";
-import "package:piano_fitness/shared/constants/ui_constants.dart";
+import "package:piano_fitness/presentation/accessibility/config/accessibility_labels.dart";
+import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
-import "package:piano_fitness/shared/utils/piano_range_utils.dart";
-import "package:piano_fitness/shared/widgets/practice_progress_display.dart";
-import "package:piano_fitness/shared/widgets/practice_settings_panel.dart";
-import "package:piano_fitness/shared/utils/piano_accessibility_utils.dart";
-import "package:piano_fitness/shared/theme/semantic_colors.dart";
+import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
+import "package:piano_fitness/presentation/widgets/practice_progress_display.dart";
+import "package:piano_fitness/presentation/widgets/practice_settings_panel.dart";
+import "package:piano_fitness/presentation/utils/piano_accessibility_utils.dart";
+import "package:piano_fitness/presentation/theme/semantic_colors.dart";
 
 /// A comprehensive piano practice page with guided exercises and real-time feedback.
 ///

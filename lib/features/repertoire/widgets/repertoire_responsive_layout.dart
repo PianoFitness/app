@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 import "package:piano_fitness/features/repertoire/repertoire_constants.dart";
-import "package:piano_fitness/shared/constants/typography_constants.dart";
-import "package:piano_fitness/shared/constants/ui_constants.dart";
+import "package:piano_fitness/presentation/constants/typography_constants.dart";
+import "package:piano_fitness/presentation/constants/ui_constants.dart";
 
 /// Layout modes for different screen sizes and orientations.
 enum RepertoireLayoutMode {

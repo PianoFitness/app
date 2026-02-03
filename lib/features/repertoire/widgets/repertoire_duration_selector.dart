@@ -1,5 +1,5 @@
 import "package:flutter/material.dart";
-import "package:piano_fitness/shared/accessibility/services/musical_announcements_service.dart";
+import "package:piano_fitness/presentation/accessibility/services/musical_announcements_service.dart";
 
 /// Reusable widget for selecting practice duration in repertoire practice.
 class RepertoireDurationSelector extends StatelessWidget {

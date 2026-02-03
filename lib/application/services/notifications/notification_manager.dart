@@ -1,7 +1,7 @@
 import "dart:convert";
 import "package:flutter/material.dart";
 import "package:logging/logging.dart";
-import "package:piano_fitness/shared/models/notification_settings.dart";
+import "package:piano_fitness/application/models/notification_settings.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
 /// Manager for persisting notification settings and metadata.

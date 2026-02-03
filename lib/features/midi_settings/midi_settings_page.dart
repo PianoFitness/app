@@ -2,8 +2,8 @@ import "package:flutter/material.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:piano_fitness/features/device_controller/device_controller_page.dart";
 import "package:piano_fitness/features/midi_settings/midi_settings_view_model.dart";
-import "package:piano_fitness/shared/constants/ui_constants.dart";
-import "package:piano_fitness/shared/theme/semantic_colors.dart";
+import "package:piano_fitness/presentation/constants/ui_constants.dart";
+import "package:piano_fitness/presentation/theme/semantic_colors.dart";
 import "package:provider/provider.dart";
 
 /// The MIDI settings and device management page.

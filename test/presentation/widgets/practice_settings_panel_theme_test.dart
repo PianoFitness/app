@@ -7,7 +7,7 @@ import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;
-import "package:piano_fitness/shared/widgets/practice_settings_panel.dart";
+import "package:piano_fitness/presentation/widgets/practice_settings_panel.dart";
 
 void main() {
   group("PracticeSettingsPanel Theme Tests", () {

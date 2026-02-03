@@ -2,8 +2,8 @@ import "package:flutter/material.dart";
 import "package:piano_fitness/domain/constants/practice_constants.dart";
 import "package:piano_fitness/domain/models/practice/exercise.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
-import "package:piano_fitness/shared/constants/ui_constants.dart";
-import "package:piano_fitness/shared/utils/practice_accessibility_utils.dart";
+import "package:piano_fitness/presentation/constants/ui_constants.dart";
+import "package:piano_fitness/presentation/utils/practice_accessibility_utils.dart";
 
 /// A widget that displays progress information during active practice sessions.
 ///

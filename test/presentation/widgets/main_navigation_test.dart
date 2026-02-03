@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:piano_fitness/shared/widgets/main_navigation.dart";
+import "package:piano_fitness/presentation/widgets/main_navigation.dart";
 
 /// Helper function to navigate to a specific tab by key.
 /// This avoids text-based finders and uses stable key-based navigation.

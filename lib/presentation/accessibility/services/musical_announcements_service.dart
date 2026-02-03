@@ -1,8 +1,8 @@
 import "package:flutter/material.dart";
 import "package:flutter/semantics.dart";
 import "package:piano/piano.dart";
-import "package:piano_fitness/shared/accessibility/config/accessibility_labels.dart";
-import "package:piano_fitness/shared/accessibility/services/piano_semantics_service.dart";
+import "package:piano_fitness/presentation/accessibility/config/accessibility_labels.dart";
+import "package:piano_fitness/presentation/accessibility/services/piano_semantics_service.dart";
 
 /// Service for managing live region announcements in musical contexts.
 ///

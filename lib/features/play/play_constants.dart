@@ -2,7 +2,7 @@
 ///
 /// These constants are specific to the play page feature and not reusable
 /// across the broader application. For shared UI constants, see
-/// [lib/shared/constants/ui_constants.dart].
+/// [lib/presentation/constants/ui_constants.dart].
 library;
 
 import "package:flutter/material.dart";

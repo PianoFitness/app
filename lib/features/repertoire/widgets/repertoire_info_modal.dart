@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 import "package:piano_fitness/features/repertoire/repertoire_constants.dart";
 import "package:piano_fitness/features/repertoire/widgets/app_recommendation_card.dart";
-import "package:piano_fitness/shared/constants/ui_constants.dart";
+import "package:piano_fitness/presentation/constants/ui_constants.dart";
 
 /// Modal bottom sheet displaying repertoire practice information.
 ///

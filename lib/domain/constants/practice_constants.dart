@@ -2,11 +2,11 @@
 ///
 /// These constants are specific to the practice feature and not reusable
 /// across the broader application. For shared UI constants, see
-/// [lib/shared/constants/ui_constants.dart].
+/// [lib/presentation/constants/ui_constants.dart].
 library;
 
 import "package:flutter/material.dart";
-import "package:piano_fitness/shared/constants/ui_constants.dart";
+import "package:piano_fitness/presentation/constants/ui_constants.dart";
 
 /// Practice-specific UI dimension and timing constants.
 class PracticeUIConstants {

@@ -1,7 +1,7 @@
 import "dart:typed_data";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/features/play/play_page_view_model.dart";
-import "package:piano_fitness/shared/models/midi_state.dart";
+import "package:piano_fitness/presentation/state/midi_state.dart";
 import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
 import "../../shared/midi_mocks.dart";
 

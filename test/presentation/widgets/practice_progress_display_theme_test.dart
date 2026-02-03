@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/domain/models/practice/exercise.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
-import "package:piano_fitness/shared/widgets/practice_progress_display.dart";
+import "package:piano_fitness/presentation/widgets/practice_progress_display.dart";
 
 void main() {
   group("PracticeProgressDisplay Theme Tests", () {

@@ -6,7 +6,7 @@ import "package:piano_fitness/features/repertoire/widgets/repertoire_header.dart
 import "package:piano_fitness/features/repertoire/widgets/repertoire_info_modal.dart";
 import "package:piano_fitness/features/repertoire/widgets/repertoire_responsive_layout.dart";
 import "package:piano_fitness/features/repertoire/widgets/repertoire_timer_display.dart";
-import "package:piano_fitness/shared/constants/ui_constants.dart";
+import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:url_launcher/url_launcher.dart";
 
 /// Repertoire page for practicing pieces with time management.

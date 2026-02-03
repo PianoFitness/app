@@ -2,8 +2,8 @@ import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:logging/logging.dart";
-import "package:piano_fitness/shared/models/midi_state.dart";
-import "package:piano_fitness/shared/models/practice_session.dart";
+import "package:piano_fitness/presentation/state/midi_state.dart";
+import "package:piano_fitness/presentation/state/practice_session.dart";
 import "package:piano_fitness/domain/services/midi/midi_service.dart";
 
 /// Centralized service for managing MIDI connections and data processing.

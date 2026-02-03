@@ -3,12 +3,12 @@
 /// Contains feature-specific constants for reference interface.
 /// Common spacing, sizing, and opacity values moved to shared constants.
 ///
-/// See [lib/shared/constants/ui_constants.dart] for:
+/// See [lib/presentation/constants/ui_constants.dart] for:
 /// - Spacing (xs, sm, md, lg, xl, xxl)
 /// - AppBorderRadius (xs, small, medium, large, xLarge)
 /// - OpacityValues (borders, shadows, gradients)
 ///
-/// See [lib/shared/constants/musical_constants.dart] for:
+/// See [lib/presentation/constants/musical_constants.dart] for:
 /// - scaleTypeNames, chordTypeNames, chordInversionNames
 ///
 /// Font sizes should use Theme.of(context).textTheme for consistency:

@@ -7,7 +7,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:piano/piano.dart";
 
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
-import "package:piano_fitness/shared/models/practice_session.dart";
+import "package:piano_fitness/presentation/state/practice_session.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/circle_of_fifths.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";

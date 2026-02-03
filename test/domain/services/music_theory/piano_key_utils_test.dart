@@ -4,7 +4,7 @@
 // and utility functions for working with piano key ranges.
 
 import "package:flutter_test/flutter_test.dart";
-import "package:piano_fitness/shared/utils/piano_key_utils.dart";
+import "package:piano_fitness/presentation/utils/piano_key_utils.dart";
 
 void main() {
   group("Piano Key Identification", () {

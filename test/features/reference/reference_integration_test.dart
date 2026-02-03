@@ -1,8 +1,8 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano/piano.dart";
-import "package:piano_fitness/shared/widgets/main_navigation.dart";
-import "package:piano_fitness/shared/models/midi_state.dart";
+import "package:piano_fitness/presentation/widgets/main_navigation.dart";
+import "package:piano_fitness/presentation/state/midi_state.dart";
 import "package:provider/provider.dart";
 import "../../shared/midi_mocks.dart";
 
@@ -54,7 +54,7 @@ void main() {
       );
 
       // Tap on Reference navigation item
-      await tester.tap(find.text("Reference"));
+      await tester.tap(find.byKey(const Key("nav_tab_reference")));
       await tester.pumpAndSettle();
 
       // Should now be on reference page (app bar title and content)
@@ -75,7 +75,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Navigate to reference page
-      await tester.tap(find.text("Reference"));
+      await tester.tap(find.byKey(const Key("nav_tab_reference")));
       await tester.pumpAndSettle();
 
       // Change to chords mode using semantic key
@@ -87,10 +87,10 @@ void main() {
       await tester.pumpAndSettle();
 
       // Switch to another tab and back
-      await tester.tap(find.text("Practice"));
+      await tester.tap(find.byKey(const Key("nav_tab_practice")));
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text("Reference"));
+      await tester.tap(find.byKey(const Key("nav_tab_reference")));
       await tester.pumpAndSettle();
 
       // Should maintain the state (chords mode, F# selected)
@@ -108,7 +108,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Navigate to reference page
-      await tester.tap(find.text("Reference"));
+      await tester.tap(find.byKey(const Key("nav_tab_reference")));
       await tester.pumpAndSettle();
 
       // Verify initial MIDI state is clean
@@ -116,9 +116,15 @@ void main() {
 
       // Select a specific scale
       // Use warnIfMissed: false to suppress flaky hit-test warnings for UI elements
-      await tester.tap(find.text("A"), warnIfMissed: false);
+      await tester.tap(
+        find.byKey(const Key("scales_key_a")),
+        warnIfMissed: false,
+      );
       await tester.pumpAndSettle();
-      await tester.tap(find.text("Minor"), warnIfMissed: false);
+      await tester.tap(
+        find.byKey(const Key("scales_type_minor")),
+        warnIfMissed: false,
+      );
       await tester.pumpAndSettle();
 
       // The shared MIDI state should NOT be affected by reference page selections
@@ -126,7 +132,7 @@ void main() {
       expect(midiState.activeNotes.isEmpty, isTrue);
 
       // Switch to play page
-      await tester.tap(find.text("Free Play"));
+      await tester.tap(find.byKey(const Key("nav_tab_free_play")));
       await tester.pumpAndSettle();
 
       // The MIDI state should still be clean (no interference from reference page)
@@ -138,15 +144,15 @@ void main() {
       await tester.pumpAndSettle();
 
       // Navigate to reference page
-      await tester.tap(find.text("Reference"));
+      await tester.tap(find.byKey(const Key("nav_tab_reference")));
       await tester.pumpAndSettle();
 
       // Rapidly switch between modes
       for (int i = 0; i < 5; i++) {
-        await tester.tap(find.text("Chord Types"));
+        await tester.tap(find.byKey(const Key("chord_types_mode_button")));
         await tester.pump(const Duration(milliseconds: 100));
 
-        await tester.tap(find.text("Scales"));
+        await tester.tap(find.byKey(const Key("scales_mode_button")));
         await tester.pump(const Duration(milliseconds: 100));
       }
 
@@ -161,20 +167,26 @@ void main() {
       await tester.pumpAndSettle();
 
       // Navigate to reference page
-      await tester.tap(find.text("Reference"));
+      await tester.tap(find.byKey(const Key("nav_tab_reference")));
       await tester.pumpAndSettle();
 
       // Rapidly change keys
-      final keys = ["C", "D", "E", "F"];
+      final keys = ["c", "d", "e", "f"];
       for (final key in keys) {
-        await tester.tap(find.text(key), warnIfMissed: false);
+        await tester.tap(
+          find.byKey(Key("scales_key_$key")),
+          warnIfMissed: false,
+        );
         await tester.pump(const Duration(milliseconds: 50));
       }
 
       // Rapidly change scale types
-      final scaleTypes = ["Major", "Minor"];
+      final scaleTypes = ["major", "minor"];
       for (final scaleType in scaleTypes) {
-        await tester.tap(find.text(scaleType), warnIfMissed: false);
+        await tester.tap(
+          find.byKey(Key("scales_type_$scaleType")),
+          warnIfMissed: false,
+        );
         await tester.pump(const Duration(milliseconds: 50));
       }
 
@@ -195,32 +207,44 @@ void main() {
       await tester.pumpAndSettle();
 
       // Navigate to reference page
-      await tester.tap(find.text("Reference"));
+      await tester.tap(find.byKey(const Key("nav_tab_reference")));
       await tester.pumpAndSettle();
 
       // Switch to chords mode
-      await tester.tap(find.text("Chord Types"));
+      await tester.tap(find.byKey(const Key("chord_types_mode_button")));
       await tester.pumpAndSettle();
 
       // Test a few key combinations
-      final testCases = [("C", "Major", "Root Position")];
+      final testCases = [("c", "major", "rootPosition")];
 
       for (final (key, chordType, inversion) in testCases) {
         // Select key - only if it exists
-        if (find.text(key).evaluate().isNotEmpty) {
-          await tester.tap(find.text(key), warnIfMissed: false);
+        if (find.byKey(Key("chords_root_$key")).evaluate().isNotEmpty) {
+          await tester.tap(
+            find.byKey(Key("chords_root_$key")),
+            warnIfMissed: false,
+          );
           await tester.pumpAndSettle();
         }
 
         // Select chord type - only if it exists
-        if (find.text(chordType).evaluate().isNotEmpty) {
-          await tester.tap(find.text(chordType), warnIfMissed: false);
+        if (find.byKey(Key("chords_type_$chordType")).evaluate().isNotEmpty) {
+          await tester.tap(
+            find.byKey(Key("chords_type_$chordType")),
+            warnIfMissed: false,
+          );
           await tester.pumpAndSettle();
         }
 
         // Select inversion - only if it exists
-        if (find.text(inversion).evaluate().isNotEmpty) {
-          await tester.tap(find.text(inversion), warnIfMissed: false);
+        if (find
+            .byKey(Key("chords_inversion_$inversion"))
+            .evaluate()
+            .isNotEmpty) {
+          await tester.tap(
+            find.byKey(Key("chords_inversion_$inversion")),
+            warnIfMissed: false,
+          );
         }
         await tester.pumpAndSettle();
 
@@ -235,13 +259,13 @@ void main() {
 
       // Rapid tab switching
       for (int i = 0; i < 3; i++) {
-        await tester.tap(find.text("Reference"));
+        await tester.tap(find.byKey(const Key("nav_tab_reference")));
         await tester.pump(const Duration(milliseconds: 100));
 
-        await tester.tap(find.text("Practice"));
+        await tester.tap(find.byKey(const Key("nav_tab_practice")));
         await tester.pump(const Duration(milliseconds: 100));
 
-        await tester.tap(find.text("Free Play"));
+        await tester.tap(find.byKey(const Key("nav_tab_free_play")));
         await tester.pump(const Duration(milliseconds: 100));
       }
 
@@ -284,7 +308,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Navigate to reference page
-      await tester.tap(find.text("Reference"));
+      await tester.tap(find.byKey(const Key("nav_tab_reference")));
       await tester.pumpAndSettle();
 
       final stopwatch = Stopwatch()..start();
@@ -319,7 +343,7 @@ void main() {
 
       // Navigate to reference page
       expect(find.text("Reference"), findsOneWidget);
-      await tester.tap(find.text("Reference"));
+      await tester.tap(find.byKey(const Key("nav_tab_reference")));
       await tester.pumpAndSettle();
 
       // Switch to chords mode using key-based finder

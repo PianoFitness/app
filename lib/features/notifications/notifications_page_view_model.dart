@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import "package:logging/logging.dart";
-import "package:piano_fitness/shared/models/notification_settings.dart";
+import "package:piano_fitness/application/models/notification_settings.dart";
 import "package:piano_fitness/application/services/notifications/notification_manager.dart";
 import "package:piano_fitness/application/services/notifications/notification_service.dart";
 

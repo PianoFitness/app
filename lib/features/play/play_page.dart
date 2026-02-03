@@ -2,11 +2,11 @@ import "package:flutter/material.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/features/play/play_constants.dart";
 import "package:piano_fitness/features/play/play_page_view_model.dart";
-import "package:piano_fitness/shared/accessibility/config/accessibility_labels.dart";
-import "package:piano_fitness/shared/constants/ui_constants.dart";
+import "package:piano_fitness/presentation/accessibility/config/accessibility_labels.dart";
+import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
-import "package:piano_fitness/shared/utils/piano_range_utils.dart";
-import "package:piano_fitness/shared/utils/piano_accessibility_utils.dart";
+import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
+import "package:piano_fitness/presentation/utils/piano_accessibility_utils.dart";
 
 /// The main page of the Piano Fitness application.
 ///
