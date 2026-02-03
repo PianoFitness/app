@@ -1,3 +1,4 @@
+import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:logging/logging.dart";
@@ -53,6 +54,9 @@ void main() async {
     );
   });
 
+  // Create logger for main initialization
+  final log = Logger("main");
+
   runApp(
     MultiProvider(
       providers: [
@@ -61,7 +65,19 @@ void main() async {
           create: (_) {
             final repository = MidiRepositoryImpl();
             // Initialize MIDI listening on startup
-            repository.initialize();
+            // Use unawaited to capture the Future without blocking Provider creation
+            unawaited(
+              repository.initialize().catchError((
+                Object error,
+                StackTrace stackTrace,
+              ) {
+                log.severe(
+                  "Failed to initialize MIDI repository: $error",
+                  error,
+                  stackTrace,
+                );
+              }),
+            );
             return repository;
           },
           dispose: (_, repository) => repository.dispose(),
