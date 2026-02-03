@@ -179,19 +179,19 @@ MIDI handling is managed locally within each page via page-scoped ViewModels/con
 
 ### Musical Theory Implementation
 
-#### Scales (`shared/utils/scales.dart`)
+#### Scales (`domain/services/music_theory/scales.dart`)
 
 - Comprehensive scale system with intervals and note generation
 - Support for major, minor, and modal scales
 - Key enum with enharmonic display names (flat notation primary)
 
-#### Chords (`shared/utils/chords.dart`)
+#### Chords (`domain/services/music_theory/chord_builder.dart`)
 
 - Triad system with major, minor, diminished, augmented types
 - Inversion support (root, first, second)
 - MIDI note generation with octave management
 
-#### Note Utilities (`shared/utils/note_utils.dart`)
+#### Note Utilities (`domain/services/music_theory/note_utils.dart`)
 
 - Conversion between MusicalNote enum, MIDI numbers, and piano positions
 - Integration with piano package for InteractivePiano widget
@@ -310,7 +310,7 @@ MIDI handling is managed locally within each page via page-scoped ViewModels/con
 **Prefer Composition Over Large Widgets**
 
 - Break widgets into smaller, focused components when they exceed ~50-100 lines
-- Create reusable widgets in `/shared/widgets/` for cross-feature use
+- Create reusable widgets in `/presentation/shared/widgets/` for cross-feature use
 - Create feature-specific widgets in `/features/<feature>/widgets/` for local use
 - Each widget should have a single, clear responsibility
 
@@ -325,7 +325,7 @@ features/practice/
     ├── arpeggio_settings_panel.dart
     └── practice_status_indicator.dart
 
-shared/widgets/                     # Reusable across features
+presentation/shared/widgets/        # Reusable across features
 ├── base_settings_panel.dart
 ├── musical_key_selector.dart
 └── note_selector_dropdown.dart
@@ -380,7 +380,7 @@ import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 
 // Internal imports (relative paths)
-import "package:piano_fitness/shared/models/midi_state.dart";
+import "package:piano_fitness/domain/models/practice/exercise.dart";
 ```
 
 ### State Management Conventions
@@ -441,7 +441,7 @@ import "package:piano_fitness/shared/models/midi_state.dart";
 - [ ] Complex conditional logic is extracted into separate components or abstractions
 - [ ] New features added via interfaces/abstractions, not if-else modifications
 - [ ] Complex widgets are broken into smaller, focused components
-- [ ] Reusable widgets are properly organized in `/shared/widgets/` or `/features/<feature>/widgets/`
+- [ ] Reusable widgets are properly organized in `/presentation/shared/widgets/` or `/features/<feature>/widgets/`
 - [ ] All resources are properly disposed in dispose() methods
 - [ ] ViewModels call notifyListeners() after state changes
 - [ ] Tests pass and cover new functionality
