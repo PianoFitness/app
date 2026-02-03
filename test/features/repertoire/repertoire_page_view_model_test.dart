@@ -92,8 +92,8 @@ void main() {
       mockNotificationRepository = MockINotificationRepository();
       mockSettingsRepository = MockISettingsRepository();
 
-      // Stub the createPlayer method to return a mock AudioPlayer
-      final mockAudioPlayer = MockAudioPlayer();
+      // Stub the createPlayer method to return a mock AudioPlayerHandle
+      final mockAudioPlayer = MockAudioPlayerHandle();
       when(mockAudioService.createPlayer()).thenReturn(mockAudioPlayer);
 
       viewModel = RepertoirePageViewModel(
@@ -319,7 +319,7 @@ class TestableRepertoirePageViewModel extends RepertoirePageViewModel {
 
   static MockIAudioService _createMockAudioService() {
     final mockService = MockIAudioService();
-    final mockPlayer = MockAudioPlayer();
+    final mockPlayer = MockAudioPlayerHandle();
     when(mockService.createPlayer()).thenReturn(mockPlayer);
     return mockService;
   }

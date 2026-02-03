@@ -1,5 +1,4 @@
 import "dart:async";
-import "package:audioplayers/audioplayers.dart" as audioplayers;
 import "package:flutter/foundation.dart";
 import "package:flutter/services.dart";
 import "package:piano_fitness/domain/repositories/audio_service.dart";
@@ -26,7 +25,7 @@ class RepertoirePageViewModel extends ChangeNotifier {
   final IAudioService _audioService;
   final INotificationRepository _notificationRepository;
   final ISettingsRepository _settingsRepository;
-  late final audioplayers.AudioPlayer _player;
+  late final AudioPlayerHandle _player;
   Timer? _timer;
 
   // Timer state
@@ -167,9 +166,7 @@ class RepertoirePageViewModel extends ChangeNotifier {
 
     // Play completion sound
     try {
-      await _player.play(
-        audioplayers.AssetSource("audio/218851__kellyconidi__highbell.mp3"),
-      );
+      await _player.playAsset("audio/218851__kellyconidi__highbell.mp3");
     } catch (e) {
       debugPrint("Error playing timer completion sound: $e");
     }

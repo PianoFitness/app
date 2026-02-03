@@ -5,7 +5,6 @@ import "package:piano_fitness/domain/repositories/audio_service.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/repositories/notification_repository.dart";
 import "package:piano_fitness/domain/repositories/settings_repository.dart";
-import "package:audioplayers/audioplayers.dart";
 import "mock_repositories.mocks.dart";
 
 // Generate mocks for repository interfaces
@@ -14,7 +13,7 @@ import "mock_repositories.mocks.dart";
   INotificationRepository,
   ISettingsRepository,
   IAudioService,
-  AudioPlayer,
+  AudioPlayerHandle,
 ])
 void main() {}
 

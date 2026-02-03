@@ -25,7 +25,7 @@ Widget createTestWidget(Widget child) {
   final midiState = MidiState();
 
   // Stub createPlayer for AudioService to prevent MissingStubError
-  final mockAudioPlayer = MockAudioPlayer();
+  final mockAudioPlayer = MockAudioPlayerHandle();
   when(mockAudioService.createPlayer()).thenReturn(mockAudioPlayer);
 
   return MultiProvider(
@@ -74,7 +74,7 @@ Widget createTestWidgetWithMocks({
 
   // Stub createPlayer for AudioService if not already stubbed
   if (audioService == null) {
-    final mockAudioPlayer = MockAudioPlayer();
+    final mockAudioPlayer = MockAudioPlayerHandle();
     when(mockAudioService.createPlayer()).thenReturn(mockAudioPlayer);
   }
 
