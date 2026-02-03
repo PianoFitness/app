@@ -190,8 +190,9 @@ class DeviceControllerViewModel extends ChangeNotifier {
   }
 
   void _handleMidiData(Uint8List data) {
-    // Use domain service for MIDI parsing and update application state
+    // Parse MIDI data once and handle both global state and local display
     MidiService.handleMidiData(data, (MidiEvent event) {
+      // Update global MIDI state
       switch (event.type) {
         case MidiEventType.noteOn:
           _midiState.noteOn(event.data1, event.data2, event.channel);
@@ -206,40 +207,35 @@ class DeviceControllerViewModel extends ChangeNotifier {
           _midiState.setLastNote(event.displayMessage);
           break;
       }
-    });
 
-    // Also parse for display in device controller
-    _processMidiData(data);
+      // Update local display state (reuse parsed event)
+      _processMidiEvent(event);
+    });
   }
 
-  void _processMidiData(Uint8List data) {
-    MidiService.handleMidiData(data, (MidiEvent event) {
-      _lastReceivedMessage = event.displayMessage;
+  void _processMidiEvent(MidiEvent event) {
+    _lastReceivedMessage = event.displayMessage;
 
-      // Update specific controls based on channel and event type
-      if (event.channel - 1 == _selectedChannel) {
-        switch (event.type) {
-          case MidiEventType.controlChange:
-            if (event.data1 == _ccController) {
-              _ccValue = event.data2;
-            }
-          case MidiEventType.programChange:
-            _programNumber = event.data1;
-          case MidiEventType.pitchBend:
-            _pitchBend = MidiService.getPitchBendValue(
-              event.data1,
-              event.data2,
-            );
-          case MidiEventType.noteOn:
-          case MidiEventType.noteOff:
-          case MidiEventType.other:
-            // These don't update local control values
-            break;
-        }
+    // Update specific controls based on channel and event type
+    if (event.channel - 1 == _selectedChannel) {
+      switch (event.type) {
+        case MidiEventType.controlChange:
+          if (event.data1 == _ccController) {
+            _ccValue = event.data2;
+          }
+        case MidiEventType.programChange:
+          _programNumber = event.data1;
+        case MidiEventType.pitchBend:
+          _pitchBend = MidiService.getPitchBendValue(event.data1, event.data2);
+        case MidiEventType.noteOn:
+        case MidiEventType.noteOff:
+        case MidiEventType.other:
+          // These don't update local control values
+          break;
       }
+    }
 
-      notifyListeners();
-    });
+    notifyListeners();
   }
 
   @override
