@@ -172,23 +172,38 @@ lib/
 │   └── practice/                   # Guided practice exercises
 │       ├── practice_page.dart               # UI layer (View)
 │       └── practice_page_view_model.dart    # Business logic (ViewModel)
-└── shared/                         # Common code shared across features
-    ├── models/                     # Data models and business entities
-    │   ├── midi_state.dart         # Global MIDI state (ChangeNotifier)
-    │   └── practice_session.dart   # Practice exercise coordination
-    ├── services/                   # Business logic and external integrations
-    │   └── midi_service.dart       # Centralized MIDI message parsing
-    ├── utils/                      # Helper functions and music theory
-    │   ├── note_utils.dart         # Note conversion utilities
-    │   ├── scales.dart             # Scale definitions and generation
-    │   ├── chords.dart             # Chord theory and progressions
-    │   ├── arpeggios.dart          # Arpeggio pattern generation
-    │   ├── piano_range_utils.dart  # Dynamic keyboard range calculation
-    │   └── virtual_piano_utils.dart # Virtual piano playback utilities
-    └── widgets/                    # Reusable UI components
-        ├── midi_status_indicator.dart    # MIDI activity indicator
-        ├── practice_progress_display.dart # Practice progress visualization
-        └── practice_settings_panel.dart  # Practice configuration panel
+├── domain/                         # Domain Layer (Pure Business Logic)
+│   ├── models/                     # Domain entities and value objects
+│   │   ├── music/                  # Musical concepts (chord types, progressions)
+│   │   └── practice/               # Practice domain models (exercise, strategies)
+│   ├── services/                   # Domain services and business logic
+│   │   ├── music_theory/           # Music theory algorithms
+│   │   │   ├── scales.dart         # Scale definitions and generation
+│   │   │   ├── chord_builder.dart  # Chord construction logic
+│   │   │   ├── arpeggios.dart      # Arpeggio pattern generation
+│   │   │   └── note_utils.dart     # Note conversion utilities
+│   │   └── midi/                   # MIDI protocol domain services
+│   │       └── midi_service.dart   # MIDI message parsing and events
+│   └── constants/                  # Domain-level constants
+│       ├── musical_constants.dart  # Musical theory constants
+│       └── practice_constants.dart # Practice-related constants
+├── application/                    # Application Layer (Service Orchestration)
+│   ├── services/                   # Infrastructure integrations
+│   │   └── midi/                   # MIDI device management
+│   │       └── midi_connection_service.dart # Device lifecycle and connection
+│   ├── state/                      # Application-wide state management
+│   │   ├── midi_state.dart         # MIDI state (ChangeNotifier)
+│   │   └── practice_session.dart   # Practice session coordination
+│   └── utils/                      # Application utilities
+│       └── virtual_piano_utils.dart # Virtual piano playback
+└── presentation/                   # Presentation Layer (UI & ViewModels)
+    ├── shared/                     # Shared presentation components
+    │   └── widgets/                # Reusable UI components
+    │       ├── midi_status_indicator.dart    # MIDI activity indicator
+    │       ├── practice_progress_display.dart # Practice visualization
+    │       └── practice_settings_panel.dart  # Practice configuration
+    └── utils/                      # Presentation utilities
+        └── piano_range_utils.dart  # Dynamic keyboard range calculation
 ```
 
 #### **File Purpose and Logic Placement Guide**
@@ -406,40 +421,19 @@ The codebase follows Flutter testing patterns with **mandatory test coverage req
 
 #### **Test Organization**
 
-Tests mirror the lib/ structure exactly for easy navigation and maintenance:
+**Test Structure Mirrors Source Code**: Tests follow the exact same directory structure as `lib/` for easy navigation and maintenance.
 
-```text
-test/
-├── features/                        # Feature-based MVVM tests
-│   ├── device_controller/           # Device controller feature tests
-│   │   ├── device_controller_page_test.dart      # UI tests
-│   │   └── device_controller_view_model_test.dart # Business logic tests
-│   ├── midi_settings/               # MIDI settings feature tests
-│   │   ├── midi_settings_page_test.dart          # UI tests
-│   │   └── midi_settings_view_model_test.dart    # Business logic tests
-│   ├── play/                        # Play feature tests
-│   │   ├── play_page_test.dart                   # UI tests (370+ lines)
-│   │   └── play_page_view_model_test.dart        # Business logic tests
-│   └── practice/                    # Practice feature tests
-│       ├── practice_page_test.dart               # UI tests (275+ lines)
-│       └── practice_page_view_model_test.dart    # Business logic tests (321+ lines)
-├── shared/                          # Shared code tests
-│   ├── models/                      # Data model unit tests
-│   │   └── midi_state_test.dart    # MIDI state management (79% coverage)
-│   ├── services/                    # Service layer unit tests
-│   │   └── midi_service_test.dart  # MIDI message parsing and validation
-│   ├── utils/                       # Music theory and utility tests
-│   │   ├── note_utils_test.dart    # Note conversion functions
-│   │   ├── scales_test.dart        # Scale theory (550+ lines)
-│   │   ├── chords_test.dart        # Chord theory (625+ lines)
-│   │   ├── arpeggios_test.dart     # Arpeggio generation
-│   │   ├── chord_progression_test.dart      # Chord progression logic
-│   │   ├── chord_inversion_flow_test.dart   # Chord inversion patterns
-│   │   └── piano_range_utils_test.dart      # Piano range calculations
-│   └── widgets/                     # Shared widget tests
-│       └── practice_settings_panel_test.dart
-├── widget_integration_test.dart     # Cross-feature integration
-└── widget_test.dart                # Main app structure
+**Naming Convention**: For each source file, create a corresponding test file with `_test.dart` suffix:
+- `lib/features/play/play_page.dart` → `test/features/play/play_page_test.dart`
+- `lib/domain/services/music_theory/scales.dart` → `test/domain/services/music_theory/scales_test.dart`
+- `lib/application/state/midi_state.dart` → `test/application/state/midi_state_test.dart`
+
+**Running Specific Test Categories**:
+```bash
+flutter test test/domain/              # All domain layer tests
+flutter test test/application/         # All application layer tests
+flutter test test/features/play/       # Play feature tests
+flutter test test/features/practice/   # Practice feature tests
 ```
 
 **Test Categories and Coverage**:
@@ -451,19 +445,21 @@ test/
   - Play: MIDI processing and piano interaction tests  
   - MIDI Settings: Device management and connection tests
   - Device Controller: MIDI device control and diagnostics tests
-- **Shared Models**: State management (MidiState: 79% coverage, target: 80%+)
-- **Shared Services**: MIDI protocol handling with security validation
-- **Shared Utils**: Comprehensive music theory testing
+- **Domain Services**: Music theory algorithm tests (scales, chords, arpeggios)
   - 144 chord combinations (12 notes × 4 types × 3 inversions)
   - 96 scale combinations (12 keys × 8 modes)
   - Mathematical precision validation for music theory
+- **Application State**: State management tests
+  - MidiState: 79% coverage (target: 80%+)
+  - PracticeSession: Exercise coordination and progress
+- **Application Services**: MIDI connection and protocol handling with security validation
 
 **Widget Tests** - UI Component Integration  
 
 - **Feature Pages**: Complete page functionality with MVVM integration
   - UI rendering, user interaction, ViewModel integration
   - Navigation, state management, reactive UI updates
-- **Shared Widgets**: Reusable components across features
+- **Presentation Widgets**: Reusable UI components across features
 - Mock strategies for hardware dependencies and ViewModels
 
 **Integration Tests** - System Workflow Validation
