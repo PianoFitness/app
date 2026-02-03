@@ -47,11 +47,21 @@ abstract class IMidiRepository {
 
 /// MIDI device information
 class MidiDevice {
-  MidiDevice({required this.id, required this.name, required this.type});
+  MidiDevice({
+    required this.id,
+    required this.name,
+    required this.type,
+    required this.connected,
+    required this.inputPorts,
+    required this.outputPorts,
+  });
 
   final String id;
   final String name;
   final String type;
+  final bool connected;
+  final List<MidiPort> inputPorts;
+  final List<MidiPort> outputPorts;
 
   @override
   bool operator ==(Object other) =>
@@ -60,8 +70,24 @@ class MidiDevice {
           runtimeType == other.runtimeType &&
           id == other.id &&
           name == other.name &&
-          type == other.type;
+          type == other.type &&
+          connected == other.connected;
 
   @override
-  int get hashCode => Object.hash(id, name, type);
+  int get hashCode => Object.hash(id, name, type, connected);
+}
+
+/// MIDI port information
+class MidiPort {
+  MidiPort({required this.id});
+
+  final int id;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MidiPort && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 }

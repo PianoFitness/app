@@ -109,6 +109,13 @@ class MidiRepositoryImpl implements IMidiRepository {
                   id: device.id,
                   name: device.name,
                   type: device.type,
+                  connected: device.connected,
+                  inputPorts: device.inputPorts
+                      .map((port) => MidiPort(id: port.id))
+                      .toList(),
+                  outputPorts: device.outputPorts
+                      .map((port) => MidiPort(id: port.id))
+                      .toList(),
                 ),
               )
               .toList() ??

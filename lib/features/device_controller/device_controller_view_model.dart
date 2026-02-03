@@ -1,5 +1,4 @@
 import "package:flutter/foundation.dart";
-import "package:flutter_midi_command/flutter_midi_command.dart" as midi_cmd;
 import "package:flutter_midi_command/flutter_midi_command_messages.dart";
 import "package:logging/logging.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart"; // For MidiConstants
@@ -16,7 +15,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
   DeviceControllerViewModel({
     required IMidiRepository midiRepository,
     required MidiState midiState,
-    required midi_cmd.MidiDevice device,
+    required MidiDevice device,
   }) : _midiRepository = midiRepository,
        _midiState = midiState,
        _device = device {
@@ -27,7 +26,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
 
   final IMidiRepository _midiRepository;
   final MidiState _midiState;
-  final midi_cmd.MidiDevice _device;
+  final MidiDevice _device;
 
   int _selectedChannel = 0;
   int _ccController = 1;
@@ -37,7 +36,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
   String _lastReceivedMessage = "No MIDI data received yet";
 
   /// The MIDI device being controlled.
-  midi_cmd.MidiDevice get device => _device;
+  MidiDevice get device => _device;
 
   /// Currently selected MIDI channel (0-15).
   int get selectedChannel => _selectedChannel;

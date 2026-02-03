@@ -3,6 +3,7 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart" as midi_cmd;
 import "package:logging/logging.dart";
+import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
 
 /// ViewModel for managing MIDI settings state and operations.
@@ -343,7 +344,8 @@ class MidiSettingsViewModel extends ChangeNotifier {
   }
 
   /// Opens device controller for a connected device.
-  Future<midi_cmd.MidiDevice?> prepareDeviceForController(
+  /// Converts the library MidiDevice to domain MidiDevice for use in DeviceControllerPage.
+  Future<MidiDevice?> prepareDeviceForController(
     midi_cmd.MidiDevice device,
     void Function(String message, [Color? color]) showSnackBar,
   ) async {
@@ -363,7 +365,19 @@ class MidiSettingsViewModel extends ChangeNotifier {
       currentDevice = updatedDevice;
     }
 
-    return currentDevice;
+    // Convert library device to domain device
+    return MidiDevice(
+      id: currentDevice.id,
+      name: currentDevice.name,
+      type: currentDevice.type,
+      connected: currentDevice.connected,
+      inputPorts: currentDevice.inputPorts
+          .map((port) => MidiPort(id: port.id))
+          .toList(),
+      outputPorts: currentDevice.outputPorts
+          .map((port) => MidiPort(id: port.id))
+          .toList(),
+    );
   }
 
   /// Returns appropriate icon for device type.

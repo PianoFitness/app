@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import "package:flutter_midi_command/flutter_midi_command.dart" as midi_cmd;
 import "package:provider/provider.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
@@ -20,7 +19,7 @@ class DeviceControllerPage extends StatefulWidget {
   const DeviceControllerPage({required this.device, super.key});
 
   /// The MIDI device to control and monitor.
-  final midi_cmd.MidiDevice device;
+  final MidiDevice device;
 
   @override
   State<DeviceControllerPage> createState() => _DeviceControllerPageState();

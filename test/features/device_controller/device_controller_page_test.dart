@@ -3,21 +3,11 @@
 // Tests the UI and user interaction functionality of the device controller page.
 
 import "package:flutter/material.dart";
-import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/features/device_controller/device_controller_page.dart";
 import "../../shared/test_helpers/widget_test_helper.dart";
 import "../../shared/midi_mocks.dart";
-
-// Mock MIDI device class for testing
-class MockMidiDevice extends MidiDevice {
-  MockMidiDevice({
-    required String id,
-    required String name,
-    required String type,
-    required bool connected,
-  }) : super(id, name, type, connected);
-}
 
 void main() {
   setUpAll(MidiMocks.setUp);
@@ -25,12 +15,14 @@ void main() {
   tearDownAll(MidiMocks.tearDown);
 
   group("DeviceControllerPage UI Tests", () {
-    // Create a mock MIDI device for testing
-    final mockDevice = MockMidiDevice(
+    // Create a mock MIDI device for testing using domain MidiDevice
+    final mockDevice = MidiDevice(
       id: "test-device-1",
       name: "Test MIDI Device",
       type: "BLE",
       connected: false,
+      inputPorts: [],
+      outputPorts: [],
     );
 
     testWidgets("should create DeviceControllerPage without errors", (
@@ -164,11 +156,13 @@ void main() {
     testWidgets("should handle device disconnection gracefully", (
       tester,
     ) async {
-      final disconnectedDevice = MockMidiDevice(
+      final disconnectedDevice = MidiDevice(
         id: "test-device-2",
         name: "Disconnected Device",
         type: "BLE",
         connected: false,
+        inputPorts: [],
+        outputPorts: [],
       );
 
       // Using createTestWidget helper
@@ -308,11 +302,13 @@ void main() {
 
   // Unit tests for piano key logic through public interface
   group("DeviceControllerPage Piano Key Logic", () {
-    final mockDevice = MockMidiDevice(
+    final mockDevice = MidiDevice(
       id: "test",
       name: "Test",
       type: "BLE",
       connected: false,
+      inputPorts: [],
+      outputPorts: [],
     );
 
     testWidgets("should render correct number of piano keys", (tester) async {
