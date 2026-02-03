@@ -8,6 +8,7 @@ import "package:piano_fitness/application/repositories/audio_service_impl.dart";
 import "package:piano_fitness/application/repositories/midi_repository_impl.dart";
 import "package:piano_fitness/application/repositories/notification_repository_impl.dart";
 import "package:piano_fitness/application/repositories/settings_repository_impl.dart";
+import "package:piano_fitness/application/services/notifications/notification_manager.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/domain/repositories/audio_service.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
@@ -67,7 +68,9 @@ void main() async {
         ),
         Provider<INotificationRepository>.value(value: notificationRepository),
         Provider<ISettingsRepository>(
-          create: (_) => SettingsRepositoryImpl(),
+          create: (_) => SettingsRepositoryImpl(
+            notificationManager: NotificationManager.instance,
+          ),
           lazy: false,
         ),
         Provider<IAudioService>(create: (_) => AudioServiceImpl()),

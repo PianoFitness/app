@@ -3,18 +3,22 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i5;
-import 'dart:typed_data' as _i6;
+import 'dart:async' as _i6;
+import 'dart:typed_data' as _i7;
 
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:piano_fitness/application/models/notification_settings.dart'
+    as _i3;
+import 'package:piano_fitness/application/repositories/notification_manager_interface.dart'
+    as _i10;
 import 'package:piano_fitness/domain/models/notification_settings_data.dart'
     as _i2;
-import 'package:piano_fitness/domain/repositories/audio_service.dart' as _i3;
-import 'package:piano_fitness/domain/repositories/midi_repository.dart' as _i4;
+import 'package:piano_fitness/domain/repositories/audio_service.dart' as _i4;
+import 'package:piano_fitness/domain/repositories/midi_repository.dart' as _i5;
 import 'package:piano_fitness/domain/repositories/notification_repository.dart'
-    as _i7;
-import 'package:piano_fitness/domain/repositories/settings_repository.dart'
     as _i8;
+import 'package:piano_fitness/domain/repositories/settings_repository.dart'
+    as _i9;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -37,92 +41,98 @@ class _FakeNotificationSettingsData_0 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
-class _FakeAudioPlayerHandle_1 extends _i1.SmartFake
-    implements _i3.AudioPlayerHandle {
-  _FakeAudioPlayerHandle_1(Object parent, Invocation parentInvocation)
+class _FakeNotificationSettings_1 extends _i1.SmartFake
+    implements _i3.NotificationSettings {
+  _FakeNotificationSettings_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeAudioPlayerHandle_2 extends _i1.SmartFake
+    implements _i4.AudioPlayerHandle {
+  _FakeAudioPlayerHandle_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
 /// A class which mocks [IMidiRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockIMidiRepository extends _i1.Mock implements _i4.IMidiRepository {
+class MockIMidiRepository extends _i1.Mock implements _i5.IMidiRepository {
   MockIMidiRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Stream<_i6.Uint8List> get midiDataStream =>
+  _i6.Stream<_i7.Uint8List> get midiDataStream =>
       (super.noSuchMethod(
             Invocation.getter(#midiDataStream),
-            returnValue: _i5.Stream<_i6.Uint8List>.empty(),
+            returnValue: _i6.Stream<_i7.Uint8List>.empty(),
           )
-          as _i5.Stream<_i6.Uint8List>);
+          as _i6.Stream<_i7.Uint8List>);
 
   @override
-  _i5.Future<List<_i4.MidiDevice>> listDevices() =>
+  _i6.Future<List<_i5.MidiDevice>> listDevices() =>
       (super.noSuchMethod(
             Invocation.method(#listDevices, []),
-            returnValue: _i5.Future<List<_i4.MidiDevice>>.value(
-              <_i4.MidiDevice>[],
+            returnValue: _i6.Future<List<_i5.MidiDevice>>.value(
+              <_i5.MidiDevice>[],
             ),
           )
-          as _i5.Future<List<_i4.MidiDevice>>);
+          as _i6.Future<List<_i5.MidiDevice>>);
 
   @override
-  _i5.Future<void> connectToDevice(String? deviceId) =>
+  _i6.Future<void> connectToDevice(String? deviceId) =>
       (super.noSuchMethod(
             Invocation.method(#connectToDevice, [deviceId]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<void> disconnect() =>
+  _i6.Future<void> disconnect() =>
       (super.noSuchMethod(
             Invocation.method(#disconnect, []),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<void> sendData(_i6.Uint8List? data) =>
+  _i6.Future<void> sendData(_i7.Uint8List? data) =>
       (super.noSuchMethod(
             Invocation.method(#sendData, [data]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<void> sendNoteOn(int? note, int? velocity, int? channel) =>
+  _i6.Future<void> sendNoteOn(int? note, int? velocity, int? channel) =>
       (super.noSuchMethod(
             Invocation.method(#sendNoteOn, [note, velocity, channel]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<void> sendNoteOff(int? note, int? channel) =>
+  _i6.Future<void> sendNoteOff(int? note, int? channel) =>
       (super.noSuchMethod(
             Invocation.method(#sendNoteOff, [note, channel]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  void registerDataHandler(void Function(_i6.Uint8List)? handler) =>
+  void registerDataHandler(void Function(_i7.Uint8List)? handler) =>
       super.noSuchMethod(
         Invocation.method(#registerDataHandler, [handler]),
         returnValueForMissingStub: null,
       );
 
   @override
-  void unregisterDataHandler(void Function(_i6.Uint8List)? handler) =>
+  void unregisterDataHandler(void Function(_i7.Uint8List)? handler) =>
       super.noSuchMethod(
         Invocation.method(#unregisterDataHandler, [handler]),
         returnValueForMissingStub: null,
@@ -139,7 +149,7 @@ class MockIMidiRepository extends _i1.Mock implements _i4.IMidiRepository {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockINotificationRepository extends _i1.Mock
-    implements _i7.INotificationRepository {
+    implements _i8.INotificationRepository {
   MockINotificationRepository() {
     _i1.throwOnMissingStub(this);
   }
@@ -153,23 +163,23 @@ class MockINotificationRepository extends _i1.Mock
           as int);
 
   @override
-  _i5.Future<bool> requestPermissions() =>
+  _i6.Future<bool> requestPermissions() =>
       (super.noSuchMethod(
             Invocation.method(#requestPermissions, []),
-            returnValue: _i5.Future<bool>.value(false),
+            returnValue: _i6.Future<bool>.value(false),
           )
-          as _i5.Future<bool>);
+          as _i6.Future<bool>);
 
   @override
-  _i5.Future<bool> arePermissionsGranted() =>
+  _i6.Future<bool> arePermissionsGranted() =>
       (super.noSuchMethod(
             Invocation.method(#arePermissionsGranted, []),
-            returnValue: _i5.Future<bool>.value(false),
+            returnValue: _i6.Future<bool>.value(false),
           )
-          as _i5.Future<bool>);
+          as _i6.Future<bool>);
 
   @override
-  _i5.Future<void> scheduleDailyNotification({
+  _i6.Future<void> scheduleDailyNotification({
     required String? title,
     required String? body,
     required DateTime? scheduledTime,
@@ -180,13 +190,13 @@ class MockINotificationRepository extends _i1.Mock
               #body: body,
               #scheduledTime: scheduledTime,
             }),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<void> showInstantNotification({
+  _i6.Future<void> showInstantNotification({
     required int? id,
     required String? title,
     required String? body,
@@ -197,75 +207,75 @@ class MockINotificationRepository extends _i1.Mock
               #title: title,
               #body: body,
             }),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<void> cancelNotification(int? id) =>
+  _i6.Future<void> cancelNotification(int? id) =>
       (super.noSuchMethod(
             Invocation.method(#cancelNotification, [id]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<void> cancelAllNotifications() =>
+  _i6.Future<void> cancelAllNotifications() =>
       (super.noSuchMethod(
             Invocation.method(#cancelAllNotifications, []),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<List<_i7.PendingNotification>> getPendingNotifications() =>
+  _i6.Future<List<_i8.PendingNotification>> getPendingNotifications() =>
       (super.noSuchMethod(
             Invocation.method(#getPendingNotifications, []),
-            returnValue: _i5.Future<List<_i7.PendingNotification>>.value(
-              <_i7.PendingNotification>[],
+            returnValue: _i6.Future<List<_i8.PendingNotification>>.value(
+              <_i8.PendingNotification>[],
             ),
           )
-          as _i5.Future<List<_i7.PendingNotification>>);
+          as _i6.Future<List<_i8.PendingNotification>>);
 }
 
 /// A class which mocks [ISettingsRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockISettingsRepository extends _i1.Mock
-    implements _i8.ISettingsRepository {
+    implements _i9.ISettingsRepository {
   MockISettingsRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<_i2.NotificationSettingsData> loadNotificationSettings() =>
+  _i6.Future<_i2.NotificationSettingsData> loadNotificationSettings() =>
       (super.noSuchMethod(
             Invocation.method(#loadNotificationSettings, []),
-            returnValue: _i5.Future<_i2.NotificationSettingsData>.value(
+            returnValue: _i6.Future<_i2.NotificationSettingsData>.value(
               _FakeNotificationSettingsData_0(
                 this,
                 Invocation.method(#loadNotificationSettings, []),
               ),
             ),
           )
-          as _i5.Future<_i2.NotificationSettingsData>);
+          as _i6.Future<_i2.NotificationSettingsData>);
 
   @override
-  _i5.Future<void> saveNotificationSettings(
+  _i6.Future<void> saveNotificationSettings(
     _i2.NotificationSettingsData? settings,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#saveNotificationSettings, [settings]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<void> saveScheduledNotification({
+  _i6.Future<void> saveScheduledNotification({
     required int? id,
     required String? title,
     required String? body,
@@ -278,83 +288,172 @@ class MockISettingsRepository extends _i1.Mock
               #body: body,
               #scheduledTime: scheduledTime,
             }),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<List<_i8.ScheduledNotificationData>> getScheduledNotifications() =>
+  _i6.Future<List<_i9.ScheduledNotificationData>> getScheduledNotifications() =>
       (super.noSuchMethod(
             Invocation.method(#getScheduledNotifications, []),
-            returnValue: _i5.Future<List<_i8.ScheduledNotificationData>>.value(
-              <_i8.ScheduledNotificationData>[],
+            returnValue: _i6.Future<List<_i9.ScheduledNotificationData>>.value(
+              <_i9.ScheduledNotificationData>[],
             ),
           )
-          as _i5.Future<List<_i8.ScheduledNotificationData>>);
+          as _i6.Future<List<_i9.ScheduledNotificationData>>);
 
   @override
-  _i5.Future<void> removeScheduledNotification(int? id) =>
+  _i6.Future<void> removeScheduledNotification(int? id) =>
       (super.noSuchMethod(
             Invocation.method(#removeScheduledNotification, [id]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
+}
+
+/// A class which mocks [INotificationManager].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockINotificationManager extends _i1.Mock
+    implements _i10.INotificationManager {
+  MockINotificationManager() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i6.Future<_i3.NotificationSettings> loadSettings() =>
+      (super.noSuchMethod(
+            Invocation.method(#loadSettings, []),
+            returnValue: _i6.Future<_i3.NotificationSettings>.value(
+              _FakeNotificationSettings_1(
+                this,
+                Invocation.method(#loadSettings, []),
+              ),
+            ),
+          )
+          as _i6.Future<_i3.NotificationSettings>);
+
+  @override
+  _i6.Future<void> saveSettings(_i3.NotificationSettings? settings) =>
+      (super.noSuchMethod(
+            Invocation.method(#saveSettings, [settings]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> saveScheduledNotification(
+    int? id,
+    String? title,
+    String? body,
+    DateTime? scheduledTime, {
+    bool? isRecurring = false,
+    String? payload,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #saveScheduledNotification,
+              [id, title, body, scheduledTime],
+              {#isRecurring: isRecurring, #payload: payload},
+            ),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> removeScheduledNotification(int? id) =>
+      (super.noSuchMethod(
+            Invocation.method(#removeScheduledNotification, [id]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<Map<String, dynamic>> getScheduledNotifications() =>
+      (super.noSuchMethod(
+            Invocation.method(#getScheduledNotifications, []),
+            returnValue: _i6.Future<Map<String, dynamic>>.value(
+              <String, dynamic>{},
+            ),
+          )
+          as _i6.Future<Map<String, dynamic>>);
+
+  @override
+  _i6.Future<void> clearAllScheduledNotifications() =>
+      (super.noSuchMethod(
+            Invocation.method(#clearAllScheduledNotifications, []),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> clearAllData() =>
+      (super.noSuchMethod(
+            Invocation.method(#clearAllData, []),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
 }
 
 /// A class which mocks [IAudioService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockIAudioService extends _i1.Mock implements _i3.IAudioService {
+class MockIAudioService extends _i1.Mock implements _i4.IAudioService {
   MockIAudioService() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i3.AudioPlayerHandle createPlayer() =>
+  _i4.AudioPlayerHandle createPlayer() =>
       (super.noSuchMethod(
             Invocation.method(#createPlayer, []),
-            returnValue: _FakeAudioPlayerHandle_1(
+            returnValue: _FakeAudioPlayerHandle_2(
               this,
               Invocation.method(#createPlayer, []),
             ),
           )
-          as _i3.AudioPlayerHandle);
+          as _i4.AudioPlayerHandle);
 }
 
 /// A class which mocks [AudioPlayerHandle].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockAudioPlayerHandle extends _i1.Mock implements _i3.AudioPlayerHandle {
+class MockAudioPlayerHandle extends _i1.Mock implements _i4.AudioPlayerHandle {
   MockAudioPlayerHandle() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<void> playAsset(String? assetPath) =>
+  _i6.Future<void> playAsset(String? assetPath) =>
       (super.noSuchMethod(
             Invocation.method(#playAsset, [assetPath]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<void> stop() =>
+  _i6.Future<void> stop() =>
       (super.noSuchMethod(
             Invocation.method(#stop, []),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<void> dispose() =>
+  _i6.Future<void> dispose() =>
       (super.noSuchMethod(
             Invocation.method(#dispose, []),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 }

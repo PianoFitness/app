@@ -1,19 +1,26 @@
 import "package:flutter/foundation.dart";
 import "package:piano_fitness/application/converters/notification_settings_converter.dart";
-import "package:piano_fitness/application/services/notifications/notification_manager.dart";
+import "package:piano_fitness/application/repositories/notification_manager_interface.dart";
 import "package:piano_fitness/domain/models/notification_settings_data.dart";
 import "package:piano_fitness/domain/repositories/settings_repository.dart";
 
-/// Implementation of ISettingsRepository wrapping NotificationManager
+/// Implementation of ISettingsRepository with injected NotificationManager
 ///
 /// Provides instance-based access to settings persistence.
 /// Converts between domain models (NotificationSettingsData) and
 /// application models (NotificationSettings with Flutter types).
 class SettingsRepositoryImpl implements ISettingsRepository {
+  /// Creates a settings repository with injected notification manager.
+  const SettingsRepositoryImpl({
+    required INotificationManager notificationManager,
+  }) : _notificationManager = notificationManager;
+
+  final INotificationManager _notificationManager;
+
   @override
   Future<NotificationSettingsData> loadNotificationSettings() async {
     try {
-      final appSettings = await NotificationManager.loadSettings();
+      final appSettings = await _notificationManager.loadSettings();
       return NotificationSettingsConverter.toDomainModel(appSettings);
     } catch (e, stackTrace) {
       if (kDebugMode) {
@@ -33,7 +40,7 @@ class SettingsRepositoryImpl implements ISettingsRepository {
       final appSettings = NotificationSettingsConverter.toApplicationModel(
         settings,
       );
-      await NotificationManager.saveSettings(appSettings);
+      await _notificationManager.saveSettings(appSettings);
     } catch (e, stackTrace) {
       if (kDebugMode) {
         print("Error saving notification settings: $e");
@@ -51,7 +58,7 @@ class SettingsRepositoryImpl implements ISettingsRepository {
     required DateTime scheduledTime,
   }) async {
     try {
-      await NotificationManager.saveScheduledNotification(
+      await _notificationManager.saveScheduledNotification(
         id,
         title,
         body,
@@ -69,8 +76,8 @@ class SettingsRepositoryImpl implements ISettingsRepository {
   @override
   Future<List<ScheduledNotificationData>> getScheduledNotifications() async {
     try {
-      final notificationsMap =
-          await NotificationManager.getScheduledNotifications();
+      final notificationsMap = await _notificationManager
+          .getScheduledNotifications();
       return notificationsMap.values
           .map((n) {
             try {
@@ -102,7 +109,7 @@ class SettingsRepositoryImpl implements ISettingsRepository {
   @override
   Future<void> removeScheduledNotification(int id) async {
     try {
-      await NotificationManager.removeScheduledNotification(id);
+      await _notificationManager.removeScheduledNotification(id);
     } catch (e, stackTrace) {
       if (kDebugMode) {
         print("Error removing scheduled notification: $e");

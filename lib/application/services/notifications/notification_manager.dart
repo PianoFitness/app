@@ -2,6 +2,7 @@ import "dart:convert";
 import "package:flutter/material.dart";
 import "package:logging/logging.dart";
 import "package:piano_fitness/application/models/notification_settings.dart";
+import "package:piano_fitness/application/repositories/notification_manager_interface.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
 /// Manager for persisting notification settings and metadata.
@@ -10,7 +11,9 @@ import "package:shared_preferences/shared_preferences.dart";
 /// notification metadata to maintain consistency across app sessions.
 /// It works in conjunction with NotificationService to provide reliable
 /// notification management.
-class NotificationManager {
+///
+/// Implements INotificationManager interface to support dependency injection.
+class NotificationManager implements INotificationManager {
   NotificationManager._internal();
   static final NotificationManager _instance = NotificationManager._internal();
   static NotificationManager get instance => _instance;
@@ -24,7 +27,8 @@ class NotificationManager {
   /// Loads notification settings from persistent storage.
   ///
   /// Returns default settings if no saved settings exist.
-  static Future<NotificationSettings> loadSettings() async {
+  @override
+  Future<NotificationSettings> loadSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final settingsJson = prefs.getString(_settingsKey);
@@ -57,7 +61,8 @@ class NotificationManager {
   }
 
   /// Saves notification settings to persistent storage.
-  static Future<void> saveSettings(NotificationSettings settings) async {
+  @override
+  Future<void> saveSettings(NotificationSettings settings) async {
     try {
       final prefs = await SharedPreferences.getInstance();
 
@@ -82,7 +87,8 @@ class NotificationManager {
   ///
   /// This allows us to track what notifications we've scheduled even if
   /// the plugin's internal state becomes inconsistent.
-  static Future<void> saveScheduledNotification(
+  @override
+  Future<void> saveScheduledNotification(
     int id,
     String title,
     String body,
@@ -122,7 +128,8 @@ class NotificationManager {
   }
 
   /// Removes metadata about a scheduled notification.
-  static Future<void> removeScheduledNotification(int id) async {
+  @override
+  Future<void> removeScheduledNotification(int id) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final scheduledNotifications = await _loadScheduledNotifications();
@@ -144,14 +151,16 @@ class NotificationManager {
   ///
   /// This can be used to reconcile with the plugin's pending notifications
   /// and detect inconsistencies.
-  static Future<Map<String, dynamic>> getScheduledNotifications() async {
+  @override
+  Future<Map<String, dynamic>> getScheduledNotifications() async {
     return _loadScheduledNotifications();
   }
 
   /// Clears all scheduled notification metadata.
   ///
   /// Useful when resetting notification state or during development.
-  static Future<void> clearAllScheduledNotifications() async {
+  @override
+  Future<void> clearAllScheduledNotifications() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_scheduledNotificationsKey);
@@ -215,7 +224,8 @@ class NotificationManager {
   /// Clears all stored notification data.
   ///
   /// This is primarily useful for testing or reset functionality.
-  static Future<void> clearAllData() async {
+  @override
+  Future<void> clearAllData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_settingsKey);

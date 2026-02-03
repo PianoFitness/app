@@ -1,6 +1,7 @@
 import "package:flutter/foundation.dart";
 import "package:mockito/annotations.dart";
 import "package:mockito/mockito.dart";
+import "package:piano_fitness/application/repositories/notification_manager_interface.dart";
 import "package:piano_fitness/domain/repositories/audio_service.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/repositories/notification_repository.dart";
@@ -12,6 +13,7 @@ import "mock_repositories.mocks.dart";
   IMidiRepository,
   INotificationRepository,
   ISettingsRepository,
+  INotificationManager,
   IAudioService,
   AudioPlayerHandle,
 ])
