@@ -1,4 +1,4 @@
-import "package:piano_fitness/shared/models/hand_selection.dart";
+import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 
 /// The different types of musical scales supported by the Piano Fitness app.

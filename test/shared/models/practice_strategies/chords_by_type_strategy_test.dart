@@ -1,7 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:piano_fitness/shared/models/hand_selection.dart";
-import "package:piano_fitness/shared/models/practice_strategies/chords_by_type_strategy.dart";
-import "package:piano_fitness/shared/utils/chords.dart";
+import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/practice/strategies/chords_by_type_strategy.dart";
+import "package:piano_fitness/domain/services/music_theory/chords.dart";
 
 void main() {
   group("ChordsByTypeStrategy", () {

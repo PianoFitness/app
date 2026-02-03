@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:piano_fitness/shared/models/practice_mode.dart";
+import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 
 void main() {
   group("PracticeMode", () {

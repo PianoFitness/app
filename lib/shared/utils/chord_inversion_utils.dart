@@ -1,4 +1,4 @@
-import "package:piano_fitness/shared/utils/chords.dart";
+import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as scales;
 
@@ -24,7 +24,7 @@ class ChordInversionUtils {
     required ChordInversion inversion,
     required int octave,
   }) {
-    final chord = ChordDefinitions.getChord(rootNote, chordType, inversion);
+    final chord = ChordBuilder.getChord(rootNote, chordType, inversion);
     return chord.getMidiNotes(octave);
   }
 

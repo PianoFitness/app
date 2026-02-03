@@ -1,4 +1,4 @@
-import "package:piano_fitness/shared/models/practice_exercise.dart";
+import "package:piano_fitness/domain/models/practice/exercise.dart";
 
 /// Strategy interface for initializing practice exercises.
 ///

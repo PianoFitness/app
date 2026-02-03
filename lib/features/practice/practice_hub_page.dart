@@ -1,8 +1,8 @@
 import "package:flutter/material.dart";
 import "package:piano_fitness/shared/theme/semantic_colors.dart";
 import "package:piano_fitness/features/practice/practice_page.dart";
-import "package:piano_fitness/shared/models/practice_mode.dart";
-import "package:piano_fitness/shared/models/chord_progression_type.dart";
+import "package:piano_fitness/domain/models/practice/practice_mode.dart";
+import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 
 /// Hub page for organized practice sessions.
 ///

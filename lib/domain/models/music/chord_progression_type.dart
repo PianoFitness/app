@@ -1,6 +1,6 @@
-import "package:piano_fitness/shared/constants/musical_constants.dart";
-import "package:piano_fitness/shared/models/hand_selection.dart";
-import "package:piano_fitness/shared/utils/chords.dart";
+import "package:piano_fitness/domain/constants/musical_constants.dart";
+import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as music;
 

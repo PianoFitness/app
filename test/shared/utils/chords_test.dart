@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:piano_fitness/shared/models/hand_selection.dart";
-import "package:piano_fitness/shared/utils/chords.dart";
+import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart";
 
@@ -52,7 +52,7 @@ void main() {
   group("ChordDefinitions", () {
     group("Basic chord generation", () {
       test("should create C Major chord correctly", () {
-        final chord = ChordDefinitions.getChord(
+        final chord = ChordBuilder.getChord(
           MusicalNote.c,
           ChordType.major,
           ChordInversion.root,
@@ -69,7 +69,7 @@ void main() {
       });
 
       test("should create D minor chord correctly", () {
-        final chord = ChordDefinitions.getChord(
+        final chord = ChordBuilder.getChord(
           MusicalNote.d,
           ChordType.minor,
           ChordInversion.root,
@@ -86,7 +86,7 @@ void main() {
       });
 
       test("should create B diminished chord correctly", () {
-        final chord = ChordDefinitions.getChord(
+        final chord = ChordBuilder.getChord(
           MusicalNote.b,
           ChordType.diminished,
           ChordInversion.root,
@@ -103,7 +103,7 @@ void main() {
       });
 
       test("should create C augmented chord correctly", () {
-        final chord = ChordDefinitions.getChord(
+        final chord = ChordBuilder.getChord(
           MusicalNote.c,
           ChordType.augmented,
           ChordInversion.root,
@@ -122,7 +122,7 @@ void main() {
 
     group("Chord inversions", () {
       test("should create C Major 1st inversion correctly", () {
-        final chord = ChordDefinitions.getChord(
+        final chord = ChordBuilder.getChord(
           MusicalNote.c,
           ChordType.major,
           ChordInversion.first,
@@ -137,7 +137,7 @@ void main() {
       });
 
       test("should create C Major 2nd inversion correctly", () {
-        final chord = ChordDefinitions.getChord(
+        final chord = ChordBuilder.getChord(
           MusicalNote.c,
           ChordType.major,
           ChordInversion.second,
@@ -152,17 +152,17 @@ void main() {
       });
 
       test("should create D minor inversions correctly", () {
-        final root = ChordDefinitions.getChord(
+        final root = ChordBuilder.getChord(
           MusicalNote.d,
           ChordType.minor,
           ChordInversion.root,
         );
-        final first = ChordDefinitions.getChord(
+        final first = ChordBuilder.getChord(
           MusicalNote.d,
           ChordType.minor,
           ChordInversion.first,
         );
-        final second = ChordDefinitions.getChord(
+        final second = ChordBuilder.getChord(
           MusicalNote.d,
           ChordType.minor,
           ChordInversion.second,
@@ -189,7 +189,7 @@ void main() {
 
     group("MIDI note generation", () {
       test("should generate correct MIDI notes for C Major root position", () {
-        final chord = ChordDefinitions.getChord(
+        final chord = ChordBuilder.getChord(
           MusicalNote.c,
           ChordType.major,
           ChordInversion.root,
@@ -200,7 +200,7 @@ void main() {
       });
 
       test("should generate correct MIDI notes for C Major 1st inversion", () {
-        final chord = ChordDefinitions.getChord(
+        final chord = ChordBuilder.getChord(
           MusicalNote.c,
           ChordType.major,
           ChordInversion.first,
@@ -211,7 +211,7 @@ void main() {
       });
 
       test("should generate correct MIDI notes for C Major 2nd inversion", () {
-        final chord = ChordDefinitions.getChord(
+        final chord = ChordBuilder.getChord(
           MusicalNote.c,
           ChordType.major,
           ChordInversion.second,
@@ -222,7 +222,7 @@ void main() {
       });
 
       test("should handle different octaves correctly", () {
-        final chord = ChordDefinitions.getChord(
+        final chord = ChordBuilder.getChord(
           MusicalNote.c,
           ChordType.major,
           ChordInversion.root,
@@ -240,10 +240,7 @@ void main() {
 
     group("Chord types for scales", () {
       test("should determine correct chord types for C Major scale", () {
-        final chordTypes = ChordDefinitions.getChordsInKey(
-          Key.c,
-          ScaleType.major,
-        );
+        final chordTypes = ChordBuilder.getChordsInKey(Key.c, ScaleType.major);
 
         expect(chordTypes.length, equals(7));
         expect(chordTypes[0], equals(ChordType.major)); // I - C Major
@@ -259,10 +256,7 @@ void main() {
       });
 
       test("should determine correct chord types for G Major scale", () {
-        final chordTypes = ChordDefinitions.getChordsInKey(
-          Key.g,
-          ScaleType.major,
-        );
+        final chordTypes = ChordBuilder.getChordsInKey(Key.g, ScaleType.major);
 
         expect(chordTypes.length, equals(7));
         expect(chordTypes[0], equals(ChordType.major)); // I - G Major
@@ -278,10 +272,7 @@ void main() {
       });
 
       test("should determine correct chord types for A minor scale", () {
-        final chordTypes = ChordDefinitions.getChordsInKey(
-          Key.a,
-          ScaleType.minor,
-        );
+        final chordTypes = ChordBuilder.getChordsInKey(Key.a, ScaleType.minor);
 
         expect(chordTypes.length, equals(7));
         expect(chordTypes[0], equals(ChordType.minor)); // i - A minor
@@ -299,7 +290,7 @@ void main() {
 
     group("Key triad progressions", () {
       test("should generate correct triad progression for C Major", () {
-        final progression = ChordDefinitions.getKeyTriadProgression(
+        final progression = ChordBuilder.getKeyTriadProgression(
           Key.c,
           ScaleType.major,
         );
@@ -328,7 +319,7 @@ void main() {
       });
 
       test("should generate progression with correct chord types", () {
-        final progression = ChordDefinitions.getKeyTriadProgression(
+        final progression = ChordBuilder.getKeyTriadProgression(
           Key.c,
           ScaleType.major,
         );
@@ -350,7 +341,7 @@ void main() {
 
     group("Chord progression MIDI sequence", () {
       test("should generate correct MIDI sequence for C Major progression", () {
-        final midiSequence = ChordDefinitions.getChordProgressionMidiSequence(
+        final midiSequence = ChordBuilder.getChordProgressionMidiSequence(
           Key.c,
           ScaleType.major,
           4,
@@ -369,7 +360,7 @@ void main() {
       });
 
       test("should maintain correct octave relationships in inversions", () {
-        final progression = ChordDefinitions.getKeyTriadProgression(
+        final progression = ChordBuilder.getKeyTriadProgression(
           Key.c,
           ScaleType.major,
         );
@@ -405,7 +396,7 @@ void main() {
         for (final note in MusicalNote.values) {
           for (final type in ChordType.values) {
             for (final inversion in _validInversions(type)) {
-              final chord = ChordDefinitions.getChord(note, type, inversion);
+              final chord = ChordBuilder.getChord(note, type, inversion);
               final expectedNotes = _expectedNoteCount(type);
 
               expect(chord.rootNote, equals(note));
@@ -443,17 +434,17 @@ void main() {
 
       for (final entry in expectedNames.entries) {
         test("should name ${entry.key} chords correctly", () {
-          final root = ChordDefinitions.getChord(
+          final root = ChordBuilder.getChord(
             MusicalNote.c,
             entry.key,
             ChordInversion.root,
           );
-          final first = ChordDefinitions.getChord(
+          final first = ChordBuilder.getChord(
             MusicalNote.c,
             entry.key,
             ChordInversion.first,
           );
-          final second = ChordDefinitions.getChord(
+          final second = ChordBuilder.getChord(
             MusicalNote.c,
             entry.key,
             ChordInversion.second,
@@ -468,7 +459,7 @@ void main() {
 
     group("Chord interval validation", () {
       test("should have correct intervals for each chord type", () {
-        final chord = ChordDefinitions.getChord(
+        final chord = ChordBuilder.getChord(
           MusicalNote.c,
           ChordType.major,
           ChordInversion.root,
@@ -484,7 +475,7 @@ void main() {
       });
 
       test("should have correct intervals for minor chords", () {
-        final chord = ChordDefinitions.getChord(
+        final chord = ChordBuilder.getChord(
           MusicalNote.c,
           ChordType.minor,
           ChordInversion.root,
@@ -499,7 +490,7 @@ void main() {
       });
 
       test("should have correct intervals for diminished chords", () {
-        final chord = ChordDefinitions.getChord(
+        final chord = ChordBuilder.getChord(
           MusicalNote.c,
           ChordType.diminished,
           ChordInversion.root,
@@ -514,7 +505,7 @@ void main() {
       });
 
       test("should have correct intervals for augmented chords", () {
-        final chord = ChordDefinitions.getChord(
+        final chord = ChordBuilder.getChord(
           MusicalNote.c,
           ChordType.augmented,
           ChordInversion.root,
@@ -536,7 +527,7 @@ void main() {
         for (final note in MusicalNote.values) {
           for (final type in ChordType.values) {
             for (final inversion in _validInversions(type)) {
-              final chord = ChordDefinitions.getChord(note, type, inversion);
+              final chord = ChordBuilder.getChord(note, type, inversion);
               final expectedNotes = _expectedNoteCount(type);
 
               // Basic validations
@@ -577,7 +568,7 @@ void main() {
       });
 
       test("should generate correct MIDI notes across different octaves", () {
-        final chord = ChordDefinitions.getChord(
+        final chord = ChordBuilder.getChord(
           MusicalNote.c,
           ChordType.major,
           ChordInversion.root,
@@ -600,7 +591,7 @@ void main() {
         // Test all key/scale combinations to ensure getChordsInKey doesn't break
         for (final key in Key.values) {
           for (final scaleType in ScaleType.values) {
-            final chordTypes = ChordDefinitions.getChordsInKey(key, scaleType);
+            final chordTypes = ChordBuilder.getChordsInKey(key, scaleType);
             expect(chordTypes, hasLength(7));
 
             // Each chord type should be valid
@@ -609,19 +600,18 @@ void main() {
             }
 
             // Generate progression and validate
-            final progression = ChordDefinitions.getKeyTriadProgression(
+            final progression = ChordBuilder.getKeyTriadProgression(
               key,
               scaleType,
             );
             expect(progression, hasLength(21)); // 7 chords × 3 inversions
 
             // Generate MIDI sequence and validate
-            final midiSequence =
-                ChordDefinitions.getChordProgressionMidiSequence(
-                  key,
-                  scaleType,
-                  4,
-                );
+            final midiSequence = ChordBuilder.getChordProgressionMidiSequence(
+              key,
+              scaleType,
+              4,
+            );
             expect(midiSequence, hasLength(63)); // 21 chords × 3 notes each
 
             // All MIDI notes should be valid
@@ -642,11 +632,7 @@ void main() {
 
               for (var octave = 1; octave <= 7; octave++) {
                 for (final inversion in _validInversions(type)) {
-                  final chord = ChordDefinitions.getChord(
-                    note,
-                    type,
-                    inversion,
-                  );
+                  final chord = ChordBuilder.getChord(note, type, inversion);
                   final midiNotes = chord.getMidiNotes(octave);
 
                   // Verify correct number of notes
@@ -684,7 +670,7 @@ void main() {
 
     group("Hand selection for chords", () {
       test("should generate left hand with full triad one octave lower", () {
-        final chord = ChordDefinitions.getChord(
+        final chord = ChordBuilder.getChord(
           MusicalNote.c,
           ChordType.major,
           ChordInversion.root,
@@ -698,7 +684,7 @@ void main() {
       });
 
       test("should generate right hand with full triad", () {
-        final chord = ChordDefinitions.getChord(
+        final chord = ChordBuilder.getChord(
           MusicalNote.c,
           ChordType.major,
           ChordInversion.root,
@@ -716,7 +702,7 @@ void main() {
       });
 
       test("should generate both hands with full triads in each hand", () {
-        final chord = ChordDefinitions.getChord(
+        final chord = ChordBuilder.getChord(
           MusicalNote.c,
           ChordType.major,
           ChordInversion.root,
@@ -745,7 +731,7 @@ void main() {
         ];
 
         for (final inversion in inversions) {
-          final chord = ChordDefinitions.getChord(
+          final chord = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.major,
             inversion,
@@ -786,7 +772,7 @@ void main() {
         ];
 
         for (final type in types) {
-          final chord = ChordDefinitions.getChord(
+          final chord = ChordBuilder.getChord(
             MusicalNote.c,
             type,
             ChordInversion.root,
@@ -824,7 +810,7 @@ void main() {
 
       test("should handle all 12 root notes with hand selection", () {
         for (final rootNote in MusicalNote.values) {
-          final chord = ChordDefinitions.getChord(
+          final chord = ChordBuilder.getChord(
             rootNote,
             ChordType.major,
             ChordInversion.root,
@@ -860,7 +846,7 @@ void main() {
       });
 
       test("should handle first inversion with both hands", () {
-        final chord = ChordDefinitions.getChord(
+        final chord = ChordBuilder.getChord(
           MusicalNote.c,
           ChordType.major,
           ChordInversion.first,
@@ -882,7 +868,7 @@ void main() {
     group("Seventh chords", () {
       group("Major 7th chords", () {
         test("should create C Major 7th chord correctly", () {
-          final chord = ChordDefinitions.getChord(
+          final chord = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.major7,
             ChordInversion.root,
@@ -906,7 +892,7 @@ void main() {
 
         test("should create all inversions of C Major 7th chord", () {
           // Root position: C-E-G-B
-          final root = ChordDefinitions.getChord(
+          final root = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.major7,
             ChordInversion.root,
@@ -923,7 +909,7 @@ void main() {
           expect(root.name, equals("Cmaj7"));
 
           // 1st inversion: E-G-B-C
-          final first = ChordDefinitions.getChord(
+          final first = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.major7,
             ChordInversion.first,
@@ -940,7 +926,7 @@ void main() {
           expect(first.name, equals("Cmaj7 (1st inv)"));
 
           // 2nd inversion: G-B-C-E
-          final second = ChordDefinitions.getChord(
+          final second = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.major7,
             ChordInversion.second,
@@ -957,7 +943,7 @@ void main() {
           expect(second.name, equals("Cmaj7 (2nd inv)"));
 
           // 3rd inversion: B-C-E-G
-          final third = ChordDefinitions.getChord(
+          final third = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.major7,
             ChordInversion.third,
@@ -977,7 +963,7 @@ void main() {
 
       group("Dominant 7th chords", () {
         test("should create C Dominant 7th chord correctly", () {
-          final chord = ChordDefinitions.getChord(
+          final chord = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.dominant7,
             ChordInversion.root,
@@ -1001,7 +987,7 @@ void main() {
 
         test("should create all inversions of C Dominant 7th chord", () {
           // Root position: C-E-G-Bb
-          final root = ChordDefinitions.getChord(
+          final root = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.dominant7,
             ChordInversion.root,
@@ -1017,7 +1003,7 @@ void main() {
           );
 
           // 1st inversion: E-G-Bb-C
-          final first = ChordDefinitions.getChord(
+          final first = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.dominant7,
             ChordInversion.first,
@@ -1033,7 +1019,7 @@ void main() {
           );
 
           // 2nd inversion: G-Bb-C-E
-          final second = ChordDefinitions.getChord(
+          final second = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.dominant7,
             ChordInversion.second,
@@ -1049,7 +1035,7 @@ void main() {
           );
 
           // 3rd inversion: Bb-C-E-G
-          final third = ChordDefinitions.getChord(
+          final third = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.dominant7,
             ChordInversion.third,
@@ -1068,7 +1054,7 @@ void main() {
 
       group("Minor 7th chords", () {
         test("should create C Minor 7th chord correctly", () {
-          final chord = ChordDefinitions.getChord(
+          final chord = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.minor7,
             ChordInversion.root,
@@ -1092,7 +1078,7 @@ void main() {
 
         test("should create all inversions of C Minor 7th chord", () {
           // Root position: C-Eb-G-Bb
-          final root = ChordDefinitions.getChord(
+          final root = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.minor7,
             ChordInversion.root,
@@ -1108,7 +1094,7 @@ void main() {
           );
 
           // 1st inversion: Eb-G-Bb-C
-          final first = ChordDefinitions.getChord(
+          final first = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.minor7,
             ChordInversion.first,
@@ -1124,7 +1110,7 @@ void main() {
           );
 
           // 2nd inversion: G-Bb-C-Eb
-          final second = ChordDefinitions.getChord(
+          final second = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.minor7,
             ChordInversion.second,
@@ -1140,7 +1126,7 @@ void main() {
           );
 
           // 3rd inversion: Bb-C-Eb-G
-          final third = ChordDefinitions.getChord(
+          final third = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.minor7,
             ChordInversion.third,
@@ -1159,7 +1145,7 @@ void main() {
 
       group("Half Diminished 7th chords", () {
         test("should create C Half Diminished 7th chord correctly", () {
-          final chord = ChordDefinitions.getChord(
+          final chord = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.halfDiminished7,
             ChordInversion.root,
@@ -1183,7 +1169,7 @@ void main() {
 
         test("should create all inversions of C Half Diminished 7th chord", () {
           // Root position: C-Eb-Gb-Bb
-          final root = ChordDefinitions.getChord(
+          final root = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.halfDiminished7,
             ChordInversion.root,
@@ -1199,7 +1185,7 @@ void main() {
           );
 
           // 1st inversion: Eb-Gb-Bb-C
-          final first = ChordDefinitions.getChord(
+          final first = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.halfDiminished7,
             ChordInversion.first,
@@ -1215,7 +1201,7 @@ void main() {
           );
 
           // 2nd inversion: Gb-Bb-C-Eb
-          final second = ChordDefinitions.getChord(
+          final second = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.halfDiminished7,
             ChordInversion.second,
@@ -1231,7 +1217,7 @@ void main() {
           );
 
           // 3rd inversion: Bb-C-Eb-Gb
-          final third = ChordDefinitions.getChord(
+          final third = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.halfDiminished7,
             ChordInversion.third,
@@ -1250,7 +1236,7 @@ void main() {
 
       group("Diminished 7th chords", () {
         test("should create C Diminished 7th chord correctly", () {
-          final chord = ChordDefinitions.getChord(
+          final chord = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.diminished7,
             ChordInversion.root,
@@ -1274,7 +1260,7 @@ void main() {
 
         test("should create all inversions of C Diminished 7th chord", () {
           // Root position: C-Eb-Gb-A
-          final root = ChordDefinitions.getChord(
+          final root = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.diminished7,
             ChordInversion.root,
@@ -1290,7 +1276,7 @@ void main() {
           );
 
           // 1st inversion: Eb-Gb-A-C
-          final first = ChordDefinitions.getChord(
+          final first = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.diminished7,
             ChordInversion.first,
@@ -1306,7 +1292,7 @@ void main() {
           );
 
           // 2nd inversion: Gb-A-C-Eb
-          final second = ChordDefinitions.getChord(
+          final second = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.diminished7,
             ChordInversion.second,
@@ -1322,7 +1308,7 @@ void main() {
           );
 
           // 3rd inversion: A-C-Eb-Gb
-          final third = ChordDefinitions.getChord(
+          final third = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.diminished7,
             ChordInversion.third,
@@ -1341,7 +1327,7 @@ void main() {
 
       group("Minor/Major 7th chords", () {
         test("should create C Minor/Major 7th chord correctly", () {
-          final chord = ChordDefinitions.getChord(
+          final chord = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.minorMajor7,
             ChordInversion.root,
@@ -1365,7 +1351,7 @@ void main() {
 
         test("should create all inversions of C Minor/Major 7th chord", () {
           // Root position: C-Eb-G-B
-          final root = ChordDefinitions.getChord(
+          final root = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.minorMajor7,
             ChordInversion.root,
@@ -1381,7 +1367,7 @@ void main() {
           );
 
           // 1st inversion: Eb-G-B-C
-          final first = ChordDefinitions.getChord(
+          final first = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.minorMajor7,
             ChordInversion.first,
@@ -1397,7 +1383,7 @@ void main() {
           );
 
           // 2nd inversion: G-B-C-Eb
-          final second = ChordDefinitions.getChord(
+          final second = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.minorMajor7,
             ChordInversion.second,
@@ -1413,7 +1399,7 @@ void main() {
           );
 
           // 3rd inversion: B-C-Eb-G
-          final third = ChordDefinitions.getChord(
+          final third = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.minorMajor7,
             ChordInversion.third,
@@ -1432,7 +1418,7 @@ void main() {
 
       group("Augmented 7th chords", () {
         test("should create C Augmented 7th chord correctly", () {
-          final chord = ChordDefinitions.getChord(
+          final chord = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.augmented7,
             ChordInversion.root,
@@ -1456,7 +1442,7 @@ void main() {
 
         test("should create all inversions of C Augmented 7th chord", () {
           // Root position: C-E-G#-Bb
-          final root = ChordDefinitions.getChord(
+          final root = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.augmented7,
             ChordInversion.root,
@@ -1472,7 +1458,7 @@ void main() {
           );
 
           // 1st inversion: E-G#-Bb-C
-          final first = ChordDefinitions.getChord(
+          final first = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.augmented7,
             ChordInversion.first,
@@ -1488,7 +1474,7 @@ void main() {
           );
 
           // 2nd inversion: G#-Bb-C-E
-          final second = ChordDefinitions.getChord(
+          final second = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.augmented7,
             ChordInversion.second,
@@ -1504,7 +1490,7 @@ void main() {
           );
 
           // 3rd inversion: Bb-C-E-G#
-          final third = ChordDefinitions.getChord(
+          final third = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.augmented7,
             ChordInversion.third,
@@ -1523,7 +1509,7 @@ void main() {
 
       group("Seventh chord MIDI generation", () {
         test("should generate correct MIDI notes for seventh chords", () {
-          final chord = ChordDefinitions.getChord(
+          final chord = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.major7,
             ChordInversion.root,
@@ -1539,7 +1525,7 @@ void main() {
           "should generate MIDI notes in ascending order for all inversions",
           () {
             for (final inversion in ChordInversion.values) {
-              final chord = ChordDefinitions.getChord(
+              final chord = ChordBuilder.getChord(
                 MusicalNote.c,
                 ChordType.dominant7,
                 inversion,
@@ -1559,7 +1545,7 @@ void main() {
         );
 
         test("should handle both hands with seventh chords (8 total notes)", () {
-          final chord = ChordDefinitions.getChord(
+          final chord = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.major7,
             ChordInversion.root,
@@ -1584,7 +1570,7 @@ void main() {
 
       group("Diatonic seventh chord determination", () {
         test("should return correct seventh chord types for C major scale", () {
-          final seventhChords = ChordDefinitions.getSeventhChordsInKey(
+          final seventhChords = ChordBuilder.getSeventhChordsInKey(
             Key.c,
             ScaleType.major,
           );
@@ -1601,7 +1587,7 @@ void main() {
         });
 
         test("should return correct seventh chord types for A minor scale", () {
-          final seventhChords = ChordDefinitions.getSeventhChordsInKey(
+          final seventhChords = ChordBuilder.getSeventhChordsInKey(
             Key.a,
             ScaleType.minor,
           );
@@ -1620,11 +1606,10 @@ void main() {
 
       group("Seventh chord progressions", () {
         test("should generate smooth seventh chord progression in C major", () {
-          final progression =
-              ChordDefinitions.getSmoothKeySeventhChordProgression(
-                Key.c,
-                ScaleType.major,
-              );
+          final progression = ChordBuilder.getSmoothKeySeventhChordProgression(
+            Key.c,
+            ScaleType.major,
+          );
 
           // Should get 7 scale degrees × 6 chords per degree (root→1st→2nd→3rd→2nd→1st) = 42 total
           expect(progression.length, equals(42));
@@ -1652,7 +1637,7 @@ void main() {
           "should generate seventh chord progression with all 4-note chords",
           () {
             final progression =
-                ChordDefinitions.getSmoothKeySeventhChordProgression(
+                ChordBuilder.getSmoothKeySeventhChordProgression(
                   Key.c,
                   ScaleType.major,
                 );

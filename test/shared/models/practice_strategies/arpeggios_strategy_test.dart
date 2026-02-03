@@ -1,6 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:piano_fitness/shared/models/hand_selection.dart";
-import "package:piano_fitness/shared/models/practice_strategies/arpeggios_strategy.dart";
+import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/practice/strategies/arpeggios_strategy.dart";
 import "package:piano_fitness/shared/utils/arpeggios.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 

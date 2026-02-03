@@ -1,7 +1,7 @@
-import "package:piano_fitness/shared/models/hand_selection.dart";
-import "package:piano_fitness/shared/models/practice_exercise.dart";
-import "package:piano_fitness/shared/models/practice_strategies/practice_strategy.dart";
-import "package:piano_fitness/shared/utils/chords.dart";
+import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/practice/exercise.dart";
+import "package:piano_fitness/domain/models/practice/strategies/practice_strategy.dart";
+import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as music;
 
 /// Strategy for initializing chord-by-key practice sequences.
@@ -43,8 +43,8 @@ class ChordsByKeyStrategy implements PracticeStrategy {
   PracticeExercise initializeExercise() {
     // Generate either triad or seventh chord progression based on toggle
     final chordProgression = includeSeventhChords
-        ? ChordDefinitions.getSmoothKeySeventhChordProgression(key, scaleType)
-        : ChordDefinitions.getSmoothKeyTriadProgression(key, scaleType);
+        ? ChordBuilder.getSmoothKeySeventhChordProgression(key, scaleType)
+        : ChordBuilder.getSmoothKeyTriadProgression(key, scaleType);
 
     // Convert chord progression to PracticeSteps
     // Each chord is a simultaneous step

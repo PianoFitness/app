@@ -1,12 +1,12 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:piano_fitness/shared/utils/chords.dart";
+import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart";
 
 void main() {
   group("Smooth Chord Progression Tests", () {
     test("should generate smooth progression with 4 positions per chord", () {
-      final smoothProgression = ChordDefinitions.getSmoothKeyTriadProgression(
+      final smoothProgression = ChordBuilder.getSmoothKeyTriadProgression(
         Key.c,
         ScaleType.major,
       );
@@ -28,12 +28,11 @@ void main() {
     });
 
     test("should generate MIDI sequence without large downward jumps", () {
-      final midiSequence =
-          ChordDefinitions.getSmoothChordProgressionMidiSequence(
-            Key.c,
-            ScaleType.major,
-            4, // Start in 4th octave
-          );
+      final midiSequence = ChordBuilder.getSmoothChordProgressionMidiSequence(
+        Key.c,
+        ScaleType.major,
+        4, // Start in 4th octave
+      );
 
       expect(midiSequence.isNotEmpty, true);
 
@@ -57,12 +56,11 @@ void main() {
     });
 
     test("should handle high octaves without exceeding MIDI range", () {
-      final midiSequence =
-          ChordDefinitions.getSmoothChordProgressionMidiSequence(
-            Key.c,
-            ScaleType.major,
-            6, // Start quite high
-          );
+      final midiSequence = ChordBuilder.getSmoothChordProgressionMidiSequence(
+        Key.c,
+        ScaleType.major,
+        6, // Start quite high
+      );
 
       expect(midiSequence.isNotEmpty, true);
 
@@ -74,15 +72,14 @@ void main() {
     });
 
     test("should allow progression up to higher octaves", () {
-      final regularProgression =
-          ChordDefinitions.getChordProgressionMidiSequence(
-            Key.c,
-            ScaleType.major,
-            4,
-          );
+      final regularProgression = ChordBuilder.getChordProgressionMidiSequence(
+        Key.c,
+        ScaleType.major,
+        4,
+      );
 
       final smoothProgression =
-          ChordDefinitions.getSmoothChordProgressionMidiSequence(
+          ChordBuilder.getSmoothChordProgressionMidiSequence(
             Key.c,
             ScaleType.major,
             4,

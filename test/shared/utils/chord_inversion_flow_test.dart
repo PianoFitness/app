@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:piano_fitness/shared/utils/chords.dart";
+import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart";
 
@@ -8,17 +8,17 @@ import "package:piano_fitness/shared/utils/scales.dart";
 void main() {
   group("Chord Inversion Flow Tests", () {
     test("C Major chord inversions should flow left-to-right naturally", () {
-      final cMajorRoot = ChordDefinitions.getChord(
+      final cMajorRoot = ChordBuilder.getChord(
         MusicalNote.c,
         ChordType.major,
         ChordInversion.root,
       );
-      final cMajorFirst = ChordDefinitions.getChord(
+      final cMajorFirst = ChordBuilder.getChord(
         MusicalNote.c,
         ChordType.major,
         ChordInversion.first,
       );
-      final cMajorSecond = ChordDefinitions.getChord(
+      final cMajorSecond = ChordBuilder.getChord(
         MusicalNote.c,
         ChordType.major,
         ChordInversion.second,
@@ -53,17 +53,17 @@ void main() {
     test(
       "F Major chord inversions should not wrap around to lower octaves",
       () {
-        final fMajorRoot = ChordDefinitions.getChord(
+        final fMajorRoot = ChordBuilder.getChord(
           MusicalNote.f,
           ChordType.major,
           ChordInversion.root,
         );
-        final fMajorFirst = ChordDefinitions.getChord(
+        final fMajorFirst = ChordBuilder.getChord(
           MusicalNote.f,
           ChordType.major,
           ChordInversion.first,
         );
-        final fMajorSecond = ChordDefinitions.getChord(
+        final fMajorSecond = ChordBuilder.getChord(
           MusicalNote.f,
           ChordType.major,
           ChordInversion.second,
@@ -98,26 +98,23 @@ void main() {
     test("All C Major scale chord inversions should progress naturally", () {
       final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
       final scaleNotes = scale.getNotes();
-      final chordTypes = ChordDefinitions.getChordsInKey(
-        Key.c,
-        ScaleType.major,
-      );
+      final chordTypes = ChordBuilder.getChordsInKey(Key.c, ScaleType.major);
 
       for (var i = 0; i < 7; i++) {
         final rootNote = scaleNotes[i];
         final chordType = chordTypes[i];
 
-        final rootChord = ChordDefinitions.getChord(
+        final rootChord = ChordBuilder.getChord(
           rootNote,
           chordType,
           ChordInversion.root,
         );
-        final firstChord = ChordDefinitions.getChord(
+        final firstChord = ChordBuilder.getChord(
           rootNote,
           chordType,
           ChordInversion.first,
         );
-        final secondChord = ChordDefinitions.getChord(
+        final secondChord = ChordBuilder.getChord(
           rootNote,
           chordType,
           ChordInversion.second,
@@ -178,7 +175,7 @@ void main() {
       // Test the specific chords mentioned in the issue
 
       // G Major 2nd inversion should NOT wrap to D4
-      final gMajorSecond = ChordDefinitions.getChord(
+      final gMajorSecond = ChordBuilder.getChord(
         MusicalNote.g,
         ChordType.major,
         ChordInversion.second,
@@ -191,7 +188,7 @@ void main() {
       );
 
       // A minor 1st inversion should NOT wrap to C4
-      final aMinorFirst = ChordDefinitions.getChord(
+      final aMinorFirst = ChordBuilder.getChord(
         MusicalNote.a,
         ChordType.minor,
         ChordInversion.first,
@@ -204,7 +201,7 @@ void main() {
       );
 
       // A minor 2nd inversion should NOT wrap to E4
-      final aMinorSecond = ChordDefinitions.getChord(
+      final aMinorSecond = ChordBuilder.getChord(
         MusicalNote.a,
         ChordType.minor,
         ChordInversion.second,
@@ -217,7 +214,7 @@ void main() {
       );
 
       // B diminished inversions should not wrap
-      final bDimFirst = ChordDefinitions.getChord(
+      final bDimFirst = ChordBuilder.getChord(
         MusicalNote.b,
         ChordType.diminished,
         ChordInversion.first,
@@ -229,7 +226,7 @@ void main() {
         reason: "B diminished 1st inversion should not wrap to D4",
       );
 
-      final bDimSecond = ChordDefinitions.getChord(
+      final bDimSecond = ChordBuilder.getChord(
         MusicalNote.b,
         ChordType.diminished,
         ChordInversion.second,
@@ -243,7 +240,7 @@ void main() {
     });
 
     test("Chord progression sequence should maintain natural flow", () {
-      final progression = ChordDefinitions.getSmoothKeyTriadProgression(
+      final progression = ChordBuilder.getSmoothKeyTriadProgression(
         Key.c,
         ScaleType.major,
       );

@@ -1,6 +1,6 @@
-import "package:piano_fitness/shared/models/hand_selection.dart";
-import "package:piano_fitness/shared/models/practice_exercise.dart";
-import "package:piano_fitness/shared/models/practice_strategies/practice_strategy.dart";
+import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/practice/exercise.dart";
+import "package:piano_fitness/domain/models/practice/strategies/practice_strategy.dart";
 import "package:piano_fitness/shared/utils/scales.dart" as music;
 
 /// Strategy for initializing scale practice exercises.

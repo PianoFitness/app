@@ -1,6 +1,6 @@
 import "package:logging/logging.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:piano_fitness/shared/utils/chords.dart";
+import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/shared/utils/note_utils.dart";
 import "package:piano_fitness/shared/utils/chord_inversion_utils.dart";
 import "package:piano_fitness/shared/utils/scales.dart";
@@ -14,18 +14,18 @@ final log = Logger("ChordInversionUtilsTest");
 void main() {
   group("Chord Inversion Issues and Fixes", () {
     test("C Major chord inversions should properly ascend", () {
-      // Test the main ChordDefinitions implementation
-      final cMajorRoot = ChordDefinitions.getChord(
+      // Test the main ChordBuilder implementation
+      final cMajorRoot = ChordBuilder.getChord(
         MusicalNote.c,
         ChordType.major,
         ChordInversion.root,
       );
-      final cMajorFirst = ChordDefinitions.getChord(
+      final cMajorFirst = ChordBuilder.getChord(
         MusicalNote.c,
         ChordType.major,
         ChordInversion.first,
       );
-      final cMajorSecond = ChordDefinitions.getChord(
+      final cMajorSecond = ChordBuilder.getChord(
         MusicalNote.c,
         ChordType.major,
         ChordInversion.second,
@@ -60,17 +60,17 @@ void main() {
       ];
 
       for (final (rootNote, chordType) in testCases) {
-        final root = ChordDefinitions.getChord(
+        final root = ChordBuilder.getChord(
           rootNote,
           chordType,
           ChordInversion.root,
         );
-        final first = ChordDefinitions.getChord(
+        final first = ChordBuilder.getChord(
           rootNote,
           chordType,
           ChordInversion.first,
         );
-        final second = ChordDefinitions.getChord(
+        final second = ChordBuilder.getChord(
           rootNote,
           chordType,
           ChordInversion.second,
@@ -139,7 +139,7 @@ void main() {
       // Test cases mentioned in the user's issue
 
       // C Major 1st inversion: should be E4-G4-C5, NOT E4-G4-C3
-      final cMajorFirst = ChordDefinitions.getChord(
+      final cMajorFirst = ChordBuilder.getChord(
         MusicalNote.c,
         ChordType.major,
         ChordInversion.first,
@@ -154,7 +154,7 @@ void main() {
       );
 
       // C Major 2nd inversion: should be G4-C5-E5, NOT C4-E4-G4 (root position)
-      final cMajorSecond = ChordDefinitions.getChord(
+      final cMajorSecond = ChordBuilder.getChord(
         MusicalNote.c,
         ChordType.major,
         ChordInversion.second,
@@ -169,7 +169,7 @@ void main() {
       );
     });
 
-    test("ChordInversionUtils provides same results as ChordDefinitions", () {
+    test("ChordInversionUtils provides same results as ChordBuilder", () {
       final testCases = [
         (MusicalNote.c, ChordType.major),
         (MusicalNote.f, ChordType.major),
@@ -179,7 +179,7 @@ void main() {
 
       for (final (rootNote, chordType) in testCases) {
         for (final inversion in ChordInversion.values) {
-          final directResult = ChordDefinitions.getChord(
+          final directResult = ChordBuilder.getChord(
             rootNote,
             chordType,
             inversion,
@@ -195,7 +195,7 @@ void main() {
             utilityResult,
             equals(directResult),
             reason:
-                "Utility should match ChordDefinitions for ${rootNote.name} ${chordType.name} ${inversion.name}",
+                "Utility should match ChordBuilder for ${rootNote.name} ${chordType.name} ${inversion.name}",
           );
 
           // Validate the voicing
