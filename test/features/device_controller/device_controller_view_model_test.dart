@@ -46,6 +46,11 @@ void main() {
       );
     });
 
+    tearDown(() {
+      viewModel.dispose();
+      midiState.dispose();
+    });
+
     group("Initialization", () {
       test("should initialize with correct default values", () {
         expect(viewModel.device, equals(mockDevice));
