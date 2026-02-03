@@ -1,5 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:piano_fitness/presentation/state/midi_state.dart";
+import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
 import "../../shared/midi_mocks.dart";
 

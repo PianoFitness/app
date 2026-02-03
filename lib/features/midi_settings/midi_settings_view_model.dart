@@ -5,7 +5,7 @@ import "package:flutter/services.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:logging/logging.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
-import "package:piano_fitness/presentation/state/midi_state.dart";
+import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
 import "package:piano_fitness/domain/services/midi/midi_service.dart";
 

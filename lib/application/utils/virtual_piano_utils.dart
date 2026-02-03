@@ -3,7 +3,7 @@ import "package:flutter/foundation.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_midi_command/flutter_midi_command_messages.dart";
 import "package:logging/logging.dart";
-import "package:piano_fitness/presentation/state/midi_state.dart";
+import "package:piano_fitness/application/state/midi_state.dart";
 
 /// Utility class for playing virtual piano notes through MIDI output.
 ///
