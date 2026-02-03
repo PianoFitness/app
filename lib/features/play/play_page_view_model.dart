@@ -1,7 +1,6 @@
 import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
-import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
 import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 
@@ -48,7 +47,7 @@ class PlayPageViewModel extends ChangeNotifier {
 
   /// Handles incoming MIDI data and updates global state.
   void _handleMidiData(Uint8List data) {
-    MidiConnectionService.handleStandardMidiData(data, _midiState);
+    _midiRepository.processMidiData(data, _midiState);
   }
 
   /// Plays a virtual note through MIDI output.

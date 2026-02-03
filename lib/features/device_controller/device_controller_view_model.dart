@@ -3,7 +3,6 @@ import "package:flutter_midi_command/flutter_midi_command.dart" as midi_cmd;
 import "package:flutter_midi_command/flutter_midi_command_messages.dart";
 import "package:logging/logging.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart"; // For MidiConstants
-import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/services/midi/midi_service.dart";
@@ -192,7 +191,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
 
   void _handleMidiData(Uint8List data) {
     // Process MIDI data and update global state
-    MidiConnectionService.handleStandardMidiData(data, _midiState);
+    _midiRepository.processMidiData(data, _midiState);
 
     // Also parse for display in device controller
     _processMidiData(data);

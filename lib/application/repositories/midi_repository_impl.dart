@@ -3,6 +3,7 @@ import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart" as midi_cmd;
 import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
+import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 
 /// Implementation of IMidiRepository wrapping MidiConnectionService
@@ -105,6 +106,11 @@ class MidiRepositoryImpl implements IMidiRepository {
   @override
   void unregisterDataHandler(void Function(Uint8List) handler) {
     _service.unregisterDataHandler(handler);
+  }
+
+  @override
+  void processMidiData(Uint8List data, MidiState midiState) {
+    MidiConnectionService.handleStandardMidiData(data, midiState);
   }
 
   @override
