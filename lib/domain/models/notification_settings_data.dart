@@ -77,12 +77,13 @@ class NotificationSettingsData {
           permissionGranted == other.permissionGranted;
 
   @override
-  int get hashCode =>
-      practiceRemindersEnabled.hashCode ^
-      (dailyReminderHour?.hashCode ?? 0) ^
-      (dailyReminderMinute?.hashCode ?? 0) ^
-      timerCompletionEnabled.hashCode ^
-      permissionGranted.hashCode;
+  int get hashCode => Object.hash(
+    practiceRemindersEnabled,
+    dailyReminderHour,
+    dailyReminderMinute,
+    timerCompletionEnabled,
+    permissionGranted,
+  );
 
   @override
   String toString() {
