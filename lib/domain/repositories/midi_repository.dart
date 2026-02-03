@@ -36,6 +36,9 @@ abstract class IMidiRepository {
 
   /// Get currently connected device
   MidiDevice? get connectedDevice;
+
+  /// Dispose of resources (close streams, cleanup handlers)
+  void dispose();
 }
 
 /// MIDI device information

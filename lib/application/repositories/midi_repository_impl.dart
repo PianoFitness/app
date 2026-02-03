@@ -114,6 +114,7 @@ class MidiRepositoryImpl implements IMidiRepository {
     return null;
   }
 
+  @override
   void dispose() {
     _midiDataController.close();
   }

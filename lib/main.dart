@@ -58,7 +58,7 @@ void main() async {
         // Repository interfaces
         Provider<IMidiRepository>(
           create: (_) => MidiRepositoryImpl(),
-          dispose: (_, repository) {}, // Singleton persists for app lifetime
+          dispose: (_, repository) => repository.dispose(),
         ),
         Provider<INotificationRepository>(
           create: (_) => NotificationRepositoryImpl(),
