@@ -2,20 +2,12 @@
 //
 // Tests the business logic, state management, and MIDI operations of the ViewModel.
 
-import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/features/device_controller/device_controller_view_model.dart";
+import "package:piano_fitness/application/state/midi_state.dart";
+import "../../shared/test_helpers/mock_repositories.mocks.dart";
 import "../../shared/midi_mocks.dart";
-
-// Mock MIDI device class for testing
-class MockMidiDevice extends MidiDevice {
-  MockMidiDevice({
-    required String id,
-    required String name,
-    required String type,
-    required bool connected,
-  }) : super(id, name, type, connected);
-}
 
 void main() {
   setUpAll(MidiMocks.setUp);
@@ -23,17 +15,32 @@ void main() {
   tearDownAll(MidiMocks.tearDown);
 
   group("DeviceControllerViewModel Tests", () {
-    late MockMidiDevice mockDevice;
+    late MidiDevice mockDevice;
     late DeviceControllerViewModel viewModel;
+    late MockIMidiRepository mockMidiRepository;
+    late MidiState midiState;
 
     setUp(() {
-      mockDevice = MockMidiDevice(
+      mockDevice = MidiDevice(
         id: "test-device-1",
         name: "Test MIDI Device",
         type: "BLE",
         connected: true,
+        inputPorts: [],
+        outputPorts: [],
       );
-      viewModel = DeviceControllerViewModel(device: mockDevice);
+      mockMidiRepository = MockIMidiRepository();
+      midiState = MidiState();
+      viewModel = DeviceControllerViewModel(
+        device: mockDevice,
+        midiRepository: mockMidiRepository,
+        midiState: midiState,
+      );
+    });
+
+    tearDown(() {
+      viewModel.dispose();
+      midiState.dispose();
     });
 
     group("Initialization", () {

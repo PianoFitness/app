@@ -1,9 +1,12 @@
 import "package:flutter/material.dart";
 import "package:piano/piano.dart";
+import "package:provider/provider.dart";
 import "package:piano_fitness/domain/constants/practice_constants.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/features/practice/practice_page_view_model.dart";
+import "package:piano_fitness/domain/repositories/midi_repository.dart";
+import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/presentation/accessibility/config/accessibility_labels.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
@@ -18,7 +21,7 @@ import "package:piano_fitness/presentation/theme/semantic_colors.dart";
 /// This page provides structured practice sessions for scales, chords, and arpeggios
 /// with MIDI input support, visual feedback, and progress tracking. It uses MVVM
 /// architecture with PracticePageViewModel for business logic separation.
-class PracticePage extends StatefulWidget {
+class PracticePage extends StatelessWidget {
   /// Creates a new practice page with optional initial configuration.
   ///
   /// The [initialMode] determines which type of practice to start with.
@@ -41,36 +44,55 @@ class PracticePage extends StatefulWidget {
   final ChordProgression? initialChordProgression;
 
   @override
-  State<PracticePage> createState() => _PracticePageState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) {
+        final viewModel = PracticePageViewModel(
+          midiRepository: context.read<IMidiRepository>(),
+          midiState: context.read<MidiState>(),
+          initialChannel: midiChannel,
+        );
+
+        return viewModel;
+      },
+      child: _PracticePageView(
+        initialMode: initialMode,
+        initialChordProgression: initialChordProgression,
+      ),
+    );
+  }
 }
 
-class _PracticePageState extends State<PracticePage> {
-  late final PracticePageViewModel _viewModel;
+class _PracticePageView extends StatefulWidget {
+  const _PracticePageView({
+    required this.initialMode,
+    this.initialChordProgression,
+  });
 
+  final PracticeMode initialMode;
+  final ChordProgression? initialChordProgression;
+
+  @override
+  State<_PracticePageView> createState() => _PracticePageViewState();
+}
+
+class _PracticePageViewState extends State<_PracticePageView> {
   @override
   void initState() {
     super.initState();
-    _viewModel = PracticePageViewModel(initialChannel: widget.midiChannel);
+    final viewModel = context.read<PracticePageViewModel>();
 
-    // Initialize the ViewModel with callbacks and local MIDI state
+    // Initialize practice session with proper callbacks
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _viewModel.initializePracticeSession(
+      viewModel.initializePracticeSession(
         onExerciseCompleted: _completeExercise,
         onHighlightedNotesChanged: (notes) {
-          setState(() {
-            // Notes are automatically updated in ViewModel
-          });
+          // Notes are automatically updated in ViewModel
         },
         initialMode: widget.initialMode,
         initialChordProgression: widget.initialChordProgression,
       );
     });
-  }
-
-  @override
-  void dispose() {
-    _viewModel.dispose();
-    super.dispose();
   }
 
   void _completeExercise() {
@@ -129,167 +151,165 @@ class _PracticePageState extends State<PracticePage> {
   }
 
   void _resetPractice() {
-    _viewModel.resetPractice();
+    context.read<PracticePageViewModel>().resetPractice();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: const Key("practice_page_scaffold"),
-      appBar: AppBar(
-        title: const Text("Practice Session"),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        leading: IconButton(
-          key: const Key("practice_back_button"),
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-          tooltip: "Back to Practice Hub",
+      appBar: _buildAppBar(context),
+      body: Column(
+        children: [_buildContentArea(context), _buildPianoSection(context)],
+      ),
+    );
+  }
+
+  /// Builds the app bar with navigation and title.
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      title: const Text("Practice Session"),
+      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      leading: IconButton(
+        key: const Key("practice_back_button"),
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () => Navigator.of(context).pop(),
+        tooltip: "Back to Practice Hub",
+      ),
+    );
+  }
+
+  /// Builds the content area containing settings panel and progress display.
+  Widget _buildContentArea(BuildContext context) {
+    final viewModel = context.watch<PracticePageViewModel>();
+
+    return Expanded(
+      flex: 4,
+      child: SafeArea(
+        bottom: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(Spacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: Spacing.lg),
+              _buildSettingsPanel(viewModel),
+              const SizedBox(height: Spacing.md),
+              _buildProgressDisplay(viewModel),
+            ],
+          ),
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            flex: 4,
-            child: SafeArea(
-              bottom: false,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(Spacing.md),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: Spacing.lg),
-                    AnimatedBuilder(
-                      animation: _viewModel,
-                      builder: (context, child) {
-                        final session = _viewModel.practiceSession;
-                        if (session == null) {
-                          return const CircularProgressIndicator();
-                        }
+    );
+  }
 
-                        return PracticeSettingsPanel(
-                          key: const Key("practice_settings_panel"),
-                          practiceMode: session.practiceMode,
-                          selectedKey: session.selectedKey,
-                          selectedScaleType: session.selectedScaleType,
-                          selectedRootNote: session.selectedRootNote,
-                          selectedArpeggioType: session.selectedArpeggioType,
-                          selectedArpeggioOctaves:
-                              session.selectedArpeggioOctaves,
-                          selectedChordProgression:
-                              session.selectedChordProgression,
-                          selectedChordType: session.selectedChordType,
-                          includeInversions: session.includeInversions,
-                          includeSeventhChords: session.includeSeventhChords,
-                          selectedHandSelection: session.selectedHandSelection,
-                          autoProgressKeys: session.autoProgressKeys,
-                          practiceActive: session.practiceActive,
-                          onResetPractice: _resetPractice,
-                          onPracticeModeChanged: (mode) {
-                            _viewModel.setPracticeMode(mode);
-                          },
-                          onKeyChanged: (key) {
-                            _viewModel.setSelectedKey(key);
-                          },
-                          onScaleTypeChanged: (type) {
-                            _viewModel.setSelectedScaleType(type);
-                          },
-                          onRootNoteChanged: (rootNote) {
-                            _viewModel.setSelectedRootNote(rootNote);
-                          },
-                          onArpeggioTypeChanged: (type) {
-                            _viewModel.setSelectedArpeggioType(type);
-                          },
-                          onArpeggioOctavesChanged: (octaves) {
-                            _viewModel.setSelectedArpeggioOctaves(octaves);
-                          },
-                          onChordProgressionChanged: (progression) {
-                            _viewModel.setSelectedChordProgression(progression);
-                          },
-                          onChordTypeChanged: (type) {
-                            _viewModel.setSelectedChordType(type);
-                          },
-                          onIncludeInversionsChanged: (include) {
-                            _viewModel.setIncludeInversions(include);
-                          },
-                          onIncludeSeventhChordsChanged: (include) {
-                            _viewModel.setIncludeSeventhChords(include);
-                          },
-                          onHandSelectionChanged: (handSelection) {
-                            _viewModel.setSelectedHandSelection(handSelection);
-                          },
-                          onAutoProgressKeysChanged: (enable) {
-                            _viewModel.setAutoKeyProgression(enable);
-                          },
-                        );
-                      },
-                    ),
-                    const SizedBox(height: Spacing.md),
-                    AnimatedBuilder(
-                      animation: _viewModel,
-                      builder: (context, child) {
-                        final session = _viewModel.practiceSession;
-                        if (session == null) {
-                          return const SizedBox.shrink();
-                        }
+  /// Builds the practice settings panel with animated state updates.
+  Widget _buildSettingsPanel(PracticePageViewModel viewModel) {
+    return AnimatedBuilder(
+      animation: viewModel,
+      builder: (context, child) {
+        final session = viewModel.practiceSession;
+        if (session == null) {
+          return const CircularProgressIndicator();
+        }
 
-                        return PracticeProgressDisplay(
-                          practiceMode: session.practiceMode,
-                          practiceActive: session.practiceActive,
-                          currentExercise: session.currentExercise,
-                          currentStepIndex: session.currentStepIndex,
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
+        return PracticeSettingsPanel(
+          key: const Key("practice_settings_panel"),
+          practiceMode: session.practiceMode,
+          selectedKey: session.selectedKey,
+          selectedScaleType: session.selectedScaleType,
+          selectedRootNote: session.selectedRootNote,
+          selectedArpeggioType: session.selectedArpeggioType,
+          selectedArpeggioOctaves: session.selectedArpeggioOctaves,
+          selectedChordProgression: session.selectedChordProgression,
+          selectedChordType: session.selectedChordType,
+          includeInversions: session.includeInversions,
+          includeSeventhChords: session.includeSeventhChords,
+          selectedHandSelection: session.selectedHandSelection,
+          autoProgressKeys: session.autoProgressKeys,
+          practiceActive: session.practiceActive,
+          onResetPractice: _resetPractice,
+          onPracticeModeChanged: (mode) => viewModel.setPracticeMode(mode),
+          onKeyChanged: (key) => viewModel.setSelectedKey(key),
+          onScaleTypeChanged: (type) => viewModel.setSelectedScaleType(type),
+          onRootNoteChanged: (rootNote) =>
+              viewModel.setSelectedRootNote(rootNote),
+          onArpeggioTypeChanged: (type) =>
+              viewModel.setSelectedArpeggioType(type),
+          onArpeggioOctavesChanged: (octaves) =>
+              viewModel.setSelectedArpeggioOctaves(octaves),
+          onChordProgressionChanged: (progression) =>
+              viewModel.setSelectedChordProgression(progression),
+          onChordTypeChanged: (type) => viewModel.setSelectedChordType(type),
+          onIncludeInversionsChanged: (include) =>
+              viewModel.setIncludeInversions(include),
+          onIncludeSeventhChordsChanged: (include) =>
+              viewModel.setIncludeSeventhChords(include),
+          onHandSelectionChanged: (handSelection) =>
+              viewModel.setSelectedHandSelection(handSelection),
+          onAutoProgressKeysChanged: (enable) =>
+              viewModel.setAutoKeyProgression(enable),
+        );
+      },
+    );
+  }
+
+  /// Builds the practice progress display with animated state updates.
+  Widget _buildProgressDisplay(PracticePageViewModel viewModel) {
+    return AnimatedBuilder(
+      animation: viewModel,
+      builder: (context, child) {
+        final session = viewModel.practiceSession;
+        if (session == null) {
+          return const SizedBox.shrink();
+        }
+
+        return PracticeProgressDisplay(
+          practiceMode: session.practiceMode,
+          practiceActive: session.practiceActive,
+          currentExercise: session.currentExercise,
+          currentStepIndex: session.currentStepIndex,
+        );
+      },
+    );
+  }
+
+  /// Builds the interactive piano section with dynamic range and highlighting.
+  Widget _buildPianoSection(BuildContext context) {
+    final viewModel = context.watch<PracticePageViewModel>();
+
+    return Expanded(
+      child: AnimatedBuilder(
+        animation: viewModel,
+        builder: (context, child) {
+          final highlightedNotes = viewModel.getDisplayHighlightedNotes();
+          final practiceRange = viewModel.calculatePracticeRange();
+          final screenWidth = MediaQuery.of(context).size.width;
+          final dynamicKeyWidth = PianoRangeUtils.calculateScreenBasedKeyWidth(
+            screenWidth,
+          );
+
+          return PianoAccessibilityUtils.createAccessiblePianoWrapper(
+            highlightedNotes: highlightedNotes,
+            mode: PianoMode.practice,
+            semanticLabel: AccessibilityLabels.piano.keyboardLabel(
+              PianoMode.practice,
             ),
-          ),
-          Expanded(
-            child: AnimatedBuilder(
-              animation: _viewModel,
-              builder: (context, child) {
-                // Calculate highlighted notes for display using local state
-                final highlightedNotes = _viewModel
-                    .getDisplayHighlightedNotes();
-
-                // Calculate 49-key range centered around practice exercise
-                final practiceRange = _viewModel.calculatePracticeRange();
-
-                // Calculate dynamic key width based on screen width
-                final screenWidth = MediaQuery.of(context).size.width;
-                final dynamicKeyWidth =
-                    PianoRangeUtils.calculateScreenBasedKeyWidth(screenWidth);
-
-                return PianoAccessibilityUtils.createAccessiblePianoWrapper(
-                  highlightedNotes: highlightedNotes,
-                  mode: PianoMode.practice,
-                  semanticLabel: AccessibilityLabels.piano.keyboardLabel(
-                    PianoMode.practice,
-                  ),
-                  child: InteractivePiano(
-                    key: const Key("practice_interactive_piano"),
-                    highlightedNotes: highlightedNotes,
-                    keyWidth: dynamicKeyWidth.clamp(
-                      PianoRangeUtils.minKeyWidth,
-                      PianoRangeUtils.maxKeyWidth,
-                    ),
-                    noteRange: practiceRange,
-                    onNotePositionTapped: (position) async {
-                      final midiNote = NoteUtils.convertNotePositionToMidi(
-                        position,
-                      );
-                      await _viewModel.playVirtualNote(
-                        midiNote,
-                        mounted: mounted,
-                      );
-                    },
-                  ),
-                );
+            child: InteractivePiano(
+              key: const Key("practice_interactive_piano"),
+              highlightedNotes: highlightedNotes,
+              keyWidth: dynamicKeyWidth.clamp(
+                PianoRangeUtils.minKeyWidth,
+                PianoRangeUtils.maxKeyWidth,
+              ),
+              noteRange: practiceRange,
+              onNotePositionTapped: (position) async {
+                final midiNote = NoteUtils.convertNotePositionToMidi(position);
+                await viewModel.playVirtualNote(midiNote, mounted: mounted);
               },
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

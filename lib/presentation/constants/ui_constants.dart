@@ -120,50 +120,23 @@ class ShadowConfig {
   static const double mediumBlur = 12.0;
 }
 
-/// MIDI protocol standard ranges and default values.
+/// UI-specific MIDI control constants.
 ///
-/// These constants define the valid ranges for MIDI messages according
-/// to the MIDI specification.
-class MidiConstants {
-  MidiConstants._(); // Private constructor to prevent instantiation
-
-  // Channel ranges
-  /// Minimum MIDI channel (0-based): 0
-  static const int channelMin = 0;
-
-  /// Maximum MIDI channel (0-based): 15
-  static const int channelMax = 15;
-
-  // Controller and value ranges
-  /// Maximum value for MIDI controllers and data bytes: 127
-  static const int controllerMax = 127;
-
-  /// Maximum value for MIDI program numbers: 127
-  static const int programMax = 127;
-
-  // Pitch bend ranges
-  /// Minimum pitch bend value (normalized): -1.0
-  static const double pitchBendMin = -1.0;
-
-  /// Maximum pitch bend value (normalized): 1.0
-  static const double pitchBendMax = 1.0;
+/// These constants define presentation-layer values for MIDI UI controls
+/// such as slider granularity and display formatting.
+///
+/// For MIDI protocol constants (ranges, defaults), see:
+/// - `lib/domain/constants/midi_protocol_constants.dart`
+/// For connection timeouts and infrastructure config, see:
+/// - `lib/application/constants/midi_connection_config.dart`
+class MidiUiConstants {
+  MidiUiConstants._(); // Private constructor to prevent instantiation
 
   /// Pitch bend slider divisions for UI controls: 100
+  ///
+  /// Determines the granularity of the pitch bend slider.
+  /// Higher values provide finer control but may be harder to use.
   static const int pitchBendDivisions = 100;
-
-  // Default values
-  /// Standard default velocity for note messages: 64 (medium velocity)
-  static const int defaultVelocity = 64;
-
-  // Connection timeouts
-  /// Bluetooth initialization timeout: 5 seconds
-  static const Duration bluetoothInitTimeout = Duration(seconds: 5);
-
-  /// Device scanning duration: 3 seconds
-  static const Duration scanningDuration = Duration(seconds: 3);
-
-  /// Delay before device connection: 500 milliseconds
-  static const Duration connectionDelay = Duration(milliseconds: 500);
 }
 
 /// Standardized opacity values for consistent transparency across the app.

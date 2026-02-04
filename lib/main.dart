@@ -1,11 +1,23 @@
+import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:logging/logging.dart";
+import "package:provider/provider.dart";
+import "package:timezone/data/latest.dart" as tz;
+
+import "package:piano_fitness/application/repositories/audio_service_impl.dart";
+import "package:piano_fitness/application/repositories/midi_repository_impl.dart";
+import "package:piano_fitness/application/repositories/notification_repository_impl.dart";
+import "package:piano_fitness/application/repositories/settings_repository_impl.dart";
+import "package:piano_fitness/application/services/notifications/notification_manager.dart";
+import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/domain/repositories/audio_service.dart";
+import "package:piano_fitness/domain/repositories/midi_repository.dart";
+import "package:piano_fitness/domain/repositories/notification_repository.dart";
+import "package:piano_fitness/domain/repositories/settings_repository.dart";
 import "package:piano_fitness/presentation/constants/typography_constants.dart";
-import "package:piano_fitness/application/services/notifications/notification_service.dart";
 import "package:piano_fitness/presentation/theme/semantic_colors.dart";
 import "package:piano_fitness/presentation/widgets/main_navigation.dart";
-import "package:timezone/data/latest.dart" as tz;
 
 /// Entry point for the Piano Fitness application.
 ///
@@ -16,15 +28,8 @@ void main() async {
   // Initialize timezone data for notifications
   tz.initializeTimeZones();
 
-  // Initialize notification service
-  try {
-    debugPrint("About to initialize NotificationService...");
-    await NotificationService.initialize();
-    debugPrint("NotificationService initialized successfully");
-  } catch (e, stackTrace) {
-    debugPrint("Failed to initialize notification service: $e");
-    debugPrint("Stack trace: $stackTrace");
-  }
+  // Initialize notification repository with async factory
+  final notificationRepository = await NotificationRepositoryImpl.create();
 
   // Configure logging levels
   if (kDebugMode) {
@@ -49,7 +54,49 @@ void main() async {
     );
   });
 
-  runApp(const MyApp());
+  // Create logger for main initialization
+  final log = Logger("main");
+
+  runApp(
+    MultiProvider(
+      providers: [
+        // Repository interfaces
+        Provider<IMidiRepository>(
+          create: (_) {
+            final repository = MidiRepositoryImpl();
+            // Initialize MIDI listening on startup
+            // Use unawaited to capture the Future without blocking Provider creation
+            unawaited(
+              repository.initialize().catchError((
+                Object error,
+                StackTrace stackTrace,
+              ) {
+                log.severe(
+                  "Failed to initialize MIDI repository: $error",
+                  error,
+                  stackTrace,
+                );
+              }),
+            );
+            return repository;
+          },
+          dispose: (_, repository) => repository.dispose(),
+        ),
+        Provider<INotificationRepository>.value(value: notificationRepository),
+        Provider<ISettingsRepository>(
+          create: (_) => SettingsRepositoryImpl(
+            notificationManager: NotificationManager.instance,
+          ),
+          lazy: false,
+        ),
+        Provider<IAudioService>(create: (_) => AudioServiceImpl()),
+
+        // Global MIDI state (shared across all features)
+        ChangeNotifierProvider<MidiState>(create: (_) => MidiState()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 /// Creates a custom TextTheme matching the app's design system.

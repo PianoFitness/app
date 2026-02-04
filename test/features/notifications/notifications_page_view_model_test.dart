@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/features/notifications/notifications_page_view_model.dart";
 import "package:piano_fitness/application/models/notification_settings.dart";
+import "../../shared/test_helpers/mock_repositories.mocks.dart";
 
 // Test doubles for NotificationManager and NotificationService
 class TestNotificationManager {
@@ -122,7 +123,10 @@ class TestNotificationsPageViewModel extends NotificationsPageViewModel {
   TestNotificationsPageViewModel({
     required this.testNotificationManager,
     required this.testNotificationService,
-  });
+  }) : super(
+         notificationRepository: MockINotificationRepository(),
+         settingsRepository: MockISettingsRepository(),
+       );
 
   final TestNotificationManager testNotificationManager;
   final TestNotificationService testNotificationService;

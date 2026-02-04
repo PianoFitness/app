@@ -1,12 +1,14 @@
 import "dart:typed_data";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano/piano.dart";
+import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/features/practice/practice_page_view_model.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;
+import "../../shared/test_helpers/mock_repositories.mocks.dart";
 import "../../shared/midi_mocks.dart";
 
 void main() {
@@ -18,11 +20,23 @@ void main() {
 
   group("PracticePageViewModel Tests", () {
     late PracticePageViewModel viewModel;
+    late MockIMidiRepository mockMidiRepository;
+    late MidiState midiState;
     var exerciseCompletedCalled = false;
     var receivedHighlightedNotes = <NotePosition>[];
 
     setUp(() {
-      viewModel = PracticePageViewModel(initialChannel: 3);
+      // Create mock dependencies
+      mockMidiRepository = MockIMidiRepository();
+      midiState = MidiState();
+
+      // Create ViewModel with injected dependencies
+      viewModel = PracticePageViewModel(
+        midiRepository: mockMidiRepository,
+        midiState: midiState,
+        initialChannel: 3,
+      );
+
       exerciseCompletedCalled = false;
       receivedHighlightedNotes = [];
 
@@ -39,11 +53,12 @@ void main() {
 
     tearDown(() {
       viewModel.dispose();
+      midiState.dispose();
     });
 
     test("should initialize with correct MIDI channel", () {
       expect(viewModel.midiChannel, equals(3));
-      expect(viewModel.localMidiState.selectedChannel, equals(3));
+      expect(viewModel.midiState.selectedChannel, equals(3));
     });
 
     test("should initialize practice session correctly", () {
@@ -60,25 +75,22 @@ void main() {
 
       viewModel.handleMidiData(midiData);
 
-      expect(viewModel.localMidiState.activeNotes.contains(60), isTrue);
-      expect(
-        viewModel.localMidiState.lastNote,
-        "Note ON: 60 (Ch: 1, Vel: 100)",
-      );
-      expect(viewModel.localMidiState.hasRecentActivity, isTrue);
+      expect(viewModel.midiState.activeNotes.contains(60), isTrue);
+      expect(viewModel.midiState.lastNote, "Note ON: 60 (Ch: 1, Vel: 100)");
+      expect(viewModel.midiState.hasRecentActivity, isTrue);
     });
 
     test("should handle MIDI data and update state for note off events", () {
       // First add a note to local MIDI state
-      viewModel.localMidiState.noteOn(60, 100, 1);
-      expect(viewModel.localMidiState.activeNotes.contains(60), isTrue);
+      viewModel.midiState.noteOn(60, 100, 1);
+      expect(viewModel.midiState.activeNotes.contains(60), isTrue);
 
       final midiData = Uint8List.fromList([0x80, 60, 0]);
 
       viewModel.handleMidiData(midiData);
 
-      expect(viewModel.localMidiState.activeNotes.contains(60), isFalse);
-      expect(viewModel.localMidiState.lastNote, "Note OFF: 60 (Ch: 1)");
+      expect(viewModel.midiState.activeNotes.contains(60), isFalse);
+      expect(viewModel.midiState.lastNote, "Note OFF: 60 (Ch: 1)");
     });
 
     test("should start and reset practice sessions", () {
@@ -162,12 +174,12 @@ void main() {
 
       // Test when ViewModel has no highlighted notes, falls back to local MidiState
       viewModel.practiceSession!.onHighlightedNotesChanged([]);
-      viewModel.localMidiState.noteOn(60, 100, 1);
+      viewModel.midiState.noteOn(60, 100, 1);
 
       final fallbackResult = viewModel.getDisplayHighlightedNotes();
       expect(
         fallbackResult,
-        equals(viewModel.localMidiState.highlightedNotePositions),
+        equals(viewModel.midiState.highlightedNotePositions),
       );
     });
 
@@ -182,7 +194,10 @@ void main() {
       const testNote = 60;
 
       // This test verifies the method handles missing practice session gracefully
-      final uninitializedViewModel = PracticePageViewModel();
+      final uninitializedViewModel = PracticePageViewModel(
+        midiRepository: MockIMidiRepository(),
+        midiState: MidiState(),
+      );
 
       // Should not crash when no practice session is initialized
       await uninitializedViewModel.playVirtualNote(testNote, mounted: false);
@@ -191,7 +206,10 @@ void main() {
     });
 
     test("should handle cases with no practice session initialized", () {
-      final uninitializedViewModel = PracticePageViewModel();
+      final uninitializedViewModel = PracticePageViewModel(
+        midiRepository: MockIMidiRepository(),
+        midiState: MidiState(),
+      );
       final midiData = Uint8List.fromList([0x90, 60, 100]);
 
       // Should not crash when no practice session is set
@@ -201,10 +219,6 @@ void main() {
       );
 
       uninitializedViewModel.dispose();
-    });
-
-    test("should provide access to MIDI command instance", () {
-      expect(viewModel.midiCommand, isNotNull);
     });
 
     group("Practice Session Integration", () {
@@ -251,10 +265,7 @@ void main() {
 
         viewModel.handleMidiData(midiData);
 
-        expect(
-          viewModel.localMidiState.lastNote,
-          "CC: Controller 7 = 100 (Ch: 1)",
-        );
+        expect(viewModel.midiState.lastNote, "CC: Controller 7 = 100 (Ch: 1)");
       });
 
       test("should handle program change messages", () {
@@ -262,7 +273,7 @@ void main() {
 
         viewModel.handleMidiData(midiData);
 
-        expect(viewModel.localMidiState.lastNote, "Program Change: 42 (Ch: 1)");
+        expect(viewModel.midiState.lastNote, "Program Change: 42 (Ch: 1)");
       });
 
       test("should handle pitch bend messages", () {
@@ -270,23 +281,20 @@ void main() {
 
         viewModel.handleMidiData(midiData);
 
-        expect(
-          viewModel.localMidiState.lastNote.contains("Pitch Bend"),
-          isTrue,
-        );
+        expect(viewModel.midiState.lastNote.contains("Pitch Bend"), isTrue);
       });
 
       test("should filter out clock and active sense messages", () {
         final clockMessage = Uint8List.fromList([0xF8]); // MIDI Clock
         final activeSenseMessage = Uint8List.fromList([0xFE]); // Active Sense
 
-        viewModel.localMidiState.setLastNote("Previous message");
+        viewModel.midiState.setLastNote("Previous message");
 
         viewModel.handleMidiData(clockMessage);
-        expect(viewModel.localMidiState.lastNote, equals("Previous message"));
+        expect(viewModel.midiState.lastNote, equals("Previous message"));
 
         viewModel.handleMidiData(activeSenseMessage);
-        expect(viewModel.localMidiState.lastNote, equals("Previous message"));
+        expect(viewModel.midiState.lastNote, equals("Previous message"));
       });
     });
 

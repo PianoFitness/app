@@ -1,9 +1,11 @@
 import "dart:async";
 import "package:flutter/foundation.dart";
+import "package:logging/logging.dart";
 import "package:piano_fitness/domain/constants/musical_constants.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
-import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
 import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
+import "package:piano_fitness/domain/repositories/midi_repository.dart";
+import "package:piano_fitness/domain/services/midi/midi_service.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as scales;
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
@@ -27,14 +29,19 @@ enum ReferenceMode {
 /// from the shared MIDI state to prevent cross-page interference.
 class ReferencePageViewModel extends ChangeNotifier {
   /// Creates a new ReferencePageViewModel.
-  ReferencePageViewModel() {
-    _localMidiState = MidiState();
-    _initializeMidiConnection();
+  ReferencePageViewModel({
+    required IMidiRepository midiRepository,
+    required MidiState midiState,
+  }) : _midiRepository = midiRepository,
+       _localMidiState = midiState {
+    _midiRepository.registerDataHandler(_handleMidiData);
     _initializeState();
   }
 
-  final MidiConnectionService _midiConnectionService = MidiConnectionService();
-  late final MidiState _localMidiState;
+  final IMidiRepository _midiRepository;
+  final MidiState _localMidiState;
+
+  static final Logger _log = Logger("ReferencePageViewModel");
 
   // Current selections
   ReferenceMode _selectedMode = ReferenceMode.scales;
@@ -178,8 +185,37 @@ class ReferencePageViewModel extends ChangeNotifier {
   }
 
   /// Handles incoming MIDI data and updates state.
+  ///
+  /// Wraps MIDI parsing and event handling in error recovery to prevent
+  /// stale state from parsing/runtime errors.
   void _handleMidiData(Uint8List data) {
-    MidiConnectionService.handleStandardMidiData(data, _localMidiState);
+    try {
+      // Use domain service for MIDI parsing and update local application state
+      MidiService.handleMidiData(data, (MidiEvent event) {
+        try {
+          switch (event.type) {
+            case MidiEventType.noteOn:
+              _localMidiState.noteOn(event.data1, event.data2, event.channel);
+              break;
+            case MidiEventType.noteOff:
+              _localMidiState.noteOff(event.data1, event.channel);
+              break;
+            case MidiEventType.controlChange:
+            case MidiEventType.programChange:
+            case MidiEventType.pitchBend:
+            case MidiEventType.other:
+              _localMidiState.setLastNote(event.displayMessage);
+              break;
+          }
+        } catch (e, stackTrace) {
+          _log.warning("Error handling MIDI event: $e", e, stackTrace);
+          _localMidiState.setLastNote("Error processing MIDI event");
+        }
+      });
+    } catch (e, stackTrace) {
+      _log.severe("Error parsing MIDI data: $e", e, stackTrace);
+      _localMidiState.setLastNote("Error parsing MIDI data");
+    }
   }
 
   /// Applies a config mutation, then resets/stops any ongoing operations and rebuilds the display.
@@ -204,22 +240,17 @@ class ReferencePageViewModel extends ChangeNotifier {
   Future<void> playNote(int midiNote) async {
     await VirtualPianoUtils.playVirtualNote(
       midiNote,
+      _midiRepository,
       _localMidiState,
       (_) {}, // No specific callback needed for reference page
     );
   }
 
-  /// Initializes the MIDI connection and sets up data handling.
-  void _initializeMidiConnection() {
-    _midiConnectionService
-      ..registerDataHandler(_handleMidiData)
-      ..connect();
-  }
-
   @override
   void dispose() {
-    _localMidiState.dispose();
-    _midiConnectionService.unregisterDataHandler(_handleMidiData);
+    // Clear reference display when disposing
+    deactivateReferenceDisplay();
+    _midiRepository.unregisterDataHandler(_handleMidiData);
     super.dispose();
   }
 }

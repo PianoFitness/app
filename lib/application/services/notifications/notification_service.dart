@@ -250,7 +250,7 @@ class NotificationService {
       );
 
       // Save metadata to persistent storage
-      await NotificationManager.saveScheduledNotification(
+      await NotificationManager.instance.saveScheduledNotification(
         id,
         title,
         body,
@@ -317,7 +317,7 @@ class NotificationService {
       );
 
       // Save metadata to persistent storage
-      await NotificationManager.saveScheduledNotification(
+      await NotificationManager.instance.saveScheduledNotification(
         dailyReminderNotificationId,
         title,
         body,
@@ -342,7 +342,7 @@ class NotificationService {
       await _plugin.cancel(id);
 
       // Remove from persistent storage
-      await NotificationManager.removeScheduledNotification(id);
+      await NotificationManager.instance.removeScheduledNotification(id);
 
       _log.info("Cancelled notification with ID: $id");
     } catch (e) {
@@ -358,7 +358,7 @@ class NotificationService {
       await _plugin.cancelAll();
 
       // Clear from persistent storage
-      await NotificationManager.clearAllScheduledNotifications();
+      await NotificationManager.instance.clearAllScheduledNotifications();
 
       _log.info("Cancelled all notifications");
     } catch (e) {
@@ -399,8 +399,8 @@ class NotificationService {
       _log.info("Syncing stored notification data with plugin state");
 
       // Get our stored notification metadata
-      final storedNotifications =
-          await NotificationManager.getScheduledNotifications();
+      final storedNotifications = await NotificationManager.instance
+          .getScheduledNotifications();
 
       // Get actually pending notifications from plugin
       final pendingRequests = await (_plugin as FlutterLocalNotificationsPlugin)
@@ -451,7 +451,7 @@ class NotificationService {
 
       // Clean up stale notifications
       for (final staleId in staleNotifications) {
-        await NotificationManager.removeScheduledNotification(
+        await NotificationManager.instance.removeScheduledNotification(
           int.parse(staleId),
         );
       }

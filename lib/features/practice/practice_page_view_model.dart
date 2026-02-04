@@ -1,14 +1,17 @@
+import "dart:async";
+
 import "package:flutter/foundation.dart";
-import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:logging/logging.dart";
 import "package:piano/piano.dart";
+import "package:piano_fitness/domain/constants/midi_protocol_constants.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/state/practice_session.dart";
-import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
+import "package:piano_fitness/domain/repositories/midi_repository.dart";
+import "package:piano_fitness/domain/services/midi/midi_service.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
@@ -18,37 +21,36 @@ import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
 
 /// ViewModel for managing practice page state and operations.
 ///
-/// This class handles all business logic for the practice interface,
-/// managing its own local MIDI state for practice-specific note tracking
-/// and piano range calculations.
+/// This class handles all business logic for the practice interface.
 class PracticePageViewModel extends ChangeNotifier {
-  /// Creates a new PracticePageViewModel with optional initial configuration.
-  PracticePageViewModel({int initialChannel = 0})
-    : _midiChannel = initialChannel {
-    _localMidiState = MidiState();
-    _localMidiState.setSelectedChannel(_midiChannel);
+  /// Creates a new PracticePageViewModel with injected dependencies.
+  PracticePageViewModel({
+    required IMidiRepository midiRepository,
+    required MidiState midiState,
+    int initialChannel = 0,
+  }) : _midiRepository = midiRepository,
+       _midiState = midiState,
+       _midiChannel = initialChannel {
+    _midiState.setSelectedChannel(_midiChannel);
+    _midiState.addListener(notifyListeners);
     _setupMidiHandlers();
   }
 
   static final _log = Logger("PracticePageViewModel");
 
-  final MidiConnectionService _midiConnectionService = MidiConnectionService();
+  final IMidiRepository _midiRepository;
+  final MidiState _midiState;
   final int _midiChannel;
-  late final MidiState _localMidiState;
   late final void Function(Uint8List) _dataHandler;
-  late final void Function(String) _errorHandler;
 
   PracticeSession? _practiceSession;
   List<NotePosition> _highlightedNotes = [];
 
-  /// Local MIDI state for this practice page instance.
-  MidiState get localMidiState => _localMidiState;
+  /// Global MIDI state shared across the app.
+  MidiState get midiState => _midiState;
 
   /// MIDI channel for input and output operations (0-15).
   int get midiChannel => _midiChannel;
-
-  /// MIDI command instance for low-level operations.
-  MidiCommand get midiCommand => _midiConnectionService.midiCommand;
 
   /// Practice session instance for exercise management.
   PracticeSession? get practiceSession => _practiceSession;
@@ -79,10 +81,12 @@ class PracticePageViewModel extends ChangeNotifier {
     }
   }
 
-  /// Sets up MIDI handlers through MidiConnectionService.
+  /// Sets up MIDI handlers through repository.
   void _setupMidiHandlers() {
     _dataHandler = (Uint8List data) {
-      _log.fine("Received MIDI data: $data");
+      if (kDebugMode) {
+        _log.fine("Received MIDI data: $data");
+      }
       try {
         handleMidiData(data);
       } on Exception catch (e) {
@@ -90,30 +94,49 @@ class PracticePageViewModel extends ChangeNotifier {
       }
     };
 
-    _errorHandler = (String error) {
-      _log.severe("MIDI connection error: $error");
-    };
-
-    _midiConnectionService
-      ..registerDataHandler(_dataHandler)
-      ..registerErrorHandler(_errorHandler)
-      ..connect();
+    _midiRepository.registerDataHandler(_dataHandler);
   }
 
-  /// Handles incoming MIDI data using service-level helper.
+  /// Handles incoming MIDI data and updates state with practice session integration.
   ///
-  /// Delegates to [MidiConnectionService.handlePracticeMidiData] which
-  /// processes MIDI events, updates MIDI state, and coordinates with
-  /// the practice session (including auto-start logic).
+  /// Uses the domain service for MIDI parsing and coordinates with both
+  /// MidiState (application layer) and PracticeSession for exercise tracking.
+  /// The PracticeSession handles its own auto-start logic when notes are pressed.
   ///
   /// This method is public for testing purposes.
   @visibleForTesting
   void handleMidiData(Uint8List data) {
-    MidiConnectionService.handlePracticeMidiData(
-      data,
-      _localMidiState,
-      _practiceSession,
-    );
+    try {
+      // Use domain service for MIDI parsing
+      MidiService.handleMidiData(data, (MidiEvent event) {
+        try {
+          switch (event.type) {
+            case MidiEventType.noteOn:
+              // Update application state
+              _midiState.noteOn(event.data1, event.data2, event.channel);
+              // Coordinate with practice session for exercise tracking
+              _practiceSession?.handleNotePressed(event.data1);
+              break;
+            case MidiEventType.noteOff:
+              _midiState.noteOff(event.data1, event.channel);
+              _practiceSession?.handleNoteReleased(event.data1);
+              break;
+            case MidiEventType.controlChange:
+            case MidiEventType.programChange:
+            case MidiEventType.pitchBend:
+            case MidiEventType.other:
+              _midiState.setLastNote(event.displayMessage);
+              break;
+          }
+        } catch (e, stackTrace) {
+          _log.warning("Error handling MIDI event: $e", e, stackTrace);
+          _midiState.setLastNote("Error processing MIDI event");
+        }
+      });
+    } catch (e, stackTrace) {
+      _log.severe("Error parsing MIDI data: $e", e, stackTrace);
+      _midiState.setLastNote("Error parsing MIDI data");
+    }
   }
 
   /// Starts the current practice session.
@@ -207,10 +230,22 @@ class PracticePageViewModel extends ChangeNotifier {
   /// Plays a virtual note through MIDI output and triggers practice session.
   ///
   /// The practice session handles its own auto-start logic when notes are pressed.
+  /// Validates that [note] is within the valid MIDI range (0-127) before forwarding.
   Future<void> playVirtualNote(int note, {bool mounted = true}) async {
+    // Validate MIDI note range using domain constants
+    if (note < MidiProtocol.noteMin || note > MidiProtocol.noteMax) {
+      _log.warning(
+        "Invalid MIDI note: $note (must be between "
+        "${MidiProtocol.noteMin} and ${MidiProtocol.noteMax})",
+      );
+      _midiState.setLastNote("Invalid MIDI note: $note");
+      return;
+    }
+
     await VirtualPianoUtils.playVirtualNote(
       note,
-      _localMidiState,
+      _midiRepository,
+      _midiState,
       (note) => _practiceSession?.handleNotePressed(note),
       mounted: mounted,
     );
@@ -220,7 +255,7 @@ class PracticePageViewModel extends ChangeNotifier {
   List<NotePosition> getDisplayHighlightedNotes() {
     return _highlightedNotes.isNotEmpty
         ? _highlightedNotes
-        : _localMidiState.highlightedNotePositions;
+        : _midiState.highlightedNotePositions;
   }
 
   /// Calculates the 49-key range centered around the current practice exercise.
@@ -240,11 +275,9 @@ class PracticePageViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _midiConnectionService.unregisterDataHandler(_dataHandler);
-    _midiConnectionService.unregisterErrorHandler(_errorHandler);
-    VirtualPianoUtils.dispose();
-    // Dispose local MIDI state
-    _localMidiState.dispose();
+    _midiRepository.unregisterDataHandler(_dataHandler);
+    _midiState.removeListener(notifyListeners);
+    unawaited(VirtualPianoUtils.dispose(_midiRepository));
     super.dispose();
   }
 }

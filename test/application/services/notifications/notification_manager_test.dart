@@ -13,14 +13,14 @@ void main() {
 
     tearDown(() async {
       // Clean up after each test
-      await NotificationManager.clearAllData();
+      await NotificationManager.instance.clearAllData();
     });
 
     group("Settings Management", () {
       testWidgets("should load default settings when none exist", (
         tester,
       ) async {
-        final settings = await NotificationManager.loadSettings();
+        final settings = await NotificationManager.instance.loadSettings();
 
         expect(settings.practiceRemindersEnabled, isFalse);
         expect(settings.dailyReminderTime, isNull);
@@ -36,8 +36,9 @@ void main() {
           permissionGranted: true,
         );
 
-        await NotificationManager.saveSettings(testSettings);
-        final loadedSettings = await NotificationManager.loadSettings();
+        await NotificationManager.instance.saveSettings(testSettings);
+        final loadedSettings = await NotificationManager.instance
+            .loadSettings();
 
         expect(loadedSettings.practiceRemindersEnabled, isTrue);
         expect(loadedSettings.dailyReminderTime?.hour, equals(9));
@@ -54,7 +55,7 @@ void main() {
           "notification_settings": "invalid json",
         });
 
-        final settings = await NotificationManager.loadSettings();
+        final settings = await NotificationManager.instance.loadSettings();
 
         // Should return default settings when data is corrupted
         expect(settings.practiceRemindersEnabled, isFalse);
@@ -69,7 +70,7 @@ void main() {
           "notification_settings": '{"practiceRemindersEnabled": true}',
         });
 
-        final settings = await NotificationManager.loadSettings();
+        final settings = await NotificationManager.instance.loadSettings();
 
         expect(settings.practiceRemindersEnabled, isTrue);
         expect(settings.dailyReminderTime, isNull); // Should default to null
@@ -86,8 +87,9 @@ void main() {
           permissionGranted: true,
         );
 
-        await NotificationManager.saveSettings(testSettings);
-        final loadedSettings = await NotificationManager.loadSettings();
+        await NotificationManager.instance.saveSettings(testSettings);
+        final loadedSettings = await NotificationManager.instance
+            .loadSettings();
 
         expect(loadedSettings.practiceRemindersEnabled, isTrue);
         expect(loadedSettings.dailyReminderTime, isNull);
@@ -109,8 +111,9 @@ void main() {
           permissionGranted: true,
         );
 
-        await NotificationManager.saveSettings(testSettings);
-        final loadedSettings = await NotificationManager.loadSettings();
+        await NotificationManager.instance.saveSettings(testSettings);
+        final loadedSettings = await NotificationManager.instance
+            .loadSettings();
 
         expect(loadedSettings.dailyReminderTime?.hour, equals(14));
         expect(loadedSettings.dailyReminderTime?.minute, equals(45));
@@ -126,8 +129,8 @@ void main() {
           permissionGranted: true,
         );
 
-        await NotificationManager.saveSettings(testSettings);
-        var loadedSettings = await NotificationManager.loadSettings();
+        await NotificationManager.instance.saveSettings(testSettings);
+        var loadedSettings = await NotificationManager.instance.loadSettings();
 
         expect(loadedSettings.dailyReminderTime?.hour, equals(0));
         expect(loadedSettings.dailyReminderTime?.minute, equals(0));
@@ -141,8 +144,8 @@ void main() {
           permissionGranted: true,
         );
 
-        await NotificationManager.saveSettings(testSettings);
-        loadedSettings = await NotificationManager.loadSettings();
+        await NotificationManager.instance.saveSettings(testSettings);
+        loadedSettings = await NotificationManager.instance.loadSettings();
 
         expect(loadedSettings.dailyReminderTime?.hour, equals(23));
         expect(loadedSettings.dailyReminderTime?.minute, equals(59));
@@ -156,7 +159,7 @@ void main() {
               '{"practiceRemindersEnabled": true, "dailyReminderTime": {"hour": 25, "minute": 30}}',
         });
 
-        final settings = await NotificationManager.loadSettings();
+        final settings = await NotificationManager.instance.loadSettings();
 
         // Should return defaults when time parsing fails
         expect(settings.practiceRemindersEnabled, isFalse);
@@ -172,7 +175,7 @@ void main() {
               '{"practiceRemindersEnabled": true, "dailyReminderTime": {"hour": -1, "minute": 30}}',
         });
 
-        final settings = await NotificationManager.loadSettings();
+        final settings = await NotificationManager.instance.loadSettings();
 
         // Should return defaults when time parsing fails
         expect(settings.practiceRemindersEnabled, isFalse);
@@ -188,7 +191,7 @@ void main() {
               '{"practiceRemindersEnabled": true, "dailyReminderTime": {"hour": 10}}',
         });
 
-        final settings = await NotificationManager.loadSettings();
+        final settings = await NotificationManager.instance.loadSettings();
 
         // Should return defaults when time parsing fails
         expect(settings.practiceRemindersEnabled, isFalse);
@@ -202,7 +205,7 @@ void main() {
               '{"practiceRemindersEnabled": true, "dailyReminderTime": {"hour": "10", "minute": "30"}}',
         });
 
-        final settings = await NotificationManager.loadSettings();
+        final settings = await NotificationManager.instance.loadSettings();
 
         // Should successfully parse string numbers
         expect(settings.dailyReminderTime?.hour, equals(10));
@@ -216,7 +219,7 @@ void main() {
       ) async {
         final scheduledTime = DateTime.now().add(const Duration(hours: 1));
 
-        await NotificationManager.saveScheduledNotification(
+        await NotificationManager.instance.saveScheduledNotification(
           123,
           "Test Title",
           "Test Body",
@@ -224,8 +227,8 @@ void main() {
           payload: "test_payload",
         );
 
-        final storedNotifications =
-            await NotificationManager.getScheduledNotifications();
+        final storedNotifications = await NotificationManager.instance
+            .getScheduledNotifications();
 
         expect(storedNotifications.containsKey("123"), isTrue);
 
@@ -247,7 +250,7 @@ void main() {
       ) async {
         final scheduledTime = DateTime.now().add(const Duration(hours: 1));
 
-        await NotificationManager.saveScheduledNotification(
+        await NotificationManager.instance.saveScheduledNotification(
           456,
           "Recurring Test",
           "Recurring Body",
@@ -255,8 +258,8 @@ void main() {
           isRecurring: true,
         );
 
-        final storedNotifications =
-            await NotificationManager.getScheduledNotifications();
+        final storedNotifications = await NotificationManager.instance
+            .getScheduledNotifications();
         final notification = storedNotifications["456"]!;
 
         expect(notification["isRecurring"], isTrue);
@@ -269,7 +272,7 @@ void main() {
         final scheduledTime = DateTime.now().add(const Duration(hours: 1));
 
         // Save first notification
-        await NotificationManager.saveScheduledNotification(
+        await NotificationManager.instance.saveScheduledNotification(
           789,
           "First Title",
           "First Body",
@@ -277,15 +280,15 @@ void main() {
         );
 
         // Overwrite with second notification (should log warning)
-        await NotificationManager.saveScheduledNotification(
+        await NotificationManager.instance.saveScheduledNotification(
           789,
           "Second Title",
           "Second Body",
           scheduledTime,
         );
 
-        final storedNotifications =
-            await NotificationManager.getScheduledNotifications();
+        final storedNotifications = await NotificationManager.instance
+            .getScheduledNotifications();
         final notification = storedNotifications["789"]!;
 
         // Should have the second notification's data
@@ -298,7 +301,7 @@ void main() {
       ) async {
         final scheduledTime = DateTime.now().add(const Duration(hours: 1));
 
-        await NotificationManager.saveScheduledNotification(
+        await NotificationManager.instance.saveScheduledNotification(
           999,
           "To Remove",
           "Remove Body",
@@ -306,16 +309,16 @@ void main() {
         );
 
         // Verify it exists
-        var storedNotifications =
-            await NotificationManager.getScheduledNotifications();
+        var storedNotifications = await NotificationManager.instance
+            .getScheduledNotifications();
         expect(storedNotifications.containsKey("999"), isTrue);
 
         // Remove it
-        await NotificationManager.removeScheduledNotification(999);
+        await NotificationManager.instance.removeScheduledNotification(999);
 
         // Verify it's gone
-        storedNotifications =
-            await NotificationManager.getScheduledNotifications();
+        storedNotifications = await NotificationManager.instance
+            .getScheduledNotifications();
         expect(storedNotifications.containsKey("999"), isFalse);
       });
 
@@ -323,10 +326,10 @@ void main() {
         "should handle removing non-existent notification gracefully",
         (tester) async {
           // Should not throw when removing non-existent notification
-          await NotificationManager.removeScheduledNotification(999);
+          await NotificationManager.instance.removeScheduledNotification(999);
 
-          final storedNotifications =
-              await NotificationManager.getScheduledNotifications();
+          final storedNotifications = await NotificationManager.instance
+              .getScheduledNotifications();
           expect(storedNotifications, isEmpty);
         },
       );
@@ -337,19 +340,19 @@ void main() {
         final scheduledTime = DateTime.now().add(const Duration(hours: 1));
 
         // Add multiple notifications
-        await NotificationManager.saveScheduledNotification(
+        await NotificationManager.instance.saveScheduledNotification(
           111,
           "Test 1",
           "Body 1",
           scheduledTime,
         );
-        await NotificationManager.saveScheduledNotification(
+        await NotificationManager.instance.saveScheduledNotification(
           222,
           "Test 2",
           "Body 2",
           scheduledTime,
         );
-        await NotificationManager.saveScheduledNotification(
+        await NotificationManager.instance.saveScheduledNotification(
           333,
           "Test 3",
           "Body 3",
@@ -357,16 +360,16 @@ void main() {
         );
 
         // Verify they exist
-        var storedNotifications =
-            await NotificationManager.getScheduledNotifications();
+        var storedNotifications = await NotificationManager.instance
+            .getScheduledNotifications();
         expect(storedNotifications, hasLength(3));
 
         // Clear all
-        await NotificationManager.clearAllScheduledNotifications();
+        await NotificationManager.instance.clearAllScheduledNotifications();
 
         // Verify they're all gone
-        storedNotifications =
-            await NotificationManager.getScheduledNotifications();
+        storedNotifications = await NotificationManager.instance
+            .getScheduledNotifications();
         expect(storedNotifications, isEmpty);
       });
 
@@ -378,8 +381,8 @@ void main() {
           "scheduled_notifications": "invalid json",
         });
 
-        final storedNotifications =
-            await NotificationManager.getScheduledNotifications();
+        final storedNotifications = await NotificationManager.instance
+            .getScheduledNotifications();
 
         // Should return empty map when data is corrupted
         expect(storedNotifications, isEmpty);
@@ -389,8 +392,8 @@ void main() {
         tester,
       ) async {
         // No data exists yet
-        final storedNotifications =
-            await NotificationManager.getScheduledNotifications();
+        final storedNotifications = await NotificationManager.instance
+            .getScheduledNotifications();
 
         expect(storedNotifications, isEmpty);
       });
@@ -406,9 +409,9 @@ void main() {
           permissionGranted: true,
         );
 
-        await NotificationManager.saveSettings(testSettings);
+        await NotificationManager.instance.saveSettings(testSettings);
 
-        await NotificationManager.saveScheduledNotification(
+        await NotificationManager.instance.saveScheduledNotification(
           555,
           "Test Notification",
           "Test Body",
@@ -416,19 +419,20 @@ void main() {
         );
 
         // Verify data exists
-        var settings = await NotificationManager.loadSettings();
-        var notifications =
-            await NotificationManager.getScheduledNotifications();
+        var settings = await NotificationManager.instance.loadSettings();
+        var notifications = await NotificationManager.instance
+            .getScheduledNotifications();
 
         expect(settings.practiceRemindersEnabled, isTrue);
         expect(notifications.containsKey("555"), isTrue);
 
         // Clear all data
-        await NotificationManager.clearAllData();
+        await NotificationManager.instance.clearAllData();
 
         // Verify everything is cleared
-        settings = await NotificationManager.loadSettings();
-        notifications = await NotificationManager.getScheduledNotifications();
+        settings = await NotificationManager.instance.loadSettings();
+        notifications = await NotificationManager.instance
+            .getScheduledNotifications();
 
         expect(settings.practiceRemindersEnabled, isFalse); // Back to defaults
         expect(notifications, isEmpty);
@@ -449,9 +453,10 @@ void main() {
         );
 
         // Should not throw
-        await NotificationManager.saveSettings(testSettings);
+        await NotificationManager.instance.saveSettings(testSettings);
 
-        final loadedSettings = await NotificationManager.loadSettings();
+        final loadedSettings = await NotificationManager.instance
+            .loadSettings();
         expect(loadedSettings.practiceRemindersEnabled, isTrue);
       });
     });
@@ -461,15 +466,15 @@ void main() {
         // Test with far future date
         final farFuture = DateTime(2100, 12, 31, 23, 59, 59);
 
-        await NotificationManager.saveScheduledNotification(
+        await NotificationManager.instance.saveScheduledNotification(
           777,
           "Far Future",
           "Future Body",
           farFuture,
         );
 
-        final storedNotifications =
-            await NotificationManager.getScheduledNotifications();
+        final storedNotifications = await NotificationManager.instance
+            .getScheduledNotifications();
         final notification = storedNotifications["777"]!;
 
         expect(
@@ -483,7 +488,7 @@ void main() {
       ) async {
         final scheduledTime = DateTime.now().add(const Duration(hours: 1));
 
-        await NotificationManager.saveScheduledNotification(
+        await NotificationManager.instance.saveScheduledNotification(
           888,
           "", // Empty title
           "", // Empty body
@@ -491,8 +496,8 @@ void main() {
           payload: "", // Empty payload
         );
 
-        final storedNotifications =
-            await NotificationManager.getScheduledNotifications();
+        final storedNotifications = await NotificationManager.instance
+            .getScheduledNotifications();
         final notification = storedNotifications["888"]!;
 
         expect(notification["title"], equals(""));
@@ -509,7 +514,7 @@ void main() {
           "A",
         ).join(); // 1000 character string
 
-        await NotificationManager.saveScheduledNotification(
+        await NotificationManager.instance.saveScheduledNotification(
           999,
           longString,
           longString,
@@ -517,8 +522,8 @@ void main() {
           payload: longString,
         );
 
-        final storedNotifications =
-            await NotificationManager.getScheduledNotifications();
+        final storedNotifications = await NotificationManager.instance
+            .getScheduledNotifications();
         final notification = storedNotifications["999"]!;
 
         expect(notification["title"], equals(longString));
@@ -532,7 +537,7 @@ void main() {
         final scheduledTime = DateTime.now().add(const Duration(hours: 1));
         const specialChars = "🎵🎹💪 Special chars: àáâãäå ñ çß ¡¿";
 
-        await NotificationManager.saveScheduledNotification(
+        await NotificationManager.instance.saveScheduledNotification(
           1000,
           specialChars,
           specialChars,
@@ -540,8 +545,8 @@ void main() {
           payload: specialChars,
         );
 
-        final storedNotifications =
-            await NotificationManager.getScheduledNotifications();
+        final storedNotifications = await NotificationManager.instance
+            .getScheduledNotifications();
         final notification = storedNotifications["1000"]!;
 
         expect(notification["title"], equals(specialChars));

@@ -3,20 +3,11 @@
 // Tests the UI and user interaction functionality of the device controller page.
 
 import "package:flutter/material.dart";
-import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/features/device_controller/device_controller_page.dart";
+import "../../shared/test_helpers/widget_test_helper.dart";
 import "../../shared/midi_mocks.dart";
-
-// Mock MIDI device class for testing
-class MockMidiDevice extends MidiDevice {
-  MockMidiDevice({
-    required String id,
-    required String name,
-    required String type,
-    required bool connected,
-  }) : super(id, name, type, connected);
-}
 
 void main() {
   setUpAll(MidiMocks.setUp);
@@ -24,22 +15,22 @@ void main() {
   tearDownAll(MidiMocks.tearDown);
 
   group("DeviceControllerPage UI Tests", () {
-    // Create a mock MIDI device for testing
-    final mockDevice = MockMidiDevice(
+    // Create a mock MIDI device for testing using domain MidiDevice
+    final mockDevice = MidiDevice(
       id: "test-device-1",
       name: "Test MIDI Device",
       type: "BLE",
       connected: false,
+      inputPorts: [],
+      outputPorts: [],
     );
 
     testWidgets("should create DeviceControllerPage without errors", (
       tester,
     ) async {
-      final Widget testWidget = MaterialApp(
-        home: DeviceControllerPage(device: mockDevice),
+      await tester.pumpWidget(
+        createTestWidget(DeviceControllerPage(device: mockDevice)),
       );
-
-      await tester.pumpWidget(testWidget);
 
       // Verify DeviceControllerPage is rendered
       expect(find.byType(DeviceControllerPage), findsOneWidget);
@@ -48,11 +39,11 @@ void main() {
     });
 
     testWidgets("should display device information", (tester) async {
-      final Widget testWidget = MaterialApp(
-        home: DeviceControllerPage(device: mockDevice),
-      );
+      // Using createTestWidget helper
 
-      await tester.pumpWidget(testWidget);
+      await tester.pumpWidget(
+        createTestWidget(DeviceControllerPage(device: mockDevice)),
+      );
 
       // Verify device information is displayed
       expect(find.text("Device Information"), findsOneWidget);
@@ -65,11 +56,11 @@ void main() {
     });
 
     testWidgets("should display MIDI controls", (tester) async {
-      final Widget testWidget = MaterialApp(
-        home: DeviceControllerPage(device: mockDevice),
-      );
+      // Using createTestWidget helper
 
-      await tester.pumpWidget(testWidget);
+      await tester.pumpWidget(
+        createTestWidget(DeviceControllerPage(device: mockDevice)),
+      );
       await tester.pump();
 
       // Verify basic MIDI control elements are present
@@ -85,11 +76,11 @@ void main() {
     });
 
     testWidgets("should handle channel selection changes", (tester) async {
-      final Widget testWidget = MaterialApp(
-        home: DeviceControllerPage(device: mockDevice),
-      );
+      // Using createTestWidget helper
 
-      await tester.pumpWidget(testWidget);
+      await tester.pumpWidget(
+        createTestWidget(DeviceControllerPage(device: mockDevice)),
+      );
       await tester.pump();
 
       // Find and interact with channel increment button
@@ -104,11 +95,11 @@ void main() {
     });
 
     testWidgets("should handle control change sliders", (tester) async {
-      final Widget testWidget = MaterialApp(
-        home: DeviceControllerPage(device: mockDevice),
-      );
+      // Using createTestWidget helper
 
-      await tester.pumpWidget(testWidget);
+      await tester.pumpWidget(
+        createTestWidget(DeviceControllerPage(device: mockDevice)),
+      );
       await tester.pump();
 
       // Find control change sliders and test interaction
@@ -127,11 +118,11 @@ void main() {
     });
 
     testWidgets("should display MIDI message status", (tester) async {
-      final Widget testWidget = MaterialApp(
-        home: DeviceControllerPage(device: mockDevice),
-      );
+      // Using createTestWidget helper
 
-      await tester.pumpWidget(testWidget);
+      await tester.pumpWidget(
+        createTestWidget(DeviceControllerPage(device: mockDevice)),
+      );
       await tester.pump();
 
       // Verify MIDI status area exists
@@ -142,11 +133,11 @@ void main() {
     });
 
     testWidgets("should display pitch bend control", (tester) async {
-      final Widget testWidget = MaterialApp(
-        home: DeviceControllerPage(device: mockDevice),
-      );
+      // Using createTestWidget helper
 
-      await tester.pumpWidget(testWidget);
+      await tester.pumpWidget(
+        createTestWidget(DeviceControllerPage(device: mockDevice)),
+      );
       await tester.pump();
 
       // Try scrolling to find the pitch bend section
@@ -165,23 +156,24 @@ void main() {
     testWidgets("should handle device disconnection gracefully", (
       tester,
     ) async {
-      final disconnectedDevice = MockMidiDevice(
+      final disconnectedDevice = MidiDevice(
         id: "test-device-2",
         name: "Disconnected Device",
         type: "BLE",
         connected: false,
+        inputPorts: [],
+        outputPorts: [],
       );
 
-      final Widget testWidget = MaterialApp(
-        home: DeviceControllerPage(device: disconnectedDevice),
+      // Using createTestWidget helper
+      await tester.pumpWidget(
+        createTestWidget(DeviceControllerPage(device: disconnectedDevice)),
       );
-
-      await tester.pumpWidget(testWidget);
       await tester.pump();
 
       // Should render without errors even for disconnected device
       expect(find.byType(DeviceControllerPage), findsOneWidget);
-      expect(find.textContaining("Disconnected Device").first, findsOneWidget);
+      expect(find.text("Device name: Disconnected Device"), findsOneWidget);
       expect(
         find.textContaining("Connection status: Disconnected"),
         findsOneWidget,
@@ -189,11 +181,11 @@ void main() {
     });
 
     testWidgets("should handle program change controls", (tester) async {
-      final Widget testWidget = MaterialApp(
-        home: DeviceControllerPage(device: mockDevice),
-      );
+      // Using createTestWidget helper
 
-      await tester.pumpWidget(testWidget);
+      await tester.pumpWidget(
+        createTestWidget(DeviceControllerPage(device: mockDevice)),
+      );
       await tester.pump();
 
       // Try scrolling to find the program change section
@@ -211,11 +203,11 @@ void main() {
     });
 
     testWidgets("should handle virtual piano key taps", (tester) async {
-      final Widget testWidget = MaterialApp(
-        home: DeviceControllerPage(device: mockDevice),
-      );
+      // Using createTestWidget helper
 
-      await tester.pumpWidget(testWidget);
+      await tester.pumpWidget(
+        createTestWidget(DeviceControllerPage(device: mockDevice)),
+      );
       await tester.pump();
 
       // Scroll down to find virtual piano
@@ -235,11 +227,11 @@ void main() {
     });
 
     testWidgets("should render correct piano key layout", (tester) async {
-      final Widget testWidget = MaterialApp(
-        home: DeviceControllerPage(device: mockDevice),
-      );
+      // Using createTestWidget helper
 
-      await tester.pumpWidget(testWidget);
+      await tester.pumpWidget(
+        createTestWidget(DeviceControllerPage(device: mockDevice)),
+      );
       await tester.pump();
 
       // Scroll to virtual piano section
@@ -255,11 +247,11 @@ void main() {
     });
 
     testWidgets("should render piano keys with correct colors", (tester) async {
-      final Widget testWidget = MaterialApp(
-        home: DeviceControllerPage(device: mockDevice),
-      );
+      // Using createTestWidget helper
 
-      await tester.pumpWidget(testWidget);
+      await tester.pumpWidget(
+        createTestWidget(DeviceControllerPage(device: mockDevice)),
+      );
       await tester.pump();
 
       // Scroll to virtual piano section
@@ -279,11 +271,11 @@ void main() {
     testWidgets("should handle piano key note on/off correctly", (
       tester,
     ) async {
-      final Widget testWidget = MaterialApp(
-        home: DeviceControllerPage(device: mockDevice),
-      );
+      // Using createTestWidget helper
 
-      await tester.pumpWidget(testWidget);
+      await tester.pumpWidget(
+        createTestWidget(DeviceControllerPage(device: mockDevice)),
+      );
       await tester.pump();
 
       // Scroll to virtual piano section
@@ -310,19 +302,21 @@ void main() {
 
   // Unit tests for piano key logic through public interface
   group("DeviceControllerPage Piano Key Logic", () {
-    final mockDevice = MockMidiDevice(
+    final mockDevice = MidiDevice(
       id: "test",
       name: "Test",
       type: "BLE",
       connected: false,
+      inputPorts: [],
+      outputPorts: [],
     );
 
     testWidgets("should render correct number of piano keys", (tester) async {
-      final Widget testWidget = MaterialApp(
-        home: DeviceControllerPage(device: mockDevice),
-      );
+      // Using createTestWidget helper
 
-      await tester.pumpWidget(testWidget);
+      await tester.pumpWidget(
+        createTestWidget(DeviceControllerPage(device: mockDevice)),
+      );
       await tester.pump();
 
       // Scroll to virtual piano section
@@ -337,11 +331,11 @@ void main() {
     });
 
     testWidgets("should render piano keys with note names", (tester) async {
-      final Widget testWidget = MaterialApp(
-        home: DeviceControllerPage(device: mockDevice),
-      );
+      // Using createTestWidget helper
 
-      await tester.pumpWidget(testWidget);
+      await tester.pumpWidget(
+        createTestWidget(DeviceControllerPage(device: mockDevice)),
+      );
       await tester.pump();
 
       // Scroll to virtual piano section
@@ -367,11 +361,11 @@ void main() {
     testWidgets("should have correct white and black key distribution", (
       tester,
     ) async {
-      final Widget testWidget = MaterialApp(
-        home: DeviceControllerPage(device: mockDevice),
-      );
+      // Using createTestWidget helper
 
-      await tester.pumpWidget(testWidget);
+      await tester.pumpWidget(
+        createTestWidget(DeviceControllerPage(device: mockDevice)),
+      );
       await tester.pump();
 
       // Scroll to virtual piano section

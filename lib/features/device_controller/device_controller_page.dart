@@ -1,12 +1,14 @@
 import "package:flutter/material.dart";
-import "package:flutter_midi_command/flutter_midi_command.dart";
+import "package:provider/provider.dart";
+import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/domain/constants/midi_protocol_constants.dart";
+import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/features/device_controller/device_controller_constants.dart";
 import "package:piano_fitness/features/device_controller/device_controller_view_model.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:piano_fitness/presentation/theme/semantic_colors.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/presentation/utils/piano_key_utils.dart";
-import "package:provider/provider.dart";
 
 /// A detailed controller interface for a specific MIDI device.
 ///
@@ -28,7 +30,11 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => DeviceControllerViewModel(device: widget.device),
+      create: (context) => DeviceControllerViewModel(
+        midiRepository: context.read<IMidiRepository>(),
+        midiState: context.read<MidiState>(),
+        device: widget.device,
+      ),
       child: Consumer<DeviceControllerViewModel>(
         builder: (context, viewModel, child) {
           return Scaffold(
@@ -202,8 +208,8 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                 Expanded(
                   child: Slider(
                     value: viewModel.ccController.toDouble(),
-                    max: MidiConstants.controllerMax.toDouble(),
-                    divisions: MidiConstants.controllerMax,
+                    max: MidiProtocol.controllerMax.toDouble(),
+                    divisions: MidiProtocol.controllerMax,
                     label: viewModel.ccController.toString(),
                     onChanged: (value) =>
                         viewModel.setCCController(value.toInt()),
@@ -218,8 +224,8 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                 Expanded(
                   child: Slider(
                     value: viewModel.ccValue.toDouble(),
-                    max: MidiConstants.controllerMax.toDouble(),
-                    divisions: MidiConstants.controllerMax,
+                    max: MidiProtocol.controllerMax.toDouble(),
+                    divisions: MidiProtocol.controllerMax,
                     label: viewModel.ccValue.toString(),
                     onChanged: (value) => viewModel.setCCValue(value.toInt()),
                   ),
@@ -251,8 +257,8 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                 Expanded(
                   child: Slider(
                     value: viewModel.programNumber.toDouble(),
-                    max: MidiConstants.programMax.toDouble(),
-                    divisions: MidiConstants.programMax,
+                    max: MidiProtocol.programMax.toDouble(),
+                    divisions: MidiProtocol.programMax,
                     label: viewModel.programNumber.toString(),
                     onChanged: (value) =>
                         viewModel.setProgramNumber(value.toInt()),
@@ -281,8 +287,8 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
             const SizedBox(height: Spacing.md),
             Slider(
               value: viewModel.pitchBend,
-              min: MidiConstants.pitchBendMin,
-              divisions: MidiConstants.pitchBendDivisions,
+              min: MidiProtocol.pitchBendNormalizedMin,
+              divisions: MidiUiConstants.pitchBendDivisions,
               label: viewModel.pitchBend.toStringAsFixed(2),
               onChanged: viewModel.setPitchBend,
               onChangeEnd: (_) => viewModel.resetPitchBend(),
@@ -364,9 +370,9 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
         : theme.colorScheme.onSurface; // Dark text on light key
 
     return GestureDetector(
-      onTapDown: (_) => viewModel.sendNoteOn(midiNote),
-      onTapUp: (_) => viewModel.sendNoteOff(midiNote),
-      onTapCancel: () => viewModel.sendNoteOff(midiNote),
+      onTapDown: (_) async => await viewModel.sendNoteOn(midiNote),
+      onTapUp: (_) async => await viewModel.sendNoteOff(midiNote),
+      onTapCancel: () async => await viewModel.sendNoteOff(midiNote),
       child: Container(
         width: DeviceControllerUIConstants.pianoKeyWidth,
         height: DeviceControllerUIConstants.pianoKeyHeight,

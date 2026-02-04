@@ -78,7 +78,7 @@ void main() {
   });
 
   tearDown(() async {
-    await NotificationManager.clearAllData();
+    await NotificationManager.instance.clearAllData();
   });
 
   test("NotificationService calls plugin initialize method", () async {
@@ -168,7 +168,7 @@ void main() {
       () async {
         final futureTime = DateTime.now().add(Duration(hours: 1));
 
-        await NotificationManager.saveScheduledNotification(
+        await NotificationManager.instance.saveScheduledNotification(
           123,
           "Test Schedule",
           "Test Body",
@@ -176,8 +176,8 @@ void main() {
           payload: "test_payload",
         );
 
-        final storedNotifications =
-            await NotificationManager.getScheduledNotifications();
+        final storedNotifications = await NotificationManager.instance
+            .getScheduledNotifications();
         expect(storedNotifications.containsKey("123"), true);
 
         final notification = storedNotifications["123"]!;
@@ -193,7 +193,7 @@ void main() {
       () async {
         final futureTime = DateTime.now().add(Duration(hours: 1));
 
-        await NotificationManager.saveScheduledNotification(
+        await NotificationManager.instance.saveScheduledNotification(
           NotificationService.dailyReminderNotificationId,
           "Daily Reminder",
           "Practice time!",
@@ -201,8 +201,8 @@ void main() {
           isRecurring: true,
         );
 
-        final storedNotifications =
-            await NotificationManager.getScheduledNotifications();
+        final storedNotifications = await NotificationManager.instance
+            .getScheduledNotifications();
         final notification =
             storedNotifications[NotificationService.dailyReminderNotificationId
                 .toString()]!;
@@ -236,7 +236,8 @@ void main() {
           contains("zonedSchedule(1001, Daily Reminder)"),
         );
 
-        final stored = await NotificationManager.getScheduledNotifications();
+        final stored = await NotificationManager.instance
+            .getScheduledNotifications();
         final rec =
             stored[NotificationService.dailyReminderNotificationId.toString()]!;
         expect(rec["isRecurring"], true);
@@ -282,22 +283,22 @@ void main() {
         final futureTime = DateTime.now().add(Duration(hours: 1));
 
         // Add both past and future notifications
-        await NotificationManager.saveScheduledNotification(
+        await NotificationManager.instance.saveScheduledNotification(
           100,
           "Past Notification",
           "Should be cleaned up",
           pastTime,
         );
 
-        await NotificationManager.saveScheduledNotification(
+        await NotificationManager.instance.saveScheduledNotification(
           200,
           "Future Notification",
           "Should remain",
           futureTime,
         );
 
-        var storedNotifications =
-            await NotificationManager.getScheduledNotifications();
+        var storedNotifications = await NotificationManager.instance
+            .getScheduledNotifications();
         expect(storedNotifications.length, 2);
 
         // Simulate cleanup logic (similar to what _syncStoredWithPending does)
@@ -318,11 +319,13 @@ void main() {
 
         // Remove stale notifications
         for (final id in toRemove) {
-          await NotificationManager.removeScheduledNotification(int.parse(id));
+          await NotificationManager.instance.removeScheduledNotification(
+            int.parse(id),
+          );
         }
 
-        storedNotifications =
-            await NotificationManager.getScheduledNotifications();
+        storedNotifications = await NotificationManager.instance
+            .getScheduledNotifications();
         expect(
           storedNotifications.containsKey("100"),
           false,
@@ -343,8 +346,8 @@ void main() {
         });
 
         // Should not throw when loading corrupted data
-        final storedNotifications =
-            await NotificationManager.getScheduledNotifications();
+        final storedNotifications = await NotificationManager.instance
+            .getScheduledNotifications();
         expect(storedNotifications.isEmpty, true);
       },
     );
