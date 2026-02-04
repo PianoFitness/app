@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:flutter/foundation.dart";
 import "package:logging/logging.dart";
 import "package:piano/piano.dart";
@@ -275,7 +277,7 @@ class PracticePageViewModel extends ChangeNotifier {
   void dispose() {
     _midiRepository.unregisterDataHandler(_dataHandler);
     _midiState.removeListener(notifyListeners);
-    VirtualPianoUtils.dispose(_midiRepository);
+    unawaited(VirtualPianoUtils.dispose(_midiRepository));
     super.dispose();
   }
 }
