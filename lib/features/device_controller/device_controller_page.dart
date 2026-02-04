@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/domain/constants/midi_protocol_constants.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/features/device_controller/device_controller_constants.dart";
 import "package:piano_fitness/features/device_controller/device_controller_view_model.dart";
@@ -207,8 +208,8 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                 Expanded(
                   child: Slider(
                     value: viewModel.ccController.toDouble(),
-                    max: MidiConstants.controllerMax.toDouble(),
-                    divisions: MidiConstants.controllerMax,
+                    max: MidiProtocol.controllerMax.toDouble(),
+                    divisions: MidiProtocol.controllerMax,
                     label: viewModel.ccController.toString(),
                     onChanged: (value) =>
                         viewModel.setCCController(value.toInt()),
@@ -223,8 +224,8 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                 Expanded(
                   child: Slider(
                     value: viewModel.ccValue.toDouble(),
-                    max: MidiConstants.controllerMax.toDouble(),
-                    divisions: MidiConstants.controllerMax,
+                    max: MidiProtocol.controllerMax.toDouble(),
+                    divisions: MidiProtocol.controllerMax,
                     label: viewModel.ccValue.toString(),
                     onChanged: (value) => viewModel.setCCValue(value.toInt()),
                   ),
@@ -256,8 +257,8 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                 Expanded(
                   child: Slider(
                     value: viewModel.programNumber.toDouble(),
-                    max: MidiConstants.programMax.toDouble(),
-                    divisions: MidiConstants.programMax,
+                    max: MidiProtocol.programMax.toDouble(),
+                    divisions: MidiProtocol.programMax,
                     label: viewModel.programNumber.toString(),
                     onChanged: (value) =>
                         viewModel.setProgramNumber(value.toInt()),
@@ -286,8 +287,8 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
             const SizedBox(height: Spacing.md),
             Slider(
               value: viewModel.pitchBend,
-              min: MidiConstants.pitchBendMin,
-              divisions: MidiConstants.pitchBendDivisions,
+              min: MidiProtocol.pitchBendNormalizedMin,
+              divisions: MidiUiConstants.pitchBendDivisions,
               label: viewModel.pitchBend.toStringAsFixed(2),
               onChanged: viewModel.setPitchBend,
               onChangeEnd: (_) => viewModel.resetPitchBend(),
