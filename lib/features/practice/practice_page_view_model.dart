@@ -103,27 +103,37 @@ class PracticePageViewModel extends ChangeNotifier {
   /// This method is public for testing purposes.
   @visibleForTesting
   void handleMidiData(Uint8List data) {
-    // Use domain service for MIDI parsing
-    MidiService.handleMidiData(data, (MidiEvent event) {
-      switch (event.type) {
-        case MidiEventType.noteOn:
-          // Update application state
-          _midiState.noteOn(event.data1, event.data2, event.channel);
-          // Coordinate with practice session for exercise tracking
-          _practiceSession?.handleNotePressed(event.data1);
-          break;
-        case MidiEventType.noteOff:
-          _midiState.noteOff(event.data1, event.channel);
-          _practiceSession?.handleNoteReleased(event.data1);
-          break;
-        case MidiEventType.controlChange:
-        case MidiEventType.programChange:
-        case MidiEventType.pitchBend:
-        case MidiEventType.other:
-          _midiState.setLastNote(event.displayMessage);
-          break;
-      }
-    });
+    try {
+      // Use domain service for MIDI parsing
+      MidiService.handleMidiData(data, (MidiEvent event) {
+        try {
+          switch (event.type) {
+            case MidiEventType.noteOn:
+              // Update application state
+              _midiState.noteOn(event.data1, event.data2, event.channel);
+              // Coordinate with practice session for exercise tracking
+              _practiceSession?.handleNotePressed(event.data1);
+              break;
+            case MidiEventType.noteOff:
+              _midiState.noteOff(event.data1, event.channel);
+              _practiceSession?.handleNoteReleased(event.data1);
+              break;
+            case MidiEventType.controlChange:
+            case MidiEventType.programChange:
+            case MidiEventType.pitchBend:
+            case MidiEventType.other:
+              _midiState.setLastNote(event.displayMessage);
+              break;
+          }
+        } catch (e, stackTrace) {
+          _log.warning("Error handling MIDI event: $e", e, stackTrace);
+          _midiState.setLastNote("Error processing MIDI event");
+        }
+      });
+    } catch (e, stackTrace) {
+      _log.severe("Error parsing MIDI data: $e", e, stackTrace);
+      _midiState.setLastNote("Error parsing MIDI data");
+    }
   }
 
   /// Starts the current practice session.
