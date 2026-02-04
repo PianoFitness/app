@@ -39,6 +39,12 @@ abstract class IMidiRepository {
   void unregisterDataHandler(void Function(Uint8List) handler);
 
   /// Get currently connected device
+  ///
+  /// **Note**: This is currently unimplemented and always returns null.
+  /// Device connection state is tracked at the service layer.
+  /// This will be enhanced in Phase 4 to expose connected device information.
+  ///
+  /// TODO(Phase 4): Implement device tracking in MidiConnectionService
   MidiDevice? get connectedDevice;
 
   /// Dispose of resources (close streams, cleanup handlers)

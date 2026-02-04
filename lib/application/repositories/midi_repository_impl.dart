@@ -205,8 +205,11 @@ class MidiRepositoryImpl implements IMidiRepository {
 
   @override
   MidiDevice? get connectedDevice {
-    // MidiConnectionService doesn't expose connected device currently
-    // This will need to be enhanced in Phase 4
+    // TODO(Phase 4): Implement device tracking
+    // MidiConnectionService currently doesn't maintain connected device state.
+    // This stub is intentionally unimplemented as no callers rely on it yet.
+    // When implementing: Add _connectedDevice field to MidiConnectionService,
+    // track during connect/disconnect operations, and expose via getter.
     return null;
   }
 
