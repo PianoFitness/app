@@ -68,13 +68,76 @@ flutter build macos  # macOS
 
 ## Architecture Overview
 
-Piano Fitness is a Flutter app focused on piano practice with MIDI integration. The app follows **Clean Architecture** with MVVM pattern in the presentation layer.
+Piano Fitness is a Flutter app focused on piano practice with MIDI integration. The app follows a **hybrid architecture** combining Clean Architecture principles with feature-based organization.
 
 **Architecture Decisions:** All major architectural decisions are documented as ADRs (Architecture Decision Records) in `docs/ADRs/`. See the [ADR README](docs/ADRs/README.md) for a complete index.
 
+### Hybrid Architecture: Clean Architecture + Features
+
+We implement a **pragmatic hybrid** that balances architectural purity with developer productivity:
+
+**Clean Architecture (Uncle Bob)** provides:
+- 📐 **Layered dependencies**: Domain → Application → Presentation (unidirectional)
+- 🔒 **Domain independence**: Core business logic isolated from frameworks
+- 🧪 **Testability**: Clear boundaries enable comprehensive unit testing
+- 🔄 **Flexibility**: Swap implementations without changing business logic
+
+**Feature-based organization (Flutter team)** provides:
+- 📁 **Co-location**: Related code grouped by business capability
+- 🎯 **Developer experience**: Easier navigation and understanding
+- ⚡ **Scalability**: Add features without affecting existing code
+- 🔍 **Discoverability**: Clear feature boundaries and responsibilities
+
+#### Three-Layer Architecture
+
+```text
+┌─────────────────────────────────────────────────────┐
+│  Presentation Layer (features/)                     │
+│  ├─ Pages (Views): Flutter UI widgets              │
+│  ├─ ViewModels: Feature logic + ChangeNotifier     │
+│  └─ Feature Widgets: Reusable UI components        │
+│     ↓ depends on                                    │
+├─────────────────────────────────────────────────────┤
+│  Application Layer (application/)                   │
+│  ├─ Services: Infrastructure orchestration         │
+│  ├─ State: Global application state                │
+│  └─ Repository Implementations: I/O operations      │
+│     ↓ depends on                                    │
+├─────────────────────────────────────────────────────┤
+│  Domain Layer (domain/)                             │
+│  ├─ Models: Pure business entities                 │
+│  ├─ Services: Pure functions (music theory)        │
+│  ├─ Repository Interfaces: I/O contracts           │
+│  └─ Constants: Domain-level constants              │
+└─────────────────────────────────────────────────────┘
+     ↑ No dependencies on outer layers
+```
+
+**Key Architectural Rules:**
+
+1. **Dependency Rule**: Always point inward (Presentation → Application → Domain)
+2. **Domain Independence**: Domain has zero dependencies on Flutter or external packages
+3. **Interface Segregation**: Interfaces defined in domain, implemented in application
+4. **Single Responsibility**: Each layer has one reason to change
+5. **Feature Autonomy**: Features are self-contained with minimal coupling
+
+#### Further Reading
+
+**Primary Sources:**
+- [Clean Architecture - Robert C. Martin (Uncle Bob)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) - Foundational principles
+- [Flutter Architectural Overview (Official)](https://docs.flutter.dev/resources/architectural-overview) - Framework-specific guidance
+- [Repository Pattern - Martin Fowler](https://martinfowler.com/eaaCatalog/repository.html) - Data access abstraction
+- [SOLID Principles](https://en.wikipedia.org/wiki/SOLID) - Object-oriented design principles
+- [Dependency Inversion Principle](https://en.wikipedia.org/wiki/Dependency_inversion_principle) - Foundation of our DI pattern
+
+**Piano Fitness Specifics:**
+- [Architecture Decision Records (ADRs)](docs/ADRs/README.md) - Our specific architectural choices
+- [ADR-003: Repository Pattern Implementation](docs/ADRs/003-repository-pattern-implementation.md)
+- [ADR-005: Dependency Injection Strategy](docs/ADRs/005-dependency-injection-strategy.md)
+
 ### Core Architecture Pattern
 
-**Clean Architecture with MVVM**: The app uses a three-layer architecture with clear separation of concerns:
+**Clean Architecture with MVVM in Features**: The app uses a three-layer architecture with clear separation of concerns:
 
 - **Domain Layer** (`lib/domain/`) - Pure business logic, models, and services
 - **Application Layer** (`lib/application/`) - Service orchestration, repositories, state management

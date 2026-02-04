@@ -143,9 +143,55 @@ linux/                            # Linux platform files
 web/                              # Web platform files
 ```
 
-### Architecture Pattern: MVVM with Clean Architecture
+### Architecture Pattern: Clean Architecture + Features
 
-Piano Fitness follows a **feature-based MVVM architecture** with **dependency injection**:
+Piano Fitness implements a **hybrid architecture** that combines:
+
+1. **Clean Architecture** principles (Uncle Bob) - Separation of concerns via layered dependencies
+2. **Feature-based organization** (Flutter team recommendations) - Code organized by business capabilities
+
+This hybrid approach gives us the benefits of both patterns:
+- ✅ **Domain independence**: Business logic isolated from frameworks and infrastructure
+- ✅ **Feature clarity**: Related code co-located for better developer experience
+- ✅ **Testability**: Clear dependency boundaries enable comprehensive unit testing
+- ✅ **Scalability**: New features can be added without affecting existing code
+
+#### Three-Layer Architecture
+
+```text
+┌─────────────────────────────────────────────────────┐
+│  Presentation Layer (features/)                     │
+│  - Pages (Views): UI components                     │
+│  - ViewModels: Feature-specific business logic      │
+│  - Widgets: Reusable UI components                  │
+└────────────┬────────────────────────────────────────┘
+             │ depends on ↓
+┌────────────▼────────────────────────────────────────┐
+│  Application Layer (application/)                   │
+│  - Services: Infrastructure orchestration           │
+│  - State: Global application state                  │
+│  - Repositories: Interface implementations          │
+└────────────┬────────────────────────────────────────┘
+             │ depends on ↓
+┌────────────▼────────────────────────────────────────┐
+│  Domain Layer (domain/)                             │
+│  - Models: Pure business entities                   │
+│  - Services: Pure business logic (music theory)     │
+│  - Repository Interfaces: Contracts for I/O         │
+│  - Constants: Domain-level constants                │
+└─────────────────────────────────────────────────────┘
+```
+
+**Key Principles:**
+
+- **Dependency Rule**: Dependencies point inward (Presentation → Application → Domain)
+- **Domain Independence**: Domain layer has no dependencies on frameworks or external libraries
+- **Interface Segregation**: Repository interfaces in domain, implementations in application
+- **Feature Organization**: Features contain related pages, ViewModels, and feature-specific widgets
+
+#### MVVM Within Features
+
+Each feature follows the **MVVM pattern**:
 
 - **View (Page)**: Pure UI layer, handles user interactions
 - **ViewModel**: Business logic layer, manages state and coordinates between View and repositories
@@ -153,6 +199,19 @@ Piano Fitness follows a **feature-based MVVM architecture** with **dependency in
 - **Repository**: Interface-based abstraction for external dependencies (MIDI, settings, etc.)
 
 Each feature is self-contained with its own View and ViewModel, using **Provider** for dependency injection and state management.
+
+#### Further Reading
+
+Learn more about the architectural patterns we follow:
+
+- **Clean Architecture**: [The Clean Architecture by Robert C. Martin](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+- **Flutter Architecture**: [Flutter architectural overview (official docs)](https://docs.flutter.dev/resources/architectural-overview)
+- **Feature-First Organization**: [Flutter development best practices (official)](https://docs.flutter.dev/perf/best-practices)
+- **MVVM Pattern**: [Microsoft's MVVM documentation](https://learn.microsoft.com/en-us/dotnet/architecture/maui/mvvm)
+- **Repository Pattern**: [Martin Fowler's Repository Pattern](https://martinfowler.com/eaaCatalog/repository.html)
+- **Dependency Injection**: [Dependency Inversion Principle (SOLID)](https://en.wikipedia.org/wiki/Dependency_inversion_principle)
+
+For Piano Fitness-specific architectural decisions, see our [Architecture Decision Records (ADRs)](../docs/ADRs/README.md).
 
 #### Dependency Injection Pattern
 
