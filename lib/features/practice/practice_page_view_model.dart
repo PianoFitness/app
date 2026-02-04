@@ -1,6 +1,7 @@
 import "package:flutter/foundation.dart";
 import "package:logging/logging.dart";
 import "package:piano/piano.dart";
+import "package:piano_fitness/domain/constants/midi_protocol_constants.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
@@ -227,7 +228,18 @@ class PracticePageViewModel extends ChangeNotifier {
   /// Plays a virtual note through MIDI output and triggers practice session.
   ///
   /// The practice session handles its own auto-start logic when notes are pressed.
+  /// Validates that [note] is within the valid MIDI range (0-127) before forwarding.
   Future<void> playVirtualNote(int note, {bool mounted = true}) async {
+    // Validate MIDI note range using domain constants
+    if (note < MidiProtocol.noteMin || note > MidiProtocol.noteMax) {
+      _log.warning(
+        "Invalid MIDI note: $note (must be between "
+        "${MidiProtocol.noteMin} and ${MidiProtocol.noteMax})",
+      );
+      _midiState.setLastNote("Invalid MIDI note: $note");
+      return;
+    }
+
     await VirtualPianoUtils.playVirtualNote(
       note,
       _midiRepository,
