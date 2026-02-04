@@ -370,9 +370,9 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
         : theme.colorScheme.onSurface; // Dark text on light key
 
     return GestureDetector(
-      onTapDown: (_) => viewModel.sendNoteOn(midiNote),
-      onTapUp: (_) => viewModel.sendNoteOff(midiNote),
-      onTapCancel: () => viewModel.sendNoteOff(midiNote),
+      onTapDown: (_) async => await viewModel.sendNoteOn(midiNote),
+      onTapUp: (_) async => await viewModel.sendNoteOff(midiNote),
+      onTapCancel: () async => await viewModel.sendNoteOff(midiNote),
       child: Container(
         width: DeviceControllerUIConstants.pianoKeyWidth,
         height: DeviceControllerUIConstants.pianoKeyHeight,

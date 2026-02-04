@@ -1,20 +1,35 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:mockito/mockito.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
 import "../../shared/midi_mocks.dart";
+import "../../shared/test_helpers/mock_repositories.mocks.dart";
 
 void main() {
   group("VirtualPianoUtils Unit Tests", () {
     late MidiState midiState;
+    late MockIMidiRepository mockRepository;
 
     setUpAll(MidiMocks.setUp);
 
     setUp(() {
       midiState = MidiState();
+      mockRepository = MockIMidiRepository();
+
+      // Setup mock repository behavior
+      when(
+        mockRepository.sendNoteOn(any, any, any),
+      ).thenAnswer((_) async => Future.value());
+      when(
+        mockRepository.sendNoteOff(any, any),
+      ).thenAnswer((_) async => Future.value());
+      when(
+        mockRepository.sendData(any),
+      ).thenAnswer((_) async => Future.value());
     });
 
-    tearDown(() {
-      VirtualPianoUtils.dispose();
+    tearDown(() async {
+      await VirtualPianoUtils.dispose(mockRepository);
       midiState.dispose();
     });
 
@@ -23,22 +38,40 @@ void main() {
     group("dispose method tests", () {
       test("should complete without throwing errors", () async {
         // Play some notes to create active timers
-        await VirtualPianoUtils.playVirtualNote(60, midiState, (note) {});
-        await VirtualPianoUtils.playVirtualNote(64, midiState, (note) {});
+        await VirtualPianoUtils.playVirtualNote(
+          60,
+          mockRepository,
+          midiState,
+          (note) {},
+        );
+        await VirtualPianoUtils.playVirtualNote(
+          64,
+          mockRepository,
+          midiState,
+          (note) {},
+        );
 
         // Call dispose - should not throw
-        expect(VirtualPianoUtils.dispose, returnsNormally);
+        expect(
+          () async => await VirtualPianoUtils.dispose(mockRepository),
+          returnsNormally,
+        );
       });
 
       test("should be safe to call multiple times", () async {
         // Play a note
-        await VirtualPianoUtils.playVirtualNote(60, midiState, (note) {});
+        await VirtualPianoUtils.playVirtualNote(
+          60,
+          mockRepository,
+          midiState,
+          (note) {},
+        );
 
         // Call dispose multiple times - should not throw
-        expect(() {
-          VirtualPianoUtils.dispose();
-          VirtualPianoUtils.dispose();
-          VirtualPianoUtils.dispose();
+        expect(() async {
+          await VirtualPianoUtils.dispose(mockRepository);
+          await VirtualPianoUtils.dispose(mockRepository);
+          await VirtualPianoUtils.dispose(mockRepository);
         }, returnsNormally);
       });
 
@@ -47,13 +80,31 @@ void main() {
         // preventing stuck notes when dispose is called before timers fire
 
         // Play several notes
-        await VirtualPianoUtils.playVirtualNote(60, midiState, (note) {}); // C4
-        await VirtualPianoUtils.playVirtualNote(64, midiState, (note) {}); // E4
-        await VirtualPianoUtils.playVirtualNote(67, midiState, (note) {}); // G4
+        await VirtualPianoUtils.playVirtualNote(
+          60,
+          mockRepository,
+          midiState,
+          (note) {},
+        ); // C4
+        await VirtualPianoUtils.playVirtualNote(
+          64,
+          mockRepository,
+          midiState,
+          (note) {},
+        ); // E4
+        await VirtualPianoUtils.playVirtualNote(
+          67,
+          mockRepository,
+          midiState,
+          (note) {},
+        ); // G4
 
         // Immediately dispose (before the 500ms timers would fire)
         // The key test is that this should not throw and should attempt cleanup
-        expect(VirtualPianoUtils.dispose, returnsNormally);
+        expect(
+          () async => await VirtualPianoUtils.dispose(mockRepository),
+          returnsNormally,
+        );
       });
     });
 
@@ -64,6 +115,7 @@ void main() {
 
         await VirtualPianoUtils.playVirtualNote(
           60, // Middle C
+          mockRepository,
           midiState,
           (note) {
             notePressed = true;
@@ -79,6 +131,9 @@ void main() {
         expect(midiState.lastNote.contains("Virtual Note ON: 60"), isTrue);
         expect(midiState.lastNote.contains("Ch: 1"), isTrue);
         expect(midiState.lastNote.contains("Vel: 64"), isTrue);
+
+        // Verify repository was called
+        verify(mockRepository.sendNoteOn(60, 64, 0)).called(1);
       });
 
       test("should handle different MIDI channels", () async {
@@ -87,12 +142,16 @@ void main() {
 
         await VirtualPianoUtils.playVirtualNote(
           67, // G4
+          mockRepository,
           midiState,
           (note) {},
         );
 
         // Verify the channel was used in the message
         expect(midiState.lastNote.contains("Ch: 6"), isTrue);
+
+        // Verify repository was called with correct channel
+        verify(mockRepository.sendNoteOn(67, 64, 5)).called(1);
       });
     });
 
@@ -102,9 +161,24 @@ void main() {
         final notesPlayed = <int>[];
 
         // Play a chord
-        await VirtualPianoUtils.playVirtualNote(60, midiState, notesPlayed.add);
-        await VirtualPianoUtils.playVirtualNote(64, midiState, notesPlayed.add);
-        await VirtualPianoUtils.playVirtualNote(67, midiState, notesPlayed.add);
+        await VirtualPianoUtils.playVirtualNote(
+          60,
+          mockRepository,
+          midiState,
+          notesPlayed.add,
+        );
+        await VirtualPianoUtils.playVirtualNote(
+          64,
+          mockRepository,
+          midiState,
+          notesPlayed.add,
+        );
+        await VirtualPianoUtils.playVirtualNote(
+          67,
+          mockRepository,
+          midiState,
+          notesPlayed.add,
+        );
 
         // Verify all notes were played
         expect(notesPlayed, equals([60, 64, 67]));
@@ -113,10 +187,18 @@ void main() {
         expect(midiState.lastNote.contains("Virtual Note ON: 67"), isTrue);
 
         // Dispose should work without errors
-        expect(VirtualPianoUtils.dispose, returnsNormally);
+        expect(
+          () async => await VirtualPianoUtils.dispose(mockRepository),
+          returnsNormally,
+        );
 
         // After dispose, should still be able to play new notes
-        await VirtualPianoUtils.playVirtualNote(72, midiState, notesPlayed.add);
+        await VirtualPianoUtils.playVirtualNote(
+          72,
+          mockRepository,
+          midiState,
+          notesPlayed.add,
+        );
 
         expect(notesPlayed.last, equals(72));
       });

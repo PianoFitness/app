@@ -158,22 +158,21 @@ class DeviceControllerViewModel extends ChangeNotifier {
   }
 
   /// Sends a note on message for the specified MIDI note.
-  void sendNoteOn(int midiNote, {int velocity = MidiProtocol.defaultVelocity}) {
+  Future<void> sendNoteOn(
+    int midiNote, {
+    int velocity = MidiProtocol.defaultVelocity,
+  }) async {
     try {
-      NoteOnMessage(
-        channel: _selectedChannel,
-        note: midiNote,
-        velocity: velocity,
-      ).send();
+      await _midiRepository.sendNoteOn(midiNote, velocity, _selectedChannel);
     } on Exception catch (e) {
       _log.warning("Error sending note: $e");
     }
   }
 
   /// Sends a note off message for the specified MIDI note.
-  void sendNoteOff(int midiNote) {
+  Future<void> sendNoteOff(int midiNote) async {
     try {
-      NoteOffMessage(channel: _selectedChannel, note: midiNote).send();
+      await _midiRepository.sendNoteOff(midiNote, _selectedChannel);
     } on Exception catch (e) {
       _log.warning("Error sending note off: $e");
     }

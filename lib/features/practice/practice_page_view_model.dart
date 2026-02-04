@@ -218,6 +218,7 @@ class PracticePageViewModel extends ChangeNotifier {
   Future<void> playVirtualNote(int note, {bool mounted = true}) async {
     await VirtualPianoUtils.playVirtualNote(
       note,
+      _midiRepository,
       _midiState,
       (note) => _practiceSession?.handleNotePressed(note),
       mounted: mounted,
@@ -250,7 +251,7 @@ class PracticePageViewModel extends ChangeNotifier {
   void dispose() {
     _midiRepository.unregisterDataHandler(_dataHandler);
     _midiState.removeListener(notifyListeners);
-    VirtualPianoUtils.dispose();
+    VirtualPianoUtils.dispose(_midiRepository);
     super.dispose();
   }
 }

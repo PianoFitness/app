@@ -124,9 +124,10 @@ The app handles complex MIDI workflows across multiple pages:
 
 **Virtual MIDI Output**:
 
-- NoteOnMessage/NoteOffMessage with fallback to raw MIDI bytes
+- All MIDI note operations routed through IMidiRepository interface
 - Channel selection (0-15, displayed as 1-16)
 - Velocity and timing control
+- Consistent validation and error handling via repository layer
 
 ### State Management Strategy
 

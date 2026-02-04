@@ -240,6 +240,7 @@ class ReferencePageViewModel extends ChangeNotifier {
   Future<void> playNote(int midiNote) async {
     await VirtualPianoUtils.playVirtualNote(
       midiNote,
+      _midiRepository,
       _localMidiState,
       (_) {}, // No specific callback needed for reference page
     );

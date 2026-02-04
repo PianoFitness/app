@@ -89,6 +89,7 @@ class PlayPageViewModel extends ChangeNotifier {
   Future<void> playVirtualNote(int note) async {
     await VirtualPianoUtils.playVirtualNote(
       note,
+      _midiRepository,
       _midiState,
       (_) {}, // No specific callback needed for play page
     );
