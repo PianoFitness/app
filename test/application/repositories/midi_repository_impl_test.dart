@@ -41,4 +41,83 @@ void main() {
       ); // Third retry
     });
   });
+
+  group("MidiRepositoryImpl Channel Validation", () {
+    late MidiRepositoryImpl repository;
+
+    setUp(() {
+      repository = MidiRepositoryImpl();
+    });
+
+    group("sendNoteOn", () {
+      test("throws RangeError for negative channel", () async {
+        // Validation happens before sendData, so no bindings needed
+        expect(
+          () async => await repository.sendNoteOn(60, 100, -1),
+          throwsA(
+            isA<RangeError>().having(
+              (e) => e.message,
+              "message",
+              contains("MIDI channel must be between 0 and 15"),
+            ),
+          ),
+        );
+      });
+
+      test("throws RangeError for channel > 15", () async {
+        expect(
+          () async => await repository.sendNoteOn(60, 100, 16),
+          throwsA(
+            isA<RangeError>().having(
+              (e) => e.message,
+              "message",
+              contains("MIDI channel must be between 0 and 15"),
+            ),
+          ),
+        );
+      });
+
+      test("throws RangeError for large invalid channel", () async {
+        expect(
+          () async => await repository.sendNoteOn(60, 100, 100),
+          throwsA(isA<RangeError>()),
+        );
+      });
+    });
+
+    group("sendNoteOff", () {
+      test("throws RangeError for negative channel", () async {
+        expect(
+          () async => await repository.sendNoteOff(60, -1),
+          throwsA(
+            isA<RangeError>().having(
+              (e) => e.message,
+              "message",
+              contains("MIDI channel must be between 0 and 15"),
+            ),
+          ),
+        );
+      });
+
+      test("throws RangeError for channel > 15", () async {
+        expect(
+          () async => await repository.sendNoteOff(60, 16),
+          throwsA(
+            isA<RangeError>().having(
+              (e) => e.message,
+              "message",
+              contains("MIDI channel must be between 0 and 15"),
+            ),
+          ),
+        );
+      });
+
+      test("throws RangeError for large invalid channel", () async {
+        expect(
+          () async => await repository.sendNoteOff(60, 100),
+          throwsA(isA<RangeError>()),
+        );
+      });
+    });
+  });
 }

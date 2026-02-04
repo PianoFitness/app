@@ -3,6 +3,7 @@ import "package:flutter/material.dart";
 import "package:flutter/services.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart" as midi_cmd;
 import "package:logging/logging.dart";
+import "package:piano_fitness/domain/models/midi_channel.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
 
@@ -34,19 +35,11 @@ class MidiSettingsViewModel extends ChangeNotifier {
   MidiSettingsViewModel({
     int initialChannel = 0,
     midi_cmd.MidiCommand? midiCommand,
-  }) : _selectedChannel = _validateChannel(initialChannel),
+  }) : _selectedChannel = initialChannel,
        _midiCommand = midiCommand ?? midi_cmd.MidiCommand() {
+    // Validate the initial channel in the constructor
+    MidiChannel.validate(initialChannel);
     _setupMidi();
-  }
-
-  /// Validates that a channel number is within the valid MIDI range (0-15).
-  static int _validateChannel(int channel) {
-    if (channel < 0 || channel > 15) {
-      throw RangeError(
-        "initialChannel must be between 0 and 15 (inclusive), but got $channel",
-      );
-    }
-    return channel;
   }
 
   static final _log = Logger("MidiSettingsViewModel");
@@ -85,7 +78,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
 
   /// Sets the selected MIDI channel.
   void setSelectedChannel(int channel) {
-    if (channel >= 0 && channel <= 15 && channel != _selectedChannel) {
+    if (MidiChannel.isValid(channel) && channel != _selectedChannel) {
       _selectedChannel = channel;
       notifyListeners();
     }

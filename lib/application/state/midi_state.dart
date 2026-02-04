@@ -1,6 +1,7 @@
 import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:piano/piano.dart";
+import "package:piano_fitness/domain/models/midi_channel.dart";
 
 /// Manages MIDI input state and provides real-time updates to the UI.
 ///
@@ -50,7 +51,7 @@ class MidiState extends ChangeNotifier {
   /// The [channel] must be in the range 0-15 (representing MIDI channels 1-16).
   /// Only updates and notifies listeners if the channel actually changes.
   void setSelectedChannel(int channel) {
-    if (channel >= 0 && channel <= 15 && channel != _selectedChannel) {
+    if (MidiChannel.isValid(channel) && channel != _selectedChannel) {
       _selectedChannel = channel;
       notifyListeners();
     }

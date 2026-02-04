@@ -53,7 +53,7 @@ void main() {
             isA<RangeError>().having(
               (e) => e.toString(),
               "message",
-              contains("initialChannel must be between 0 and 15"),
+              contains("MIDI channel must be between 0 and 15"),
             ),
           ),
         );
@@ -66,7 +66,7 @@ void main() {
             isA<RangeError>().having(
               (e) => e.toString(),
               "message",
-              contains("initialChannel must be between 0 and 15"),
+              contains("MIDI channel must be between 0 and 15"),
             ),
           ),
         );

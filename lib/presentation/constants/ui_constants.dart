@@ -5,6 +5,7 @@
 library;
 
 import "dart:ui";
+import "package:piano_fitness/domain/models/midi_channel.dart";
 
 /// Standardized spacing values following Material Design guidelines.
 ///
@@ -129,10 +130,12 @@ class MidiConstants {
 
   // Channel ranges
   /// Minimum MIDI channel (0-based): 0
-  static const int channelMin = 0;
+  /// References domain layer constant for consistency.
+  static const int channelMin = MidiChannel.min;
 
   /// Maximum MIDI channel (0-based): 15
-  static const int channelMax = 15;
+  /// References domain layer constant for consistency.
+  static const int channelMax = MidiChannel.max;
 
   // Controller and value ranges
   /// Maximum value for MIDI controllers and data bytes: 127
