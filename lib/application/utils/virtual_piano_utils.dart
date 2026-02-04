@@ -58,15 +58,14 @@ class VirtualPianoUtils {
       _noteOffTimers[noteKey] = Timer(
         const Duration(milliseconds: 500),
         () async {
-          if (mounted) {
-            try {
-              await midiRepository.sendNoteOff(note, selectedChannel);
-              _log.fine(
-                "Sent virtual note off: $note on channel ${selectedChannel + 1}",
-              );
-            } on Exception catch (e) {
-              _log.warning("Error sending note off: $e");
-            }
+          try {
+            await midiRepository.sendNoteOff(note, selectedChannel);
+            _log.fine(
+              "Sent virtual note off: $note on channel ${selectedChannel + 1}",
+            );
+          } on Exception catch (e) {
+            _log.warning("Error sending note off: $e");
+          } finally {
             // Remove the timer from the map once it's completed
             _noteOffTimers.remove(noteKey);
           }
@@ -77,7 +76,9 @@ class VirtualPianoUtils {
       midiState.setLastNote("Error sending virtual note");
     }
 
-    onNotePressed(note);
+    if (mounted) {
+      onNotePressed(note);
+    }
   }
 
   /// Cleans up all active virtual note timers and resources.
