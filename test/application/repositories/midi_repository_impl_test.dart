@@ -1,13 +1,29 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:mockito/mockito.dart";
 import "package:piano_fitness/application/repositories/midi_repository_impl.dart";
+
+import "../../shared/test_helpers/mock_repositories.mocks.dart";
 
 void main() {
   group("MidiRepositoryImpl Retry Logic", () {
+    late MockMidiConnectionService mockService;
+    late MockMidiCommand mockMidiCommand;
+
+    setUp(() {
+      mockService = MockMidiConnectionService();
+      mockMidiCommand = MockMidiCommand();
+
+      // Stub connect() to return successfully
+      when(mockService.connect()).thenAnswer((_) async => Future<void>.value());
+    });
+
     test("initialize uses configurable retry parameters", () {
       // Verify constructor accepts retry configuration
       final repository = MidiRepositoryImpl(
         maxConnectionAttempts: 3,
         initialRetryDelayMs: 100,
+        service: mockService,
+        midiCommand: mockMidiCommand,
       );
 
       expect(repository.maxConnectionAttempts, equals(3));
@@ -16,7 +32,10 @@ void main() {
     });
 
     test("uses default retry parameters when not specified", () {
-      final repository = MidiRepositoryImpl();
+      final repository = MidiRepositoryImpl(
+        service: mockService,
+        midiCommand: mockMidiCommand,
+      );
 
       expect(repository.maxConnectionAttempts, equals(5));
       expect(repository.initialRetryDelayMs, equals(200));
@@ -33,6 +52,8 @@ void main() {
         final repository = MidiRepositoryImpl(
           maxConnectionAttempts: 4,
           initialRetryDelayMs: 100,
+          service: mockService,
+          midiCommand: mockMidiCommand,
         );
 
         // Simulate the delay calculation that occurs in _connectWithRetry
@@ -55,7 +76,10 @@ void main() {
 
     test("default retry configuration produces correct delay sequence", () {
       // Verify default retry configuration follows exponential backoff
-      final repository = MidiRepositoryImpl();
+      final repository = MidiRepositoryImpl(
+        service: mockService,
+        midiCommand: mockMidiCommand,
+      );
 
       // Simulate the delay calculation using repository's configuration
       var currentDelay = repository.initialRetryDelayMs;
@@ -77,9 +101,20 @@ void main() {
 
   group("MidiRepositoryImpl Channel Validation", () {
     late MidiRepositoryImpl repository;
+    late MockMidiConnectionService mockService;
+    late MockMidiCommand mockMidiCommand;
 
     setUp(() {
-      repository = MidiRepositoryImpl();
+      mockService = MockMidiConnectionService();
+      mockMidiCommand = MockMidiCommand();
+
+      // Stub required methods
+      when(mockService.connect()).thenAnswer((_) async => Future<void>.value());
+
+      repository = MidiRepositoryImpl(
+        service: mockService,
+        midiCommand: mockMidiCommand,
+      );
     });
 
     group("sendNoteOn", () {

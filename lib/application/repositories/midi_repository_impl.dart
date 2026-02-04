@@ -20,8 +20,10 @@ class MidiRepositoryImpl implements IMidiRepository {
     this.maxConnectionAttempts = 5,
     this.initialRetryDelayMs = 200,
     this.retryDelayMultiplier = 2,
-  }) : _service = MidiConnectionService(),
-       _midiCommand = midi_cmd.MidiCommand();
+    MidiConnectionService? service,
+    midi_cmd.MidiCommand? midiCommand,
+  }) : _service = service ?? MidiConnectionService(),
+       _midiCommand = midiCommand ?? midi_cmd.MidiCommand();
 
   final MidiConnectionService _service;
   final midi_cmd.MidiCommand _midiCommand;
