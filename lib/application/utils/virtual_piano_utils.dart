@@ -1,5 +1,5 @@
 import "dart:async";
-import "dart:typed_data";
+import "package:flutter/foundation.dart";
 import "package:logging/logging.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
@@ -46,9 +46,11 @@ class VirtualPianoUtils {
         "Virtual Note ON: $note (Ch: ${selectedChannel + 1}, Vel: $velocity)",
       );
 
-      _log.fine(
-        "Sent virtual note on: $note on channel ${selectedChannel + 1}",
-      );
+      if (kDebugMode) {
+        _log.fine(
+          "Sent virtual note on: $note on channel ${selectedChannel + 1}",
+        );
+      }
 
       // Create a unique key for this note and channel combination
       final noteKey = "${note}_$selectedChannel";
@@ -60,9 +62,11 @@ class VirtualPianoUtils {
         () async {
           try {
             await midiRepository.sendNoteOff(note, selectedChannel);
-            _log.fine(
-              "Sent virtual note off: $note on channel ${selectedChannel + 1}",
-            );
+            if (kDebugMode) {
+              _log.fine(
+                "Sent virtual note off: $note on channel ${selectedChannel + 1}",
+              );
+            }
           } on Exception catch (e) {
             _log.warning("Error sending note off: $e");
           } finally {
@@ -104,7 +108,9 @@ class VirtualPianoUtils {
         ]);
         await midiRepository.sendData(allNotesOffData);
 
-        _log.fine("Sent All Notes Off on channel ${channel + 1}");
+        if (kDebugMode) {
+          _log.fine("Sent All Notes Off on channel ${channel + 1}");
+        }
       } on Exception catch (e) {
         _log.warning(
           "Error sending All Notes Off on channel ${channel + 1}: $e",
