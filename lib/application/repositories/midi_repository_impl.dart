@@ -193,14 +193,18 @@ class MidiRepositoryImpl implements IMidiRepository {
 
   @override
   void registerDataHandler(void Function(Uint8List) handler) {
-    _service.registerDataHandler(handler);
-    _registeredHandlers.add(handler);
+    // Only register with service if this is a new handler
+    if (_registeredHandlers.add(handler)) {
+      _service.registerDataHandler(handler);
+    }
   }
 
   @override
   void unregisterDataHandler(void Function(Uint8List) handler) {
-    _service.unregisterDataHandler(handler);
-    _registeredHandlers.remove(handler);
+    // Only unregister from service if handler was actually registered
+    if (_registeredHandlers.remove(handler)) {
+      _service.unregisterDataHandler(handler);
+    }
   }
 
   @override
