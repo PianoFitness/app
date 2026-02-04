@@ -217,10 +217,13 @@ class DeviceControllerViewModel extends ChangeNotifier {
           if (event.data1 == _ccController) {
             _ccValue = event.data2;
           }
+          break;
         case MidiEventType.programChange:
           _programNumber = event.data1;
+          break;
         case MidiEventType.pitchBend:
           _pitchBend = MidiService.getPitchBendValue(event.data1, event.data2);
+          break;
         case MidiEventType.noteOn:
         case MidiEventType.noteOff:
         case MidiEventType.other:
