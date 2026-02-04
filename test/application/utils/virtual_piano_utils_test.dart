@@ -46,10 +46,7 @@ void main() {
         );
 
         // Call dispose - should not throw
-        expect(
-          () async => await VirtualPianoUtils.dispose(mockRepository),
-          returnsNormally,
-        );
+        await expectLater(VirtualPianoUtils.dispose(mockRepository), completes);
       });
 
       test("should be safe to call multiple times", () async {
@@ -62,11 +59,9 @@ void main() {
         );
 
         // Call dispose multiple times - should not throw
-        expect(() async {
-          await VirtualPianoUtils.dispose(mockRepository);
-          await VirtualPianoUtils.dispose(mockRepository);
-          await VirtualPianoUtils.dispose(mockRepository);
-        }, returnsNormally);
+        await VirtualPianoUtils.dispose(mockRepository);
+        await VirtualPianoUtils.dispose(mockRepository);
+        await VirtualPianoUtils.dispose(mockRepository);
       });
 
       test("should prevent stuck notes by attempting cleanup", () async {
@@ -95,10 +90,7 @@ void main() {
 
         // Immediately dispose (before the 500ms timers would fire)
         // The key test is that this should not throw and should attempt cleanup
-        expect(
-          () async => await VirtualPianoUtils.dispose(mockRepository),
-          returnsNormally,
-        );
+        await expectLater(VirtualPianoUtils.dispose(mockRepository), completes);
       });
     });
 
@@ -181,10 +173,7 @@ void main() {
         expect(midiState.lastNote.contains("Virtual Note ON: 67"), isTrue);
 
         // Dispose should work without errors
-        expect(
-          () async => await VirtualPianoUtils.dispose(mockRepository),
-          returnsNormally,
-        );
+        await expectLater(VirtualPianoUtils.dispose(mockRepository), completes);
 
         // After dispose, should still be able to play new notes
         await VirtualPianoUtils.playVirtualNote(
