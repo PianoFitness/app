@@ -81,7 +81,9 @@ class PracticePageViewModel extends ChangeNotifier {
   /// Sets up MIDI handlers through repository.
   void _setupMidiHandlers() {
     _dataHandler = (Uint8List data) {
-      _log.fine("Received MIDI data: $data");
+      if (kDebugMode) {
+        _log.fine("Received MIDI data: $data");
+      }
       try {
         handleMidiData(data);
       } on Exception catch (e) {
