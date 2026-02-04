@@ -23,22 +23,55 @@ void main() {
       expect(repository.retryDelayMultiplier, equals(2));
     });
 
-    test("exponential backoff delay calculation is correct", () {
-      // Verify the retry delays follow exponential backoff pattern:
-      // Attempt 0: initialDelay (200ms)
-      // Attempt 1: initialDelay * multiplier (400ms)
-      // Attempt 2: initialDelay * multiplier^2 (800ms)
-      // etc.
+    test(
+      "retry delay configuration produces correct exponential backoff sequence",
+      () {
+        // This test verifies the repository's retry configuration parameters
+        // will produce the expected exponential backoff delays when used in
+        // the formula: delay = initialRetryDelayMs * (retryDelayMultiplier ^ attempt)
 
-      const initialDelay = 200;
-      const multiplier = 2;
+        final repository = MidiRepositoryImpl(
+          maxConnectionAttempts: 4,
+          initialRetryDelayMs: 100,
+        );
 
-      expect(initialDelay * 1, equals(200)); // First retry
-      expect(initialDelay * multiplier, equals(400)); // Second retry
-      expect(
-        initialDelay * multiplier * multiplier,
-        equals(800),
-      ); // Third retry
+        // Simulate the delay calculation that occurs in _connectWithRetry
+        var currentDelay = repository.initialRetryDelayMs;
+        final delays = <int>[];
+
+        for (
+          var attempt = 0;
+          attempt < repository.maxConnectionAttempts;
+          attempt++
+        ) {
+          delays.add(currentDelay);
+          currentDelay *= repository.retryDelayMultiplier;
+        }
+
+        // Verify the sequence matches expected exponential backoff
+        expect(delays, equals([100, 200, 400, 800]));
+      },
+    );
+
+    test("default retry configuration produces correct delay sequence", () {
+      // Verify default retry configuration follows exponential backoff
+      final repository = MidiRepositoryImpl();
+
+      // Simulate the delay calculation using repository's configuration
+      var currentDelay = repository.initialRetryDelayMs;
+      final delays = <int>[];
+
+      for (
+        var attempt = 0;
+        attempt < repository.maxConnectionAttempts;
+        attempt++
+      ) {
+        delays.add(currentDelay);
+        currentDelay *= repository.retryDelayMultiplier;
+      }
+
+      // With defaults: initialRetryDelayMs=200, multiplier=2, maxAttempts=5
+      expect(delays, equals([200, 400, 800, 1600, 3200]));
     });
   });
 
