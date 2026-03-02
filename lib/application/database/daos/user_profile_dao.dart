@@ -23,7 +23,7 @@ class UserProfileDao extends DatabaseAccessor<AppDatabase>
   Future<List<UserProfileTableData>> getProfilesAlphabetically() {
     return (select(
       userProfileTable,
-    )..orderBy([(t) => OrderingTerm(expression: t.displayName)])).get();
+    )..orderBy([(t) => OrderingTerm(expression: t.displayName.lower())])).get();
   }
 
   /// Retrieves profiles sorted by last practice date (most recent first).

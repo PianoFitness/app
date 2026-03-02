@@ -20,9 +20,10 @@ void main() {
 
     group("insertProfile", () {
       test("should insert a new profile", () async {
-        const profile = UserProfileTableCompanion(
-          id: Value("test-id-1"),
-          displayName: Value("Alice"),
+        final profile = UserProfileTableCompanion(
+          id: const Value("test-id-1"),
+          displayName: const Value("Alice"),
+          createdAt: Value(DateTime(2026)),
         );
 
         final insertedId = await dao.insertProfile(profile);
@@ -41,6 +42,7 @@ void main() {
           id: const Value("test-id-2"),
           displayName: const Value("Bob"),
           lastPracticeDate: Value(practiceDate),
+          createdAt: Value(DateTime(2026)),
         );
 
         await dao.insertProfile(profile);
@@ -58,17 +60,20 @@ void main() {
       });
 
       test("should return all profiles", () async {
-        const profile1 = UserProfileTableCompanion(
-          id: Value("id-1"),
-          displayName: Value("Alice"),
+        final profile1 = UserProfileTableCompanion(
+          id: const Value("id-1"),
+          displayName: const Value("Alice"),
+          createdAt: Value(DateTime(2026)),
         );
-        const profile2 = UserProfileTableCompanion(
-          id: Value("id-2"),
-          displayName: Value("Bob"),
+        final profile2 = UserProfileTableCompanion(
+          id: const Value("id-2"),
+          displayName: const Value("Bob"),
+          createdAt: Value(DateTime(2026)),
         );
-        const profile3 = UserProfileTableCompanion(
-          id: Value("id-3"),
-          displayName: Value("Charlie"),
+        final profile3 = UserProfileTableCompanion(
+          id: const Value("id-3"),
+          displayName: const Value("Charlie"),
+          createdAt: Value(DateTime(2026)),
         );
 
         await dao.insertProfile(profile1);
@@ -89,17 +94,20 @@ void main() {
       test(
         "should return profiles sorted alphabetically by display name",
         () async {
-          const profile1 = UserProfileTableCompanion(
-            id: Value("id-1"),
-            displayName: Value("Zebra"),
+          final profile1 = UserProfileTableCompanion(
+            id: const Value("id-1"),
+            displayName: const Value("Zebra"),
+            createdAt: Value(DateTime(2026)),
           );
-          const profile2 = UserProfileTableCompanion(
-            id: Value("id-2"),
-            displayName: Value("Apple"),
+          final profile2 = UserProfileTableCompanion(
+            id: const Value("id-2"),
+            displayName: const Value("Apple"),
+            createdAt: Value(DateTime(2026)),
           );
-          const profile3 = UserProfileTableCompanion(
-            id: Value("id-3"),
-            displayName: Value("Mango"),
+          final profile3 = UserProfileTableCompanion(
+            id: const Value("id-3"),
+            displayName: const Value("Mango"),
+            createdAt: Value(DateTime(2026)),
           );
 
           await dao.insertProfile(profile1);
@@ -116,13 +124,15 @@ void main() {
       );
 
       test("should handle case-insensitive sorting", () async {
-        const profile1 = UserProfileTableCompanion(
-          id: Value("id-1"),
-          displayName: Value("alice"),
+        final profile1 = UserProfileTableCompanion(
+          id: const Value("id-1"),
+          displayName: const Value("alice"),
+          createdAt: Value(DateTime(2026)),
         );
-        const profile2 = UserProfileTableCompanion(
-          id: Value("id-2"),
-          displayName: Value("Bob"),
+        final profile2 = UserProfileTableCompanion(
+          id: const Value("id-2"),
+          displayName: const Value("Bob"),
+          createdAt: Value(DateTime(2026)),
         );
 
         await dao.insertProfile(profile1);
@@ -149,16 +159,19 @@ void main() {
             id: const Value("id-1"),
             displayName: const Value("Alice"),
             lastPracticeDate: Value(oldDate),
+            createdAt: Value(DateTime(2026)),
           );
           final profile2 = UserProfileTableCompanion(
             id: const Value("id-2"),
             displayName: const Value("Bob"),
             lastPracticeDate: Value(recentDate),
+            createdAt: Value(DateTime(2026)),
           );
           final profile3 = UserProfileTableCompanion(
             id: const Value("id-3"),
             displayName: const Value("Charlie"),
             lastPracticeDate: Value(middleDate),
+            createdAt: Value(DateTime(2026)),
           );
 
           await dao.insertProfile(profile1);
@@ -183,16 +196,19 @@ void main() {
             id: const Value("id-1"),
             displayName: const Value("Alice"),
             lastPracticeDate: Value(recentDate),
+            createdAt: Value(DateTime(2026)),
           );
-          const profile2 = UserProfileTableCompanion(
-            id: Value("id-2"),
-            displayName: Value("Bob"),
-            lastPracticeDate: Value(null), // Never practiced
+          final profile2 = UserProfileTableCompanion(
+            id: const Value("id-2"),
+            displayName: const Value("Bob"),
+            lastPracticeDate: const Value(null), // Never practiced
+            createdAt: Value(DateTime(2026)),
           );
-          const profile3 = UserProfileTableCompanion(
-            id: Value("id-3"),
-            displayName: Value("Charlie"),
-            lastPracticeDate: Value(null), // Never practiced
+          final profile3 = UserProfileTableCompanion(
+            id: const Value("id-3"),
+            displayName: const Value("Charlie"),
+            lastPracticeDate: const Value(null), // Never practiced
+            createdAt: Value(DateTime(2026)),
           );
 
           await dao.insertProfile(profile1);
@@ -212,13 +228,15 @@ void main() {
       );
 
       test("should handle all profiles with null lastPracticeDate", () async {
-        const profile1 = UserProfileTableCompanion(
-          id: Value("id-1"),
-          displayName: Value("Alice"),
+        final profile1 = UserProfileTableCompanion(
+          id: const Value("id-1"),
+          displayName: const Value("Alice"),
+          createdAt: Value(DateTime(2026)),
         );
-        const profile2 = UserProfileTableCompanion(
-          id: Value("id-2"),
-          displayName: Value("Bob"),
+        final profile2 = UserProfileTableCompanion(
+          id: const Value("id-2"),
+          displayName: const Value("Bob"),
+          createdAt: Value(DateTime(2026)),
         );
 
         await dao.insertProfile(profile1);
@@ -237,9 +255,10 @@ void main() {
 
     group("getProfile", () {
       test("should return profile by ID", () async {
-        const profile = UserProfileTableCompanion(
-          id: Value("test-id"),
-          displayName: Value("Alice"),
+        final profile = UserProfileTableCompanion(
+          id: const Value("test-id"),
+          displayName: const Value("Alice"),
+          createdAt: Value(DateTime(2026)),
         );
 
         await dao.insertProfile(profile);
@@ -300,9 +319,10 @@ void main() {
 
     group("deleteProfile", () {
       test("should delete profile by ID", () async {
-        const profile = UserProfileTableCompanion(
-          id: Value("test-id"),
-          displayName: Value("Alice"),
+        final profile = UserProfileTableCompanion(
+          id: const Value("test-id"),
+          displayName: const Value("Alice"),
+          createdAt: Value(DateTime(2026)),
         );
 
         await dao.insertProfile(profile);
@@ -323,13 +343,15 @@ void main() {
       });
 
       test("should only delete specified profile", () async {
-        const profile1 = UserProfileTableCompanion(
-          id: Value("id-1"),
-          displayName: Value("Alice"),
+        final profile1 = UserProfileTableCompanion(
+          id: const Value("id-1"),
+          displayName: const Value("Alice"),
+          createdAt: Value(DateTime(2026)),
         );
-        const profile2 = UserProfileTableCompanion(
-          id: Value("id-2"),
-          displayName: Value("Bob"),
+        final profile2 = UserProfileTableCompanion(
+          id: const Value("id-2"),
+          displayName: const Value("Bob"),
+          createdAt: Value(DateTime(2026)),
         );
 
         await dao.insertProfile(profile1);

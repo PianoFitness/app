@@ -25,7 +25,9 @@ class _ProfileInitializerState extends State<ProfileInitializer> {
   @override
   void initState() {
     super.initState();
-    _initializeProfileState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeProfileState();
+    });
   }
 
   Future<void> _initializeProfileState() async {

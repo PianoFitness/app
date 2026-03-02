@@ -30,6 +30,9 @@ void main() {
       );
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      // Clean up pending timer
+      await tester.pumpAndSettle();
     });
 
     group("0 profiles (first launch)", () {
