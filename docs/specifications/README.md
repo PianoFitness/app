@@ -33,7 +33,8 @@ Not every change needs a spec. Small bug fixes, refactors, and minor UI tweaks g
 2. Fill in the `## Overview` and any sections relevant to your feature. **Omit sections that don't apply** — not every spec needs testing requirements, acceptance criteria, or implementation phases.
 3. Include the optional metadata block at the top if you want to track status and dates.
 4. Describe *what* the feature must do and *why*, not *how* the code implements it — see [Specs vs. Code](#specs-vs-code) below.
-5. Reference related specs and ADRs by name in prose; avoid maintaining links that may go stale.
+5. For any user-facing feature, fill in the `## Accessibility` section — it is not optional. See the [accessibility spec](accessibility.md) for patterns and guidance.
+6. Reference related specs and ADRs by name in prose; avoid maintaining links that may go stale.
 
 ## Specs vs. Code
 

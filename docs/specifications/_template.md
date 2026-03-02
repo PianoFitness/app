@@ -41,6 +41,30 @@ Describe what the feature must do. Use sub-sections to group related requirement
 - Precision / latency target (e.g., "Timing accuracy within ±1 ms").
 - Memory / battery constraint if relevant.
 
+## Accessibility
+
+<!--
+  Required for any user-facing feature. Omit only for purely infrastructure or backend specs
+  with no UI surface.
+
+  Treat accessibility as a requirement, not an afterthought. Consider:
+  - Screen reader support: are all interactive elements labelled with Semantics widgets?
+  - Contrast and color: does the UI meet WCAG AA contrast ratios? Is color alone ever used to
+    convey meaning?
+  - Touch targets: are tap targets at least 44×44 dp?
+  - Text scaling: does the layout hold up at the largest system font size?
+  - Keyboard / switch access: can all interactions be completed without a touchscreen?
+  - Motion sensitivity: are animations reducible or avoidable for users who prefer reduced motion?
+
+  Not every concern applies to every feature — note only what is relevant and how it is addressed.
+-->
+
+- **Screen reader**: [How interactive elements are labelled; any custom Semantics needed.]
+- **Contrast**: [Color choices and contrast ratios; whether color is avoided as the sole indicator.]
+- **Touch targets**: [Minimum tap target sizes for custom interactive elements.]
+- **Text scaling**: [How the layout adapts to large font sizes.]
+- **Reduced motion**: [Whether animations can be disabled or reduced.]
+
 ## Design Notes
 
 <!--
