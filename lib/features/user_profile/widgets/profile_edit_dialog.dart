@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 
 import "../../../domain/models/user_profile.dart";
+import "../utils/profile_validation.dart";
 
 /// Dialog for editing an existing user profile's display name.
 class ProfileEditDialog extends StatefulWidget {
@@ -17,7 +18,6 @@ class ProfileEditDialog extends StatefulWidget {
 class _ProfileEditDialogState extends State<ProfileEditDialog> {
   late final TextEditingController _controller;
   final _formKey = GlobalKey<FormState>();
-  bool _isSaving = false;
 
   @override
   void initState() {
@@ -31,21 +31,8 @@ class _ProfileEditDialogState extends State<ProfileEditDialog> {
     super.dispose();
   }
 
-  String? _validateDisplayName(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return "Display name cannot be empty";
-    }
-    if (value.length > 30) {
-      return "Display name cannot exceed 30 characters";
-    }
-    return null;
-  }
-
   void _onSave() {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isSaving = true;
-      });
       Navigator.of(context).pop(_controller.text.trim());
     }
   }
@@ -72,8 +59,7 @@ class _ProfileEditDialogState extends State<ProfileEditDialog> {
                 labelText: "Display Name",
                 border: OutlineInputBorder(),
               ),
-              validator: _validateDisplayName,
-              enabled: !_isSaving,
+              validator: validateDisplayName,
               onFieldSubmitted: (_) => _onSave(),
             ),
           ],
@@ -82,19 +68,13 @@ class _ProfileEditDialogState extends State<ProfileEditDialog> {
       actions: [
         TextButton(
           key: const Key("profile_edit_cancel_button"),
-          onPressed: _isSaving ? null : () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(context).pop(),
           child: const Text("Cancel"),
         ),
         FilledButton(
           key: const Key("profile_edit_save_button"),
-          onPressed: _isSaving ? null : _onSave,
-          child: _isSaving
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Text("Save"),
+          onPressed: _onSave,
+          child: const Text("Save"),
         ),
       ],
     );

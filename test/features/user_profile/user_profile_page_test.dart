@@ -271,7 +271,7 @@ void main() {
       when(
         mockRepository.getSortOrder(),
       ).thenAnswer((_) async => ProfileSortOrder.alphabetical);
-      when(mockRepository.getActiveProfileId()).thenAnswer((_) async => null);
+      when(mockRepository.getActiveProfileId()).thenAnswer((_) async => "1");
       when(mockRepository.setActiveProfileId("1")).thenAnswer((_) async => {});
 
       await tester.pumpWidget(

@@ -1,3 +1,5 @@
+import "dart:collection";
+
 import "package:flutter/foundation.dart";
 import "package:logging/logging.dart";
 
@@ -25,7 +27,8 @@ class UserProfileViewModel extends ChangeNotifier {
   UserProfile? _activeProfile;
 
   /// All user profiles, sorted according to current sort order.
-  List<UserProfile> get profiles => _profiles;
+  /// Returns an unmodifiable view to prevent external mutations.
+  List<UserProfile> get profiles => UnmodifiableListView(_profiles);
 
   /// Current sort order preference.
   ProfileSortOrder get sortOrder => _sortOrder;
@@ -52,15 +55,14 @@ class UserProfileViewModel extends ChangeNotifier {
 
       // Load active profile
       final activeId = await _userProfileRepository.getActiveProfileId();
-      if (activeId != null) {
+      if (activeId != null && _profiles.isNotEmpty) {
+        // Try to find profile with active ID
         _activeProfile = _profiles.firstWhere(
           (p) => p.id == activeId,
-          orElse: () => _profiles.isNotEmpty
-              ? _profiles.first
-              : throw Exception("No profiles available"),
+          orElse: () => _profiles.first,
         );
-        // Update active profile in case it wasn't found
-        if (_activeProfile != null) {
+        // Update repository if we fell back to first profile
+        if (_activeProfile!.id != activeId) {
           await _userProfileRepository.setActiveProfileId(_activeProfile!.id);
         }
       } else if (_profiles.isNotEmpty) {

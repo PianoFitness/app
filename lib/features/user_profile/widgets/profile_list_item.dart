@@ -34,14 +34,27 @@ class ProfileListItem extends StatelessWidget {
     }
 
     final now = DateTime.now();
-    final difference = now.difference(lastPractice);
+    // Create date-only versions for accurate day comparison
+    final nowDate = DateTime(now.year, now.month, now.day);
+    final lastPracticeDate = DateTime(
+      lastPractice.year,
+      lastPractice.month,
+      lastPractice.day,
+    );
 
-    if (difference.inDays == 0) {
+    // Compare calendar dates instead of duration
+    if (nowDate == lastPracticeDate) {
       return "Last practiced today";
-    } else if (difference.inDays == 1) {
+    }
+
+    final yesterday = nowDate.subtract(const Duration(days: 1));
+    if (yesterday == lastPracticeDate) {
       return "Last practiced yesterday";
-    } else if (difference.inDays < 7) {
-      return "Last practiced ${difference.inDays} days ago";
+    }
+
+    final daysDifference = nowDate.difference(lastPracticeDate).inDays;
+    if (daysDifference < 7) {
+      return "Last practiced $daysDifference days ago";
     } else {
       return "Last practiced ${DateFormat.yMMMd().format(lastPractice)}";
     }

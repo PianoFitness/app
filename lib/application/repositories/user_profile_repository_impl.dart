@@ -1,4 +1,4 @@
-import "package:flutter/foundation.dart";
+import "package:logging/logging.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import "package:uuid/uuid.dart";
 import "package:drift/drift.dart";
@@ -23,6 +23,7 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
   final AppDatabase _database;
   final SharedPreferences _prefs;
   final Uuid _uuid = const Uuid();
+  final Logger _logger = Logger("UserProfileRepositoryImpl");
 
   static const String _activeProfileIdKey = "active_profile_id";
   static const String _sortOrderKey = "profile_sort_order";
@@ -33,10 +34,7 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
       final profiles = await _database.userProfileDao.getAllProfiles();
       return profiles.map(_toDomainModel).toList();
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print("Error loading profiles: $e");
-        print(stackTrace);
-      }
+      _logger.severe("Error loading profiles", e, stackTrace);
       rethrow;
     }
   }
@@ -47,10 +45,7 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
       final profile = await _database.userProfileDao.getProfile(id);
       return profile != null ? _toDomainModel(profile) : null;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print("Error loading profile $id: $e");
-        print(stackTrace);
-      }
+      _logger.severe("Error loading profile $id", e, stackTrace);
       rethrow;
     }
   }
@@ -74,10 +69,7 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
       await _database.userProfileDao.insertProfile(companion);
       return profile;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print("Error creating profile: $e");
-        print(stackTrace);
-      }
+      _logger.severe("Error creating profile", e, stackTrace);
       rethrow;
     }
   }
@@ -94,10 +86,7 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
 
       return profile;
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print("Error updating profile: $e");
-        print(stackTrace);
-      }
+      _logger.severe("Error updating profile", e, stackTrace);
       rethrow;
     }
   }
@@ -113,10 +102,7 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
         await _prefs.remove(_activeProfileIdKey);
       }
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print("Error deleting profile $id: $e");
-        print(stackTrace);
-      }
+      _logger.severe("Error deleting profile $id", e, stackTrace);
       rethrow;
     }
   }
@@ -126,10 +112,7 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
     try {
       return _prefs.getString(_activeProfileIdKey);
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print("Error loading active profile ID: $e");
-        print(stackTrace);
-      }
+      _logger.severe("Error loading active profile ID", e, stackTrace);
       return null;
     }
   }
@@ -139,10 +122,7 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
     try {
       await _prefs.setString(_activeProfileIdKey, id);
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print("Error saving active profile ID: $e");
-        print(stackTrace);
-      }
+      _logger.severe("Error saving active profile ID", e, stackTrace);
       rethrow;
     }
   }
@@ -151,16 +131,16 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
   Future<ProfileSortOrder> getSortOrder() async {
     try {
       final orderString = _prefs.getString(_sortOrderKey);
-      if (orderString == ProfileSortOrder.alphabetical.name) {
-        return ProfileSortOrder.alphabetical;
+      if (orderString == null) {
+        return ProfileSortOrder.lastActive;
       }
-      // Default to lastActive
-      return ProfileSortOrder.lastActive;
+      // Use enum parsing with fallback
+      return ProfileSortOrder.values.firstWhere(
+        (e) => e.name == orderString,
+        orElse: () => ProfileSortOrder.lastActive,
+      );
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print("Error loading sort order: $e");
-        print(stackTrace);
-      }
+      _logger.severe("Error loading sort order", e, stackTrace);
       return ProfileSortOrder.lastActive; // Default on error
     }
   }
@@ -170,10 +150,7 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
     try {
       await _prefs.setString(_sortOrderKey, order.name);
     } catch (e, stackTrace) {
-      if (kDebugMode) {
-        print("Error saving sort order: $e");
-        print(stackTrace);
-      }
+      _logger.severe("Error saving sort order", e, stackTrace);
       rethrow;
     }
   }

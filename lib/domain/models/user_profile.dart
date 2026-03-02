@@ -55,6 +55,9 @@ class UserProfile {
   final DateTime createdAt;
 
   /// Creates a copy of this profile with the given fields replaced.
+  ///
+  /// To explicitly set [lastPracticeDate] to null, use:
+  /// `profile.copyWithNullableDate(lastPracticeDate: null)`
   UserProfile copyWith({
     String? id,
     String? displayName,
@@ -65,6 +68,26 @@ class UserProfile {
       id: id ?? this.id,
       displayName: displayName ?? this.displayName,
       lastPracticeDate: lastPracticeDate ?? this.lastPracticeDate,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  /// Creates a copy with explicit control over nullable [lastPracticeDate].
+  ///
+  /// This allows explicitly setting [lastPracticeDate] to null, which cannot
+  /// be done with [copyWith] due to Dart's null-coalescing operator behavior.
+  UserProfile copyWithNullableDate({
+    String? id,
+    String? displayName,
+    DateTime? Function()? lastPracticeDate,
+    DateTime? createdAt,
+  }) {
+    return UserProfile(
+      id: id ?? this.id,
+      displayName: displayName ?? this.displayName,
+      lastPracticeDate: lastPracticeDate != null
+          ? lastPracticeDate()
+          : this.lastPracticeDate,
       createdAt: createdAt ?? this.createdAt,
     );
   }
