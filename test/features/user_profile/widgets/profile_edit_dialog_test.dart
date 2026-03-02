@@ -398,9 +398,27 @@ void main() {
       await tester.tap(find.byKey(const Key("profile_edit_save_button")));
       await tester.pump();
 
-      // Note: Dialog closes immediately without disabling buttons
-      // This test verifies the dialog remains open momentarily
-      expect(find.byKey(const Key("profile_edit_save_button")), findsOneWidget);
+      // Verify the save button is disabled during save
+      final saveButton = tester.widget<FilledButton>(
+        find.byKey(const Key("profile_edit_save_button")),
+      );
+      expect(
+        saveButton.onPressed,
+        isNull,
+        reason: "Save button should be disabled during profile save",
+      );
+
+      // Try tapping the disabled button and verify dialog doesn't close
+      await tester.tap(
+        find.byKey(const Key("profile_edit_save_button")),
+        warnIfMissed: false,
+      );
+      await tester.pump();
+      expect(
+        find.byType(ProfileEditDialog),
+        findsOneWidget,
+        reason: "Dialog should remain open when disabled button is tapped",
+      );
     });
   });
 }

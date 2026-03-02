@@ -18,6 +18,7 @@ class ProfileEditDialog extends StatefulWidget {
 class _ProfileEditDialogState extends State<ProfileEditDialog> {
   late final TextEditingController _controller;
   final _formKey = GlobalKey<FormState>();
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -33,6 +34,7 @@ class _ProfileEditDialogState extends State<ProfileEditDialog> {
 
   void _onSave() {
     if (_formKey.currentState!.validate()) {
+      setState(() => _isSaving = true);
       Navigator.of(context).pop(_controller.text.trim());
     }
   }
@@ -55,6 +57,7 @@ class _ProfileEditDialogState extends State<ProfileEditDialog> {
               controller: _controller,
               autofocus: true,
               maxLength: 30,
+              enabled: !_isSaving,
               decoration: const InputDecoration(
                 labelText: "Display Name",
                 border: OutlineInputBorder(),
@@ -68,12 +71,12 @@ class _ProfileEditDialogState extends State<ProfileEditDialog> {
       actions: [
         TextButton(
           key: const Key("profile_edit_cancel_button"),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: _isSaving ? null : () => Navigator.of(context).pop(),
           child: const Text("Cancel"),
         ),
         FilledButton(
           key: const Key("profile_edit_save_button"),
-          onPressed: _onSave,
+          onPressed: _isSaving ? null : _onSave,
           child: const Text("Save"),
         ),
       ],
