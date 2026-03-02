@@ -64,6 +64,12 @@ flutter build apk    # Android
 flutter build ios    # iOS  
 flutter build web    # Web
 flutter build macos  # macOS
+
+# Database Migrations (Drift)
+dart run drift_dev make-migrations  # Generate schema files and migration code
+# Run BEFORE adding/modifying tables to capture current schema
+# Run AFTER bumping schemaVersion to generate migration helpers
+flutter test test/application/database/app_database_migration_test.dart  # Test migrations
 ```
 
 ## Architecture Overview
@@ -266,6 +272,64 @@ See `test/shared/test_helpers/mock_repositories.dart` for available mocks.
 - ✅ Clarity: Explicit dependencies visible in constructor
 - ✅ Coverage: Enables 80%+ test coverage for ViewModels
 
+### Database Persistence Strategy
+
+Piano Fitness uses **Drift** (a reactive, type-safe ORM) for local data persistence. The database layer lives in the application layer and is accessed via Provider dependency injection.
+
+**Database Configuration:**
+
+```dart
+// lib/application/database/app_database.dart
+@DriftDatabase(tables: [PracticeHistoryTable, /* add tables here */])
+class AppDatabase extends _$AppDatabase {
+  AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
+  
+  @override
+  int get schemaVersion => 1;  // Increment when schema changes
+  
+  static QueryExecutor _openConnection() {
+    return driftDatabase(
+      name: "piano_fitness",
+      native: const DriftNativeOptions(
+        databaseDirectory: getApplicationSupportDirectory,
+      ),
+    );
+  }
+}
+```
+
+**Provider Registration (main.dart):**
+
+```dart
+Provider<AppDatabase>(
+  create: (_) => AppDatabase(),
+  dispose: (_, db) => db.close(),
+)
+```
+
+**Testing with In-Memory Database:**
+
+```dart
+final db = AppDatabase(NativeDatabase.memory());
+```
+
+**Schema Migration Workflow:**
+
+When adding or modifying tables:
+
+1. **Before changes:** `dart run drift_dev make-migrations` (captures current schema)
+2. **Add/modify table** and **increment schemaVersion**
+3. **After changes:** `dart run drift_dev make-migrations` (generates migration code)
+4. **Implement migration** in generated `app_database_migration.dart`
+5. **Test migration:** `flutter test test/application/database/app_database_migration_test.dart`
+
+Migration files are generated in:
+- `drift_schemas/` - Schema version JSON files (tracked in git)
+- `lib/application/database/app_database_migration.dart` - Migration implementation guide
+- `test/application/database/app_database_migration_test.dart` - Automated migration tests
+
+See [ADR-0024](docs/ADRs/0024-drift-database-persistence.md) for complete migration workflow and rationale.
+
 ### Error Handling Patterns
 
 **MIDI Connection Errors**:
@@ -317,6 +381,9 @@ lib/
 │       ├── musical_constants.dart  # Musical theory constants
 │       └── practice_constants.dart # Practice-related constants
 ├── application/                    # Application Layer (Service Orchestration)
+│   ├── database/                   # Database layer (Drift)
+│   │   ├── app_database.dart       # Central database configuration
+│   │   └── app_database.g.dart     # Generated database code (drift_dev)
 │   ├── services/                   # Infrastructure integrations
 │   │   └── midi/                   # MIDI device management
 │   │       └── midi_connection_service.dart # Device lifecycle and connection

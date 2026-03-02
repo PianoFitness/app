@@ -14,7 +14,7 @@ ADRs are lightweight documents that focus on significant decisions affecting mul
 
 ## Maintenance
 
-ADRs are numbered sequentially (0001-0023, etc.). When creating new ADRs:
+ADRs are numbered sequentially (0001-0024, etc.). When creating new ADRs:
 
 1. Use the next available number (4-digit format)
 2. Follow the [template.md](template.md) structure
@@ -60,3 +60,7 @@ ADRs are numbered sequentially (0001-0023, etc.). When creating new ADRs:
 - [ADR-0021: Platform Support Strategy](0021-platform-support-strategy.md) - 2024-01-01
 - [ADR-0022: Structured Logging Strategy](0022-structured-logging-strategy.md) - 2024-01-01
 - [ADR-0023: Import Organization Conventions](0023-import-organization-conventions.md) - 2024-01-01
+
+### Data Persistence
+
+- [ADR-0024: Drift for Database Persistence](0024-drift-database-persistence.md) - 2026-03-02

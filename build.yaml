@@ -1,0 +1,20 @@
+# Build configuration for code generation tools
+# Used by build_runner to generate Drift database migrations and other artifacts
+
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          # Database schema configuration for migration tooling
+          databases:
+            # AppDatabase location for schema tracking and migrations
+            app_database: lib/application/database/app_database.dart
+
+          # Directory where schema version files are stored (one per schema version)
+          # These files enable Drift to compare subsequent schema changes
+          schema_dir: drift_schemas/
+
+          # Directory where migration test files are generated
+          # Tests verify migrations work correctly and preserve data integrity
+          test_dir: test/

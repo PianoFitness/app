@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_linux
   flutter_midi_command_linux
+  sqlite3_flutter_libs
   url_launcher_linux
 )
 

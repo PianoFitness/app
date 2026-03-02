@@ -40,6 +40,11 @@ linter:
 
 # Custom analyzer rules
 analyzer:
+  # Exclude specific generated files from analysis to reduce noise.
+  # Note: .g.dart files (build_runner output) are analyzed to catch issues.
+  exclude:
+    - "**/*.freezed.dart"
+    - "**/*.mocks.dart"
   language:
     strict-casts: true
     strict-inference: true
