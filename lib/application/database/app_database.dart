@@ -12,6 +12,11 @@ part "app_database.g.dart";
 /// Schema version must be incremented whenever the table structure changes.
 /// Provide a corresponding migration in [migration] to handle upgrades.
 ///
+/// **Note:** When no tables are registered, Drift generates a manager class
+/// with an unused `_db` field. The generated file includes `ignore_for_file`
+/// for `unused_field` to suppress this analyzer warning. This warning naturally
+/// disappears once tables are added to the schema.
+///
 /// Usage (via Provider in main.dart):
 /// ```dart
 /// Provider<AppDatabase>(

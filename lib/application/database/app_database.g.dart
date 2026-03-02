@@ -2,7 +2,7 @@
 
 part of 'app_database.dart';
 
-// ignore_for_file: type=lint
+// ignore_for_file: type=lint, unused_field
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);

@@ -40,10 +40,9 @@ linter:
 
 # Custom analyzer rules
 analyzer:
-  # Exclude generated files from analysis — these are never edited by hand and
-  # linting them produces noise (e.g. unused_field in Drift's .g.dart files).
+  # Exclude specific generated files from analysis to reduce noise.
+  # Note: .g.dart files (build_runner output) are analyzed to catch issues.
   exclude:
-    - "**/*.g.dart"
     - "**/*.freezed.dart"
     - "**/*.mocks.dart"
   language:
