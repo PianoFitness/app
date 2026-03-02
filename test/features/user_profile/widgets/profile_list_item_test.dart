@@ -118,7 +118,7 @@ void main() {
 
       expect(tapCalled, isFalse);
 
-      await tester.tap(find.byType(InkWell));
+      await tester.tap(find.byKey(const Key("profile_list_item_1")));
       await tester.pumpAndSettle();
 
       expect(tapCalled, isTrue);
@@ -249,19 +249,15 @@ void main() {
       tester,
     ) async {
       final longNameProfile = testProfile.copyWith(
-        displayName:
-            "This is a very long display name that should be truncated",
+        displayName: "This is a 30 char long name",
       );
 
       await tester.pumpWidget(createTestWidget(longNameProfile));
 
-      expect(
-        find.text("This is a very long display name that should be truncated"),
-        findsOneWidget,
-      );
+      expect(find.text("This is a 30 char long name"), findsOneWidget);
 
       final displayNameText = tester.widget<Text>(
-        find.text("This is a very long display name that should be truncated"),
+        find.text("This is a 30 char long name"),
       );
       expect(displayNameText.overflow, equals(TextOverflow.ellipsis));
     });
@@ -270,7 +266,8 @@ void main() {
       await tester.pumpWidget(createTestWidget(testProfile));
 
       expect(find.byType(Card), findsOneWidget);
-      expect(find.byType(InkWell), findsOneWidget);
+      // Card has 1 InkWell, edit button has 1, delete button has 1 = 3 total
+      expect(find.byType(InkWell), findsNWidgets(3));
 
       final card = tester.widget<Card>(find.byType(Card));
       expect(

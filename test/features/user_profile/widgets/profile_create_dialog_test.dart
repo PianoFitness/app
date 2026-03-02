@@ -356,11 +356,15 @@ void main() {
 
       // Tap create button
       await tester.tap(find.byKey(const Key("profile_create_submit_button")));
-      // Only pump once to catch the loading state before dialog closes
+      // Only pump once to catch the state before dialog closes
       await tester.pump();
 
-      // Should show loading indicator in Create button
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      // Note: Loading indicator removed as part of simplification
+      // Dialog closes immediately on success
+      expect(
+        find.byKey(const Key("profile_create_submit_button")),
+        findsOneWidget,
+      );
     });
   });
 }
