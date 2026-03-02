@@ -175,8 +175,14 @@ void main() {
         WidgetState.pressed,
       });
 
-      // The button should have a backgroundColor set
-      expect(backgroundColor, isNotNull);
+      // Get the theme error color for comparison
+      final context = tester.element(
+        find.byType(ProfileDeleteConfirmationDialog),
+      );
+      final expectedErrorColor = Theme.of(context).colorScheme.error;
+
+      // The button should use the error color
+      expect(backgroundColor, equals(expectedErrorColor));
     });
 
     testWidgets("should display warning text in bold", (tester) async {

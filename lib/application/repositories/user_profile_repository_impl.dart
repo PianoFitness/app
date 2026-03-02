@@ -99,7 +99,10 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
       // Clear active profile ID if it was the deleted profile
       final activeId = await getActiveProfileId();
       if (activeId == id) {
-        await _prefs.remove(_activeProfileIdKey);
+        final success = await _prefs.remove(_activeProfileIdKey);
+        if (!success) {
+          throw Exception("Failed to clear active profile ID from preferences");
+        }
       }
     } catch (e, stackTrace) {
       _logger.severe("Error deleting profile $id", e, stackTrace);
@@ -120,7 +123,10 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
   @override
   Future<void> setActiveProfileId(String id) async {
     try {
-      await _prefs.setString(_activeProfileIdKey, id);
+      final success = await _prefs.setString(_activeProfileIdKey, id);
+      if (!success) {
+        throw Exception("Failed to save active profile ID to preferences");
+      }
     } catch (e, stackTrace) {
       _logger.severe("Error saving active profile ID", e, stackTrace);
       rethrow;
@@ -148,7 +154,10 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
   @override
   Future<void> setSortOrder(ProfileSortOrder order) async {
     try {
-      await _prefs.setString(_sortOrderKey, order.name);
+      final success = await _prefs.setString(_sortOrderKey, order.name);
+      if (!success) {
+        throw Exception("Failed to save sort order to preferences");
+      }
     } catch (e, stackTrace) {
       _logger.severe("Error saving sort order", e, stackTrace);
       rethrow;

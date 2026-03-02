@@ -54,21 +54,26 @@ class UserProfileViewModel extends ChangeNotifier {
       _applySortOrder();
 
       // Load active profile
-      final activeId = await _userProfileRepository.getActiveProfileId();
-      if (activeId != null && _profiles.isNotEmpty) {
-        // Try to find profile with active ID
-        _activeProfile = _profiles.firstWhere(
-          (p) => p.id == activeId,
-          orElse: () => _profiles.first,
-        );
-        // Update repository if we fell back to first profile
-        if (_activeProfile!.id != activeId) {
+      if (_profiles.isEmpty) {
+        // Clear active profile when no profiles exist
+        _activeProfile = null;
+      } else {
+        final activeId = await _userProfileRepository.getActiveProfileId();
+        if (activeId != null) {
+          // Try to find profile with active ID
+          _activeProfile = _profiles.firstWhere(
+            (p) => p.id == activeId,
+            orElse: () => _profiles.first,
+          );
+          // Update repository if we fell back to first profile
+          if (_activeProfile!.id != activeId) {
+            await _userProfileRepository.setActiveProfileId(_activeProfile!.id);
+          }
+        } else {
+          // Auto-select first profile if none is active
+          _activeProfile = _profiles.first;
           await _userProfileRepository.setActiveProfileId(_activeProfile!.id);
         }
-      } else if (_profiles.isNotEmpty) {
-        // Auto-select first profile if none is active
-        _activeProfile = _profiles.first;
-        await _userProfileRepository.setActiveProfileId(_activeProfile!.id);
       }
 
       _isLoading = false;
@@ -194,11 +199,12 @@ class UserProfileViewModel extends ChangeNotifier {
   /// Toggles between alphabetical and last-active sort order.
   Future<void> toggleSortOrder() async {
     try {
-      _sortOrder = _sortOrder == ProfileSortOrder.alphabetical
+      final newOrder = _sortOrder == ProfileSortOrder.alphabetical
           ? ProfileSortOrder.lastActive
           : ProfileSortOrder.alphabetical;
 
-      await _userProfileRepository.setSortOrder(_sortOrder);
+      await _userProfileRepository.setSortOrder(newOrder);
+      _sortOrder = newOrder;
       _applySortOrder();
       notifyListeners();
     } catch (e, stackTrace) {

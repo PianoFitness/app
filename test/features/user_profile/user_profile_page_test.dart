@@ -565,6 +565,7 @@ void main() {
       ).thenAnswer((_) async => ProfileSortOrder.alphabetical);
       when(mockRepository.getActiveProfileId()).thenAnswer((_) async => null);
       when(mockRepository.setActiveProfileId("1")).thenAnswer((_) async => {});
+      when(mockRepository.deleteProfile("1")).thenAnswer((_) async => {});
 
       await tester.pumpWidget(
         createTestWidgetWithMocks(

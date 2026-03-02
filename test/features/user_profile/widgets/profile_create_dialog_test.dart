@@ -359,8 +359,8 @@ void main() {
       // Only pump once to catch the state before dialog closes
       await tester.pump();
 
-      // Note: Loading indicator removed as part of simplification
-      // Dialog closes immediately on success
+      // Note: Dialog closes immediately without disabling buttons
+      // This test verifies the dialog remains open momentarily
       expect(
         find.byKey(const Key("profile_create_submit_button")),
         findsOneWidget,

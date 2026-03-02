@@ -66,19 +66,25 @@ class _ProfileInitializerState extends State<ProfileInitializer> {
             activeId != null && profiles.any((p) => p.id == activeId);
 
         if (mounted) {
-          await Navigator.of(context).pushReplacement(
-            MaterialPageRoute<void>(
-              builder: (context) => hasValidActive
-                  ? const MainNavigation()
-                  : const UserProfilePage(),
-            ),
-          );
+          if (hasValidActive) {
+            await Navigator.of(context).pushReplacement(
+              MaterialPageRoute<void>(
+                builder: (context) => const MainNavigation(),
+              ),
+            );
+          } else {
+            await Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (context) => const UserProfilePage(),
+              ),
+            );
+          }
         }
       }
     } catch (e) {
       // On error, show profile chooser to let user recover
       if (mounted) {
-        await Navigator.of(context).pushReplacement(
+        await Navigator.of(context).push(
           MaterialPageRoute<void>(
             builder: (context) => const UserProfilePage(),
           ),

@@ -398,8 +398,8 @@ void main() {
       await tester.tap(find.byKey(const Key("profile_edit_save_button")));
       await tester.pump();
 
-      // Note: Loading indicator removed as part of simplification
-      // Dialog closes immediately on success
+      // Note: Dialog closes immediately without disabling buttons
+      // This test verifies the dialog remains open momentarily
       expect(find.byKey(const Key("profile_edit_save_button")), findsOneWidget);
     });
   });

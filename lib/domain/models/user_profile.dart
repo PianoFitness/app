@@ -17,16 +17,17 @@ class UserProfile {
     required DateTime createdAt,
   }) {
     // Validate display name
-    if (displayName.trim().isEmpty) {
+    final trimmedDisplayName = displayName.trim();
+    if (trimmedDisplayName.isEmpty) {
       throw ArgumentError("Display name cannot be empty");
     }
-    if (displayName.length > 30) {
+    if (trimmedDisplayName.length > 30) {
       throw ArgumentError("Display name cannot exceed 30 characters");
     }
 
     return UserProfile._(
       id: id,
-      displayName: displayName.trim(),
+      displayName: trimmedDisplayName,
       lastPracticeDate: lastPracticeDate,
       createdAt: createdAt,
     );

@@ -653,9 +653,9 @@ void main() {
         await viewModel.toggleSortOrder();
 
         expect(viewModel.errorMessage, isNotNull);
-        // Note: Implementation toggles sort order optimistically before persisting,
-        // so it will be updated even if persistence fails
-        expect(viewModel.sortOrder, equals(ProfileSortOrder.alphabetical));
+        // Note: Implementation only updates sort order after successful persistence,
+        // so it will remain unchanged on error
+        expect(viewModel.sortOrder, equals(ProfileSortOrder.lastActive));
       });
     });
 

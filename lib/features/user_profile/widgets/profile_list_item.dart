@@ -53,7 +53,11 @@ class ProfileListItem extends StatelessWidget {
     }
 
     final daysDifference = nowDate.difference(lastPracticeDate).inDays;
-    if (daysDifference < 7) {
+    if (daysDifference == 0) {
+      return "Last practiced today";
+    } else if (daysDifference == 1) {
+      return "Last practiced 1 day ago";
+    } else if (daysDifference < 7) {
       return "Last practiced $daysDifference days ago";
     } else {
       return "Last practiced ${DateFormat.yMMMd().format(lastPractice)}";

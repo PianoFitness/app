@@ -141,7 +141,8 @@ void main() {
         final profiles = await dao.getProfilesAlphabetically();
 
         expect(profiles, hasLength(2));
-        // SQLite default collation is case-insensitive
+        // SQLite default TEXT collation is BINARY (case-sensitive),
+        // but lower() function provides case-insensitive ordering
         expect(profiles[0].displayName, equals("alice"));
         expect(profiles[1].displayName, equals("Bob"));
       });
