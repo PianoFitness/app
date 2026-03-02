@@ -99,7 +99,6 @@ class UserProfilePage extends StatelessWidget {
     UserProfileViewModel viewModel,
   ) {
     return UserProfileEmptyState(
-      viewModel: viewModel,
       onCreateProfile: () => _showCreateDialog(context, viewModel),
     );
   }

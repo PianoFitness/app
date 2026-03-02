@@ -212,25 +212,28 @@ void main() {
         expect(viewModel.profiles, isEmpty);
       });
 
-      test("should trim whitespace from display name", () async {
-        final newProfile = UserProfile(
-          id: "new-id",
-          displayName: "Trimmed",
-          createdAt: DateTime(2024, 1, 10),
-        );
+      test(
+        "should forward raw display name to repository (repository trims)",
+        () async {
+          final newProfile = UserProfile(
+            id: "new-id",
+            displayName: "Trimmed",
+            createdAt: DateTime(2024, 1, 10),
+          );
 
-        // Repository is responsible for trimming, just verify it's called
-        when(
-          mockRepository.createProfile("  Trimmed  "),
-        ).thenAnswer((_) async => newProfile);
-        when(
-          mockRepository.setActiveProfileId("new-id"),
-        ).thenAnswer((_) async {});
+          // Repository is responsible for trimming, just verify it's called
+          when(
+            mockRepository.createProfile("  Trimmed  "),
+          ).thenAnswer((_) async => newProfile);
+          when(
+            mockRepository.setActiveProfileId("new-id"),
+          ).thenAnswer((_) async {});
 
-        await viewModel.createProfile("  Trimmed  ");
+          await viewModel.createProfile("  Trimmed  ");
 
-        verify(mockRepository.createProfile("  Trimmed  ")).called(1);
-      });
+          verify(mockRepository.createProfile("  Trimmed  ")).called(1);
+        },
+      );
     });
 
     group("updateProfile", () {

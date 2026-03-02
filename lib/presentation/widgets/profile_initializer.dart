@@ -78,6 +78,9 @@ class _ProfileInitializerState extends State<ProfileInitializer> {
                 builder: (context) => const UserProfilePage(),
               ),
             );
+            if (mounted) {
+              _initializeProfileState();
+            }
           }
         }
       }
@@ -89,6 +92,9 @@ class _ProfileInitializerState extends State<ProfileInitializer> {
             builder: (context) => const UserProfilePage(),
           ),
         );
+        if (mounted) {
+          _initializeProfileState();
+        }
       }
     }
   }

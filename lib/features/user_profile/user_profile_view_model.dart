@@ -1,5 +1,4 @@
-import "dart:collection";
-
+import "package:collection/collection.dart";
 import "package:flutter/foundation.dart";
 import "package:logging/logging.dart";
 
@@ -179,13 +178,17 @@ class UserProfileViewModel extends ChangeNotifier {
 
   /// Selects a profile as the active profile.
   Future<void> selectProfile(String id) async {
-    try {
-      // Find profile with safe lookup
-      final profile = _profiles.firstWhere(
-        (p) => p.id == id,
-        orElse: () => throw StateError("Profile with id $id not found"),
-      );
+    // Find profile with safe lookup
+    final profile = _profiles.firstWhereOrNull((p) => p.id == id);
 
+    if (profile == null) {
+      _errorMessage = "Profile with id $id not found";
+      _log.severe("Error selecting profile: Profile with id $id not found");
+      notifyListeners();
+      return;
+    }
+
+    try {
       await _userProfileRepository.setActiveProfileId(id);
       _activeProfile = profile;
       notifyListeners();

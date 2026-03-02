@@ -6,7 +6,11 @@ void main() {
   group("ProfileDeleteConfirmationDialog", () {
     const testProfileName = "Alice";
 
-    testWidgets("should display all dialog elements", (tester) async {
+    /// Helper function to pump the dialog and open it.
+    Future<void> pumpProfileDeleteDialog(
+      WidgetTester tester, {
+      String profileName = testProfileName,
+    }) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -14,9 +18,8 @@ void main() {
               builder: (context) => ElevatedButton(
                 onPressed: () => showDialog<bool>(
                   context: context,
-                  builder: (context) => const ProfileDeleteConfirmationDialog(
-                    profileName: testProfileName,
-                  ),
+                  builder: (context) =>
+                      ProfileDeleteConfirmationDialog(profileName: profileName),
                 ),
                 child: const Text("Show Dialog"),
               ),
@@ -27,6 +30,10 @@ void main() {
 
       await tester.tap(find.byType(ElevatedButton));
       await tester.pumpAndSettle();
+    }
+
+    testWidgets("should display all dialog elements", (tester) async {
+      await pumpProfileDeleteDialog(tester);
 
       expect(find.text("Delete Profile?"), findsOneWidget);
       expect(find.textContaining("All practice data"), findsOneWidget);
@@ -41,26 +48,7 @@ void main() {
     testWidgets("should include profile name in warning message", (
       tester,
     ) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) => ElevatedButton(
-                onPressed: () => showDialog<bool>(
-                  context: context,
-                  builder: (context) => const ProfileDeleteConfirmationDialog(
-                    profileName: testProfileName,
-                  ),
-                ),
-                child: const Text("Show Dialog"),
-              ),
-            ),
-          ),
-        ),
-      );
-
-      await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+      await pumpProfileDeleteDialog(tester);
 
       expect(find.textContaining('"$testProfileName"'), findsOneWidget);
       expect(
@@ -140,26 +128,7 @@ void main() {
     });
 
     testWidgets("should style delete button with error color", (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) => ElevatedButton(
-                onPressed: () => showDialog<bool>(
-                  context: context,
-                  builder: (context) => const ProfileDeleteConfirmationDialog(
-                    profileName: testProfileName,
-                  ),
-                ),
-                child: const Text("Show Dialog"),
-              ),
-            ),
-          ),
-        ),
-      );
-
-      await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+      await pumpProfileDeleteDialog(tester);
 
       final deleteButton = tester.widget<FilledButton>(
         find.ancestor(
@@ -186,26 +155,7 @@ void main() {
     });
 
     testWidgets("should display warning text in bold", (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) => ElevatedButton(
-                onPressed: () => showDialog<bool>(
-                  context: context,
-                  builder: (context) => const ProfileDeleteConfirmationDialog(
-                    profileName: testProfileName,
-                  ),
-                ),
-                child: const Text("Show Dialog"),
-              ),
-            ),
-          ),
-        ),
-      );
-
-      await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+      await pumpProfileDeleteDialog(tester);
 
       final warningText = tester.widget<Text>(
         find.text("This action cannot be undone."),
@@ -219,26 +169,7 @@ void main() {
     ) async {
       const specialName = "Test & User <with> \"Special\" 'Characters'";
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) => ElevatedButton(
-                onPressed: () => showDialog<bool>(
-                  context: context,
-                  builder: (context) => const ProfileDeleteConfirmationDialog(
-                    profileName: specialName,
-                  ),
-                ),
-                child: const Text("Show Dialog"),
-              ),
-            ),
-          ),
-        ),
-      );
-
-      await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+      await pumpProfileDeleteDialog(tester, profileName: specialName);
 
       expect(find.textContaining(specialName), findsOneWidget);
     });

@@ -30,7 +30,7 @@ class UserProfileErrorState extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              viewModel.errorMessage!,
+              viewModel.errorMessage ?? "An unknown error occurred",
               style: Theme.of(context).textTheme.bodyMedium,
               textAlign: TextAlign.center,
             ),

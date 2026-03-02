@@ -1,18 +1,9 @@
 import "package:flutter/material.dart";
 
-import "../user_profile_view_model.dart";
-
 /// Empty state widget displayed when no profiles exist.
 class UserProfileEmptyState extends StatelessWidget {
   /// Creates an empty state widget.
-  const UserProfileEmptyState({
-    required this.viewModel,
-    required this.onCreateProfile,
-    super.key,
-  });
-
-  /// The view model containing profile state.
-  final UserProfileViewModel viewModel;
+  const UserProfileEmptyState({required this.onCreateProfile, super.key});
 
   /// Callback when user wants to create a profile.
   final VoidCallback onCreateProfile;
