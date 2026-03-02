@@ -164,8 +164,10 @@ class _MainNavigationState extends State<MainNavigation> {
                 builder: (context) => const UserProfilePage(),
               ),
             );
-            // Rebuild to show updated profile name
-            setState(() {});
+            // Rebuild to show updated profile name (only if still mounted)
+            if (mounted) {
+              setState(() {});
+            }
           },
           icon: const Icon(Icons.person, size: 20),
           label: Text(

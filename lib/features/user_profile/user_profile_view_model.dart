@@ -173,8 +173,14 @@ class UserProfileViewModel extends ChangeNotifier {
   /// Selects a profile as the active profile.
   Future<void> selectProfile(String id) async {
     try {
+      // Find profile with safe lookup
+      final profile = _profiles.firstWhere(
+        (p) => p.id == id,
+        orElse: () => throw StateError("Profile with id $id not found"),
+      );
+
       await _userProfileRepository.setActiveProfileId(id);
-      _activeProfile = _profiles.firstWhere((p) => p.id == id);
+      _activeProfile = profile;
       notifyListeners();
     } catch (e, stackTrace) {
       _log.severe("Error selecting profile: $e", e, stackTrace);
@@ -203,12 +209,35 @@ class UserProfileViewModel extends ChangeNotifier {
   /// Updates a profile's last practice date to now.
   Future<void> updateLastPracticeDate(String profileId) async {
     try {
-      final profile = _profiles.firstWhere((p) => p.id == profileId);
+      // Find profile with safe lookup - return early if not found
+      final matchingProfiles = _profiles.where((p) => p.id == profileId);
+      if (matchingProfiles.isEmpty) {
+        _log.warning("Profile with id $profileId not found");
+        return;
+      }
+
+      final profile = matchingProfiles.first;
       final updated = profile.copyWith(lastPracticeDate: DateTime.now());
-      await updateProfile(updated);
+
+      // Update repository directly (don't call updateProfile to avoid setting errorMessage)
+      final result = await _userProfileRepository.updateProfile(updated);
+
+      // Update in local list
+      final index = _profiles.indexWhere((p) => p.id == result.id);
+      if (index != -1) {
+        _profiles[index] = result;
+        _applySortOrder();
+      }
+
+      // Update active profile if it was the one updated
+      if (_activeProfile?.id == result.id) {
+        _activeProfile = result;
+      }
+
+      notifyListeners();
     } catch (e, stackTrace) {
       _log.warning("Error updating last practice date: $e", e, stackTrace);
-      // Don't show error to user for background updates
+      // Don't show error to user for background updates - only log
     }
   }
 

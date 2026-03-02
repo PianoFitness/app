@@ -705,8 +705,8 @@ void main() {
         // Should not throw - errors are logged but not propagated
         await viewModel.updateLastPracticeDate("1");
 
-        // Error message is set by updateProfile when it fails
-        expect(viewModel.errorMessage, isNotNull);
+        // Background updates should NOT set error message (only log)
+        expect(viewModel.errorMessage, isNull);
       });
     });
   });

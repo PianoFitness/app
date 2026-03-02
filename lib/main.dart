@@ -101,8 +101,11 @@ void main() async {
         ),
         Provider<IAudioService>(create: (_) => AudioServiceImpl()),
 
-        // Database
-        Provider<AppDatabase>.value(value: database),
+        // Database (with dispose callback to close database)
+        Provider<AppDatabase>(
+          create: (_) => database,
+          dispose: (_, db) => db.close(),
+        ),
 
         // User profile repository
         Provider<IUserProfileRepository>(

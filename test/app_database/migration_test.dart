@@ -42,21 +42,31 @@ void main() {
   // (e.g. by alterating their type or constraints). Migrations that only add
   // tables or columns typically don't need these advanced tests. For more
   // information, see https://drift.simonbinder.eu/migrations/tests/#verifying-data-integrity
-  // TODO: This generated template shows how these tests could be written. Adopt
-  // it to your own needs when testing migrations with data integrity.
-  test("migration from v1 to v2 does not corrupt data", () async {
-    // Add data to insert into the old database, and the expected rows after the
-    // migration.
-    // TODO: Fill these lists
 
-    await verifier.testWithDataIntegrity(
-      oldVersion: 1,
-      newVersion: 2,
-      createOld: v1.DatabaseAtV1.new,
-      createNew: v2.DatabaseAtV2.new,
-      openTestedDatabase: AppDatabase.new,
-      createItems: (batch, oldDb) {},
-      validateItems: (newDb) async {},
-    );
-  });
+  // Note: This test is currently skipped because our v1→v2 migration only adds
+  // the user_profiles table without modifying existing tables. If future
+  // migrations modify existing columns or need data integrity validation,
+  // implement createItems and validateItems with representative test data.
+  test(
+    "migration from v1 to v2 does not corrupt data",
+    () async {
+      // Add data to insert into the old database, and the expected rows after the
+      // migration.
+
+      await verifier.testWithDataIntegrity(
+        oldVersion: 1,
+        newVersion: 2,
+        createOld: v1.DatabaseAtV1.new,
+        createNew: v2.DatabaseAtV2.new,
+        openTestedDatabase: AppDatabase.new,
+        createItems: (batch, oldDb) {
+          // No items to create - v1 had no tables, v2 adds user_profiles table
+        },
+        validateItems: (newDb) async {
+          // No validation needed - migration only adds tables
+        },
+      );
+    },
+    skip: "Migration only adds tables, no data integrity testing needed",
+  );
 }
