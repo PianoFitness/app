@@ -87,7 +87,31 @@ Thank you for your interest in contributing to Piano Fitness! This document prov
    dart format .
    ```
 
-4. **Commit and push**
+4. **Handle database schema changes** (if applicable)
+
+   If your changes involve adding or modifying database tables:
+
+   ```bash
+   # BEFORE making changes: Capture current schema
+   dart run drift_dev make-migrations
+   
+   # Make your table changes and increment schemaVersion in app_database.dart
+   # @DriftDatabase(tables: [YourNewTable, ...])
+   # int get schemaVersion => 2;  // Increment
+   
+   # AFTER changes: Generate migration code
+   dart run drift_dev make-migrations
+   
+   # Implement the migration in the generated migration file
+   # lib/application/database/app_database_migration.dart
+   
+   # Test the migration
+   flutter test test/application/database/app_database_migration_test.dart
+   ```
+
+   See [ADR-0024](docs/ADRs/0024-drift-database-persistence.md) for complete migration workflow.
+
+5. **Commit and push**
 
    ```bash
    git add .
@@ -95,7 +119,7 @@ Thank you for your interest in contributing to Piano Fitness! This document prov
    git push origin feature/your-feature-name
    ```
 
-5. **Create a Pull Request**
+6. **Create a Pull Request**
    - Provide a clear description of your changes
    - Reference any related issues
    - Include screenshots for UI changes

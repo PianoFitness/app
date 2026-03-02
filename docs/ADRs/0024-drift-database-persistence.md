@@ -74,3 +74,70 @@ The database layer is implemented in the **application layer** (`lib/application
 - Repository implementations (Drift-backed): `lib/application/repositories/`
 - Dependency injection wiring: `lib/main.dart`
 - Test helpers with in-memory Drift databases: `test/shared/test_helpers/`
+- Migration configuration: `build.yaml`
+- Schema version files: `drift_schemas/` (generated)
+
+## Schema Migration Workflow
+
+Drift provides built-in tooling for safe, testable database migrations. The workflow is:
+
+### Initial Setup (Complete)
+
+The initial `AppDatabase` with `schemaVersion: 1` and no tables serves as the baseline. Migration infrastructure is configured in `build.yaml`.
+
+### Adding the First Table
+
+When adding the first table (e.g., practice history tracking):
+
+1. **Capture current schema:**
+   ```bash
+   dart run drift_dev make-migrations
+   ```
+   This generates `drift_schemas/app_database_v1.json` capturing the empty baseline.
+
+2. **Add the table and bump version:**
+   ```dart
+   @DriftDatabase(tables: [PracticeHistoryTable])
+   class AppDatabase extends _$AppDatabase {
+     @override
+     int get schemaVersion => 2;  // Increment from 1
+   ```
+
+3. **Generate migration:**
+   ```bash
+   dart run drift_dev make-migrations
+   ```
+   This generates:
+   - `drift_schemas/app_database_v2.json` (new schema)
+   - `lib/application/database/app_database_migration.dart` (step-by-step migration guide)
+   - `test/application/database/app_database_migration_test.dart` (migration tests)
+
+4. **Implement migration in generated file:**
+   ```dart
+   // In app_database_migration.dart
+   onUpgrade: (m, from, to) async {
+     if (from == 1) {
+       await m.createTable(practiceHistoryTable);
+     }
+   }
+   ```
+
+5. **Run migration tests:**
+   ```bash
+   flutter test test/application/database/app_database_migration_test.dart
+   ```
+
+### Subsequent Schema Changes
+
+Repeat the process for each schema evolution:
+- Run `make-migrations` before and after changes
+- Increment `schemaVersion`
+- Implement migration logic
+- Verify with generated tests
+
+**Best Practices:**
+- Never modify generated `.json` schema files manually
+- Always test migrations with the generated test suite
+- Use `migrator.alterTable()` for non-breaking changes when possible
+- Document breaking changes in migration comments
+
