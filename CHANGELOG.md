@@ -9,16 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **User Profile Management**: Multi-profile support with profile creation, editing, deletion, and profile-specific practice history tracking (#44)
+- **Drift Database Persistence**: Type-safe local database with schema migrations, automated testing, and ADR documentation (#41)
+- **Specifications Framework**: Comprehensive specification documentation system with templates for metronome and practice sessions (#42)
+- **Architecture Decision Records**: 24 ADRs documenting Clean Architecture, MVVM, Repository Pattern, dependency injection strategy, and SOLID principles (#40)
 - **Auto-Progress Through Circle of Fifths**: Practice exercises can now automatically progress through all 12 keys following the circle of fifths when you complete each exercise (#38)
 - **Seventh Chord Support**: Added comprehensive seventh chord support with all inversions in practice settings (#35)
 - **Flutter Prunekit Integration**: Added dead code detection tooling for automated code quality analysis (#36)
 
 ### Changed
 
+- **Clean Architecture Refactor**: Reorganized codebase into domain/application/presentation layers with clear separation of concerns (#39)
+- **Dependency Injection with Provider**: Implemented constructor-based dependency injection across all ViewModels and services for improved testability (#40)
 - **Dependency Updates**: Updated transitive dependency `watcher` from 1.1.4 to 1.2.0
 
 ### Improved
 
+- **VSCode Configuration**: Enhanced markdown linting rules and Documentation Steward agent with interview-driven specification workflow (#43)
+- **Code Quality and Testing**: Comprehensive test coverage improvements, mock repository patterns, and SOLID principles enforcement (#40)
 - **Practice Architecture**: Refactored PracticeExercise model using Strategy pattern with modular exercise strategies (#33, #34)
 - **UI Consistency**: Introduced centralized UI constants across all features for improved layout consistency (#34)
 - **Code Quality**: Cleaned up dead code, modularized components, and removed unused MIDI controls
