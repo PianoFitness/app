@@ -19,22 +19,18 @@ The Metronome component is a precision timing tool essential for piano practice.
 
 ### Performance Requirements
 
+See [Critical Timing Requirements](#critical-timing-requirements) below for the canonical timing constraints.
+
+## Critical Timing Requirements
+
+### Precision Standards
+
 - **Timing accuracy**: ±1 ms maximum deviation from the target interval.
 - **Jitter**: Less than 0.5 ms between beats.
 - **Long-term stability**: No measurable drift over 60+ minutes of continuous use.
 - **Load independence**: Timing must remain consistent regardless of UI complexity or system load.
 - **Audio latency**: Click-to-sound delay under 20 ms.
 - **Background operation**: Timing must be maintained when the app is backgrounded.
-
-## Critical Timing Requirements
-
-### Precision Standards
-
-- **Timing Accuracy**: ±1ms deviation maximum from target interval
-- **Timing Consistency**: &lt;0.5ms jitter between beats
-- **Long-term Stability**: No drift over extended periods (60+ minutes)
-- **Load Independence**: Consistent timing regardless of UI complexity
-- **Background Operation**: Maintain timing when app is backgrounded
 
 ### Musical Timing Context
 
