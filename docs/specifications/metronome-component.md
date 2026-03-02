@@ -4,6 +4,28 @@
 
 The Metronome component is a precision timing tool essential for piano practice. It provides audible and visual beat references with high temporal accuracy, independent of Flutter's rendering cycle. The metronome must maintain consistent timing even under system load, making it suitable for professional music practice and exercise timing validation.
 
+## Requirements
+
+### Functional Requirements
+
+- **Tempo range**: 40–208 BPM with 1 BPM precision.
+- **Time signatures**: Must support common signatures (4/4, 3/4, 2/4, 6/8, 9/8, 12/8), complex signatures (5/4, 7/8, 11/8), and custom numerator/denominator combinations.
+- **Beat emphasis**: Downbeats must be accented; the pattern must support secondary accents and subdivisions per time signature.
+- **Sound options**: Must offer at least click, bell, wood block, and digital beep sounds, plus a silent (visual-only) mode.
+- **Tap tempo**: User must be able to set the tempo by tapping a rhythm; BPM is calculated from the tap interval.
+- **Tempo gradation**: Must support configurable, automatic tempo increases during a practice session.
+- **Subdivisions**: Must support quarter note, eighth note, triplet, and sixteenth note subdivisions.
+- **Visual pulse**: A synchronized visual indicator must reflect each beat alongside audio output.
+
+### Performance Requirements
+
+- **Timing accuracy**: ±1 ms maximum deviation from the target interval.
+- **Jitter**: Less than 0.5 ms between beats.
+- **Long-term stability**: No measurable drift over 60+ minutes of continuous use.
+- **Load independence**: Timing must remain consistent regardless of UI complexity or system load.
+- **Audio latency**: Click-to-sound delay under 20 ms.
+- **Background operation**: Timing must be maintained when the app is backgrounded.
+
 ## Critical Timing Requirements
 
 ### Precision Standards
