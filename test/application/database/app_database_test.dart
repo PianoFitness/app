@@ -28,9 +28,9 @@ void main() {
       expect(db, isA<AppDatabase>());
     });
 
-    test("schemaVersion is 1", () {
-      // Prevents accidental schema version bumps before migrations are wired.
-      expect(db.schemaVersion, 1);
+    test("schemaVersion is 2", () {
+      // Schema version 2 includes UserProfileTable
+      expect(db.schemaVersion, 2);
     });
 
     test("opens and closes without error", () async {

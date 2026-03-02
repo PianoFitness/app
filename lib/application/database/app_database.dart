@@ -2,6 +2,10 @@ import "package:drift/drift.dart";
 import "package:drift_flutter/drift_flutter.dart";
 import "package:path_provider/path_provider.dart";
 
+import "app_database.steps.dart";
+import "daos/user_profile_dao.dart";
+import "tables/user_profile_table.dart";
+
 part "app_database.g.dart";
 
 /// Central Drift database for Piano Fitness.
@@ -24,7 +28,7 @@ part "app_database.g.dart";
 ///   dispose: (_, db) => db.close(),
 /// )
 /// ```
-@DriftDatabase()
+@DriftDatabase(tables: [UserProfileTable], daos: [UserProfileDao])
 class AppDatabase extends _$AppDatabase {
   /// Creates the database, optionally accepting a custom [QueryExecutor].
   ///
@@ -36,7 +40,19 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      onUpgrade: stepByStep(
+        from1To2: (m, schema) async {
+          // Create the user_profile_table for version 2
+          await m.createTable(schema.userProfileTable);
+        },
+      ),
+    );
+  }
 
   static QueryExecutor _openConnection() {
     return driftDatabase(
