@@ -366,9 +366,22 @@ void main() {
         await tester.pumpAndSettle();
 
         // When database is closed, Drift operations may complete but with stale/empty data
-        // The app should still function and show empty state or handle gracefully
-        // Just verify the page renders without crashing
+        // The app should still function and show empty or error state without crashing
         expect(find.byType(UserProfilePage), findsOneWidget);
+        // Verify UI is shown (either error state with retry button or empty state)
+        // The closed database might show empty state instead of error
+        final hasRetryButton = find.byKey(
+          const Key("profile_error_retry_button"),
+        );
+        final hasEmptyState = find.text("No Profiles Yet");
+        // At least one of these should be present
+        final retryExists = tester.any(hasRetryButton);
+        final emptyExists = tester.any(hasEmptyState);
+        expect(
+          retryExists || emptyExists,
+          isTrue,
+          reason: "Should show either error state with retry or empty state",
+        );
       });
     });
   });

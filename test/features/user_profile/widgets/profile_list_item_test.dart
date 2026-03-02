@@ -202,6 +202,9 @@ void main() {
     ) async {
       await tester.pumpWidget(createTestWidget(testProfile));
 
+      final context = tester.element(find.byType(ProfileListItem));
+      final expectedErrorColor = Theme.of(context).colorScheme.error;
+
       final deleteButton = tester.widget<IconButton>(
         find
             .ancestor(
@@ -211,7 +214,7 @@ void main() {
             .last,
       );
 
-      expect(deleteButton.color, isNotNull);
+      expect(deleteButton.color, equals(expectedErrorColor));
     });
 
     testWidgets("should call onDelete when delete button is tapped", (
@@ -248,17 +251,15 @@ void main() {
     testWidgets("should handle long display names with ellipsis", (
       tester,
     ) async {
-      final longNameProfile = testProfile.copyWith(
-        displayName: "This is a 30 char long name",
-      );
+      // Create a name that is exactly 30 characters
+      const longName = "Abcdefghijklmnopqrstuvwxyz123";
+      final longNameProfile = testProfile.copyWith(displayName: longName);
 
       await tester.pumpWidget(createTestWidget(longNameProfile));
 
-      expect(find.text("This is a 30 char long name"), findsOneWidget);
+      expect(find.text(longName), findsOneWidget);
 
-      final displayNameText = tester.widget<Text>(
-        find.text("This is a 30 char long name"),
-      );
+      final displayNameText = tester.widget<Text>(find.text(longName));
       expect(displayNameText.overflow, equals(TextOverflow.ellipsis));
     });
 

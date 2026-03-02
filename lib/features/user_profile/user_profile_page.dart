@@ -5,10 +5,10 @@ import "../../domain/models/profile_sort_order.dart";
 import "../../domain/models/user_profile.dart";
 import "../../domain/repositories/user_profile_repository.dart";
 import "user_profile_view_model.dart";
-import "widgets/profile_create_dialog.dart";
-import "widgets/profile_delete_confirmation_dialog.dart";
-import "widgets/profile_edit_dialog.dart";
-import "widgets/profile_list_item.dart";
+import "utils/profile_dialogs.dart";
+import "widgets/user_profile_empty_state.dart";
+import "widgets/user_profile_error_state.dart";
+import "widgets/user_profile_list.dart";
 
 /// Profile chooser page for selecting, creating, and managing user profiles.
 ///
@@ -91,75 +91,16 @@ class UserProfilePage extends StatelessWidget {
     BuildContext context,
     UserProfileViewModel viewModel,
   ) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Theme.of(context).colorScheme.error,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              "Error Loading Profiles",
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              viewModel.errorMessage!,
-              style: Theme.of(context).textTheme.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              key: const Key("profile_error_retry_button"),
-              onPressed: () => viewModel.loadProfiles(),
-              icon: const Icon(Icons.refresh),
-              label: const Text("Retry"),
-            ),
-          ],
-        ),
-      ),
-    );
+    return UserProfileErrorState(viewModel: viewModel);
   }
 
   Widget _buildEmptyState(
     BuildContext context,
     UserProfileViewModel viewModel,
   ) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.person_add,
-              size: 64,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              "No Profiles Yet",
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              "Create your first profile to get started with Piano Fitness.",
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 24),
-            FilledButton.icon(
-              onPressed: () => _showCreateDialog(context, viewModel),
-              icon: const Icon(Icons.add),
-              label: const Text("Create Profile"),
-            ),
-          ],
-        ),
-      ),
+    return UserProfileEmptyState(
+      viewModel: viewModel,
+      onCreateProfile: () => _showCreateDialog(context, viewModel),
     );
   }
 
@@ -167,23 +108,17 @@ class UserProfilePage extends StatelessWidget {
     BuildContext context,
     UserProfileViewModel viewModel,
   ) {
-    return ListView.builder(
-      padding: const EdgeInsets.only(bottom: 80), // Space for FAB
-      itemCount: viewModel.profiles.length,
-      itemBuilder: (context, index) {
-        final profile = viewModel.profiles[index];
-        return ProfileListItem(
-          profile: profile,
-          onTap: () async {
-            await viewModel.selectProfile(profile.id);
-            if (context.mounted) {
-              Navigator.of(context).pop();
-            }
-          },
-          onEdit: () => _showEditDialog(context, viewModel, profile),
-          onDelete: () => _showDeleteConfirmation(context, viewModel, profile),
-        );
+    return UserProfileList(
+      viewModel: viewModel,
+      onProfileTap: (profile) async {
+        await viewModel.selectProfile(profile.id);
+        if (context.mounted) {
+          Navigator.of(context).pop();
+        }
       },
+      onProfileEdit: (profile) => _showEditDialog(context, viewModel, profile),
+      onProfileDelete: (profile) =>
+          _showDeleteConfirmation(context, viewModel, profile),
     );
   }
 
@@ -191,10 +126,7 @@ class UserProfilePage extends StatelessWidget {
     BuildContext context,
     UserProfileViewModel viewModel,
   ) async {
-    final displayName = await showDialog<String>(
-      context: context,
-      builder: (context) => const ProfileCreateDialog(),
-    );
+    final displayName = await ProfileDialogs.showCreate(context);
 
     if (displayName != null && displayName.isNotEmpty) {
       final profile = await viewModel.createProfile(displayName);
@@ -218,10 +150,7 @@ class UserProfilePage extends StatelessWidget {
     UserProfileViewModel viewModel,
     UserProfile profile,
   ) async {
-    final newDisplayName = await showDialog<String>(
-      context: context,
-      builder: (context) => ProfileEditDialog(profile: profile),
-    );
+    final newDisplayName = await ProfileDialogs.showEdit(context, profile);
 
     if (newDisplayName != null && newDisplayName != profile.displayName) {
       final updated = profile.copyWith(displayName: newDisplayName);
@@ -247,11 +176,7 @@ class UserProfilePage extends StatelessWidget {
     UserProfileViewModel viewModel,
     UserProfile profile,
   ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) =>
-          ProfileDeleteConfirmationDialog(profileName: profile.displayName),
-    );
+    final confirmed = await ProfileDialogs.showDelete(context, profile);
 
     if (confirmed == true) {
       final success = await viewModel.deleteProfile(profile.id);

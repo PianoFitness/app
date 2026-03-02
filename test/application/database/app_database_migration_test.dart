@@ -4,10 +4,10 @@ import "package:drift/drift.dart";
 import "package:drift_dev/api/migrations_native.dart";
 import "package:piano_fitness/application/database/app_database.dart";
 import "package:flutter_test/flutter_test.dart";
-import "generated/schema.dart";
+import "../../app_database/generated/schema.dart";
 
-import "generated/schema_v1.dart" as v1;
-import "generated/schema_v2.dart" as v2;
+import "../../app_database/generated/schema_v1.dart" as v1;
+import "../../app_database/generated/schema_v2.dart" as v2;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -28,8 +28,11 @@ void main() {
           test("to $toVersion", () async {
             final schema = await verifier.schemaAt(fromVersion);
             final db = AppDatabase(schema.newConnection());
-            await verifier.migrateAndValidate(db, toVersion);
-            await db.close();
+            try {
+              await verifier.migrateAndValidate(db, toVersion);
+            } finally {
+              await db.close();
+            }
           });
         }
       });
