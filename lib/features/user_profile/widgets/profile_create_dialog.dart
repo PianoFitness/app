@@ -16,6 +16,7 @@ class ProfileCreateDialog extends StatefulWidget {
 class _ProfileCreateDialogState extends State<ProfileCreateDialog> {
   final _controller = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _isCreating = false;
 
   @override
   void dispose() {
@@ -25,6 +26,7 @@ class _ProfileCreateDialogState extends State<ProfileCreateDialog> {
 
   void _onCreate() {
     if (_formKey.currentState!.validate()) {
+      setState(() => _isCreating = true);
       Navigator.of(context).pop(_controller.text.trim());
     }
   }
@@ -47,6 +49,7 @@ class _ProfileCreateDialogState extends State<ProfileCreateDialog> {
               controller: _controller,
               autofocus: true,
               maxLength: 30,
+              enabled: !_isCreating,
               decoration: const InputDecoration(
                 labelText: "Display Name",
                 hintText: "Enter your first name",
@@ -61,12 +64,12 @@ class _ProfileCreateDialogState extends State<ProfileCreateDialog> {
       actions: [
         TextButton(
           key: const Key("profile_create_cancel_button"),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: _isCreating ? null : () => Navigator.of(context).pop(),
           child: const Text("Cancel"),
         ),
         FilledButton(
           key: const Key("profile_create_submit_button"),
-          onPressed: _onCreate,
+          onPressed: _isCreating ? null : _onCreate,
           child: const Text("Create"),
         ),
       ],

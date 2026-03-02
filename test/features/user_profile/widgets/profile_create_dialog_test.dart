@@ -359,11 +359,14 @@ void main() {
       // Only pump once to catch the state before dialog closes
       await tester.pump();
 
-      // Note: Dialog closes immediately without disabling buttons
-      // This test verifies the dialog remains open momentarily
-      expect(
+      // Verify the submit button is disabled during creation
+      final submitButton = tester.widget<FilledButton>(
         find.byKey(const Key("profile_create_submit_button")),
-        findsOneWidget,
+      );
+      expect(
+        submitButton.onPressed,
+        isNull,
+        reason: "Submit button should be disabled during profile creation",
       );
     });
   });
