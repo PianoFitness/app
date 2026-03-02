@@ -3,6 +3,7 @@ import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:logging/logging.dart";
 import "package:provider/provider.dart";
+import "package:shared_preferences/shared_preferences.dart";
 import "package:timezone/data/latest.dart" as tz;
 
 import "package:piano_fitness/application/database/app_database.dart";
@@ -10,15 +11,17 @@ import "package:piano_fitness/application/repositories/audio_service_impl.dart";
 import "package:piano_fitness/application/repositories/midi_repository_impl.dart";
 import "package:piano_fitness/application/repositories/notification_repository_impl.dart";
 import "package:piano_fitness/application/repositories/settings_repository_impl.dart";
+import "package:piano_fitness/application/repositories/user_profile_repository_impl.dart";
 import "package:piano_fitness/application/services/notifications/notification_manager.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/domain/repositories/audio_service.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/repositories/notification_repository.dart";
 import "package:piano_fitness/domain/repositories/settings_repository.dart";
+import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
 import "package:piano_fitness/presentation/constants/typography_constants.dart";
 import "package:piano_fitness/presentation/theme/semantic_colors.dart";
-import "package:piano_fitness/presentation/widgets/main_navigation.dart";
+import "package:piano_fitness/presentation/widgets/profile_initializer.dart";
 
 /// Entry point for the Piano Fitness application.
 ///
@@ -28,6 +31,12 @@ void main() async {
 
   // Initialize timezone data for notifications
   tz.initializeTimeZones();
+
+  // Initialize SharedPreferences for profile management
+  final sharedPreferences = await SharedPreferences.getInstance();
+
+  // Initialize database
+  final database = AppDatabase();
 
   // Initialize notification repository with async factory
   final notificationRepository = await NotificationRepositoryImpl.create();
@@ -93,9 +102,14 @@ void main() async {
         Provider<IAudioService>(create: (_) => AudioServiceImpl()),
 
         // Database
-        Provider<AppDatabase>(
-          create: (_) => AppDatabase(),
-          dispose: (_, db) => db.close(),
+        Provider<AppDatabase>.value(value: database),
+
+        // User profile repository
+        Provider<IUserProfileRepository>(
+          create: (_) => UserProfileRepositoryImpl(
+            database: database,
+            prefs: sharedPreferences,
+          ),
         ),
 
         // Global MIDI state (shared across all features)
@@ -168,7 +182,7 @@ class MyApp extends StatelessWidget {
         textTheme: _createTextTheme(),
         extensions: const <ThemeExtension<dynamic>>[SemanticColors.dark],
       ),
-      home: const MainNavigation(),
+      home: const ProfileInitializer(),
     );
   }
 }

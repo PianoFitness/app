@@ -1,10 +1,13 @@
 import "package:flutter/material.dart";
+import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
 import "package:piano_fitness/features/midi_settings/midi_settings_page.dart";
 import "package:piano_fitness/features/notifications/notifications_page.dart";
 import "package:piano_fitness/features/play/play_page.dart";
 import "package:piano_fitness/features/practice/practice_hub_page.dart";
 import "package:piano_fitness/features/reference/reference_page.dart";
 import "package:piano_fitness/features/repertoire/repertoire_page.dart";
+import "package:piano_fitness/features/user_profile/user_profile_page.dart";
+import "package:provider/provider.dart";
 
 /// Main navigation wrapper that provides bottom navigation between core app sections.
 ///
@@ -72,6 +75,8 @@ class _MainNavigationState extends State<MainNavigation> {
           ),
         ),
         actions: [
+          // Active profile display
+          _buildProfileButton(context),
           IconButton(
             key: const Key("midi_settings_button"),
             onPressed: () {
@@ -141,5 +146,52 @@ class _MainNavigationState extends State<MainNavigation> {
         type: BottomNavigationBarType.fixed,
       ),
     );
+  }
+
+  /// Builds the active profile button for the app bar.
+  Widget _buildProfileButton(BuildContext context) {
+    final repository = context.read<IUserProfileRepository>();
+
+    return FutureBuilder<String?>(
+      future: _getActiveProfileName(repository),
+      builder: (context, snapshot) {
+        final profileName = snapshot.data ?? "Select Profile";
+
+        return TextButton.icon(
+          onPressed: () async {
+            await Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (context) => const UserProfilePage(),
+              ),
+            );
+            // Rebuild to show updated profile name
+            setState(() {});
+          },
+          icon: const Icon(Icons.person, size: 20),
+          label: Text(
+            profileName.length > 12
+                ? "${profileName.substring(0, 12)}..."
+                : profileName,
+            style: Theme.of(context).textTheme.labelLarge,
+            overflow: TextOverflow.ellipsis,
+          ),
+        );
+      },
+    );
+  }
+
+  /// Gets the active profile's display name.
+  Future<String?> _getActiveProfileName(
+    IUserProfileRepository repository,
+  ) async {
+    try {
+      final activeId = await repository.getActiveProfileId();
+      if (activeId == null) return null;
+
+      final profile = await repository.getProfile(activeId);
+      return profile?.displayName;
+    } catch (e) {
+      return null;
+    }
   }
 }
