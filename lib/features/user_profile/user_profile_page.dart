@@ -198,7 +198,7 @@ class UserProfilePage extends StatelessWidget {
     if (displayName != null && displayName.isNotEmpty) {
       final profile = await viewModel.createProfile(displayName);
       if (profile != null && context.mounted) {
-        // Profile created and set as active, navigate to main screen
+        // Profile created and set as active, navigate back
         Navigator.of(context).pop();
       } else if (context.mounted && viewModel.errorMessage != null) {
         // Show error
