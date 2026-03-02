@@ -40,7 +40,7 @@ The database layer is implemented in the **application layer** (`lib/application
 
 - **Type-safe queries**: Generated code means SQL mistakes are caught at compile time, reducing runtime crashes
 - **Reactivity**: Drift streams integrate naturally with ChangeNotifier/Provider and ViewModel patterns already in use, enabling auto-updating UI without manual refresh calls
-- **Cross-platform**: `drift_flutter` provides a unified SQLite backend across iOS, Android, macOS, Linux, Windows, and web — no platform-conditional storage code required
+- **Cross-platform**: `drift_flutter` provides a unified SQLite backend across iOS, Android, macOS, Linux, and Windows; web is supported with Drift's web-specific backend and build configuration (e.g., `WasmDatabase`, shipping `sqlite3.wasm` and the Drift worker script, and serving WASM with correct MIME types)
 - **Rich query API**: Supports complex joins, window functions, WITH clauses, transactions, and batched updates without sacrificing readability
 - **Schema migrations**: Built-in migration support keeps schema evolution manageable and auditable
 - **Testability**: Drift supports in-memory databases for fast, deterministic unit tests behind repository interfaces
