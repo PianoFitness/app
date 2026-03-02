@@ -25,7 +25,7 @@ The data model must:
 
 ## Decision
 
-We implement an **event-log style exercise history table** with a composite key approach for exercise identification. Each completed exercise creates one row representing a single "set" of practice.
+We implement an **event-log-style exercise history table** with a composite key approach for exercise identification. Each completed exercise creates one row representing a single "set" of practice.
 
 ### Table Structure
 
@@ -51,8 +51,8 @@ class ExerciseHistoryTable extends Table {
   // Practice configuration
   TextColumn get handSelection => text().nullable()();  
     // "left", "right", "both"
-  TextColumn get configuration => text().nullable()();  
-    // JSON string for extensible metadata
+  TextColumn get configuration => text();  
+    // JSON string for complete ExerciseConfiguration (required)
 }
 ```
 
@@ -91,7 +91,7 @@ Each practice mode has specific rules for deriving the composite key components 
 
 ### Configuration Field
 
-The `configuration` field (nullable text/JSON) stores the complete `ExerciseConfiguration` object (see ADR-0026) as serialized JSON. This provides:
+The `configuration` field (required text/JSON) stores the complete `ExerciseConfiguration` object (see ADR-0026) as serialized JSON. This provides:
 
 - **Complete exercise context**: All configuration parameters preserved for reproducibility
 - **Type-safe deserialization**: JSON can be deserialized back to `ExerciseConfiguration` for analysis

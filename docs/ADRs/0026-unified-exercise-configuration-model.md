@@ -131,10 +131,12 @@ class ExerciseConfiguration {
     };
   }
   
-  /// Validates that required fields are present for the configured practice mode.
+  /// Validates that required fields are present for the configured practice mode
+  /// and that the exercise fits within the 4-octave/49-key piano range.
   /// 
-  /// Throws [ArgumentError] if required fields are missing.
+  /// Throws [ArgumentError] if required fields are missing or octave range is invalid.
   void validate() {
+    // Validate required fields per mode
     switch (practiceMode) {
       case PracticeMode.scales:
         if (key == null) throw ArgumentError('key is required for scales mode');
@@ -158,6 +160,74 @@ class ExerciseConfiguration {
       case PracticeMode.chordProgressions:
         if (key == null) throw ArgumentError('key is required for chordProgressions mode');
         if (chordProgressionId == null) throw ArgumentError('chordProgressionId is required for chordProgressions mode');
+        break;
+    }
+    
+    // Validate octave bounds for 4-octave/49-key piano range (C2-C6)
+    // startOctave must allow the exercise to fit within this constraint
+    const minOctave = 0;  // A0 is lowest piano note
+    const maxOctave = 8;  // C8 is highest piano note
+    
+    if (startOctave < minOctave || startOctave > maxOctave) {
+      throw ArgumentError(
+        'startOctave must be between $minOctave and $maxOctave, got $startOctave'
+      );
+    }
+    
+    // Validate mode-specific range constraints
+    switch (practiceMode) {
+      case PracticeMode.scales:
+        // Scales typically span 1-2 octaves
+        // Maximum span is 2 octaves, so startOctave + 2 must be <= 8
+        if (startOctave > 6) {
+          throw ArgumentError(
+            'scales mode: startOctave $startOctave would exceed piano range '
+            '(scales span up to 2 octaves, maximum startOctave is 6)'
+          );
+        }
+        break;
+        
+      case PracticeMode.chordsByKey:
+        // Chords span less than 1 octave typically
+        // Maximum span is ~1 octave, so startOctave + 1 must be <= 8  
+        if (startOctave > 7) {
+          throw ArgumentError(
+            'chordsByKey mode: startOctave $startOctave would exceed piano range '
+            '(chords span up to 1 octave, maximum startOctave is 7)'
+          );
+        }
+        break;
+        
+      case PracticeMode.chordsByType:
+        // Chord type exercises iterate through keys, each chord < 1 octave
+        if (startOctave > 7) {
+          throw ArgumentError(
+            'chordsByType mode: startOctave $startOctave would exceed piano range '
+            '(chord voicings span up to 1 octave, maximum startOctave is 7)'
+          );
+        }
+        break;
+        
+      case PracticeMode.arpeggios:
+        // Arpeggios can span 1 or 2 octaves based on arpeggioOctaves setting
+        final maxSpan = arpeggioOctaves == ArpeggioOctaves.two ? 2 : 1;
+        if (startOctave + maxSpan > 8) {
+          throw ArgumentError(
+            'arpeggios mode: startOctave $startOctave with $arpeggioOctaves octaves '
+            'would exceed piano range (maximum startOctave is ${8 - maxSpan})'
+          );
+        }
+        break;
+        
+      case PracticeMode.chordProgressions:
+        // Chord progressions iterate through multiple chords, each < 1 octave
+        // Progressions use smart voice leading so stay within ~1-2 octave range
+        if (startOctave > 6) {
+          throw ArgumentError(
+            'chordProgressions mode: startOctave $startOctave would exceed piano range '
+            '(progressions span up to 2 octaves with voice leading, maximum startOctave is 6)'
+          );
+        }
         break;
     }
   }

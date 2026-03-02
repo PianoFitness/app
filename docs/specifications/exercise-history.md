@@ -88,11 +88,11 @@ The core entity is an **exercise history entry**, representing one completed pra
 - `musicalKey`: Tonal center as string (e.g., "C", "Am", "F#", "Bb")
 - `exerciseType`: Optional string for mode-specific refinement (e.g., "major_scale", "minor_triad", "i_iv_v_i")
 - `handSelection`: Optional string indicating which hands were used ("left", "right", "both")
-- `configuration`: Optional JSON string for extensible metadata (tempo, accuracy, duration, etc.)
+- `configuration`: Required JSON string containing complete `ExerciseConfiguration` serialized via `config.toJson()`
 
 **Composite exercise identification**: Exercises are uniquely described (not uniquely constrained) by:
 
-```
+```text
 (practiceMode, musicalKey, exerciseType)
 ```
 
@@ -236,11 +236,13 @@ class ExerciseHistoryTable extends Table {
   TextColumn get musicalKey => text()();
   TextColumn get exerciseType => text().nullable()();
   TextColumn get handSelection => text().nullable()();
-  TextColumn get configuration => text().nullable()();
+  TextColumn get configuration => text();
 }
 ```
 
-**Indexes**: Consider adding composite index on `(profileId, completedAt DESC)` for efficient queries like "recent practice activity for this profile."
+**Required Indexes**:
+
+- **Composite index on `(profileId, completedAt DESC)`**: Required for meeting performance targets (< 100ms writes, < 200ms aggregation queries). This index enables efficient "recent practice activity" queries and aggregations like "count exercises for this profile in the last 7 days."
 
 ### Repository Interface
 
@@ -348,6 +350,7 @@ Use `NativeDatabase.memory()` for isolated, fast database tests. Seed with sampl
 
 - Logging an exercise completes in < 100ms (local SQLite write)
 - Querying recent history (last 30 days) completes in < 200ms for up to 10,000 records
+- Composite index on `(profileId, completedAt DESC)` is created and used for all profile-based timestamp queries
 
 ## Future Enhancements
 
