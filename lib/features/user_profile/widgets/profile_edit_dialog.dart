@@ -33,10 +33,16 @@ class _ProfileEditDialogState extends State<ProfileEditDialog> {
   }
 
   void _onSave() {
-    if (_formKey.currentState!.validate()) {
-      setState(() => _isSaving = true);
-      Navigator.of(context).pop(_controller.text.trim());
-    }
+    // Re-entrancy guard
+    if (_isSaving) return;
+
+    // Null-safe form state access
+    final form = _formKey.currentState;
+    if (form == null) return;
+    if (!form.validate()) return;
+
+    setState(() => _isSaving = true);
+    Navigator.of(context).pop(_controller.text.trim());
   }
 
   @override

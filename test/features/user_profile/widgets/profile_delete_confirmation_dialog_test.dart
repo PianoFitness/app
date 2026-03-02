@@ -32,6 +32,39 @@ void main() {
       await tester.pumpAndSettle();
     }
 
+    /// Helper function to pump the dialog with result capture.
+    ///
+    /// The [resultContainer] is a list that will receive the dialog result
+    /// at index 0 after a dialog button is tapped.
+    Future<void> pumpDialogWithResult(
+      WidgetTester tester,
+      List<bool?> resultContainer, {
+      String profileName = testProfileName,
+    }) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Builder(
+              builder: (context) => ElevatedButton(
+                onPressed: () async {
+                  resultContainer[0] = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => ProfileDeleteConfirmationDialog(
+                      profileName: profileName,
+                    ),
+                  );
+                },
+                child: const Text("Show Dialog"),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(ElevatedButton));
+      await tester.pumpAndSettle();
+    }
+
     testWidgets("should display all dialog elements", (tester) async {
       await pumpProfileDeleteDialog(tester);
 
@@ -62,68 +95,24 @@ void main() {
     testWidgets("should return false when cancel button tapped", (
       tester,
     ) async {
-      bool? result;
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) => ElevatedButton(
-                onPressed: () async {
-                  result = await showDialog<bool>(
-                    context: context,
-                    builder: (context) => const ProfileDeleteConfirmationDialog(
-                      profileName: testProfileName,
-                    ),
-                  );
-                },
-                child: const Text("Show Dialog"),
-              ),
-            ),
-          ),
-        ),
-      );
-
-      await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+      final result = <bool?>[null];
+      await pumpDialogWithResult(tester, result);
 
       await tester.tap(find.byKey(const Key("profile_delete_cancel_button")));
       await tester.pumpAndSettle();
 
-      expect(result, isFalse);
+      expect(result[0], isFalse);
       expect(find.byType(ProfileDeleteConfirmationDialog), findsNothing);
     });
 
     testWidgets("should return true when delete button tapped", (tester) async {
-      bool? result;
-
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) => ElevatedButton(
-                onPressed: () async {
-                  result = await showDialog<bool>(
-                    context: context,
-                    builder: (context) => const ProfileDeleteConfirmationDialog(
-                      profileName: testProfileName,
-                    ),
-                  );
-                },
-                child: const Text("Show Dialog"),
-              ),
-            ),
-          ),
-        ),
-      );
-
-      await tester.tap(find.byType(ElevatedButton));
-      await tester.pumpAndSettle();
+      final result = <bool?>[null];
+      await pumpDialogWithResult(tester, result);
 
       await tester.tap(find.byKey(const Key("profile_delete_confirm_button")));
       await tester.pumpAndSettle();
 
-      expect(result, isTrue);
+      expect(result[0], isTrue);
       expect(find.byType(ProfileDeleteConfirmationDialog), findsNothing);
     });
 

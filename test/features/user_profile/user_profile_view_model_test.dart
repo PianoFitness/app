@@ -546,6 +546,46 @@ void main() {
 
         expect(viewModel.errorMessage, isNotNull);
       });
+
+      test("should handle non-existent profile ID", () async {
+        final profiles = [
+          UserProfile(
+            id: "existing-id",
+            displayName: "Existing",
+            createdAt: DateTime(2024),
+          ),
+        ];
+
+        // Load profiles first
+        when(mockRepository.getAllProfiles()).thenAnswer((_) async => profiles);
+        when(
+          mockRepository.getSortOrder(),
+        ).thenAnswer((_) async => ProfileSortOrder.lastActive);
+        when(mockRepository.getActiveProfileId()).thenAnswer((_) async => null);
+        when(
+          mockRepository.setActiveProfileId("existing-id"),
+        ).thenAnswer((_) async {});
+
+        await viewModel.loadProfiles();
+
+        notificationCount = 0;
+
+        // Try to select non-existent profile
+        await viewModel.selectProfile("non-existent-id");
+
+        // Should set error message
+        expect(viewModel.errorMessage, contains("not found"));
+        expect(viewModel.errorMessage, contains("non-existent-id"));
+
+        // Active profile should remain unchanged (still existing-id from auto-select)
+        expect(viewModel.activeProfile?.id, equals("existing-id"));
+
+        // Should have notified listeners
+        expect(notificationCount, greaterThan(0));
+
+        // Should not have called setActiveProfileId for the non-existent ID
+        verifyNever(mockRepository.setActiveProfileId("non-existent-id"));
+      });
     });
 
     group("toggleSortOrder", () {
