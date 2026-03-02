@@ -5,6 +5,7 @@ import "package:logging/logging.dart";
 import "package:provider/provider.dart";
 import "package:timezone/data/latest.dart" as tz;
 
+import "package:piano_fitness/application/database/app_database.dart";
 import "package:piano_fitness/application/repositories/audio_service_impl.dart";
 import "package:piano_fitness/application/repositories/midi_repository_impl.dart";
 import "package:piano_fitness/application/repositories/notification_repository_impl.dart";
@@ -90,6 +91,12 @@ void main() async {
           lazy: false,
         ),
         Provider<IAudioService>(create: (_) => AudioServiceImpl()),
+
+        // Database
+        Provider<AppDatabase>(
+          create: (_) => AppDatabase(),
+          dispose: (_, db) => db.close(),
+        ),
 
         // Global MIDI state (shared across all features)
         ChangeNotifierProvider<MidiState>(create: (_) => MidiState()),
