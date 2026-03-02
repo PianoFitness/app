@@ -13,7 +13,7 @@ These two document types serve different purposes and complement each other:
 | **Lifecycle** | Updated as the feature evolves  | Largely immutable once recorded              |
 | **Location**  | `docs/specifications/`          | `docs/ADRs/`                                 |
 
-When a specification leads to a significant architectural decision, capture that decision in an ADR and link to it from the spec.
+When a specification leads to a significant architectural decision, capture that decision in an ADR and reference it by name in the spec (e.g., "see ADR-0024"). Use the ADR index in `docs/ADRs/README.md` to look up the file.
 
 ## When to Write a Specification
 
@@ -34,7 +34,7 @@ Not every change needs a spec. Small bug fixes, refactors, and minor UI tweaks g
 3. Include the optional metadata block at the top if you want to track status and dates.
 4. Describe *what* the feature must do and *why*, not *how* the code implements it — see [Specs vs. Code](#specs-vs-code) below.
 5. For any user-facing feature, fill in the `## Accessibility` section — it is not optional. See the [accessibility spec](accessibility.md) for patterns and guidance.
-6. Reference related specs and ADRs by name in prose; avoid maintaining links that may go stale.
+6. Reference related specs and ADRs by name in prose (e.g., `practice-sessions.md`, "ADR-0024") rather than by link — names are easier to maintain as files move.
 
 ## Specs vs. Code
 
