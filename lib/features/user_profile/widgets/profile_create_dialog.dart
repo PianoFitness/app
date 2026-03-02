@@ -73,10 +73,12 @@ class _ProfileCreateDialogState extends State<ProfileCreateDialog> {
       ),
       actions: [
         TextButton(
+          key: const Key("profile_create_cancel_button"),
           onPressed: _isCreating ? null : () => Navigator.of(context).pop(),
           child: const Text("Cancel"),
         ),
         FilledButton(
+          key: const Key("profile_create_submit_button"),
           onPressed: _isCreating ? null : _onCreate,
           child: _isCreating
               ? const SizedBox(

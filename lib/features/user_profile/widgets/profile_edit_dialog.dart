@@ -81,10 +81,12 @@ class _ProfileEditDialogState extends State<ProfileEditDialog> {
       ),
       actions: [
         TextButton(
+          key: const Key("profile_edit_cancel_button"),
           onPressed: _isSaving ? null : () => Navigator.of(context).pop(),
           child: const Text("Cancel"),
         ),
         FilledButton(
+          key: const Key("profile_edit_save_button"),
           onPressed: _isSaving ? null : _onSave,
           child: _isSaving
               ? const SizedBox(

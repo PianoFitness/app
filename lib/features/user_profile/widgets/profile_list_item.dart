@@ -52,6 +52,7 @@ class ProfileListItem extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: InkWell(
+        key: Key("profile_list_item_${profile.id}"),
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(

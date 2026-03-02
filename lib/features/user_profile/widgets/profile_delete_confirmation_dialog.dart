@@ -31,10 +31,12 @@ class ProfileDeleteConfirmationDialog extends StatelessWidget {
       ),
       actions: [
         TextButton(
+          key: const Key("profile_delete_cancel_button"),
           onPressed: () => Navigator.of(context).pop(false),
           child: const Text("Cancel"),
         ),
         FilledButton(
+          key: const Key("profile_delete_confirm_button"),
           onPressed: () => Navigator.of(context).pop(true),
           style: FilledButton.styleFrom(
             backgroundColor: Theme.of(context).colorScheme.error,

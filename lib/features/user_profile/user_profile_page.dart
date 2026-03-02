@@ -115,6 +115,7 @@ class UserProfilePage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             FilledButton.icon(
+              key: const Key("profile_error_retry_button"),
               onPressed: () => viewModel.loadProfiles(),
               icon: const Icon(Icons.refresh),
               label: const Text("Retry"),
