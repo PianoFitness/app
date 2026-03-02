@@ -93,6 +93,9 @@ void main() {
           mockRepository.getSortOrder(),
         ).thenAnswer((_) async => ProfileSortOrder.alphabetical);
         when(mockRepository.getActiveProfileId()).thenAnswer((_) async => null);
+        when(
+          mockRepository.setActiveProfileId(any),
+        ).thenAnswer((_) async => {});
 
         await viewModel.loadProfiles();
 
@@ -456,6 +459,9 @@ void main() {
           mockRepository.getSortOrder(),
         ).thenAnswer((_) async => ProfileSortOrder.lastActive);
         when(mockRepository.getActiveProfileId()).thenAnswer((_) async => null);
+        when(
+          mockRepository.setActiveProfileId(any),
+        ).thenAnswer((_) async => {});
 
         await viewModel.loadProfiles();
 
@@ -561,6 +567,9 @@ void main() {
           mockRepository.getSortOrder(),
         ).thenAnswer((_) async => ProfileSortOrder.lastActive);
         when(mockRepository.getActiveProfileId()).thenAnswer((_) async => null);
+        when(
+          mockRepository.setActiveProfileId(any),
+        ).thenAnswer((_) async => {});
 
         await viewModel.loadProfiles();
 
@@ -602,6 +611,9 @@ void main() {
           mockRepository.getSortOrder(),
         ).thenAnswer((_) async => ProfileSortOrder.alphabetical);
         when(mockRepository.getActiveProfileId()).thenAnswer((_) async => null);
+        when(
+          mockRepository.setActiveProfileId(any),
+        ).thenAnswer((_) async => {});
 
         await viewModel.loadProfiles();
 
@@ -659,6 +671,9 @@ void main() {
           mockRepository.getSortOrder(),
         ).thenAnswer((_) async => ProfileSortOrder.lastActive);
         when(mockRepository.getActiveProfileId()).thenAnswer((_) async => null);
+        when(
+          mockRepository.setActiveProfileId(any),
+        ).thenAnswer((_) async => {});
 
         await viewModel.loadProfiles();
 
@@ -695,6 +710,9 @@ void main() {
           mockRepository.getSortOrder(),
         ).thenAnswer((_) async => ProfileSortOrder.lastActive);
         when(mockRepository.getActiveProfileId()).thenAnswer((_) async => null);
+        when(
+          mockRepository.setActiveProfileId(any),
+        ).thenAnswer((_) async => {});
 
         await viewModel.loadProfiles();
 

@@ -35,6 +35,9 @@ void main() {
       );
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      // Wait for the delayed future to complete to avoid timer pending error
+      await tester.pumpAndSettle();
     });
 
     testWidgets("should display empty state when no profiles exist", (
@@ -145,6 +148,7 @@ void main() {
         mockRepository.getSortOrder(),
       ).thenAnswer((_) async => ProfileSortOrder.alphabetical);
       when(mockRepository.getActiveProfileId()).thenAnswer((_) async => null);
+      when(mockRepository.setActiveProfileId(any)).thenAnswer((_) async => {});
 
       await tester.pumpWidget(
         createTestWidgetWithMocks(
@@ -237,6 +241,7 @@ void main() {
         mockRepository.getSortOrder(),
       ).thenAnswer((_) async => ProfileSortOrder.alphabetical);
       when(mockRepository.getActiveProfileId()).thenAnswer((_) async => null);
+      when(mockRepository.setActiveProfileId(any)).thenAnswer((_) async => {});
       when(
         mockRepository.setSortOrder(ProfileSortOrder.lastActive),
       ).thenAnswer((_) async => {});
@@ -425,6 +430,7 @@ void main() {
         mockRepository.getSortOrder(),
       ).thenAnswer((_) async => ProfileSortOrder.alphabetical);
       when(mockRepository.getActiveProfileId()).thenAnswer((_) async => null);
+      when(mockRepository.setActiveProfileId(any)).thenAnswer((_) async => {});
 
       await tester.pumpWidget(
         createTestWidgetWithMocks(
@@ -462,6 +468,7 @@ void main() {
         mockRepository.getSortOrder(),
       ).thenAnswer((_) async => ProfileSortOrder.alphabetical);
       when(mockRepository.getActiveProfileId()).thenAnswer((_) async => null);
+      when(mockRepository.setActiveProfileId(any)).thenAnswer((_) async => {});
       when(
         mockRepository.updateProfile(any),
       ).thenAnswer((_) async => updatedProfile);
@@ -510,6 +517,7 @@ void main() {
         mockRepository.getSortOrder(),
       ).thenAnswer((_) async => ProfileSortOrder.alphabetical);
       when(mockRepository.getActiveProfileId()).thenAnswer((_) async => null);
+      when(mockRepository.setActiveProfileId(any)).thenAnswer((_) async => {});
 
       await tester.pumpWidget(
         createTestWidgetWithMocks(
@@ -531,8 +539,15 @@ void main() {
 
       // Should show confirmation dialog
       expect(find.byType(AlertDialog), findsOneWidget);
-      expect(find.textContaining("Are you sure"), findsOneWidget);
-      expect(find.textContaining("Alice"), findsOneWidget);
+      expect(find.text("Delete Profile?"), findsOneWidget);
+      // Look for "Alice" within the dialog content specifically
+      expect(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.textContaining("Alice"),
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets("should delete profile when deletion confirmed", (
@@ -591,6 +606,7 @@ void main() {
         mockRepository.getSortOrder(),
       ).thenAnswer((_) async => ProfileSortOrder.alphabetical);
       when(mockRepository.getActiveProfileId()).thenAnswer((_) async => null);
+      when(mockRepository.setActiveProfileId(any)).thenAnswer((_) async => {});
 
       await tester.pumpWidget(
         createTestWidgetWithMocks(
