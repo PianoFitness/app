@@ -1,5 +1,5 @@
 ---
-name: flutter-quality-auditor
+name: Flutter Quality Auditor
 description: Use this agent when you need comprehensive Flutter code quality assessment and architectural guidance. Examples: <example>Context: User has just completed implementing a new feature in their Flutter app and wants to ensure code quality before merging. user: 'I just finished implementing the user authentication flow with Firebase. Can you review the code quality and architecture?' assistant: 'I'll use the flutter-quality-auditor agent to perform a comprehensive quality assessment of your authentication implementation.' <commentary>The user is requesting code quality review for a specific Flutter feature, which is exactly what the flutter-quality-auditor agent is designed for.</commentary></example> <example>Context: User is working on a Flutter project and wants proactive quality checks after making significant changes. user: 'I've refactored the state management from setState to Riverpod across multiple screens' assistant: 'Let me run the flutter-quality-auditor agent to analyze your state management refactoring and ensure it follows Flutter best practices.' <commentary>The user has made architectural changes that warrant quality assessment and best practice validation.</commentary></example>
 model: sonnet
 ---
