@@ -97,8 +97,10 @@ class PracticeProgressDisplay extends StatelessWidget {
             value: ((currentStepIndex + 1).clamp(0, totalSteps)) / totalSteps,
             backgroundColor: colorScheme.outline.withValues(alpha: 0.2),
             valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
-            semanticsLabel: accessibilityLabel,
-            semanticsValue: "${currentStepIndex + 1} of $totalSteps",
+            semanticsLabel:
+                "$accessibilityLabel: step ${currentStepIndex + 1} of $totalSteps",
+            semanticsValue:
+                "${(((currentStepIndex + 1) / totalSteps) * 100).round()}",
           ),
         ],
       ),
