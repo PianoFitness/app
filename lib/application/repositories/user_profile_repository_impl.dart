@@ -1,0 +1,200 @@
+import "package:flutter/foundation.dart";
+import "package:shared_preferences/shared_preferences.dart";
+import "package:uuid/uuid.dart";
+import "package:drift/drift.dart";
+
+import "../../domain/models/profile_sort_order.dart";
+import "../../domain/models/user_profile.dart";
+import "../../domain/repositories/user_profile_repository.dart";
+import "../database/app_database.dart";
+
+/// Implementation of IUserProfileRepository using Drift and SharedPreferences.
+///
+/// Uses Drift for profile CRUD operations and SharedPreferences for
+/// active profile ID and sort order preferences.
+class UserProfileRepositoryImpl implements IUserProfileRepository {
+  /// Creates a UserProfileRepositoryImpl with required dependencies.
+  UserProfileRepositoryImpl({
+    required AppDatabase database,
+    required SharedPreferences prefs,
+  }) : _database = database,
+       _prefs = prefs;
+
+  final AppDatabase _database;
+  final SharedPreferences _prefs;
+  final Uuid _uuid = const Uuid();
+
+  static const String _activeProfileIdKey = "active_profile_id";
+  static const String _sortOrderKey = "profile_sort_order";
+
+  @override
+  Future<List<UserProfile>> getAllProfiles() async {
+    try {
+      final profiles = await _database.userProfileDao.getAllProfiles();
+      return profiles.map(_toDomainModel).toList();
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print("Error loading profiles: $e");
+        print(stackTrace);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<UserProfile?> getProfile(String id) async {
+    try {
+      final profile = await _database.userProfileDao.getProfile(id);
+      return profile != null ? _toDomainModel(profile) : null;
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print("Error loading profile $id: $e");
+        print(stackTrace);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<UserProfile> createProfile(String displayName) async {
+    try {
+      final profile = UserProfile(
+        id: _uuid.v4(),
+        displayName: displayName,
+        createdAt: DateTime.now(),
+      );
+
+      final companion = UserProfileTableCompanion.insert(
+        id: profile.id,
+        displayName: profile.displayName,
+        lastPracticeDate: Value(profile.lastPracticeDate),
+        createdAt: profile.createdAt,
+      );
+
+      await _database.userProfileDao.insertProfile(companion);
+      return profile;
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print("Error creating profile: $e");
+        print(stackTrace);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<UserProfile> updateProfile(UserProfile profile) async {
+    try {
+      final tableData = _toTableData(profile);
+      final success = await _database.userProfileDao.updateProfile(tableData);
+
+      if (!success) {
+        throw Exception("Profile not found: ${profile.id}");
+      }
+
+      return profile;
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print("Error updating profile: $e");
+        print(stackTrace);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> deleteProfile(String id) async {
+    try {
+      await _database.userProfileDao.deleteProfile(id);
+
+      // Clear active profile ID if it was the deleted profile
+      final activeId = await getActiveProfileId();
+      if (activeId == id) {
+        await _prefs.remove(_activeProfileIdKey);
+      }
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print("Error deleting profile $id: $e");
+        print(stackTrace);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<String?> getActiveProfileId() async {
+    try {
+      return _prefs.getString(_activeProfileIdKey);
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print("Error loading active profile ID: $e");
+        print(stackTrace);
+      }
+      return null;
+    }
+  }
+
+  @override
+  Future<void> setActiveProfileId(String id) async {
+    try {
+      await _prefs.setString(_activeProfileIdKey, id);
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print("Error saving active profile ID: $e");
+        print(stackTrace);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<ProfileSortOrder> getSortOrder() async {
+    try {
+      final orderString = _prefs.getString(_sortOrderKey);
+      if (orderString == ProfileSortOrder.alphabetical.name) {
+        return ProfileSortOrder.alphabetical;
+      }
+      // Default to lastActive
+      return ProfileSortOrder.lastActive;
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print("Error loading sort order: $e");
+        print(stackTrace);
+      }
+      return ProfileSortOrder.lastActive; // Default on error
+    }
+  }
+
+  @override
+  Future<void> setSortOrder(ProfileSortOrder order) async {
+    try {
+      await _prefs.setString(_sortOrderKey, order.name);
+    } catch (e, stackTrace) {
+      if (kDebugMode) {
+        print("Error saving sort order: $e");
+        print(stackTrace);
+      }
+      rethrow;
+    }
+  }
+
+  /// Converts a Drift table data object to a domain model.
+  UserProfile _toDomainModel(UserProfileTableData data) {
+    return UserProfile(
+      id: data.id,
+      displayName: data.displayName,
+      lastPracticeDate: data.lastPracticeDate,
+      createdAt: data.createdAt,
+    );
+  }
+
+  /// Converts a domain model to a Drift table data object.
+  UserProfileTableData _toTableData(UserProfile profile) {
+    return UserProfileTableData(
+      id: profile.id,
+      displayName: profile.displayName,
+      lastPracticeDate: profile.lastPracticeDate,
+      createdAt: profile.createdAt,
+    );
+  }
+}
