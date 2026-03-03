@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 import "package:piano/piano.dart";
 import "package:provider/provider.dart";
-import "package:piano_fitness/domain/constants/practice_constants.dart";
+import "package:piano_fitness/presentation/constants/practice_constants.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/features/practice/practice_page_view_model.dart";

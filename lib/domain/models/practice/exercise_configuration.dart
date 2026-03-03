@@ -1,4 +1,4 @@
-import "package:flutter/foundation.dart";
+import "package:meta/meta.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";

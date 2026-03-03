@@ -1,4 +1,5 @@
-import "package:flutter/foundation.dart";
+import "package:collection/collection.dart";
+import "package:meta/meta.dart";
 
 /// The type of input expected for a practice step.
 ///
@@ -81,9 +82,9 @@ class PracticeStep {
     if (identical(this, other)) return true;
 
     return other is PracticeStep &&
-        listEquals(other.notes, notes) &&
+        const ListEquality<int>().equals(other.notes, notes) &&
         other.type == type &&
-        mapEquals(other.metadata, metadata);
+        const MapEquality<String, dynamic>().equals(other.metadata, metadata);
   }
 
   @override
@@ -176,8 +177,8 @@ class PracticeExercise {
     if (identical(this, other)) return true;
 
     return other is PracticeExercise &&
-        listEquals(other.steps, steps) &&
-        mapEquals(other.metadata, metadata);
+        const ListEquality<PracticeStep>().equals(other.steps, steps) &&
+        const MapEquality<String, dynamic>().equals(other.metadata, metadata);
   }
 
   @override
