@@ -49,5 +49,31 @@ analyzer:
     strict-casts: true
     strict-inference: true
     strict-raw-types: true
+
+  # Clean Architecture Layer Boundaries
+  # ====================================
+  # While the Dart analyzer doesn't natively support restricting imports by
+  # directory path, we enforce Clean Architecture layer boundaries through:
+  #
+  # 1. Pre-commit hook: scripts/check-layer-boundaries.sh (automatic)
+  # 2. CI checks: Runs on pull requests
+  # 3. Code review: Manual verification
+  #
+  # Layer dependency rules (dependencies must point inward only):
+  #
+  #   Features Layer (lib/features/)
+  #     ↓ Can import from all layers
+  #   Presentation Layer (lib/presentation/)
+  #     ↓ Can import from: application, domain
+  #   Application Layer (lib/application/)
+  #     ↓ Can import from: domain only
+  #   Domain Layer (lib/domain/)
+  #     ❌ Cannot import from any other app layer (pure Dart only)
+  #
+  # Domain layer restrictions:
+  #   ✅ Allowed: dart:*, package:meta, package:collection, third-party pure Dart
+  #   ❌ Forbidden: package:flutter/*, lib/application/, lib/presentation/, lib/features/
+  #
+  # See AGENTS.md for complete Clean Architecture guidelines.
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

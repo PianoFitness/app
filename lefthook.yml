@@ -31,17 +31,27 @@ pre-commit:
       run: ./scripts/check-test-selectors.sh {staged_files}
       fail_text: |
         ❌ Text-based selectors detected in test files.
-        
+
         Replace find.text() calls used with tester.tap() with find.byKey() calls.
         This improves test robustness and supports internationalization.
-        
+
         Examples:
         ❌ await tester.tap(find.text("Practice"));
         ✅ await tester.tap(find.byKey(const Key("nav_tab_practice")));
-        
+
         See test/GUIDELINES.md for more information on key-based testing.
 
-    # Step 4: Run analysis after fixes (only for Dart files)
+    # Step 4: Check Clean Architecture layer boundaries
+    layer-boundaries:
+      glob: "lib/{domain,application}/**/*.dart"
+      run: ./scripts/check-layer-boundaries.sh
+      fail_text: |
+        ❌ Clean Architecture layer boundary violations detected.
+
+        The script output above shows which files are violating layer rules.
+        Review the dependency diagram and fix the imports accordingly.
+
+    # Step 5: Run analysis after fixes (only for Dart files)
     dart-analyze:
       glob: "*.dart"
       run: |
