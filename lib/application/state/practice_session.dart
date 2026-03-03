@@ -4,6 +4,7 @@ import "package:piano_fitness/domain/constants/musical_constants.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise.dart";
+import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/models/practice/strategies/practice_strategies.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
@@ -39,27 +40,15 @@ class PracticeSession {
   /// that should be highlighted on the piano keyboard.
   final void Function(List<NotePosition>) onHighlightedNotesChanged;
 
-  PracticeMode _practiceMode = PracticeMode.scales;
-  music.Key _selectedKey = music.Key.c;
-  music.ScaleType _selectedScaleType = music.ScaleType.major;
+  // Unified configuration for practice exercises
+  ExerciseConfiguration _config = const ExerciseConfiguration(
+    practiceMode: PracticeMode.scales,
+    handSelection: HandSelection.both,
+    key: music.Key.c,
+    scaleType: music.ScaleType.major,
+  );
 
-  // Arpeggio-specific state
-  MusicalNote _selectedRootNote = MusicalNote.c;
-  ArpeggioType _selectedArpeggioType = ArpeggioType.major;
-  ArpeggioOctaves _selectedArpeggioOctaves = ArpeggioOctaves.one;
-
-  // Chord progression-specific state
-  ChordProgression? _selectedChordProgression;
-
-  // Chord type-specific state
-  ChordType _selectedChordType = ChordType.major;
-  bool _includeInversions = true;
-  bool _includeSeventhChords = false;
-
-  // Hand selection state
-  HandSelection _selectedHandSelection = HandSelection.both;
-
-  // Auto key progression state
+  // Auto key progression state (not yet in config model)
   bool _autoProgressKeys = false;
 
   // Current exercise state using unified model
@@ -69,35 +58,43 @@ class PracticeSession {
 
   final Set<int> _currentlyHeldNotes = {};
 
+  /// The current exercise configuration.
+  ExerciseConfiguration get config => _config;
+
   /// The currently selected practice mode (scales, chords by key, chords by type, arpeggios, or chord progressions).
-  PracticeMode get practiceMode => _practiceMode;
+  PracticeMode get practiceMode => _config.practiceMode;
 
   /// The currently selected musical key for scale and chord exercises.
-  music.Key get selectedKey => _selectedKey;
+  music.Key? get selectedKey => _config.key;
 
   /// The currently selected scale type for scale exercises.
-  music.ScaleType get selectedScaleType => _selectedScaleType;
+  music.ScaleType? get selectedScaleType => _config.scaleType;
 
   /// The currently selected root note for arpeggio exercises.
-  MusicalNote get selectedRootNote => _selectedRootNote;
+  MusicalNote? get selectedRootNote => _config.musicalNote;
 
   /// The currently selected arpeggio type.
-  ArpeggioType get selectedArpeggioType => _selectedArpeggioType;
+  ArpeggioType? get selectedArpeggioType => _config.arpeggioType;
 
   /// The currently selected octave range for arpeggio exercises.
-  ArpeggioOctaves get selectedArpeggioOctaves => _selectedArpeggioOctaves;
+  ArpeggioOctaves get selectedArpeggioOctaves => _config.arpeggioOctaves;
 
   /// The currently selected chord progression type for chord progression exercises.
-  ChordProgression? get selectedChordProgression => _selectedChordProgression;
+  ChordProgression? get selectedChordProgression {
+    final chordProgressionId = _config.chordProgressionId;
+    return chordProgressionId != null
+        ? ChordProgressionLibrary.getProgressionByName(chordProgressionId)
+        : null;
+  }
 
   /// The currently selected chord type for chord type exercises.
-  ChordType get selectedChordType => _selectedChordType;
+  ChordType? get selectedChordType => _config.chordType;
 
   /// Whether to include inversions in chord type exercises.
-  bool get includeInversions => _includeInversions;
+  bool get includeInversions => _config.includeInversions;
 
   /// Whether to include seventh chords in chord-by-key exercises.
-  bool get includeSeventhChords => _includeSeventhChords;
+  bool get includeSeventhChords => _config.includeSeventhChords;
 
   /// Whether to automatically progress through keys following the circle of fifths.
   ///
@@ -107,7 +104,7 @@ class PracticeSession {
   bool get autoProgressKeys => _autoProgressKeys;
 
   /// The currently selected hand for practice exercises.
-  HandSelection get selectedHandSelection => _selectedHandSelection;
+  HandSelection get selectedHandSelection => _config.handSelection;
 
   /// The current exercise being practiced.
   PracticeExercise? get currentExercise => _currentExercise;
@@ -131,12 +128,84 @@ class PracticeSession {
     return _currentExercise!.getAllNotes().toList();
   }
 
+  /// Updates the exercise configuration and reinitializes the exercise sequence.
+  ///
+  /// Validates the configuration via [ExerciseConfiguration.validate],
+  /// then stops any active practice session and generates a new exercise
+  /// sequence based on the new configuration.
+  ///
+  /// Throws [ArgumentError] if the configuration is invalid (missing required fields).
+  void updateConfiguration(ExerciseConfiguration newConfig) {
+    newConfig.validate();
+    _applyConfigChange(() => _config = newConfig);
+  }
+
+  // Legacy setter methods for backward compatibility (delegate to updateConfiguration)
+
   /// Sets the practice mode and reinitializes the exercise sequence.
   ///
   /// Automatically stops any active practice session and generates
-  /// a new exercise sequence based on the selected mode.
+  /// a new exercise sequence based on the selected mode. Sets sensible
+  /// defaults for required fields if they're not already set.
   void setPracticeMode(PracticeMode mode) {
-    _applyConfigChange(() => _practiceMode = mode);
+    _applyConfigChange(() {
+      var newConfig = _config.copyWith(practiceMode: mode);
+
+      // Set sensible defaults for required fields based on the new mode
+      switch (mode) {
+        case PracticeMode.scales:
+          if (newConfig.key == null) {
+            newConfig = newConfig.copyWith(key: Field.set(music.Key.c));
+          }
+          if (newConfig.scaleType == null) {
+            newConfig = newConfig.copyWith(
+              scaleType: Field.set(music.ScaleType.major),
+            );
+          }
+          break;
+        case PracticeMode.chordsByKey:
+          if (newConfig.key == null) {
+            newConfig = newConfig.copyWith(key: Field.set(music.Key.c));
+          }
+          if (newConfig.scaleType == null) {
+            newConfig = newConfig.copyWith(
+              scaleType: Field.set(music.ScaleType.major),
+            );
+          }
+          break;
+        case PracticeMode.chordsByType:
+          if (newConfig.chordType == null) {
+            newConfig = newConfig.copyWith(
+              chordType: Field.set(ChordType.major),
+            );
+          }
+          break;
+        case PracticeMode.arpeggios:
+          if (newConfig.musicalNote == null) {
+            newConfig = newConfig.copyWith(
+              musicalNote: Field.set(MusicalNote.c),
+            );
+          }
+          if (newConfig.arpeggioType == null) {
+            newConfig = newConfig.copyWith(
+              arpeggioType: Field.set(ArpeggioType.major),
+            );
+          }
+          break;
+        case PracticeMode.chordProgressions:
+          if (newConfig.key == null) {
+            newConfig = newConfig.copyWith(key: Field.set(music.Key.c));
+          }
+          if (newConfig.chordProgressionId == null) {
+            newConfig = newConfig.copyWith(
+              chordProgressionId: Field.set("I - V"),
+            );
+          }
+          break;
+      }
+
+      _config = newConfig;
+    });
   }
 
   /// Sets the musical key for scale and chord exercises.
@@ -144,7 +213,7 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the exercise sequence in the new key.
   void setSelectedKey(music.Key key) {
-    _applyConfigChange(() => _selectedKey = key);
+    _applyConfigChange(() => _config = _config.copyWith(key: Field.set(key)));
   }
 
   /// Sets the scale type for scale exercises.
@@ -152,7 +221,9 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the scale sequence with the new type (major, minor, modal, etc.).
   void setSelectedScaleType(music.ScaleType type) {
-    _applyConfigChange(() => _selectedScaleType = type);
+    _applyConfigChange(
+      () => _config = _config.copyWith(scaleType: Field.set(type)),
+    );
   }
 
   /// Sets the root note for arpeggio exercises.
@@ -160,7 +231,9 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the arpeggio sequence starting from the new root note.
   void setSelectedRootNote(MusicalNote rootNote) {
-    _applyConfigChange(() => _selectedRootNote = rootNote);
+    _applyConfigChange(
+      () => _config = _config.copyWith(musicalNote: Field.set(rootNote)),
+    );
   }
 
   /// Sets the arpeggio type (major, minor, diminished, etc.).
@@ -168,7 +241,9 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the arpeggio sequence with the new chord quality.
   void setSelectedArpeggioType(ArpeggioType type) {
-    _applyConfigChange(() => _selectedArpeggioType = type);
+    _applyConfigChange(
+      () => _config = _config.copyWith(arpeggioType: Field.set(type)),
+    );
   }
 
   /// Sets the octave range for arpeggio exercises.
@@ -176,7 +251,9 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the arpeggio sequence to span the specified number of octaves.
   void setSelectedArpeggioOctaves(ArpeggioOctaves octaves) {
-    _applyConfigChange(() => _selectedArpeggioOctaves = octaves);
+    _applyConfigChange(
+      () => _config = _config.copyWith(arpeggioOctaves: octaves),
+    );
   }
 
   /// Sets the chord progression type for chord progression exercises.
@@ -184,7 +261,11 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the chord progression sequence with the new progression type.
   void setSelectedChordProgression(ChordProgression progression) {
-    _applyConfigChange(() => _selectedChordProgression = progression);
+    _applyConfigChange(
+      () => _config = _config.copyWith(
+        chordProgressionId: Field.set(progression.name),
+      ),
+    );
   }
 
   /// Sets the chord type for chord type exercises.
@@ -192,7 +273,9 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the chord type sequence with the new type.
   void setSelectedChordType(ChordType type) {
-    _applyConfigChange(() => _selectedChordType = type);
+    _applyConfigChange(
+      () => _config = _config.copyWith(chordType: Field.set(type)),
+    );
   }
 
   /// Sets whether to include inversions in chord type exercises.
@@ -200,7 +283,9 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the chord sequence with the new inversion setting.
   void setIncludeInversions(bool includeInversions) {
-    _applyConfigChange(() => _includeInversions = includeInversions);
+    _applyConfigChange(
+      () => _config = _config.copyWith(includeInversions: includeInversions),
+    );
   }
 
   /// Sets whether to include seventh chords in chord-by-key exercises.
@@ -212,7 +297,11 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the chord sequence with the new setting.
   void setIncludeSeventhChords(bool includeSeventhChords) {
-    _applyConfigChange(() => _includeSeventhChords = includeSeventhChords);
+    _applyConfigChange(
+      () => _config = _config.copyWith(
+        includeSeventhChords: includeSeventhChords,
+      ),
+    );
   }
 
   /// Sets the hand selection for practice exercises.
@@ -220,7 +309,9 @@ class PracticeSession {
   /// Automatically stops any active practice session and regenerates
   /// the exercise sequence for the selected hand(s).
   void setSelectedHandSelection(HandSelection handSelection) {
-    _applyConfigChange(() => _selectedHandSelection = handSelection);
+    _applyConfigChange(
+      () => _config = _config.copyWith(handSelection: handSelection),
+    );
   }
 
   /// Enables or disables automatic key progression through the circle of fifths.
@@ -244,47 +335,47 @@ class PracticeSession {
 
   /// Creates the appropriate strategy based on the current practice mode.
   PracticeStrategy _createStrategy() {
-    switch (_practiceMode) {
+    switch (_config.practiceMode) {
       case PracticeMode.scales:
         return ScalesStrategy(
-          key: _selectedKey,
-          scaleType: _selectedScaleType,
-          handSelection: _selectedHandSelection,
+          key: _config.key!,
+          scaleType: _config.scaleType!,
+          handSelection: _config.handSelection,
           startOctave: defaultStartOctave,
         );
       case PracticeMode.arpeggios:
         return ArpeggiosStrategy(
-          rootNote: _selectedRootNote,
-          arpeggioType: _selectedArpeggioType,
-          arpeggioOctaves: _selectedArpeggioOctaves,
-          handSelection: _selectedHandSelection,
+          rootNote: _config.musicalNote!,
+          arpeggioType: _config.arpeggioType!,
+          arpeggioOctaves: _config.arpeggioOctaves,
+          handSelection: _config.handSelection,
           startOctave: defaultStartOctave,
         );
       case PracticeMode.chordsByKey:
         return ChordsByKeyStrategy(
-          key: _selectedKey,
-          scaleType: _selectedScaleType,
-          handSelection: _selectedHandSelection,
+          key: _config.key!,
+          scaleType: _config.scaleType!,
+          handSelection: _config.handSelection,
           startOctave: defaultStartOctave,
-          includeSeventhChords: _includeSeventhChords,
+          includeSeventhChords: _config.includeSeventhChords,
         );
       case PracticeMode.chordsByType:
         return ChordsByTypeStrategy(
-          chordType: _selectedChordType,
-          includeInversions: _includeInversions,
-          handSelection: _selectedHandSelection,
+          chordType: _config.chordType!,
+          includeInversions: _config.includeInversions,
+          handSelection: _config.handSelection,
           startOctave: defaultStartOctave,
         );
       case PracticeMode.chordProgressions:
         // Default to I-V progression if none selected
         final progression =
-            _selectedChordProgression ??
+            selectedChordProgression ??
             ChordProgressionLibrary.getProgressionByName("I - V")!;
 
         return ChordProgressionsStrategy(
-          key: _selectedKey,
+          key: _config.key!,
           chordProgression: progression,
-          handSelection: _selectedHandSelection,
+          handSelection: _config.handSelection,
           startOctave: defaultStartOctave,
         );
     }
@@ -292,11 +383,9 @@ class PracticeSession {
 
   void _initializeSequence() {
     // Apply default progression if none selected (for chordProgressions mode)
-    if (_practiceMode == PracticeMode.chordProgressions &&
-        _selectedChordProgression == null) {
-      _selectedChordProgression = ChordProgressionLibrary.getProgressionByName(
-        "I - V",
-      );
+    if (_config.practiceMode == PracticeMode.chordProgressions &&
+        _config.chordProgressionId == null) {
+      _config = _config.copyWith(chordProgressionId: const Field.set("I - V"));
     }
 
     final strategy = _createStrategy();
@@ -447,12 +536,17 @@ class PracticeSession {
   /// For arpeggio mode, this also updates the root note to match the new key
   /// using the keyToMusicalNote conversion utility.
   void _progressToNextKey() {
-    final nextKey = CircleOfFifths.getNextKey(_selectedKey);
-    _selectedKey = nextKey;
+    final currentKey = _config.key!;
+    final nextKey = CircleOfFifths.getNextKey(currentKey);
 
     // For arpeggios, also update the root note to match the key
-    if (_practiceMode == PracticeMode.arpeggios) {
-      _selectedRootNote = NoteUtils.keyToMusicalNote(nextKey);
+    if (_config.practiceMode == PracticeMode.arpeggios) {
+      _config = _config.copyWith(
+        key: Field.set(nextKey),
+        musicalNote: Field.set(NoteUtils.keyToMusicalNote(nextKey)),
+      );
+    } else {
+      _config = _config.copyWith(key: Field.set(nextKey));
     }
 
     _initializeSequence();

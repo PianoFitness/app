@@ -6,6 +6,7 @@ import "package:piano/piano.dart";
 import "package:piano_fitness/domain/constants/midi_protocol_constants.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
@@ -57,6 +58,12 @@ class PracticePageViewModel extends ChangeNotifier {
 
   /// Currently highlighted notes for piano display.
   List<NotePosition> get highlightedNotes => _highlightedNotes;
+
+  /// Current exercise configuration from the practice session.
+  ///
+  /// Returns null if the practice session is not initialized.
+  /// Returns the unified configuration used for the current exercise.
+  ExerciseConfiguration? get currentConfiguration => _practiceSession?.config;
 
   /// Initializes the practice session with required callbacks.
   void initializePracticeSession({
@@ -150,6 +157,20 @@ class PracticePageViewModel extends ChangeNotifier {
     _practiceSession?.resetPractice();
     notifyListeners();
   }
+
+  /// Updates the exercise configuration and reinitializes the exercise sequence.
+  ///
+  /// Validates the configuration via [ExerciseConfiguration.validate],
+  /// then stops any active practice session and generates a new exercise
+  /// sequence based on the new configuration.
+  ///
+  /// Throws [ArgumentError] if the configuration is invalid (missing required fields).
+  void updateConfiguration(ExerciseConfiguration newConfig) {
+    _practiceSession?.updateConfiguration(newConfig);
+    notifyListeners();
+  }
+
+  // Legacy setter methods for backward compatibility (delegate to PracticeSession)
 
   /// Changes the practice mode and updates the session.
   void setPracticeMode(PracticeMode mode) {

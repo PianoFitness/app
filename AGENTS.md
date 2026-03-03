@@ -83,12 +83,14 @@ Piano Fitness is a Flutter app focused on piano practice with MIDI integration. 
 We implement a **pragmatic hybrid** that balances architectural purity with developer productivity:
 
 **Clean Architecture (Uncle Bob)** provides:
-- 📐 **Layered dependencies**: Domain → Application → Presentation (unidirectional)
+
+- 📐 **Layered dependencies**: Presentation → Application → Domain (unidirectional, inward)
 - 🔒 **Domain independence**: Core business logic isolated from frameworks
 - 🧪 **Testability**: Clear boundaries enable comprehensive unit testing
 - 🔄 **Flexibility**: Swap implementations without changing business logic
 
 **Feature-based organization (Flutter team)** provides:
+
 - 📁 **Co-location**: Related code grouped by business capability
 - 🎯 **Developer experience**: Easier navigation and understanding
 - ⚡ **Scalability**: Add features without affecting existing code
@@ -127,9 +129,64 @@ We implement a **pragmatic hybrid** that balances architectural purity with deve
 4. **Single Responsibility**: Each layer has one reason to change
 5. **Feature Autonomy**: Features are self-contained with minimal coupling
 
+#### Architecture Enforcement
+
+**Automated Layer Boundary Checks**: The codebase enforces Clean Architecture principles through multiple mechanisms:
+
+1. **Pre-commit Git Hook** (`scripts/check-layer-boundaries.sh`)
+   - Automatically runs when committing changes to `lib/domain/` or `lib/application/`
+   - Scans for forbidden imports across layer boundaries
+   - Provides visual diagram and remediation guidance on violations
+   - Integrated via `lefthook.yml` configuration
+
+2. **Static Analysis Configuration** (`analysis_options.yaml`)
+   - Documents layer dependency rules with inline comments
+   - Enforces strict type checking and inference
+   - Excludes generated files from analysis
+
+3. **Code Review Guidelines**
+   - Manual verification of architecture compliance
+   - Documented in this file (AGENTS.md) and ADRs
+
+**Layer Import Rules**:
+
+```text
+✅ Domain Layer (lib/domain/):
+   - dart:* core libraries only
+   - package:meta (Dart SDK - for @immutable, @protected, etc.)
+   - package:collection (Dart SDK - for pure Dart collection utilities)
+   - package:piano_fitness/domain/* (internal domain imports only)
+   ❌ NO imports from: lib/application/, lib/presentation/, lib/features/
+   ❌ NO imports from: Flutter or any other external packages
+
+   Note: package:meta and package:collection are official core packages published 
+   by the Dart Team (dart.dev) with high SLO. These foundational packages complement 
+   the core libraries and are maintained to the same quality standards as dart:* 
+   libraries. See https://dart.dev/dart-team-packages for quality policy.
+
+✅ Application Layer (lib/application/):
+   - lib/domain/* (domain only)
+   - Infrastructure packages (flutter_midi_command, drift, etc.)
+   ❌ NO imports from: lib/presentation/, lib/features/
+
+✅ Presentation Layer (lib/presentation/, lib/features/):
+   - Can import from all layers (top-most layer)
+```
+
+**Testing the Enforcement**:
+
+```bash
+# Run layer boundary check manually
+./scripts/check-layer-boundaries.sh
+
+# Will be automatically checked on:
+git commit  # Pre-commit hook runs check
+```
+
 #### Further Reading
 
 **Primary Sources:**
+
 - [Clean Architecture - Robert C. Martin (Uncle Bob)](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html) - Foundational principles
 - [Flutter Architectural Overview (Official)](https://docs.flutter.dev/resources/architectural-overview) - Framework-specific guidance
 - [Repository Pattern - Martin Fowler](https://martinfowler.com/eaaCatalog/repository.html) - Data access abstraction
@@ -137,6 +194,7 @@ We implement a **pragmatic hybrid** that balances architectural purity with deve
 - [Dependency Inversion Principle](https://en.wikipedia.org/wiki/Dependency_inversion_principle) - Foundation of our DI pattern
 
 **Piano Fitness Specifics:**
+
 - [Architecture Decision Records (ADRs)](docs/ADRs/README.md) - Our specific architectural choices
 - [ADR-003: Repository Pattern Implementation](docs/ADRs/003-repository-pattern-implementation.md)
 - [ADR-005: Dependency Injection Strategy](docs/ADRs/005-dependency-injection-strategy.md)
@@ -267,6 +325,7 @@ final viewModel = PlayPageViewModel(midiRepository: mockMidiRepository);
 See `test/shared/test_helpers/mock_repositories.dart` for available mocks.
 
 **Benefits of DI:**
+
 - ✅ Testability: Easy to mock dependencies in tests
 - ✅ Flexibility: Swap implementations without changing ViewModels
 - ✅ Clarity: Explicit dependencies visible in constructor
@@ -324,6 +383,7 @@ When adding or modifying tables:
 5. **Test migration:** `flutter test test/application/database/app_database_migration_test.dart`
 
 Migration files are generated in:
+
 - `drift_schemas/` - Schema version JSON files (tracked in git)
 - `lib/application/database/app_database_migration.dart` - Migration implementation guide
 - `test/application/database/app_database_migration_test.dart` - Automated migration tests
@@ -538,18 +598,18 @@ UI components, ViewModels, and presentation logic:
 - Use existing scale/chord/arpeggio definitions  
 - Add new music theory to domain services, not features
 
-5. **MIDI Handling**: Centralize through domain/services/midi/midi_service.dart
+1. **MIDI Handling**: Centralize through domain/services/midi/midi_service.dart
    - Don't parse MIDI messages directly in ViewModels
    - Use existing MidiEvent structures
    - Add new message types to the domain service layer
 
-6. **State Management**: Use MVVM with Provider pattern
+2. **State Management**: Use MVVM with Provider pattern
    - **Global State**: application/state/ (future refactor)
    - **Feature State**: ViewModel extends ChangeNotifier
    - **UI State**: StatefulWidget for view-specific UI state only
    - **Business Logic**: Domain services for pure business logic
 
-7. **Testing**: Mirror lib/ structure in test/
+3. **Testing**: Mirror lib/ structure in test/
    - Unit tests for domain/services/, application/services/, and ViewModels  
    - Widget tests for feature pages and presentation/shared/widgets/
    - Integration tests for cross-feature functionality
@@ -620,11 +680,13 @@ The codebase follows Flutter testing patterns with **mandatory test coverage req
 **Test Structure Mirrors Source Code**: Tests follow the exact same directory structure as `lib/` for easy navigation and maintenance.
 
 **Naming Convention**: For each source file, create a corresponding test file with `_test.dart` suffix:
+
 - `lib/features/play/play_page.dart` → `test/features/play/play_page_test.dart`
 - `lib/domain/services/music_theory/scales.dart` → `test/domain/services/music_theory/scales_test.dart`
 - `lib/application/state/midi_state.dart` → `test/application/state/midi_state_test.dart`
 
 **Running Specific Test Categories**:
+
 ```bash
 flutter test test/domain/              # All domain layer tests
 flutter test test/application/         # All application layer tests

@@ -1,4 +1,3 @@
-import "package:flutter/foundation.dart" show kDebugMode;
 import "package:piano_fitness/domain/constants/musical_constants.dart";
 import "package:piano_fitness/domain/services/music_theory/chord_definitions.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
@@ -106,12 +105,10 @@ class ChordBuilder {
         if (notes.length == 4) {
           return [notes[3], notes[0], notes[1], notes[2]];
         } else {
-          if (kDebugMode) {
-            print(
-              "Warning: Third inversion requested for triad (${notes.length} notes)",
-            );
-          }
-          return notes; // Return unchanged for triads (invalid inversion)
+          throw ArgumentError(
+            "Third inversion is only valid for seventh chords (4 notes), "
+            "but chord has ${notes.length} notes",
+          );
         }
     }
   }
@@ -240,17 +237,14 @@ class ChordBuilder {
           secondInterval == MusicalConstants.majorThird) {
         chords.add(ChordType.augmented7); // Augmented triad + minor 7th
       }
-      // Default to dominant7 for unexpected interval combinations
+      // Unexpected interval combination - this should not happen in valid scales
       else {
-        if (kDebugMode) {
-          print(
-            "Unexpected interval combination in getSeventhChordsInKey: "
-            "scale degree=$i, root=${scaleNotes[i].name}, "
-            "firstInterval=$firstInterval, secondInterval=$secondInterval, "
-            "thirdInterval=$thirdInterval",
-          );
-        }
-        chords.add(ChordType.dominant7);
+        throw StateError(
+          "Unexpected interval combination in getSeventhChordsInKey: "
+          "scale degree=$i, root=${scaleNotes[i].name}, "
+          "firstInterval=$firstInterval, secondInterval=$secondInterval, "
+          "thirdInterval=$thirdInterval",
+        );
       }
     }
 

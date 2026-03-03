@@ -1,16 +1,17 @@
 import "dart:math" as math;
 
 import "package:flutter/material.dart";
-import "package:piano_fitness/domain/constants/practice_constants.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
-import "package:piano_fitness/domain/services/music_theory/chords.dart";
-import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
+import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;
+import "package:piano_fitness/presentation/constants/practice_constants.dart";
+import "package:piano_fitness/presentation/constants/ui_constants.dart";
 
 /// A comprehensive settings panel for configuring piano practice exercises.
 ///
@@ -18,36 +19,17 @@ import "package:piano_fitness/domain/services/music_theory/scales.dart"
 /// musical keys, scale types, and other exercise-specific parameters. It adapts its
 /// interface based on the selected practice mode to show relevant options.
 class PracticeSettingsPanel extends StatelessWidget {
-  /// Creates a practice settings panel with configuration options for practice sessions.
+  /// Creates a practice settings panel with unified exercise configuration.
   ///
-  /// All parameters are required to ensure the panel can properly display
-  /// current settings and handle user interactions.
+  /// The panel adapts its interface based on the practice mode in [configuration]
+  /// to show relevant options. When settings change, [onConfigurationChanged] is
+  /// called with the updated configuration.
   const PracticeSettingsPanel({
-    required this.practiceMode,
-    required this.selectedKey,
-    required this.selectedScaleType,
-    required this.selectedRootNote,
-    required this.selectedArpeggioType,
-    required this.selectedArpeggioOctaves,
-    required this.selectedChordProgression,
-    required this.selectedChordType,
-    required this.includeInversions,
-    required this.includeSeventhChords,
-    required this.selectedHandSelection,
-    required this.autoProgressKeys,
+    required this.configuration,
+    required this.onConfigurationChanged,
     required this.practiceActive,
     required this.onResetPractice,
-    required this.onPracticeModeChanged,
-    required this.onKeyChanged,
-    required this.onScaleTypeChanged,
-    required this.onRootNoteChanged,
-    required this.onArpeggioTypeChanged,
-    required this.onArpeggioOctavesChanged,
-    required this.onChordProgressionChanged,
-    required this.onChordTypeChanged,
-    required this.onIncludeInversionsChanged,
-    required this.onIncludeSeventhChordsChanged,
-    required this.onHandSelectionChanged,
+    required this.autoProgressKeys,
     required this.onAutoProgressKeysChanged,
     super.key,
   });
@@ -58,9 +40,16 @@ class PracticeSettingsPanel extends StatelessWidget {
   /// Key for the practice status container
   static const Key statusKey = Key("practiceStatusContainer");
 
+  /// Whether to automatically progress through keys following the circle of fifths.
+  final bool autoProgressKeys;
+
+  /// Callback when auto-progress keys setting changes.
+  final ValueChanged<bool> onAutoProgressKeysChanged;
+
   Widget _buildRootNoteDropdown() {
     return DropdownButtonFormField<MusicalNote>(
-      initialValue: selectedRootNote,
+      key: ValueKey("rootNote_${configuration.musicalNote}"),
+      initialValue: configuration.musicalNote,
       decoration: const InputDecoration(
         labelText: "Root Note",
         border: OutlineInputBorder(),
@@ -74,7 +63,9 @@ class PracticeSettingsPanel extends StatelessWidget {
       }).toList(),
       onChanged: (value) {
         if (value != null) {
-          onRootNoteChanged(value);
+          onConfigurationChanged(
+            configuration.copyWith(musicalNote: Field.set(value)),
+          );
         }
       },
     );
@@ -82,7 +73,8 @@ class PracticeSettingsPanel extends StatelessWidget {
 
   Widget _buildChordTypeDropdown() {
     return DropdownButtonFormField<ChordType>(
-      initialValue: selectedChordType,
+      key: ValueKey("chordType_${configuration.chordType}"),
+      initialValue: configuration.chordType,
       decoration: const InputDecoration(
         labelText: "Chord Type",
         border: OutlineInputBorder(),
@@ -96,7 +88,9 @@ class PracticeSettingsPanel extends StatelessWidget {
       }).toList(),
       onChanged: (value) {
         if (value != null) {
-          onChordTypeChanged(value);
+          onConfigurationChanged(
+            configuration.copyWith(chordType: Field.set(value)),
+          );
         }
       },
     );
@@ -104,7 +98,8 @@ class PracticeSettingsPanel extends StatelessWidget {
 
   Widget _buildKeyDropdown() {
     return DropdownButtonFormField<music.Key>(
-      initialValue: selectedKey,
+      key: ValueKey("key_${configuration.key}"),
+      initialValue: configuration.key,
       decoration: const InputDecoration(
         labelText: "Key",
         border: OutlineInputBorder(),
@@ -115,14 +110,14 @@ class PracticeSettingsPanel extends StatelessWidget {
       }).toList(),
       onChanged: (value) {
         if (value != null) {
-          onKeyChanged(value);
+          onConfigurationChanged(configuration.copyWith(key: Field.set(value)));
         }
       },
     );
   }
 
   Widget _buildSecondarySelector(BuildContext context) {
-    switch (practiceMode) {
+    switch (configuration.practiceMode) {
       case PracticeMode.arpeggios:
         return _buildRootNoteDropdown();
       case PracticeMode.chordsByType:
@@ -132,83 +127,17 @@ class PracticeSettingsPanel extends StatelessWidget {
     }
   }
 
-  /// The currently selected practice mode (scales, chords, or arpeggios).
-  final PracticeMode practiceMode;
+  /// The unified exercise configuration containing all practice settings.
+  final ExerciseConfiguration configuration;
 
-  /// The selected musical key for scale and chord exercises.
-  final music.Key selectedKey;
-
-  /// The selected scale type (major, minor, modal, etc.) for scale exercises.
-  final music.ScaleType selectedScaleType;
-
-  /// The selected root note for arpeggio exercises.
-  final MusicalNote selectedRootNote;
-
-  /// The selected arpeggio type (major, minor, diminished, etc.).
-  final ArpeggioType selectedArpeggioType;
-
-  /// The selected octave range for arpeggio exercises.
-  final ArpeggioOctaves selectedArpeggioOctaves;
-
-  /// The selected chord progression type for chord progression exercises.
-  final ChordProgression? selectedChordProgression;
-
-  /// The selected chord type for chord type exercises.
-  final ChordType selectedChordType;
-
-  /// Whether to include inversions in chord type exercises.
-  final bool includeInversions;
-
-  /// Whether to include seventh chords in chord-by-key exercises.
-  final bool includeSeventhChords;
-
-  /// The selected hand for practice exercises.
-  final HandSelection selectedHandSelection;
-
-  /// Whether to automatically progress through keys following the circle of fifths.
-  final bool autoProgressKeys;
+  /// Callback fired when any configuration setting changes.
+  final ValueChanged<ExerciseConfiguration> onConfigurationChanged;
 
   /// Whether a practice session is currently active.
   final bool practiceActive;
 
   /// Callback fired when the user taps the Reset button.
   final VoidCallback onResetPractice;
-
-  /// Callback fired when the user changes the practice mode.
-  final ValueChanged<PracticeMode> onPracticeModeChanged;
-
-  /// Callback fired when the user changes the musical key.
-  final ValueChanged<music.Key> onKeyChanged;
-
-  /// Callback fired when the user changes the scale type.
-  final ValueChanged<music.ScaleType> onScaleTypeChanged;
-
-  /// Callback fired when the user changes the root note for arpeggios.
-  final ValueChanged<MusicalNote> onRootNoteChanged;
-
-  /// Callback fired when the user changes the arpeggio type.
-  final ValueChanged<ArpeggioType> onArpeggioTypeChanged;
-
-  /// Callback fired when the user changes the arpeggio octave range.
-  final ValueChanged<ArpeggioOctaves> onArpeggioOctavesChanged;
-
-  /// Callback fired when the user changes the chord progression type.
-  final ValueChanged<ChordProgression> onChordProgressionChanged;
-
-  /// Callback fired when the user changes the chord type.
-  final ValueChanged<ChordType> onChordTypeChanged;
-
-  /// Callback fired when the user changes the inversion setting.
-  final ValueChanged<bool> onIncludeInversionsChanged;
-
-  /// Callback fired when the user changes the seventh chord setting.
-  final ValueChanged<bool> onIncludeSeventhChordsChanged;
-
-  /// Callback fired when the user changes the hand selection.
-  final ValueChanged<HandSelection> onHandSelectionChanged;
-
-  /// Callback fired when the user toggles auto key progression.
-  final ValueChanged<bool> onAutoProgressKeysChanged;
 
   String _getPracticeModeString(PracticeMode mode) {
     switch (mode) {
@@ -227,7 +156,7 @@ class PracticeSettingsPanel extends StatelessWidget {
 
   /// Returns true if the current practice mode supports key-based progression.
   ///
-  /// Auto key progression is available for modes that use the [selectedKey] field:
+  /// Auto key progression is available for modes that use the configuration's key field:
   /// - Scales (practice scales in different keys)
   /// - Chords by Key (practice diatonic chords in different keys)
   /// - Chord Progressions (practice progressions in different keys)
@@ -235,10 +164,10 @@ class PracticeSettingsPanel extends StatelessWidget {
   ///
   /// Modes that use chord types (chords by type) are excluded.
   bool _supportsKeyProgression() {
-    return practiceMode == PracticeMode.scales ||
-        practiceMode == PracticeMode.chordsByKey ||
-        practiceMode == PracticeMode.chordProgressions ||
-        practiceMode == PracticeMode.arpeggios;
+    return configuration.practiceMode == PracticeMode.scales ||
+        configuration.practiceMode == PracticeMode.chordsByKey ||
+        configuration.practiceMode == PracticeMode.chordProgressions ||
+        configuration.practiceMode == PracticeMode.arpeggios;
   }
 
   String _getKeyString(music.Key key) {
@@ -344,7 +273,8 @@ class PracticeSettingsPanel extends StatelessWidget {
             children: [
               Expanded(
                 child: DropdownButtonFormField<PracticeMode>(
-                  initialValue: practiceMode,
+                  key: ValueKey("practiceMode_${configuration.practiceMode}"),
+                  initialValue: configuration.practiceMode,
                   decoration: const InputDecoration(
                     labelText: "Practice Mode",
                     border: OutlineInputBorder(),
@@ -357,7 +287,9 @@ class PracticeSettingsPanel extends StatelessWidget {
                   }).toList(),
                   onChanged: (value) {
                     if (value != null) {
-                      onPracticeModeChanged(value);
+                      onConfigurationChanged(
+                        configuration.copyWith(practiceMode: value),
+                      );
                     }
                   },
                 ),
@@ -367,20 +299,11 @@ class PracticeSettingsPanel extends StatelessWidget {
             ],
           ),
           // Auto key progression toggle (shown only for key-based modes)
-          if (_supportsKeyProgression()) ...[
-            const SizedBox(height: Spacing.sm),
-            SwitchListTile(
-              title: const Text("Auto-progress through keys"),
-              subtitle: const Text(
-                "Follow circle of fifths after each exercise",
-              ),
-              value: autoProgressKeys,
-              onChanged: onAutoProgressKeysChanged,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: Spacing.sm,
-              ),
+          if (_supportsKeyProgression())
+            _AutoProgressKeyToggle(
+              autoProgressKeys: autoProgressKeys,
+              onAutoProgressKeysChanged: onAutoProgressKeysChanged,
             ),
-          ],
           const SizedBox(height: Spacing.sm),
           SegmentedButton<HandSelection>(
             segments: [
@@ -427,139 +350,46 @@ class PracticeSettingsPanel extends StatelessWidget {
                 ),
               ),
             ],
-            selected: {selectedHandSelection},
+            selected: {configuration.handSelection},
             onSelectionChanged: (Set<HandSelection> selection) {
-              onHandSelectionChanged(selection.first);
+              onConfigurationChanged(
+                configuration.copyWith(handSelection: selection.first),
+              );
             },
             showSelectedIcon: false,
             style: const ButtonStyle(visualDensity: VisualDensity.compact),
           ),
-          if (practiceMode == PracticeMode.scales) ...[
-            const SizedBox(height: Spacing.sm),
-            DropdownButtonFormField<music.ScaleType>(
-              initialValue: selectedScaleType,
-              decoration: const InputDecoration(
-                labelText: "Scale Type",
-                border: OutlineInputBorder(),
-              ),
-              items: music.ScaleType.values.map((type) {
-                return DropdownMenuItem(
-                  value: type,
-                  child: Text(_getScaleTypeString(type)),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  onScaleTypeChanged(value);
-                }
-              },
+          // Mode-specific settings
+          if (configuration.practiceMode == PracticeMode.scales)
+            _ScalesSettings(
+              configuration: configuration,
+              onConfigurationChanged: onConfigurationChanged,
+              getScaleTypeString: _getScaleTypeString,
+            )
+          else if (configuration.practiceMode == PracticeMode.chordsByKey)
+            _ChordsByKeySettings(
+              configuration: configuration,
+              onConfigurationChanged: onConfigurationChanged,
+              getScaleTypeString: _getScaleTypeString,
+            )
+          else if (configuration.practiceMode == PracticeMode.arpeggios)
+            _ArpeggiosSettings(
+              configuration: configuration,
+              onConfigurationChanged: onConfigurationChanged,
+              getArpeggioTypeString: _getArpeggioTypeString,
+              getArpeggioOctavesString: _getArpeggioOctavesString,
+            )
+          else if (configuration.practiceMode == PracticeMode.chordProgressions)
+            _ChordProgressionsSettings(
+              configuration: configuration,
+              onConfigurationChanged: onConfigurationChanged,
+              getChordProgressionString: _getChordProgressionString,
+            )
+          else if (configuration.practiceMode == PracticeMode.chordsByType)
+            _ChordsByTypeSettings(
+              configuration: configuration,
+              onConfigurationChanged: onConfigurationChanged,
             ),
-          ],
-          if (practiceMode == PracticeMode.arpeggios) ...[
-            const SizedBox(height: Spacing.sm),
-            Row(
-              children: [
-                Expanded(
-                  child: DropdownButtonFormField<ArpeggioType>(
-                    initialValue: selectedArpeggioType,
-                    decoration: const InputDecoration(
-                      labelText: "Arpeggio Type",
-                      border: OutlineInputBorder(),
-                    ),
-                    items: ArpeggioType.values.map((type) {
-                      return DropdownMenuItem(
-                        value: type,
-                        child: Text(_getArpeggioTypeString(type)),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        onArpeggioTypeChanged(value);
-                      }
-                    },
-                  ),
-                ),
-                const SizedBox(width: Spacing.sm),
-                Expanded(
-                  child: DropdownButtonFormField<ArpeggioOctaves>(
-                    initialValue: selectedArpeggioOctaves,
-                    decoration: const InputDecoration(
-                      labelText: "Octaves",
-                      border: OutlineInputBorder(),
-                    ),
-                    items: ArpeggioOctaves.values.map((octaves) {
-                      return DropdownMenuItem(
-                        value: octaves,
-                        child: Text(_getArpeggioOctavesString(octaves)),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        onArpeggioOctavesChanged(value);
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ],
-          if (practiceMode == PracticeMode.chordProgressions) ...[
-            const SizedBox(height: Spacing.sm),
-            DropdownButtonFormField<ChordProgression>(
-              initialValue: selectedChordProgression,
-              decoration: const InputDecoration(
-                labelText: "Chord Progression",
-                border: OutlineInputBorder(),
-              ),
-              items: ChordProgressionLibrary.getAllProgressions().map((
-                progression,
-              ) {
-                return DropdownMenuItem(
-                  value: progression,
-                  child: Text(_getChordProgressionString(progression)),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  onChordProgressionChanged(value);
-                }
-              },
-            ),
-          ],
-          if (practiceMode == PracticeMode.chordsByKey) ...[
-            const SizedBox(height: Spacing.sm),
-            Semantics(
-              label: "Include seventh chords in chord-by-key exercises",
-              child: CheckboxListTile(
-                title: const Text("Include Seventh Chords"),
-                subtitle: const Text("Add 7th note to triads"),
-                value: includeSeventhChords,
-                onChanged: (value) {
-                  if (value != null) {
-                    onIncludeSeventhChordsChanged(value);
-                  }
-                },
-                controlAffinity: ListTileControlAffinity.leading,
-              ),
-            ),
-          ],
-          if (practiceMode == PracticeMode.chordsByType) ...[
-            const SizedBox(height: Spacing.sm),
-            Semantics(
-              label: "Include 1st and 2nd inversions in chord exercises",
-              child: CheckboxListTile(
-                title: const Text("Include Inversions"),
-                subtitle: const Text("Add 1st and 2nd inversions"),
-                value: includeInversions,
-                onChanged: (value) {
-                  if (value != null) {
-                    onIncludeInversionsChanged(value);
-                  }
-                },
-                controlAffinity: ListTileControlAffinity.leading,
-              ),
-            ),
-          ],
           const SizedBox(height: Spacing.md),
           // Show practice status and reset button
           Column(
@@ -623,6 +453,306 @@ class PracticeSettingsPanel extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Auto-progress key toggle widget.
+class _AutoProgressKeyToggle extends StatelessWidget {
+  const _AutoProgressKeyToggle({
+    required this.autoProgressKeys,
+    required this.onAutoProgressKeysChanged,
+  });
+
+  final bool autoProgressKeys;
+  final ValueChanged<bool> onAutoProgressKeysChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: Spacing.sm),
+        SwitchListTile(
+          title: const Text("Auto-progress through keys"),
+          subtitle: const Text("Follow circle of fifths after each exercise"),
+          value: autoProgressKeys,
+          onChanged: onAutoProgressKeysChanged,
+          contentPadding: const EdgeInsets.symmetric(horizontal: Spacing.sm),
+        ),
+      ],
+    );
+  }
+}
+
+/// Settings widget for scales practice mode.
+class _ScalesSettings extends StatelessWidget {
+  const _ScalesSettings({
+    required this.configuration,
+    required this.onConfigurationChanged,
+    required this.getScaleTypeString,
+  });
+
+  final ExerciseConfiguration configuration;
+  final ValueChanged<ExerciseConfiguration> onConfigurationChanged;
+  final String Function(music.ScaleType) getScaleTypeString;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: Spacing.sm),
+        _ScaleTypeDropdown(
+          configuration: configuration,
+          onConfigurationChanged: onConfigurationChanged,
+          getScaleTypeString: getScaleTypeString,
+        ),
+      ],
+    );
+  }
+}
+
+/// Settings widget for chords by key practice mode.
+class _ChordsByKeySettings extends StatelessWidget {
+  const _ChordsByKeySettings({
+    required this.configuration,
+    required this.onConfigurationChanged,
+    required this.getScaleTypeString,
+  });
+
+  final ExerciseConfiguration configuration;
+  final ValueChanged<ExerciseConfiguration> onConfigurationChanged;
+  final String Function(music.ScaleType) getScaleTypeString;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: Spacing.sm),
+        _ScaleTypeDropdown(
+          configuration: configuration,
+          onConfigurationChanged: onConfigurationChanged,
+          getScaleTypeString: getScaleTypeString,
+        ),
+        const SizedBox(height: Spacing.sm),
+        Semantics(
+          label: "Include seventh chords in chord-by-key exercises",
+          child: CheckboxListTile(
+            title: const Text("Include Seventh Chords"),
+            subtitle: const Text("Add 7th note to triads"),
+            value: configuration.includeSeventhChords,
+            onChanged: (value) {
+              if (value != null) {
+                onConfigurationChanged(
+                  configuration.copyWith(includeSeventhChords: value),
+                );
+              }
+            },
+            controlAffinity: ListTileControlAffinity.leading,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Reusable dropdown widget for selecting scale type.
+class _ScaleTypeDropdown extends StatelessWidget {
+  const _ScaleTypeDropdown({
+    required this.configuration,
+    required this.onConfigurationChanged,
+    required this.getScaleTypeString,
+  });
+
+  final ExerciseConfiguration configuration;
+  final ValueChanged<ExerciseConfiguration> onConfigurationChanged;
+  final String Function(music.ScaleType) getScaleTypeString;
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonFormField<music.ScaleType>(
+      key: ValueKey("scaleType_${configuration.scaleType}"),
+      initialValue: configuration.scaleType,
+      decoration: const InputDecoration(
+        labelText: "Scale Type",
+        border: OutlineInputBorder(),
+      ),
+      items: music.ScaleType.values.map((type) {
+        return DropdownMenuItem(
+          value: type,
+          child: Text(getScaleTypeString(type)),
+        );
+      }).toList(),
+      onChanged: (value) {
+        if (value != null) {
+          onConfigurationChanged(
+            configuration.copyWith(scaleType: Field.set(value)),
+          );
+        }
+      },
+    );
+  }
+}
+
+/// Settings widget for arpeggios practice mode.
+class _ArpeggiosSettings extends StatelessWidget {
+  const _ArpeggiosSettings({
+    required this.configuration,
+    required this.onConfigurationChanged,
+    required this.getArpeggioTypeString,
+    required this.getArpeggioOctavesString,
+  });
+
+  final ExerciseConfiguration configuration;
+  final ValueChanged<ExerciseConfiguration> onConfigurationChanged;
+  final String Function(ArpeggioType) getArpeggioTypeString;
+  final String Function(ArpeggioOctaves) getArpeggioOctavesString;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: Spacing.sm),
+        Row(
+          children: [
+            Expanded(
+              child: DropdownButtonFormField<ArpeggioType>(
+                key: ValueKey("arpeggioType_${configuration.arpeggioType}"),
+                initialValue: configuration.arpeggioType,
+                decoration: const InputDecoration(
+                  labelText: "Arpeggio Type",
+                  border: OutlineInputBorder(),
+                ),
+                items: ArpeggioType.values.map((type) {
+                  return DropdownMenuItem(
+                    value: type,
+                    child: Text(getArpeggioTypeString(type)),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    onConfigurationChanged(
+                      configuration.copyWith(arpeggioType: Field.set(value)),
+                    );
+                  }
+                },
+              ),
+            ),
+            const SizedBox(width: Spacing.sm),
+            Expanded(
+              child: DropdownButtonFormField<ArpeggioOctaves>(
+                key: ValueKey(
+                  "arpeggioOctaves_${configuration.arpeggioOctaves}",
+                ),
+                initialValue: configuration.arpeggioOctaves,
+                decoration: const InputDecoration(
+                  labelText: "Octaves",
+                  border: OutlineInputBorder(),
+                ),
+                items: ArpeggioOctaves.values.map((octaves) {
+                  return DropdownMenuItem(
+                    value: octaves,
+                    child: Text(getArpeggioOctavesString(octaves)),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    onConfigurationChanged(
+                      configuration.copyWith(arpeggioOctaves: value),
+                    );
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// Settings widget for chord progressions practice mode.
+class _ChordProgressionsSettings extends StatelessWidget {
+  const _ChordProgressionsSettings({
+    required this.configuration,
+    required this.onConfigurationChanged,
+    required this.getChordProgressionString,
+  });
+
+  final ExerciseConfiguration configuration;
+  final ValueChanged<ExerciseConfiguration> onConfigurationChanged;
+  final String Function(ChordProgression?) getChordProgressionString;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: Spacing.sm),
+        DropdownButtonFormField<ChordProgression>(
+          key: ValueKey("chordProgression_${configuration.chordProgressionId}"),
+          initialValue: configuration.chordProgressionId != null
+              ? ChordProgressionLibrary.getProgressionByName(
+                  configuration.chordProgressionId!,
+                )
+              : null,
+          decoration: const InputDecoration(
+            labelText: "Chord Progression",
+            border: OutlineInputBorder(),
+          ),
+          items: ChordProgressionLibrary.getAllProgressions().map((
+            progression,
+          ) {
+            return DropdownMenuItem(
+              value: progression,
+              child: Text(getChordProgressionString(progression)),
+            );
+          }).toList(),
+          onChanged: (value) {
+            if (value != null) {
+              onConfigurationChanged(
+                configuration.copyWith(
+                  chordProgressionId: Field.set(value.name),
+                ),
+              );
+            }
+          },
+        ),
+      ],
+    );
+  }
+}
+
+/// Settings widget for chords by type practice mode.
+class _ChordsByTypeSettings extends StatelessWidget {
+  const _ChordsByTypeSettings({
+    required this.configuration,
+    required this.onConfigurationChanged,
+  });
+
+  final ExerciseConfiguration configuration;
+  final ValueChanged<ExerciseConfiguration> onConfigurationChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: Spacing.sm),
+        Semantics(
+          label: "Include 1st and 2nd inversions in chord exercises",
+          child: CheckboxListTile(
+            title: const Text("Include Inversions"),
+            subtitle: const Text("Add 1st and 2nd inversions"),
+            value: configuration.includeInversions,
+            onChanged: (value) {
+              if (value != null) {
+                onConfigurationChanged(
+                  configuration.copyWith(includeInversions: value),
+                );
+              }
+            },
+            controlAffinity: ListTileControlAffinity.leading,
+          ),
+        ),
+      ],
     );
   }
 }

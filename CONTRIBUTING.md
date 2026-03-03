@@ -175,6 +175,7 @@ Piano Fitness implements a **hybrid architecture** that combines:
 2. **Feature-based organization** (Flutter team recommendations) - Code organized by business capabilities
 
 This hybrid approach gives us the benefits of both patterns:
+
 - ✅ **Domain independence**: Business logic isolated from frameworks and infrastructure
 - ✅ **Feature clarity**: Related code co-located for better developer experience
 - ✅ **Testability**: Clear dependency boundaries enable comprehensive unit testing
@@ -210,6 +211,7 @@ This hybrid approach gives us the benefits of both patterns:
 
 - **Dependency Rule**: Dependencies point inward (Presentation → Application → Domain)
 - **Domain Independence**: Domain layer has no dependencies on frameworks or external libraries
+  - **Exception**: Official Dart Team packages (`package:meta`, `package:collection`) are permitted as they are foundational packages maintained to the same quality standards as `dart:*` core libraries. See [Dart Team Packages](https://dart.dev/dart-team-packages)
 - **Interface Segregation**: Repository interfaces in domain, implementations in application
 - **Feature Organization**: Features contain related pages, ViewModels, and feature-specific widgets
 

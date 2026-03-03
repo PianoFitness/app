@@ -1,10 +1,8 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
-import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
-import "package:piano_fitness/domain/services/music_theory/chords.dart";
-import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;
 import "package:piano_fitness/presentation/widgets/practice_settings_panel.dart";
@@ -23,34 +21,25 @@ void main() {
       required void Function(HandSelection) onHandSelectionChanged,
       PracticeMode practiceMode = PracticeMode.scales,
     }) {
+      final configuration = ExerciseConfiguration(
+        practiceMode: practiceMode,
+        handSelection: selectedHandSelection,
+        key: music.Key.c,
+        scaleType: music.ScaleType.major,
+      );
+
       return MaterialApp(
         home: Scaffold(
           body: PracticeSettingsPanel(
-            practiceMode: practiceMode,
-            selectedKey: music.Key.c,
-            selectedScaleType: music.ScaleType.major,
-            selectedRootNote: MusicalNote.c,
-            selectedArpeggioType: ArpeggioType.major,
-            selectedArpeggioOctaves: ArpeggioOctaves.one,
-            selectedChordProgression: null,
-            selectedChordType: ChordType.major,
-            includeInversions: false,
-            includeSeventhChords: false,
-            selectedHandSelection: selectedHandSelection,
-            autoProgressKeys: false,
+            configuration: configuration,
+            onConfigurationChanged: (newConfig) {
+              if (newConfig.handSelection != selectedHandSelection) {
+                onHandSelectionChanged(newConfig.handSelection);
+              }
+            },
             practiceActive: false,
             onResetPractice: () {},
-            onPracticeModeChanged: (_) {},
-            onKeyChanged: (_) {},
-            onScaleTypeChanged: (_) {},
-            onRootNoteChanged: (_) {},
-            onArpeggioTypeChanged: (_) {},
-            onArpeggioOctavesChanged: (_) {},
-            onChordProgressionChanged: (_) {},
-            onChordTypeChanged: (_) {},
-            onIncludeInversionsChanged: (_) {},
-            onIncludeSeventhChordsChanged: (_) {},
-            onHandSelectionChanged: onHandSelectionChanged,
+            autoProgressKeys: false,
             onAutoProgressKeysChanged: (_) {},
           ),
         ),

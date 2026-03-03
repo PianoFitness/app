@@ -2,14 +2,17 @@ import "dart:typed_data";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
-import "package:piano_fitness/features/practice/practice_page_view_model.dart";
+import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
+import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;
-import "../../shared/test_helpers/mock_repositories.mocks.dart";
+import "package:piano_fitness/features/practice/practice_page_view_model.dart";
 import "../../shared/midi_mocks.dart";
+import "../../shared/test_helpers/mock_repositories.mocks.dart";
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -608,6 +611,125 @@ void main() {
           // enabling inversions changes the sequence content and length.
         },
       );
+    });
+
+    group("Unified Configuration Management", () {
+      test("should expose current configuration", () {
+        final config = viewModel.currentConfiguration;
+        expect(config, isNotNull);
+        expect(config!.practiceMode, equals(PracticeMode.scales));
+        expect(config.handSelection, isNotNull);
+      });
+
+      test("should update configuration with new practice mode", () {
+        final newConfig = viewModel.currentConfiguration!.copyWith(
+          practiceMode: PracticeMode.arpeggios,
+          musicalNote: Field.set(MusicalNote.c),
+          arpeggioType: Field.set(ArpeggioType.major),
+        );
+
+        var notificationReceived = false;
+        viewModel.addListener(() {
+          notificationReceived = true;
+        });
+
+        viewModel.updateConfiguration(newConfig);
+
+        expect(
+          viewModel.practiceSession!.practiceMode,
+          equals(PracticeMode.arpeggios),
+        );
+        expect(notificationReceived, isTrue);
+      });
+
+      test("should update configuration with multiple fields at once", () {
+        final newConfig = viewModel.currentConfiguration!.copyWith(
+          practiceMode: PracticeMode.chordsByType,
+          chordType: Field.set(ChordType.minor),
+          includeInversions: true,
+        );
+
+        viewModel.updateConfiguration(newConfig);
+
+        final session = viewModel.practiceSession!;
+        expect(session.practiceMode, equals(PracticeMode.chordsByType));
+        expect(session.selectedChordType, equals(ChordType.minor));
+        expect(session.includeInversions, isTrue);
+      });
+
+      test("should reset practice when configuration changes", () {
+        viewModel.startPractice();
+        expect(viewModel.practiceSession!.practiceActive, isTrue);
+
+        // Change configuration - should reset practice
+        final newConfig = viewModel.currentConfiguration!.copyWith(
+          key: Field.set(music.Key.d),
+        );
+        viewModel.updateConfiguration(newConfig);
+
+        expect(viewModel.practiceSession!.practiceActive, isFalse);
+      });
+
+      test("should use Field.set() to clear mode-specific fields", () {
+        // Set up with chord type mode
+        var config = viewModel.currentConfiguration!.copyWith(
+          practiceMode: PracticeMode.chordsByType,
+          chordType: Field.set(ChordType.major),
+        );
+        viewModel.updateConfiguration(config);
+
+        expect(
+          viewModel.practiceSession!.selectedChordType,
+          equals(ChordType.major),
+        );
+
+        // Switch to scales mode and clear chord type
+        config = config.copyWith(
+          practiceMode: PracticeMode.scales,
+          chordType: Field.set(null), // Clear mode-specific field
+        );
+        viewModel.updateConfiguration(config);
+
+        expect(viewModel.practiceSession!.practiceMode, PracticeMode.scales);
+        expect(viewModel.practiceSession!.selectedChordType, isNull);
+      });
+
+      test("should notify listeners when configuration updates", () {
+        var notificationCount = 0;
+        viewModel.addListener(() {
+          notificationCount++;
+        });
+
+        final config1 = viewModel.currentConfiguration!.copyWith(
+          key: Field.set(music.Key.g),
+        );
+        viewModel.updateConfiguration(config1);
+
+        final config2 = viewModel.currentConfiguration!.copyWith(
+          handSelection: HandSelection.left,
+        );
+        viewModel.updateConfiguration(config2);
+
+        expect(notificationCount, greaterThanOrEqualTo(2));
+      });
+
+      test("should preserve non-updated fields", () {
+        final originalHandSelection =
+            viewModel.practiceSession!.selectedHandSelection;
+
+        // Update only key field
+        final newConfig = viewModel.currentConfiguration!.copyWith(
+          key: Field.set(music.Key.f),
+        );
+        viewModel.updateConfiguration(newConfig);
+
+        // Hand selection should remain unchanged
+        expect(
+          viewModel.practiceSession!.selectedHandSelection,
+          equals(originalHandSelection),
+        );
+        expect(viewModel.practiceSession!.selectedKey, equals(music.Key.f));
+      });
     });
   });
 }

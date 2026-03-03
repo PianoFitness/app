@@ -1,5 +1,4 @@
 import "dart:typed_data";
-import "package:flutter/foundation.dart";
 
 /// Represents a parsed MIDI event with all relevant information.
 ///
