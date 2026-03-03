@@ -376,6 +376,8 @@ The `chordProgressionId` field stores the `ChordProgression.name` directly (e.g.
 
 ### JSON Serialization Examples
 
+**Note:** The `toJson()` method omits fields that have default values (`startOctave` defaults to 4, `autoProgressKeys` defaults to false, `includeInversions` defaults to false, `includeSeventhChords` defaults to false, `arpeggioOctaves` defaults to "one"). Examples below reflect actual serialized output.
+
 **Scales Configuration:**
 
 ```json
@@ -383,9 +385,7 @@ The `chordProgressionId` field stores the `ChordProgression.name` directly (e.g.
   "practiceMode": "scales",
   "handSelection": "both",
   "key": "C",
-  "scaleType": "major",
-  "startOctave": 4,
-  "autoProgressKeys": false
+  "scaleType": "major"
 }
 ```
 
@@ -398,7 +398,6 @@ The `chordProgressionId` field stores the `ChordProgression.name` directly (e.g.
   "key": "Am",
   "scaleType": "harmonicMinor",
   "includeSeventhChords": true,
-  "startOctave": 4,
   "autoProgressKeys": true
 }
 ```
@@ -423,8 +422,7 @@ The `chordProgressionId` field stores the `ChordProgression.name` directly (e.g.
   "handSelection": "both",
   "musicalNote": "C",
   "arpeggioType": "majorSeventh",
-  "arpeggioOctaves": "two",
-  "startOctave": 4
+  "arpeggioOctaves": "two"
 }
 ```
 
@@ -435,9 +433,7 @@ The `chordProgressionId` field stores the `ChordProgression.name` directly (e.g.
   "practiceMode": "chordProgressions",
   "handSelection": "both",
   "key": "C",
-  "chordProgressionId": "I - V",
-  "startOctave": 4,
-  "autoProgressKeys": false
+  "chordProgressionId": "I - V"
 }
 ```
 
