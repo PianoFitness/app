@@ -152,10 +152,17 @@ We implement a **pragmatic hybrid** that balances architectural purity with deve
 
 ```text
 ✅ Domain Layer (lib/domain/):
-   - dart:* core libraries
-   - package:meta, package:collection
-   - Third-party pure Dart packages only
+   - dart:* core libraries only
+   - package:meta (Dart SDK - for @immutable, @protected, etc.)
+   - package:collection (Dart SDK - for pure Dart collection utilities)
+   - package:piano_fitness/domain/* (internal domain imports only)
    ❌ NO imports from: lib/application/, lib/presentation/, lib/features/
+   ❌ NO imports from: Flutter or any other external packages
+
+   Note: package:meta and package:collection are official core packages published 
+   by the Dart Team (dart.dev) with high SLO. These foundational packages complement 
+   the core libraries and are maintained to the same quality standards as dart:* 
+   libraries. See https://dart.dev/dart-team-packages for quality policy.
 
 ✅ Application Layer (lib/application/):
    - lib/domain/* (domain only)

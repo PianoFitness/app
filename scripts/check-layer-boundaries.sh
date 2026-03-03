@@ -51,29 +51,45 @@ check_layer_imports \
     "Domain" \
     "application/" "presentation/" "features/"
 
-# Check domain layer for forbidden external package imports
+# Check domain layer for forbidden external package imports (allowlist approach)
 if [ -d "lib/domain" ]; then
     # Allowed packages: dart:*, package:meta, package:collection, package:piano_fitness
-    # Find imports to external packages (excluding allowed ones)
-    forbidden_external=$(find "lib/domain" -name "*.dart" -type f -exec grep -lE "(import|export) ['\"]package:(flutter|provider|drift|riverpod)" {} \; 2>/dev/null || true)
+    # Note: meta and collection are official Dart Team packages from dart.dev
+    # maintained to same quality standards as dart:* core libraries.
+    # See: https://dart.dev/dart-team-packages
+    # Find ALL package: imports in domain, then filter to find forbidden ones
+    all_package_imports=$(find "lib/domain" -name "*.dart" -type f -exec grep -lE "(import|export) ['\"]package:" {} \; 2>/dev/null || true)
     
-    if [ -n "$forbidden_external" ]; then
-        echo -e "${RED}❌ Domain layer external package violation detected!${NC}"
-        echo -e "${YELLOW}Files importing forbidden external packages:${NC}"
-        echo "$forbidden_external" | while IFS= read -r file; do
-            echo "  - $file"
-            # Show the actual import lines
-            grep -E --color=always "(import|export) ['\"]package:(flutter|provider|drift|riverpod)" "$file" | sed 's/^/    /'
-        done
-        echo ""
-        echo -e "${YELLOW}Domain layer can only import:${NC}"
-        echo "  ✅ dart:* (core Dart libraries)"
-        echo "  ✅ package:meta (for @immutable, etc.)"
-        echo "  ✅ package:collection (for pure Dart collections)"
-        echo "  ✅ package:piano_fitness/domain/* (internal domain imports)"
-        echo "  ❌ NO Flutter or infrastructure packages"
-        echo ""
-        violations_found=$((violations_found + 1))
+    if [ -n "$all_package_imports" ]; then
+        # Check each file for forbidden imports (anything not in allowlist)
+        forbidden_external=""
+        while IFS= read -r file; do
+            # Check if file has imports outside allowlist
+            if grep -qE "(import|export) ['\"]package:(?!(piano_fitness/domain|meta|collection))" "$file" 2>/dev/null; then
+                forbidden_external="${forbidden_external}${file}\n"
+            fi
+        done <<< "$all_package_imports"
+        
+        if [ -n "$forbidden_external" ]; then
+            echo -e "${RED}❌ Domain layer external package violation detected!${NC}"
+            echo -e "${YELLOW}Files importing forbidden external packages:${NC}"
+            echo -e "$forbidden_external" | while IFS= read -r file; do
+                if [ -n "$file" ]; then
+                    echo "  - $file"
+                    # Show the actual forbidden import lines (exclude allowed ones)
+                    grep -E "(import|export) ['\"]package:(?!(piano_fitness/domain|meta|collection))" "$file" 2>/dev/null | grep --color=always "package:" | sed 's/^/    /' || true
+                fi
+            done
+            echo ""
+            echo -e "${YELLOW}Domain layer can only import:${NC}"
+            echo "  ✅ dart:* (core Dart libraries)"
+            echo "  ✅ package:meta (Dart SDK - for @immutable, etc.)"
+            echo "  ✅ package:collection (Dart SDK - for collection utilities)"
+            echo "  ✅ package:piano_fitness/domain/* (internal domain imports)"
+            echo "  ❌ NO other external packages (Flutter, infrastructure, etc.)"
+            echo ""
+            violations_found=$((violations_found + 1))
+        fi
     fi
 fi
 

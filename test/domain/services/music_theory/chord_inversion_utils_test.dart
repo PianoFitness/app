@@ -187,12 +187,23 @@ void main() {
             ChordType.augmented,
           ].contains(chordType);
           if (isTriad && inversion == ChordInversion.third) {
-            // Verify that third inversion throws for triads
+            // Verify that third inversion throws for triads (both paths)
             expect(
               () => ChordBuilder.getChord(rootNote, chordType, inversion),
               throwsA(isA<ArgumentError>()),
               reason:
                   "Third inversion should throw for triad ${rootNote.name} ${chordType.name}",
+            );
+            expect(
+              () => ChordInversionUtils.getChordMidiNotes(
+                rootNote: rootNote,
+                chordType: chordType,
+                inversion: inversion,
+                octave: 4,
+              ),
+              throwsA(isA<ArgumentError>()),
+              reason:
+                  "Utility third inversion should throw for triad ${rootNote.name} ${chordType.name}",
             );
             continue;
           }

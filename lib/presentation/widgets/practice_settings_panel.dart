@@ -1,7 +1,6 @@
 import "dart:math" as math;
 
 import "package:flutter/material.dart";
-import "package:piano_fitness/presentation/constants/practice_constants.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
@@ -11,6 +10,7 @@ import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;
+import "package:piano_fitness/presentation/constants/practice_constants.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
 
 /// A comprehensive settings panel for configuring piano practice exercises.
