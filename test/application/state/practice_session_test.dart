@@ -159,7 +159,7 @@ void main() {
         // Complete 12 exercises to cycle through all keys
         for (int i = 0; i < 12; i++) {
           practiceSession.triggerCompletionForTesting();
-          keysVisited.add(practiceSession.selectedKey);
+          keysVisited.add(practiceSession.selectedKey!);
         }
 
         // Should have visited 13 keys total (start + 12 progressions)

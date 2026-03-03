@@ -215,40 +215,10 @@ class _PracticePageViewState extends State<_PracticePageView> {
 
         return PracticeSettingsPanel(
           key: const Key("practice_settings_panel"),
-          practiceMode: session.practiceMode,
-          selectedKey: session.selectedKey,
-          selectedScaleType: session.selectedScaleType,
-          selectedRootNote: session.selectedRootNote,
-          selectedArpeggioType: session.selectedArpeggioType,
-          selectedArpeggioOctaves: session.selectedArpeggioOctaves,
-          selectedChordProgression: session.selectedChordProgression,
-          selectedChordType: session.selectedChordType,
-          includeInversions: session.includeInversions,
-          includeSeventhChords: session.includeSeventhChords,
-          selectedHandSelection: session.selectedHandSelection,
-          autoProgressKeys: session.autoProgressKeys,
+          configuration: session.config,
+          onConfigurationChanged: viewModel.updateConfiguration,
           practiceActive: session.practiceActive,
           onResetPractice: _resetPractice,
-          onPracticeModeChanged: (mode) => viewModel.setPracticeMode(mode),
-          onKeyChanged: (key) => viewModel.setSelectedKey(key),
-          onScaleTypeChanged: (type) => viewModel.setSelectedScaleType(type),
-          onRootNoteChanged: (rootNote) =>
-              viewModel.setSelectedRootNote(rootNote),
-          onArpeggioTypeChanged: (type) =>
-              viewModel.setSelectedArpeggioType(type),
-          onArpeggioOctavesChanged: (octaves) =>
-              viewModel.setSelectedArpeggioOctaves(octaves),
-          onChordProgressionChanged: (progression) =>
-              viewModel.setSelectedChordProgression(progression),
-          onChordTypeChanged: (type) => viewModel.setSelectedChordType(type),
-          onIncludeInversionsChanged: (include) =>
-              viewModel.setIncludeInversions(include),
-          onIncludeSeventhChordsChanged: (include) =>
-              viewModel.setIncludeSeventhChords(include),
-          onHandSelectionChanged: (handSelection) =>
-              viewModel.setSelectedHandSelection(handSelection),
-          onAutoProgressKeysChanged: (enable) =>
-              viewModel.setAutoKeyProgression(enable),
         );
       },
     );

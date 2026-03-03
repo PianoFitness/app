@@ -1,15 +1,23 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
-import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
-import "package:piano_fitness/domain/services/music_theory/chords.dart";
-import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;
 import "package:piano_fitness/presentation/widgets/practice_settings_panel.dart";
 
 void main() {
+  // Helper to create a default configuration for testing
+  ExerciseConfiguration createDefaultConfig() {
+    return const ExerciseConfiguration(
+      practiceMode: PracticeMode.scales,
+      handSelection: HandSelection.both,
+      key: music.Key.c,
+      scaleType: music.ScaleType.major,
+    );
+  }
+
   group("PracticeSettingsPanel Theme Tests", () {
     testWidgets("uses theme colors in light mode", (WidgetTester tester) async {
       // Build widget with light theme
@@ -18,32 +26,10 @@ void main() {
           theme: ThemeData.light(),
           home: Scaffold(
             body: PracticeSettingsPanel(
-              practiceMode: PracticeMode.scales,
-              selectedKey: music.Key.c,
-              selectedScaleType: music.ScaleType.major,
-              selectedRootNote: MusicalNote.c,
-              selectedArpeggioType: ArpeggioType.major,
-              selectedArpeggioOctaves: ArpeggioOctaves.one,
-              selectedChordProgression: null,
-              selectedChordType: ChordType.major,
-              includeInversions: false,
-              includeSeventhChords: false,
-              selectedHandSelection: HandSelection.both,
-              autoProgressKeys: false,
+              configuration: createDefaultConfig(),
+              onConfigurationChanged: (_) {},
               practiceActive: false,
               onResetPractice: () {},
-              onPracticeModeChanged: (_) {},
-              onKeyChanged: (_) {},
-              onScaleTypeChanged: (_) {},
-              onRootNoteChanged: (_) {},
-              onArpeggioTypeChanged: (_) {},
-              onArpeggioOctavesChanged: (_) {},
-              onChordProgressionChanged: (_) {},
-              onChordTypeChanged: (_) {},
-              onIncludeInversionsChanged: (_) {},
-              onIncludeSeventhChordsChanged: (_) {},
-              onHandSelectionChanged: (_) {},
-              onAutoProgressKeysChanged: (_) {},
             ),
           ),
         ),
@@ -73,32 +59,10 @@ void main() {
           theme: ThemeData.dark(),
           home: Scaffold(
             body: PracticeSettingsPanel(
-              practiceMode: PracticeMode.scales,
-              selectedKey: music.Key.c,
-              selectedScaleType: music.ScaleType.major,
-              selectedRootNote: MusicalNote.c,
-              selectedArpeggioType: ArpeggioType.major,
-              selectedArpeggioOctaves: ArpeggioOctaves.one,
-              selectedChordProgression: null,
-              selectedChordType: ChordType.major,
-              includeInversions: false,
-              includeSeventhChords: false,
-              selectedHandSelection: HandSelection.both,
-              autoProgressKeys: false,
+              configuration: createDefaultConfig(),
+              onConfigurationChanged: (_) {},
               practiceActive: false,
               onResetPractice: () {},
-              onPracticeModeChanged: (_) {},
-              onKeyChanged: (_) {},
-              onScaleTypeChanged: (_) {},
-              onRootNoteChanged: (_) {},
-              onArpeggioTypeChanged: (_) {},
-              onArpeggioOctavesChanged: (_) {},
-              onChordProgressionChanged: (_) {},
-              onChordTypeChanged: (_) {},
-              onIncludeInversionsChanged: (_) {},
-              onIncludeSeventhChordsChanged: (_) {},
-              onHandSelectionChanged: (_) {},
-              onAutoProgressKeysChanged: (_) {},
             ),
           ),
         ),
@@ -137,32 +101,10 @@ void main() {
           theme: ThemeData.dark(),
           home: Scaffold(
             body: PracticeSettingsPanel(
-              practiceMode: PracticeMode.scales,
-              selectedKey: music.Key.c,
-              selectedScaleType: music.ScaleType.major,
-              selectedRootNote: MusicalNote.c,
-              selectedArpeggioType: ArpeggioType.major,
-              selectedArpeggioOctaves: ArpeggioOctaves.one,
-              selectedChordProgression: null,
-              selectedChordType: ChordType.major,
-              includeInversions: false,
-              includeSeventhChords: false,
-              selectedHandSelection: HandSelection.both,
-              autoProgressKeys: false,
+              configuration: createDefaultConfig(),
+              onConfigurationChanged: (_) {},
               practiceActive: false,
               onResetPractice: () {},
-              onPracticeModeChanged: (_) {},
-              onKeyChanged: (_) {},
-              onScaleTypeChanged: (_) {},
-              onRootNoteChanged: (_) {},
-              onArpeggioTypeChanged: (_) {},
-              onArpeggioOctavesChanged: (_) {},
-              onChordProgressionChanged: (_) {},
-              onChordTypeChanged: (_) {},
-              onIncludeInversionsChanged: (_) {},
-              onIncludeSeventhChordsChanged: (_) {},
-              onHandSelectionChanged: (_) {},
-              onAutoProgressKeysChanged: (_) {},
             ),
           ),
         ),
@@ -176,32 +118,10 @@ void main() {
           theme: ThemeData.dark(),
           home: Scaffold(
             body: PracticeSettingsPanel(
-              practiceMode: PracticeMode.scales,
-              selectedKey: music.Key.c,
-              selectedScaleType: music.ScaleType.major,
-              selectedRootNote: MusicalNote.c,
-              selectedArpeggioType: ArpeggioType.major,
-              selectedArpeggioOctaves: ArpeggioOctaves.one,
-              selectedChordProgression: null,
-              selectedChordType: ChordType.major,
-              includeInversions: false,
-              includeSeventhChords: false,
-              selectedHandSelection: HandSelection.both,
-              autoProgressKeys: false,
+              configuration: createDefaultConfig(),
+              onConfigurationChanged: (_) {},
               practiceActive: true,
               onResetPractice: () {},
-              onPracticeModeChanged: (_) {},
-              onKeyChanged: (_) {},
-              onScaleTypeChanged: (_) {},
-              onRootNoteChanged: (_) {},
-              onArpeggioTypeChanged: (_) {},
-              onArpeggioOctavesChanged: (_) {},
-              onChordProgressionChanged: (_) {},
-              onChordTypeChanged: (_) {},
-              onIncludeInversionsChanged: (_) {},
-              onIncludeSeventhChordsChanged: (_) {},
-              onHandSelectionChanged: (_) {},
-              onAutoProgressKeysChanged: (_) {},
             ),
           ),
         ),
