@@ -39,6 +39,8 @@ void main() {
             },
             practiceActive: false,
             onResetPractice: () {},
+            autoProgressKeys: false,
+            onAutoProgressKeysChanged: (_) {},
           ),
         ),
       );

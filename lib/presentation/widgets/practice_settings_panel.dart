@@ -29,6 +29,8 @@ class PracticeSettingsPanel extends StatelessWidget {
     required this.onConfigurationChanged,
     required this.practiceActive,
     required this.onResetPractice,
+    required this.autoProgressKeys,
+    required this.onAutoProgressKeysChanged,
     super.key,
   });
 
@@ -37,6 +39,12 @@ class PracticeSettingsPanel extends StatelessWidget {
 
   /// Key for the practice status container
   static const Key statusKey = Key("practiceStatusContainer");
+
+  /// Whether to automatically progress through keys following the circle of fifths.
+  final bool autoProgressKeys;
+
+  /// Callback when auto-progress keys setting changes.
+  final ValueChanged<bool> onAutoProgressKeysChanged;
 
   Widget _buildRootNoteDropdown() {
     return DropdownButtonFormField<MusicalNote>(
@@ -294,11 +302,8 @@ class PracticeSettingsPanel extends StatelessWidget {
               subtitle: const Text(
                 "Follow circle of fifths after each exercise",
               ),
-              value: configuration.key != null,
-              onChanged: (value) {
-                // Note: autoProgressKeys will be removed in future ADR
-                // For now, we don't store it in configuration
-              },
+              value: autoProgressKeys,
+              onChanged: onAutoProgressKeysChanged,
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: Spacing.sm,
               ),

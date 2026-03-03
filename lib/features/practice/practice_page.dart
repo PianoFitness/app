@@ -219,6 +219,8 @@ class _PracticePageViewState extends State<_PracticePageView> {
           onConfigurationChanged: viewModel.updateConfiguration,
           practiceActive: session.practiceActive,
           onResetPractice: _resetPractice,
+          autoProgressKeys: session.autoProgressKeys,
+          onAutoProgressKeysChanged: viewModel.setAutoKeyProgression,
         );
       },
     );
