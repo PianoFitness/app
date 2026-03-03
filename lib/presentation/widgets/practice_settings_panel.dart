@@ -299,20 +299,11 @@ class PracticeSettingsPanel extends StatelessWidget {
             ],
           ),
           // Auto key progression toggle (shown only for key-based modes)
-          if (_supportsKeyProgression()) ...[
-            const SizedBox(height: Spacing.sm),
-            SwitchListTile(
-              title: const Text("Auto-progress through keys"),
-              subtitle: const Text(
-                "Follow circle of fifths after each exercise",
-              ),
-              value: autoProgressKeys,
-              onChanged: onAutoProgressKeysChanged,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: Spacing.sm,
-              ),
+          if (_supportsKeyProgression())
+            _AutoProgressKeyToggle(
+              autoProgressKeys: autoProgressKeys,
+              onAutoProgressKeysChanged: onAutoProgressKeysChanged,
             ),
-          ],
           const SizedBox(height: Spacing.sm),
           SegmentedButton<HandSelection>(
             segments: [
@@ -368,161 +359,37 @@ class PracticeSettingsPanel extends StatelessWidget {
             showSelectedIcon: false,
             style: const ButtonStyle(visualDensity: VisualDensity.compact),
           ),
-          if (configuration.practiceMode == PracticeMode.scales ||
-              configuration.practiceMode == PracticeMode.chordsByKey) ...[
-            const SizedBox(height: Spacing.sm),
-            DropdownButtonFormField<music.ScaleType>(
-              key: ValueKey("scaleType_${configuration.scaleType}"),
-              initialValue: configuration.scaleType,
-              decoration: const InputDecoration(
-                labelText: "Scale Type",
-                border: OutlineInputBorder(),
-              ),
-              items: music.ScaleType.values.map((type) {
-                return DropdownMenuItem(
-                  value: type,
-                  child: Text(_getScaleTypeString(type)),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  onConfigurationChanged(
-                    configuration.copyWith(scaleType: Field.set(value)),
-                  );
-                }
-              },
+          // Mode-specific settings
+          if (configuration.practiceMode == PracticeMode.scales)
+            _ScalesSettings(
+              configuration: configuration,
+              onConfigurationChanged: onConfigurationChanged,
+              getScaleTypeString: _getScaleTypeString,
+            )
+          else if (configuration.practiceMode == PracticeMode.chordsByKey)
+            _ChordsByKeySettings(
+              configuration: configuration,
+              onConfigurationChanged: onConfigurationChanged,
+              getScaleTypeString: _getScaleTypeString,
+            )
+          else if (configuration.practiceMode == PracticeMode.arpeggios)
+            _ArpeggiosSettings(
+              configuration: configuration,
+              onConfigurationChanged: onConfigurationChanged,
+              getArpeggioTypeString: _getArpeggioTypeString,
+              getArpeggioOctavesString: _getArpeggioOctavesString,
+            )
+          else if (configuration.practiceMode == PracticeMode.chordProgressions)
+            _ChordProgressionsSettings(
+              configuration: configuration,
+              onConfigurationChanged: onConfigurationChanged,
+              getChordProgressionString: _getChordProgressionString,
+            )
+          else if (configuration.practiceMode == PracticeMode.chordsByType)
+            _ChordsByTypeSettings(
+              configuration: configuration,
+              onConfigurationChanged: onConfigurationChanged,
             ),
-          ],
-          if (configuration.practiceMode == PracticeMode.arpeggios) ...[
-            const SizedBox(height: Spacing.sm),
-            Row(
-              children: [
-                Expanded(
-                  child: DropdownButtonFormField<ArpeggioType>(
-                    key: ValueKey("arpeggioType_${configuration.arpeggioType}"),
-                    initialValue: configuration.arpeggioType,
-                    decoration: const InputDecoration(
-                      labelText: "Arpeggio Type",
-                      border: OutlineInputBorder(),
-                    ),
-                    items: ArpeggioType.values.map((type) {
-                      return DropdownMenuItem(
-                        value: type,
-                        child: Text(_getArpeggioTypeString(type)),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        onConfigurationChanged(
-                          configuration.copyWith(
-                            arpeggioType: Field.set(value),
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                ),
-                const SizedBox(width: Spacing.sm),
-                Expanded(
-                  child: DropdownButtonFormField<ArpeggioOctaves>(
-                    key: ValueKey(
-                      "arpeggioOctaves_${configuration.arpeggioOctaves}",
-                    ),
-                    initialValue: configuration.arpeggioOctaves,
-                    decoration: const InputDecoration(
-                      labelText: "Octaves",
-                      border: OutlineInputBorder(),
-                    ),
-                    items: ArpeggioOctaves.values.map((octaves) {
-                      return DropdownMenuItem(
-                        value: octaves,
-                        child: Text(_getArpeggioOctavesString(octaves)),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        onConfigurationChanged(
-                          configuration.copyWith(arpeggioOctaves: value),
-                        );
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ],
-          if (configuration.practiceMode == PracticeMode.chordProgressions) ...[
-            const SizedBox(height: Spacing.sm),
-            DropdownButtonFormField<ChordProgression>(
-              key: ValueKey(
-                "chordProgression_${configuration.chordProgressionId}",
-              ),
-              initialValue: configuration.chordProgressionId != null
-                  ? ChordProgressionLibrary.getProgressionByName(
-                      configuration.chordProgressionId!,
-                    )
-                  : null,
-              decoration: const InputDecoration(
-                labelText: "Chord Progression",
-                border: OutlineInputBorder(),
-              ),
-              items: ChordProgressionLibrary.getAllProgressions().map((
-                progression,
-              ) {
-                return DropdownMenuItem(
-                  value: progression,
-                  child: Text(_getChordProgressionString(progression)),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  onConfigurationChanged(
-                    configuration.copyWith(
-                      chordProgressionId: Field.set(value.name),
-                    ),
-                  );
-                }
-              },
-            ),
-          ],
-          if (configuration.practiceMode == PracticeMode.chordsByKey) ...[
-            const SizedBox(height: Spacing.sm),
-            Semantics(
-              label: "Include seventh chords in chord-by-key exercises",
-              child: CheckboxListTile(
-                title: const Text("Include Seventh Chords"),
-                subtitle: const Text("Add 7th note to triads"),
-                value: configuration.includeSeventhChords,
-                onChanged: (value) {
-                  if (value != null) {
-                    onConfigurationChanged(
-                      configuration.copyWith(includeSeventhChords: value),
-                    );
-                  }
-                },
-                controlAffinity: ListTileControlAffinity.leading,
-              ),
-            ),
-          ],
-          if (configuration.practiceMode == PracticeMode.chordsByType) ...[
-            const SizedBox(height: Spacing.sm),
-            Semantics(
-              label: "Include 1st and 2nd inversions in chord exercises",
-              child: CheckboxListTile(
-                title: const Text("Include Inversions"),
-                subtitle: const Text("Add 1st and 2nd inversions"),
-                value: configuration.includeInversions,
-                onChanged: (value) {
-                  if (value != null) {
-                    onConfigurationChanged(
-                      configuration.copyWith(includeInversions: value),
-                    );
-                  }
-                },
-                controlAffinity: ListTileControlAffinity.leading,
-              ),
-            ),
-          ],
           const SizedBox(height: Spacing.md),
           // Show practice status and reset button
           Column(
@@ -586,6 +453,300 @@ class PracticeSettingsPanel extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Auto-progress key toggle widget.
+class _AutoProgressKeyToggle extends StatelessWidget {
+  const _AutoProgressKeyToggle({
+    required this.autoProgressKeys,
+    required this.onAutoProgressKeysChanged,
+  });
+
+  final bool autoProgressKeys;
+  final ValueChanged<bool> onAutoProgressKeysChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: Spacing.sm),
+        SwitchListTile(
+          title: const Text("Auto-progress through keys"),
+          subtitle: const Text("Follow circle of fifths after each exercise"),
+          value: autoProgressKeys,
+          onChanged: onAutoProgressKeysChanged,
+          contentPadding: const EdgeInsets.symmetric(horizontal: Spacing.sm),
+        ),
+      ],
+    );
+  }
+}
+
+/// Settings widget for scales practice mode.
+class _ScalesSettings extends StatelessWidget {
+  const _ScalesSettings({
+    required this.configuration,
+    required this.onConfigurationChanged,
+    required this.getScaleTypeString,
+  });
+
+  final ExerciseConfiguration configuration;
+  final ValueChanged<ExerciseConfiguration> onConfigurationChanged;
+  final String Function(music.ScaleType) getScaleTypeString;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: Spacing.sm),
+        DropdownButtonFormField<music.ScaleType>(
+          key: ValueKey("scaleType_${configuration.scaleType}"),
+          initialValue: configuration.scaleType,
+          decoration: const InputDecoration(
+            labelText: "Scale Type",
+            border: OutlineInputBorder(),
+          ),
+          items: music.ScaleType.values.map((type) {
+            return DropdownMenuItem(
+              value: type,
+              child: Text(getScaleTypeString(type)),
+            );
+          }).toList(),
+          onChanged: (value) {
+            if (value != null) {
+              onConfigurationChanged(
+                configuration.copyWith(scaleType: Field.set(value)),
+              );
+            }
+          },
+        ),
+      ],
+    );
+  }
+}
+
+/// Settings widget for chords by key practice mode.
+class _ChordsByKeySettings extends StatelessWidget {
+  const _ChordsByKeySettings({
+    required this.configuration,
+    required this.onConfigurationChanged,
+    required this.getScaleTypeString,
+  });
+
+  final ExerciseConfiguration configuration;
+  final ValueChanged<ExerciseConfiguration> onConfigurationChanged;
+  final String Function(music.ScaleType) getScaleTypeString;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: Spacing.sm),
+        DropdownButtonFormField<music.ScaleType>(
+          key: ValueKey("scaleType_${configuration.scaleType}"),
+          initialValue: configuration.scaleType,
+          decoration: const InputDecoration(
+            labelText: "Scale Type",
+            border: OutlineInputBorder(),
+          ),
+          items: music.ScaleType.values.map((type) {
+            return DropdownMenuItem(
+              value: type,
+              child: Text(getScaleTypeString(type)),
+            );
+          }).toList(),
+          onChanged: (value) {
+            if (value != null) {
+              onConfigurationChanged(
+                configuration.copyWith(scaleType: Field.set(value)),
+              );
+            }
+          },
+        ),
+        const SizedBox(height: Spacing.sm),
+        Semantics(
+          label: "Include seventh chords in chord-by-key exercises",
+          child: CheckboxListTile(
+            title: const Text("Include Seventh Chords"),
+            subtitle: const Text("Add 7th note to triads"),
+            value: configuration.includeSeventhChords,
+            onChanged: (value) {
+              if (value != null) {
+                onConfigurationChanged(
+                  configuration.copyWith(includeSeventhChords: value),
+                );
+              }
+            },
+            controlAffinity: ListTileControlAffinity.leading,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Settings widget for arpeggios practice mode.
+class _ArpeggiosSettings extends StatelessWidget {
+  const _ArpeggiosSettings({
+    required this.configuration,
+    required this.onConfigurationChanged,
+    required this.getArpeggioTypeString,
+    required this.getArpeggioOctavesString,
+  });
+
+  final ExerciseConfiguration configuration;
+  final ValueChanged<ExerciseConfiguration> onConfigurationChanged;
+  final String Function(ArpeggioType) getArpeggioTypeString;
+  final String Function(ArpeggioOctaves) getArpeggioOctavesString;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: Spacing.sm),
+        Row(
+          children: [
+            Expanded(
+              child: DropdownButtonFormField<ArpeggioType>(
+                key: ValueKey("arpeggioType_${configuration.arpeggioType}"),
+                initialValue: configuration.arpeggioType,
+                decoration: const InputDecoration(
+                  labelText: "Arpeggio Type",
+                  border: OutlineInputBorder(),
+                ),
+                items: ArpeggioType.values.map((type) {
+                  return DropdownMenuItem(
+                    value: type,
+                    child: Text(getArpeggioTypeString(type)),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    onConfigurationChanged(
+                      configuration.copyWith(arpeggioType: Field.set(value)),
+                    );
+                  }
+                },
+              ),
+            ),
+            const SizedBox(width: Spacing.sm),
+            Expanded(
+              child: DropdownButtonFormField<ArpeggioOctaves>(
+                key: ValueKey(
+                  "arpeggioOctaves_${configuration.arpeggioOctaves}",
+                ),
+                initialValue: configuration.arpeggioOctaves,
+                decoration: const InputDecoration(
+                  labelText: "Octaves",
+                  border: OutlineInputBorder(),
+                ),
+                items: ArpeggioOctaves.values.map((octaves) {
+                  return DropdownMenuItem(
+                    value: octaves,
+                    child: Text(getArpeggioOctavesString(octaves)),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    onConfigurationChanged(
+                      configuration.copyWith(arpeggioOctaves: value),
+                    );
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// Settings widget for chord progressions practice mode.
+class _ChordProgressionsSettings extends StatelessWidget {
+  const _ChordProgressionsSettings({
+    required this.configuration,
+    required this.onConfigurationChanged,
+    required this.getChordProgressionString,
+  });
+
+  final ExerciseConfiguration configuration;
+  final ValueChanged<ExerciseConfiguration> onConfigurationChanged;
+  final String Function(ChordProgression?) getChordProgressionString;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: Spacing.sm),
+        DropdownButtonFormField<ChordProgression>(
+          key: ValueKey("chordProgression_${configuration.chordProgressionId}"),
+          initialValue: configuration.chordProgressionId != null
+              ? ChordProgressionLibrary.getProgressionByName(
+                  configuration.chordProgressionId!,
+                )
+              : null,
+          decoration: const InputDecoration(
+            labelText: "Chord Progression",
+            border: OutlineInputBorder(),
+          ),
+          items: ChordProgressionLibrary.getAllProgressions().map((
+            progression,
+          ) {
+            return DropdownMenuItem(
+              value: progression,
+              child: Text(getChordProgressionString(progression)),
+            );
+          }).toList(),
+          onChanged: (value) {
+            if (value != null) {
+              onConfigurationChanged(
+                configuration.copyWith(
+                  chordProgressionId: Field.set(value.name),
+                ),
+              );
+            }
+          },
+        ),
+      ],
+    );
+  }
+}
+
+/// Settings widget for chords by type practice mode.
+class _ChordsByTypeSettings extends StatelessWidget {
+  const _ChordsByTypeSettings({
+    required this.configuration,
+    required this.onConfigurationChanged,
+  });
+
+  final ExerciseConfiguration configuration;
+  final ValueChanged<ExerciseConfiguration> onConfigurationChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: Spacing.sm),
+        Semantics(
+          label: "Include 1st and 2nd inversions in chord exercises",
+          child: CheckboxListTile(
+            title: const Text("Include Inversions"),
+            subtitle: const Text("Add 1st and 2nd inversions"),
+            value: configuration.includeInversions,
+            onChanged: (value) {
+              if (value != null) {
+                onConfigurationChanged(
+                  configuration.copyWith(includeInversions: value),
+                );
+              }
+            },
+            controlAffinity: ListTileControlAffinity.leading,
+          ),
+        ),
+      ],
     );
   }
 }
