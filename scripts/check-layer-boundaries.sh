@@ -29,7 +29,8 @@ check_layer_imports() {
     for pattern in "${forbidden_patterns[@]}"; do
         # Find all .dart files in the layer and check for forbidden imports
         # Use extended regex to match both single and double quotes, import and export
-        violations=$(find "$layer_path" -name "*.dart" -type f -exec grep -lE "(import|export) ['\"]package:piano_fitness/$pattern" {} \; 2>/dev/null || true)
+        # Also check for relative imports like ../application/ or ./features/
+        violations=$(find "$layer_path" -name "*.dart" -type f -exec grep -lE "(import|export) ['\"]((package:piano_fitness/|\.\./)$pattern|\.\\./$pattern|\./$pattern)" {} \; 2>/dev/null || true)
         
         if [ -n "$violations" ]; then
             echo -e "${RED}❌ $layer_name layer violation detected!${NC}"
@@ -37,7 +38,7 @@ check_layer_imports() {
             echo "$violations" | while IFS= read -r file; do
                 echo "  - $file"
                 # Show the actual import lines
-                grep -E --color=always "(import|export) ['\"]package:piano_fitness/$pattern" "$file" | sed 's/^/    /'
+                grep -E --color=always "(import|export) ['\"]((package:piano_fitness/|\.\./)$pattern|\.\\./$pattern|\./$pattern)" "$file" | sed 's/^/    /'
             done
             echo ""
             violations_found=$((violations_found + 1))
@@ -62,10 +63,11 @@ if [ -d "lib/domain" ]; then
     
     if [ -n "$all_package_imports" ]; then
         # Check each file for forbidden imports (anything not in allowlist)
+        # Use grep -v to exclude allowed packages (BSD grep doesn't support negative lookahead)
         forbidden_external=""
         while IFS= read -r file; do
             # Check if file has imports outside allowlist
-            if grep -qE "(import|export) ['\"]package:(?!(piano_fitness/domain|meta|collection))" "$file" 2>/dev/null; then
+            if grep -E "(import|export) ['\"]package:" "$file" | grep -vE "package:(piano_fitness/domain|meta|collection)" > /dev/null 2>&1; then
                 forbidden_external="${forbidden_external}${file}\n"
             fi
         done <<< "$all_package_imports"
@@ -77,7 +79,7 @@ if [ -d "lib/domain" ]; then
                 if [ -n "$file" ]; then
                     echo "  - $file"
                     # Show the actual forbidden import lines (exclude allowed ones)
-                    grep -E "(import|export) ['\"]package:(?!(piano_fitness/domain|meta|collection))" "$file" 2>/dev/null | grep --color=always "package:" | sed 's/^/    /' || true
+                    grep -E "(import|export) ['\"]package:" "$file" 2>/dev/null | grep -vE "package:(piano_fitness/domain|meta|collection)" | grep --color=always "package:" | sed 's/^/    /' || true
                 fi
             done
             echo ""

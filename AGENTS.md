@@ -84,7 +84,7 @@ We implement a **pragmatic hybrid** that balances architectural purity with deve
 
 **Clean Architecture (Uncle Bob)** provides:
 
-- 📐 **Layered dependencies**: Domain → Application → Presentation (unidirectional)
+- 📐 **Layered dependencies**: Presentation → Application → Domain (unidirectional, inward)
 - 🔒 **Domain independence**: Core business logic isolated from frameworks
 - 🧪 **Testability**: Clear boundaries enable comprehensive unit testing
 - 🔄 **Flexibility**: Swap implementations without changing business logic
