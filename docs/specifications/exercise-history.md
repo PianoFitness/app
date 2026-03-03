@@ -237,6 +237,11 @@ class ExerciseHistoryTable extends Table {
   TextColumn get exerciseType => text().nullable()();
   TextColumn get handSelection => text().nullable()();
   TextColumn get configuration => text();
+  
+  @override
+  Set<Index> get indexes => {
+    Index(['profileId', 'completedAt'], orders: [OrderingMode.desc]),
+  };
 }
 ```
 

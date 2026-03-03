@@ -43,14 +43,14 @@ import 'package:piano_fitness/domain/models/music/chord_type.dart';
 import 'package:piano_fitness/domain/models/music/arpeggio_type.dart';
 import 'package:piano_fitness/domain/models/music/arpeggio_octaves.dart';
 
-/// Internal helper class for copyWith to distinguish between
+/// Public helper class for copyWith to distinguish between
 /// "field not provided" and "field explicitly set to null".
-class _Field<T> {
+class Field<T> {
   final bool isSet;
   final T? value;
   
-  const _Field.unset() : isSet = false, value = null;
-  const _Field.set(this.value) : isSet = true;
+  const Field.unset() : isSet = false, value = null;
+  const Field.set(this.value) : isSet = true;
 }
 
 /// Immutable configuration for a practice exercise.
@@ -244,7 +244,7 @@ class ExerciseConfiguration {
   
   /// Creates a copy with modified fields (copyWith pattern for immutability).
   /// 
-  /// Uses _Field wrapper for nullable fields to distinguish between
+  /// Uses Field wrapper for nullable fields to distinguish between
   /// "field not provided" and "field explicitly set to null".
   /// This prevents stale cross-mode state when switching practice modes.
   /// 
@@ -252,21 +252,21 @@ class ExerciseConfiguration {
   /// ```dart
   /// config.copyWith(
   ///   practiceMode: PracticeMode.scales,
-  ///   chordProgressionId: const _Field.set(null),
+  ///   chordProgressionId: const Field.set(null),
   /// )
   /// ```
   ExerciseConfiguration copyWith({
     PracticeMode? practiceMode,
     HandSelection? handSelection,
-    _Field<Key>? key,
-    _Field<ScaleType>? scaleType,
-    _Field<ChordType>? chordType,
+    Field<Key>? key,
+    Field<ScaleType>? scaleType,
+    Field<ChordType>? chordType,
     bool? includeInversions,
     bool? includeSeventhChords,
-    _Field<MusicalNote>? musicalNote,
-    _Field<ArpeggioType>? arpeggioType,
+    Field<MusicalNote>? musicalNote,
+    Field<ArpeggioType>? arpeggioType,
     ArpeggioOctaves? arpeggioOctaves,
-    _Field<String>? chordProgressionId,
+    Field<String>? chordProgressionId,
     int? startOctave,
     bool? autoProgressKeys,
   }) {
@@ -453,7 +453,7 @@ The `chordProgressionId` field stores the `ChordProgression.name` directly (e.g.
 - **Validation clarity**: Explicit validation rules per practice mode make requirements obvious
 - **Clean Architecture compliance**: Domain model lives in domain layer, independent of UI and infrastructure
 - **Enum robustness**: Using `.name` property makes JSON human-readable and resilient to enum reordering
-- **Proper copyWith semantics**: `_Field<T>` wrapper pattern allows explicitly clearing nullable fields, preventing stale cross-mode state
+- **Proper copyWith semantics**: `Field<T>` wrapper pattern allows explicitly clearing nullable fields, preventing stale cross-mode state
 
 ### Negative
 
@@ -497,7 +497,7 @@ Store entire ChordProgression (with interval arrays) in configuration JSON.
 
 Use standard `param ?? this.field` pattern for all nullable fields in copyWith.
 
-**Rejected**: The standard pattern cannot distinguish between "field not provided" and "field explicitly set to null". This creates critical bugs when switching practice modes—for example, calling `copyWith(chordProgressionId: null)` to clear the progression ID when switching from chordProgressions mode would incorrectly retain the old value. The `_Field<T>` wrapper pattern solves this by making the distinction explicit: `_Field.unset()` means "keep current value" while `_Field.set(null)` means "clear to null". This prevents stale cross-mode configuration state.
+**Rejected**: The standard pattern cannot distinguish between "field not provided" and "field explicitly set to null". This creates critical bugs when switching practice modes—for example, calling `copyWith(chordProgressionId: null)` to clear the progression ID when switching from chordProgressions mode would incorrectly retain the old value. The `Field<T>` wrapper pattern solves this by making the distinction explicit: `Field.unset()` means "keep current value" while `Field.set(null)` means "clear to null". This prevents stale cross-mode configuration state.
 
 ## Related Decisions
 
@@ -524,7 +524,7 @@ Use standard `param ?? this.field` pattern for all nullable fields in copyWith.
 - JSON serialization round-trips (toJson → fromJson preserves data)
 - Enum serialization correctness (name property roundtrips)
 - Equality and hashCode correctness
-- CopyWith pattern behavior (including _Field wrapper: clearing nullable fields, preserving unset fields)
+- CopyWith pattern behavior (including Field wrapper: clearing nullable fields, preserving unset fields)
 
 **Integration tests** must cover:
 
