@@ -9,11 +9,13 @@ This directory contains automation scripts for code quality, testing, and archit
 **Purpose**: Enforces Clean Architecture layer boundaries by detecting forbidden imports.
 
 **Usage**:
+
 ```bash
 ./scripts/check-layer-boundaries.sh
 ```
 
 **What it checks**:
+
 - Domain layer (`lib/domain/`) must not import from `application/`, `presentation/`, or `features/`
 - Application layer (`lib/application/`) must not import from `presentation/` or `features/`
 - Presentation and features layers can import from any layer (they're the outermost layers)
@@ -21,11 +23,13 @@ This directory contains automation scripts for code quality, testing, and archit
 **Integration**: Automatically runs via `lefthook` pre-commit hook when domain or application layer files are modified.
 
 **Exit codes**:
+
 - `0`: All layer boundaries respected ✅
 - `1`: Violations found ❌ (commit will be blocked)
 
 **Example output**:
-```
+
+```text
 🏗️  Checking Clean Architecture layer boundaries...
 ✅ All layer boundaries respected!
 ```
@@ -37,11 +41,13 @@ This directory contains automation scripts for code quality, testing, and archit
 **Purpose**: Ensures widget tests use key-based selectors instead of text-based selectors for better maintainability and i18n support.
 
 **Usage**:
+
 ```bash
 ./scripts/check-test-selectors.sh test/**/*_test.dart
 ```
 
 **What it checks**:
+
 - Detects `find.text()` calls paired with `tester.tap()` in test files
 - Encourages `find.byKey()` usage for interactive elements
 
@@ -60,11 +66,13 @@ This directory contains automation scripts for code quality, testing, and archit
 **Purpose**: Automated screenshot generation for App Store submissions.
 
 **Prerequisites**:
+
 - iOS simulators installed
 - Piano Fitness app built for simulator
 - Xcode command line tools
 
 **Usage**:
+
 ```bash
 # Run all iPhone screenshots
 ./scripts/automated-screenshots-iphone.sh
@@ -80,6 +88,7 @@ This directory contains automation scripts for code quality, testing, and archit
 All scripts are integrated with the project via [Lefthook](https://github.com/evilmartians/lefthook) configuration in `lefthook.yml`:
 
 ### Pre-commit Hooks (automatic on `git commit`)
+
 1. **dart-fixes**: Auto-applies `dart fix` and formats code
 2. **markdown-lint**: Lints and fixes markdown files
 3. **test-selector-check**: Validates widget test selectors
@@ -87,6 +96,7 @@ All scripts are integrated with the project via [Lefthook](https://github.com/ev
 5. **dart-analyze**: Runs static analysis
 
 ### Pre-push Hooks (automatic on `git push`)
+
 1. **test**: Runs full test suite
 
 ## Adding New Scripts
@@ -102,6 +112,7 @@ When adding new scripts to this directory:
 ## Troubleshooting
 
 **Lefthook not running scripts**:
+
 ```bash
 # Reinstall git hooks
 lefthook install
@@ -111,12 +122,14 @@ lefthook run pre-commit --all-files
 ```
 
 **Script permission errors**:
+
 ```bash
 # Make script executable
 chmod +x scripts/your-script.sh
 ```
 
 **Layer boundary check false positives**:
+
 - Review the script output to see which files are violating rules
 - Ensure imports follow Clean Architecture principles
 - If a genuine false positive, consider filing an issue for script improvement

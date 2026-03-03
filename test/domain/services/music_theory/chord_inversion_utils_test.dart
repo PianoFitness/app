@@ -179,6 +179,24 @@ void main() {
 
       for (final (rootNote, chordType) in testCases) {
         for (final inversion in ChordInversion.values) {
+          // Skip third inversion for triads (only valid for seventh chords)
+          final isTriad = [
+            ChordType.major,
+            ChordType.minor,
+            ChordType.diminished,
+            ChordType.augmented,
+          ].contains(chordType);
+          if (isTriad && inversion == ChordInversion.third) {
+            // Verify that third inversion throws for triads
+            expect(
+              () => ChordBuilder.getChord(rootNote, chordType, inversion),
+              throwsA(isA<ArgumentError>()),
+              reason:
+                  "Third inversion should throw for triad ${rootNote.name} ${chordType.name}",
+            );
+            continue;
+          }
+
           final directResult = ChordBuilder.getChord(
             rootNote,
             chordType,

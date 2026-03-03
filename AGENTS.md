@@ -150,7 +150,7 @@ We implement a **pragmatic hybrid** that balances architectural purity with deve
 
 **Layer Import Rules**:
 
-```
+```text
 ✅ Domain Layer (lib/domain/):
    - dart:* core libraries
    - package:meta, package:collection

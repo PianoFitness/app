@@ -364,7 +364,8 @@ class PracticeSettingsPanel extends StatelessWidget {
             showSelectedIcon: false,
             style: const ButtonStyle(visualDensity: VisualDensity.compact),
           ),
-          if (configuration.practiceMode == PracticeMode.scales) ...[
+          if (configuration.practiceMode == PracticeMode.scales ||
+              configuration.practiceMode == PracticeMode.chordsByKey) ...[
             const SizedBox(height: Spacing.sm),
             DropdownButtonFormField<music.ScaleType>(
               initialValue: configuration.scaleType,

@@ -105,9 +105,10 @@ class ChordBuilder {
         if (notes.length == 4) {
           return [notes[3], notes[0], notes[1], notes[2]];
         } else {
-          // Note: Third inversion only valid for seventh chords (4 notes)
-          // Return unchanged for triads (invalid inversion)
-          return notes;
+          throw ArgumentError(
+            "Third inversion is only valid for seventh chords (4 notes), "
+            "but chord has ${notes.length} notes",
+          );
         }
     }
   }
@@ -236,10 +237,14 @@ class ChordBuilder {
           secondInterval == MusicalConstants.majorThird) {
         chords.add(ChordType.augmented7); // Augmented triad + minor 7th
       }
-      // Default to dominant7 for unexpected interval combinations
+      // Unexpected interval combination - this should not happen in valid scales
       else {
-        // Note: Unexpected interval combination - defaulting to dominant7
-        chords.add(ChordType.dominant7);
+        throw StateError(
+          "Unexpected interval combination in getSeventhChordsInKey: "
+          "scale degree=$i, root=${scaleNotes[i].name}, "
+          "firstInterval=$firstInterval, secondInterval=$secondInterval, "
+          "thirdInterval=$thirdInterval",
+        );
       }
     }
 

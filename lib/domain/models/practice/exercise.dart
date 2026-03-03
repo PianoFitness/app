@@ -88,7 +88,11 @@ class PracticeStep {
   }
 
   @override
-  int get hashCode => Object.hash(Object.hashAll(notes), type, metadata);
+  int get hashCode => Object.hash(
+    const ListEquality<int>().hash(notes),
+    type,
+    const MapEquality<String, dynamic>().hash(metadata),
+  );
 
   @override
   String toString() {
@@ -182,7 +186,10 @@ class PracticeExercise {
   }
 
   @override
-  int get hashCode => Object.hash(Object.hashAll(steps), metadata);
+  int get hashCode => Object.hash(
+    const ListEquality<PracticeStep>().hash(steps),
+    const MapEquality<String, dynamic>().hash(metadata),
+  );
 
   @override
   String toString() {
