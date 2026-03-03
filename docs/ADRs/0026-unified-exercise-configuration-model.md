@@ -175,12 +175,12 @@ class ExerciseConfiguration {
     
     // Validate octave bounds for 4-octave/49-key piano range (C2-C6)
     // startOctave must allow the exercise to fit within this constraint
-    const minOctave = 0;  // A0 is lowest piano note
-    const maxOctave = 8;  // C8 is highest piano note
+    const minOctave = 2;  // C2 is lowest note in 49-key range
+    const maxOctave = 6;  // C6 is highest note in 49-key range
     
     if (startOctave < minOctave || startOctave > maxOctave) {
       throw ArgumentError(
-        'startOctave must be between $minOctave and $maxOctave, got $startOctave'
+        'startOctave must be between $minOctave and $maxOctave (C2-C6 range), got $startOctave'
       );
     }
     
@@ -188,32 +188,32 @@ class ExerciseConfiguration {
     switch (practiceMode) {
       case PracticeMode.scales:
         // Scales typically span 1-2 octaves
-        // Maximum span is 2 octaves, so startOctave + 2 must be <= 8
-        if (startOctave > 6) {
+        // Maximum span is 2 octaves, so startOctave + 2 must be <= 6
+        if (startOctave > 4) {
           throw ArgumentError(
-            'scales mode: startOctave $startOctave would exceed piano range '
-            '(scales span up to 2 octaves, maximum startOctave is 6)'
+            'scales mode: startOctave $startOctave would exceed C2-C6 range '
+            '(scales span up to 2 octaves, maximum startOctave is 4)'
           );
         }
         break;
         
       case PracticeMode.chordsByKey:
         // Chords span less than 1 octave typically
-        // Maximum span is ~1 octave, so startOctave + 1 must be <= 8  
-        if (startOctave > 7) {
+        // Maximum span is ~1 octave, so startOctave + 1 must be <= 6  
+        if (startOctave > 5) {
           throw ArgumentError(
-            'chordsByKey mode: startOctave $startOctave would exceed piano range '
-            '(chords span up to 1 octave, maximum startOctave is 7)'
+            'chordsByKey mode: startOctave $startOctave would exceed C2-C6 range '
+            '(chords span up to 1 octave, maximum startOctave is 5)'
           );
         }
         break;
         
       case PracticeMode.chordsByType:
         // Chord type exercises iterate through keys, each chord < 1 octave
-        if (startOctave > 7) {
+        if (startOctave > 5) {
           throw ArgumentError(
-            'chordsByType mode: startOctave $startOctave would exceed piano range '
-            '(chord voicings span up to 1 octave, maximum startOctave is 7)'
+            'chordsByType mode: startOctave $startOctave would exceed C2-C6 range '
+            '(chord voicings span up to 1 octave, maximum startOctave is 5)'
           );
         }
         break;
@@ -221,10 +221,10 @@ class ExerciseConfiguration {
       case PracticeMode.arpeggios:
         // Arpeggios can span 1 or 2 octaves based on arpeggioOctaves setting
         final maxSpan = arpeggioOctaves == ArpeggioOctaves.two ? 2 : 1;
-        if (startOctave + maxSpan > 8) {
+        if (startOctave + maxSpan > 6) {
           throw ArgumentError(
             'arpeggios mode: startOctave $startOctave with $arpeggioOctaves octaves '
-            'would exceed piano range (maximum startOctave is ${8 - maxSpan})'
+            'would exceed C2-C6 range (maximum startOctave is ${6 - maxSpan})'
           );
         }
         break;
@@ -232,10 +232,10 @@ class ExerciseConfiguration {
       case PracticeMode.chordProgressions:
         // Chord progressions iterate through multiple chords, each < 1 octave
         // Progressions use smart voice leading so stay within ~1-2 octave range
-        if (startOctave > 6) {
+        if (startOctave > 4) {
           throw ArgumentError(
-            'chordProgressions mode: startOctave $startOctave would exceed piano range '
-            '(progressions span up to 2 octaves with voice leading, maximum startOctave is 6)'
+            'chordProgressions mode: startOctave $startOctave would exceed C2-C6 range '
+            '(progressions span up to 2 octaves with voice leading, maximum startOctave is 4)'
           );
         }
         break;
