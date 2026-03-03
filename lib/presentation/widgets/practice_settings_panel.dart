@@ -156,7 +156,7 @@ class PracticeSettingsPanel extends StatelessWidget {
 
   /// Returns true if the current practice mode supports key-based progression.
   ///
-  /// Auto key progression is available for modes that use the [selectedKey] field:
+  /// Auto key progression is available for modes that use the configuration's key field:
   /// - Scales (practice scales in different keys)
   /// - Chords by Key (practice diatonic chords in different keys)
   /// - Chord Progressions (practice progressions in different keys)
@@ -501,26 +501,10 @@ class _ScalesSettings extends StatelessWidget {
     return Column(
       children: [
         const SizedBox(height: Spacing.sm),
-        DropdownButtonFormField<music.ScaleType>(
-          key: ValueKey("scaleType_${configuration.scaleType}"),
-          initialValue: configuration.scaleType,
-          decoration: const InputDecoration(
-            labelText: "Scale Type",
-            border: OutlineInputBorder(),
-          ),
-          items: music.ScaleType.values.map((type) {
-            return DropdownMenuItem(
-              value: type,
-              child: Text(getScaleTypeString(type)),
-            );
-          }).toList(),
-          onChanged: (value) {
-            if (value != null) {
-              onConfigurationChanged(
-                configuration.copyWith(scaleType: Field.set(value)),
-              );
-            }
-          },
+        _ScaleTypeDropdown(
+          configuration: configuration,
+          onConfigurationChanged: onConfigurationChanged,
+          getScaleTypeString: getScaleTypeString,
         ),
       ],
     );
@@ -544,26 +528,10 @@ class _ChordsByKeySettings extends StatelessWidget {
     return Column(
       children: [
         const SizedBox(height: Spacing.sm),
-        DropdownButtonFormField<music.ScaleType>(
-          key: ValueKey("scaleType_${configuration.scaleType}"),
-          initialValue: configuration.scaleType,
-          decoration: const InputDecoration(
-            labelText: "Scale Type",
-            border: OutlineInputBorder(),
-          ),
-          items: music.ScaleType.values.map((type) {
-            return DropdownMenuItem(
-              value: type,
-              child: Text(getScaleTypeString(type)),
-            );
-          }).toList(),
-          onChanged: (value) {
-            if (value != null) {
-              onConfigurationChanged(
-                configuration.copyWith(scaleType: Field.set(value)),
-              );
-            }
-          },
+        _ScaleTypeDropdown(
+          configuration: configuration,
+          onConfigurationChanged: onConfigurationChanged,
+          getScaleTypeString: getScaleTypeString,
         ),
         const SizedBox(height: Spacing.sm),
         Semantics(
@@ -583,6 +551,44 @@ class _ChordsByKeySettings extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Reusable dropdown widget for selecting scale type.
+class _ScaleTypeDropdown extends StatelessWidget {
+  const _ScaleTypeDropdown({
+    required this.configuration,
+    required this.onConfigurationChanged,
+    required this.getScaleTypeString,
+  });
+
+  final ExerciseConfiguration configuration;
+  final ValueChanged<ExerciseConfiguration> onConfigurationChanged;
+  final String Function(music.ScaleType) getScaleTypeString;
+
+  @override
+  Widget build(BuildContext context) {
+    return DropdownButtonFormField<music.ScaleType>(
+      key: ValueKey("scaleType_${configuration.scaleType}"),
+      initialValue: configuration.scaleType,
+      decoration: const InputDecoration(
+        labelText: "Scale Type",
+        border: OutlineInputBorder(),
+      ),
+      items: music.ScaleType.values.map((type) {
+        return DropdownMenuItem(
+          value: type,
+          child: Text(getScaleTypeString(type)),
+        );
+      }).toList(),
+      onChanged: (value) {
+        if (value != null) {
+          onConfigurationChanged(
+            configuration.copyWith(scaleType: Field.set(value)),
+          );
+        }
+      },
     );
   }
 }
