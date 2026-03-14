@@ -73,6 +73,35 @@ void main() {
           equals(70),
         ); // Same as A#
       });
+
+      test(
+        "should throw ArgumentError for out-of-range NotePosition values",
+        () {
+          // C♭-1 resolves to MIDI -1 (below valid range 0–127)
+          expect(
+            () => PianoNoteBridge.convertNotePositionToMidi(
+              NotePosition(
+                note: Note.C,
+                accidental: Accidental.Flat,
+                octave: -1,
+              ),
+            ),
+            throwsA(isA<ArgumentError>()),
+          );
+
+          // B♯9 resolves to MIDI 132 (above valid range 0–127)
+          expect(
+            () => PianoNoteBridge.convertNotePositionToMidi(
+              NotePosition(
+                note: Note.B,
+                accidental: Accidental.Sharp,
+                octave: 9,
+              ),
+            ),
+            throwsA(isA<ArgumentError>()),
+          );
+        },
+      );
     });
 
     group("midiNumberToNotePosition", () {
@@ -248,7 +277,9 @@ void main() {
           NotePosition(note: Note.A, octave: 0),
         ];
 
-        // Special test cases for flat notes (which convert to sharp equivalents)
+        // Special test cases for enharmonic equivalents: flats that round-trip
+        // to sharps, and octave-boundary cases where the accidental crosses an
+        // octave boundary (C♭ → B one octave down; B♯ → C one octave up).
         final flatToSharpEquivalents = [
           (
             NotePosition(note: Note.D, accidental: Accidental.Flat),
@@ -257,6 +288,16 @@ void main() {
           (
             NotePosition(note: Note.B, accidental: Accidental.Flat),
             NotePosition(note: Note.A, accidental: Accidental.Sharp),
+          ),
+          // C♭4 = MIDI 59 = B3: octave decrements across the C boundary
+          (
+            NotePosition(note: Note.C, accidental: Accidental.Flat),
+            NotePosition(note: Note.B, octave: 3),
+          ),
+          // B♯4 = MIDI 72 = C5: octave increments across the B boundary
+          (
+            NotePosition(note: Note.B, accidental: Accidental.Sharp),
+            NotePosition(note: Note.C, octave: 5),
           ),
         ];
 
@@ -279,7 +320,7 @@ void main() {
           }
         }
 
-        // Test flat note equivalents (they should convert to their sharp equivalents)
+        // Test enharmonic equivalents (round-trip normalises to canonical sharp/natural form)
         for (final (flatNote, expectedSharpNote) in flatToSharpEquivalents) {
           final midi = PianoNoteBridge.convertNotePositionToMidi(flatNote);
           final convertedPos = PianoNoteBridge.midiNumberToNotePosition(midi);
