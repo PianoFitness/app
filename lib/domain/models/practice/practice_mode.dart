@@ -21,6 +21,9 @@ enum PracticeMode {
 
   /// Practice chord progressions using roman numeral notation
   chordProgressions,
+
+  /// Practice dominant cadence (V→I) resolution in all inversions
+  dominantCadence,
 }
 
 /// Extension to provide JSON serialization support for [PracticeMode].
@@ -31,7 +34,9 @@ enum PracticeMode {
 extension PracticeModeJson on PracticeMode {
   /// Converts the enum value to its string name for JSON serialization.
   ///
-  /// Returns the enum name (e.g., "scales", "chordsByKey", "chordsByType", "arpeggios").
+  /// Returns the enum name as a string. Valid values are:
+  /// `"scales"`, `"chordsByKey"`, `"chordsByType"`, `"arpeggios"`,
+  /// `"chordProgressions"`, `"dominantCadence"`.
   String toJson() => name;
 
   /// Creates a [PracticeMode] from a JSON string value.

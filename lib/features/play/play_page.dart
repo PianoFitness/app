@@ -7,7 +7,7 @@ import "package:piano_fitness/features/play/play_constants.dart";
 import "package:piano_fitness/features/play/play_page_view_model.dart";
 import "package:piano_fitness/presentation/accessibility/config/accessibility_labels.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
-import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
+import "package:piano_fitness/application/utils/piano_note_bridge.dart";
 import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
 import "package:piano_fitness/presentation/utils/piano_accessibility_utils.dart";
 
@@ -175,9 +175,8 @@ class _PlayPageView extends StatelessWidget {
                     ),
                     noteRange: fixed49KeyRange,
                     onNotePositionTapped: (position) {
-                      final midiNote = NoteUtils.convertNotePositionToMidi(
-                        position,
-                      );
+                      final midiNote =
+                          PianoNoteBridge.convertNotePositionToMidi(position);
                       viewModel.playVirtualNote(midiNote).catchError((
                         Object e,
                       ) {

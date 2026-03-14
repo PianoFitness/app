@@ -10,6 +10,7 @@ import "package:piano_fitness/domain/models/practice/strategies/practice_strateg
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/domain/services/music_theory/circle_of_fifths.dart";
+import "package:piano_fitness/application/utils/piano_note_bridge.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;
@@ -202,6 +203,12 @@ class PracticeSession {
             );
           }
           break;
+
+        case PracticeMode.dominantCadence:
+          if (newConfig.key == null) {
+            newConfig = newConfig.copyWith(key: Field.set(music.Key.c));
+          }
+          break;
       }
 
       _config = newConfig;
@@ -378,6 +385,14 @@ class PracticeSession {
           handSelection: _config.handSelection,
           startOctave: defaultStartOctave,
         );
+
+      case PracticeMode.dominantCadence:
+        return DominantCadenceStrategy(
+          key: _config.key!,
+          handSelection: _config.handSelection,
+          startOctave: defaultStartOctave,
+          includeSeventhChords: _config.includeSeventhChords,
+        );
     }
   }
 
@@ -408,7 +423,7 @@ class PracticeSession {
 
     for (final midiNote in currentStep.notes) {
       final noteInfo = NoteUtils.midiNumberToNote(midiNote);
-      final notePosition = NoteUtils.noteToNotePosition(
+      final notePosition = PianoNoteBridge.noteToNotePosition(
         noteInfo.note,
         noteInfo.octave,
       );

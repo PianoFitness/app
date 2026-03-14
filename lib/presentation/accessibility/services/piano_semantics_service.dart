@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/presentation/accessibility/config/accessibility_labels.dart";
+import "package:piano_fitness/application/utils/piano_note_bridge.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 
 /// Service for generating piano-specific semantic descriptions and announcements.
@@ -75,7 +76,7 @@ class PianoSemanticsService {
   /// to a string like "C4", "F#3", etc.
   static String _getNoteDisplayName(NotePosition position) {
     try {
-      final midiNumber = NoteUtils.convertNotePositionToMidi(position);
+      final midiNumber = PianoNoteBridge.convertNotePositionToMidi(position);
       final noteInfo = NoteUtils.midiNumberToNote(midiNumber);
       return NoteUtils.noteDisplayName(noteInfo.note, noteInfo.octave);
     } catch (e) {

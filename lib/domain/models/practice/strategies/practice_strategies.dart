@@ -8,5 +8,6 @@ export "arpeggios_strategy.dart";
 export "chord_progressions_strategy.dart";
 export "chords_by_key_strategy.dart";
 export "chords_by_type_strategy.dart";
+export "dominant_cadence_strategy.dart";
 export "practice_strategy.dart";
 export "scales_strategy.dart";

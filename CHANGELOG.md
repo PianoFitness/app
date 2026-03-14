@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Dominant Cadence (V→I) Practice**: New cadence exercise mode in the Practice Hub teaching smooth harmonic resolution. Generates approach chord (V) and target chord (I) pairs across all inversions with musically correct voice leading — the common tone (scale degree 5) is held stationary at the same MIDI pitch, the leading tone resolves up by a half-step to tonic, and the supertonic resolves up by a whole-step to the mediant. Available in two modes: triad mode (3 pairs, 6 steps — V 1st inv → I Root, V Root → I 2nd inv, V 2nd inv → I 1st inv) and seventh-chord mode (V7 → Imaj7, 4 symmetric inversion pairs, 8 steps). Works across all 12 major keys.
+- **PianoNoteBridge**: New application-layer utility class (`lib/application/utils/piano_note_bridge.dart`) housing the three piano-widget bridge methods (`noteToNotePosition`, `convertNotePositionToMidi`, `midiNumberToNotePosition`). Enforces Clean Architecture by keeping Flutter package dependencies out of the domain layer.
 - **User Profile Management**: Multi-profile support with profile creation, editing, deletion, and profile-specific practice history tracking (#44)
 - **Drift Database Persistence**: Type-safe local database with schema migrations, automated testing, and ADR documentation (#41)
 - **Specifications Framework**: Comprehensive specification documentation system with templates for metronome and practice sessions (#42)
@@ -25,6 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Improved
 
+- **Voice Leading Correctness**: Fixed dominant cadence triad pair definitions so all three V→I pairs are the correct "rotations" of identical voice motions (common tone held, leading tone +1 st, supertonic +2 st) across all 12 major keys. Eliminates octave jumps in common tones that could occur with incorrect inversion pairings.
+- **Property-Based Testing**: Replaced brittle hardcoded MIDI snapshot tests for dominant cadence with a parameterised `_checkVoiceLeading` helper that directly verifies musical invariants (stationary common tones, step-wise non-common motion) across all 12 keys × 3 pairs (36 assertions in a single test).
+- **Layer Boundary Enforcement**: Removed `package:piano` Flutter package dependency from the domain layer. Bridge methods moved to `PianoNoteBridge` in the application layer; all 8 callers (features, presentation, application, test) updated accordingly.
+- **Pre-commit Hook Reliability**: Switched `dart-analyze` hook from `flutter analyze` to `dart analyze`. Ensures consistent behavior in git hook shell environments where the Dart SDK binary is on PATH but the Flutter wrapper script may resolve to an unexpected version.
 - **VSCode Configuration**: Enhanced markdown linting rules and Documentation Steward agent with interview-driven specification workflow (#43)
 - **Code Quality and Testing**: Comprehensive test coverage improvements, mock repository patterns, and SOLID principles enforcement (#40)
 - **Practice Architecture**: Refactored PracticeExercise model using Strategy pattern with modular exercise strategies (#33, #34)

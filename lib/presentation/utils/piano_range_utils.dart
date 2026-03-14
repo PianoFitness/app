@@ -1,7 +1,7 @@
 import "package:piano/piano.dart";
 
 import "package:piano_fitness/domain/constants/musical_constants.dart";
-import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
+import "package:piano_fitness/application/utils/piano_note_bridge.dart";
 
 /// Utility class for calculating optimal piano keyboard ranges
 /// based on highlighted notes during exercises.
@@ -95,7 +95,7 @@ class PianoRangeUtils {
 
     // Convert note positions to MIDI numbers for easier calculation
     final midiNotes = highlightedNotes
-        .map(NoteUtils.convertNotePositionToMidi)
+        .map(PianoNoteBridge.convertNotePositionToMidi)
         .toList();
 
     if (midiNotes.isEmpty) {
@@ -131,9 +131,9 @@ class PianoRangeUtils {
     startMidi = startMidi.clamp(min88KeyMidi, max88KeyMidi);
     endMidi = endMidi.clamp(min88KeyMidi, max88KeyMidi);
 
-    // Convert back to note positions using NoteUtils
-    final startPosition = NoteUtils.midiNumberToNotePosition(startMidi);
-    final endPosition = NoteUtils.midiNumberToNotePosition(endMidi);
+    // Convert back to note positions using PianoNoteBridge
+    final startPosition = PianoNoteBridge.midiNumberToNotePosition(startMidi);
+    final endPosition = PianoNoteBridge.midiNumberToNotePosition(endMidi);
 
     if (startPosition == null || endPosition == null) {
       return fallbackRange ?? defaultRange;
@@ -158,7 +158,7 @@ class PianoRangeUtils {
 
     // Convert MIDI numbers to note positions
     final notePositions = midiSequence
-        .map(NoteUtils.midiNumberToNotePosition)
+        .map(PianoNoteBridge.midiNumberToNotePosition)
         .where((pos) => pos != null)
         .cast<NotePosition>()
         .toList();
@@ -272,9 +272,9 @@ class PianoRangeUtils {
     startMidi = startMidi.clamp(min88KeyMidi, max88KeyMidi);
     endMidi = endMidi.clamp(min88KeyMidi, max88KeyMidi);
 
-    // Convert back to note positions using NoteUtils
-    final startPosition = NoteUtils.midiNumberToNotePosition(startMidi);
-    final endPosition = NoteUtils.midiNumberToNotePosition(endMidi);
+    // Convert back to note positions using PianoNoteBridge
+    final startPosition = PianoNoteBridge.midiNumberToNotePosition(startMidi);
+    final endPosition = PianoNoteBridge.midiNumberToNotePosition(endMidi);
 
     if (startPosition == null || endPosition == null) {
       return fallbackRange ?? defaultRange;
@@ -361,9 +361,9 @@ class PianoRangeUtils {
       startNote = endNote - fixed49KeySemitones;
     }
 
-    // Convert MIDI notes to NotePosition using NoteUtils
-    final startPosition = NoteUtils.midiNumberToNotePosition(startNote);
-    final endPosition = NoteUtils.midiNumberToNotePosition(endNote);
+    // Convert MIDI notes to NotePosition using PianoNoteBridge
+    final startPosition = PianoNoteBridge.midiNumberToNotePosition(startNote);
+    final endPosition = PianoNoteBridge.midiNumberToNotePosition(endNote);
 
     if (startPosition == null || endPosition == null) {
       return defaultFallback;

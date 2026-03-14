@@ -124,7 +124,7 @@ We implement a **pragmatic hybrid** that balances architectural purity with deve
 **Key Architectural Rules:**
 
 1. **Dependency Rule**: Always point inward (Presentation → Application → Domain)
-2. **Domain Independence**: Domain has zero dependencies on Flutter or external packages
+2. **Domain Independence**: Domain is infrastructure-free — no Flutter, UI, database, or I/O dependencies. Pure Dart utility packages with no transitive Flutter coupling are permitted.
 3. **Interface Segregation**: Interfaces defined in domain, implemented in application
 4. **Single Responsibility**: Each layer has one reason to change
 5. **Feature Autonomy**: Features are self-contained with minimal coupling
@@ -152,17 +152,21 @@ We implement a **pragmatic hybrid** that balances architectural purity with deve
 
 ```text
 ✅ Domain Layer (lib/domain/):
-   - dart:* core libraries only
-   - package:meta (Dart SDK - for @immutable, @protected, etc.)
-   - package:collection (Dart SDK - for pure Dart collection utilities)
-   - package:piano_fitness/domain/* (internal domain imports only)
    ❌ NO imports from: lib/application/, lib/presentation/, lib/features/
-   ❌ NO imports from: Flutter or any other external packages
+   ❌ NO imports of Flutter or infrastructure packages
+      (package:flutter/*, UI widget libraries, databases, hardware drivers,
+       network clients)
+   ✅ dart:* core libraries
+   ✅ Pure Dart packages with no transitive Flutter dependency
+      (e.g. package:meta, package:collection, package:equatable)
+   ✅ package:piano_fitness/domain/* (internal domain imports)
 
-   Note: package:meta and package:collection are official core packages published 
-   by the Dart Team (dart.dev) with high SLO. These foundational packages complement 
-   the core libraries and are maintained to the same quality standards as dart:* 
-   libraries. See https://dart.dev/dart-team-packages for quality policy.
+   The test for any new domain package: run `dart pub deps | grep flutter`.
+   Empty output → no Flutter coupling → acceptable in domain.
+   Non-empty output → Flutter coupled → belongs in application layer instead.
+
+   If you need to bridge between domain types and Flutter widget library types,
+   create an adapter in lib/application/utils/ (see PianoNoteBridge).
 
 ✅ Application Layer (lib/application/):
    - lib/domain/* (domain only)
@@ -450,7 +454,8 @@ lib/
 │   ├── state/                      # Application-wide state management
 │   │   ├── midi_state.dart         # MIDI state (ChangeNotifier)
 │   │   └── practice_session.dart   # Practice session coordination
-│   └── utils/                      # Application utilities
+│   └── utils/                      # Application utilities and adapters
+│       ├── piano_note_bridge.dart  # Adapter: MusicalNote/MIDI ↔ NotePosition (package:piano)
 │       └── virtual_piano_utils.dart # Virtual piano playback
 └── presentation/                   # Presentation Layer (UI & ViewModels)
     ├── shared/                     # Shared presentation components
@@ -549,6 +554,9 @@ Coordinates between domain and infrastructure:
     - `notification_service.dart` - Notification scheduling
     - `notification_manager.dart` - Settings persistence
 - **state/** - Application-wide state (future: global MIDI state)
+- **utils/** - Application utilities and adapters
+  - `piano_note_bridge.dart` - Adapter between domain `MusicalNote`/MIDI types and `package:piano`'s `NotePosition` — see *Bridge / Adapter Pattern* below
+  - `virtual_piano_utils.dart` - Virtual piano playback helpers
 
 **presentation/** - Presentation Layer (UI & ViewModels)
 
@@ -591,6 +599,37 @@ UI components, ViewModels, and presentation logic:
    - **Constants**: Domain-level constants
    - No dependencies on frameworks or external libraries
 
+4. **Bridge / Adapter Pattern** (`lib/application/utils/`)
+
+   Some Flutter widget packages define their own type systems for concepts the domain already
+   models. Because the domain layer must stay Flutter-free, conversion between domain types
+   and those Flutter-specific types cannot live in `lib/domain/`. Scattering it across
+   ViewModels is equally bad — it hides the coupling and makes it untestable.
+
+   The correct home is `lib/application/utils/`: it can import both domain types and Flutter
+   packages, and it keeps the conversion logic centralised and independently testable.
+
+   **Canonical example:** `lib/application/utils/piano_note_bridge.dart`
+   - Converts `MusicalNote` + octave → `NotePosition` (`package:piano`)
+   - Converts MIDI number → `NotePosition`
+   - Converts `NotePosition` → MIDI number
+   - Tests: `test/application/utils/piano_note_bridge_test.dart`
+
+   **Add a bridge when:**
+   - A Flutter widget package introduces value types for concepts the domain already models
+   - Multiple ViewModels or widgets need the same conversion
+   - The conversion logic is non-trivial (more than a one-liner)
+
+   **Do NOT add a bridge when:**
+   - The conversion is a trivial one-liner that belongs inline in the widget
+   - You are tempted to work around an overly strict domain boundary — question the boundary
+     instead of papering over it
+
+   **Domain types must stay pure**: never implement a Flutter package's interface directly on a
+   domain type. Doing so would import that Flutter package into the domain, coupling it to the
+   very infrastructure the layer boundary exists to exclude. If an external interface must be
+   satisfied, the bridge in `lib/application/utils/` is the correct place.
+
 **Development Guidelines**:
 4. **Music Theory**: Always extend existing domain/services/music_theory/ classes
 
@@ -619,11 +658,7 @@ UI components, ViewModels, and presentation logic:
 1. Dart core libraries first (`dart:async`, `dart:math`)
 2. Flutter framework libraries (`package:flutter/material.dart`)
 3. Third-party packages (`package:piano/piano.dart`)
-4. Local imports in order:
-   - Domain imports: `package:piano_fitness/domain/...`
-   - Application imports: `package:piano_fitness/application/...`
-   - Presentation imports: `package:piano_fitness/presentation/...`
-   - Feature imports: `package:piano_fitness/features/...`
+4. Local imports (`package:piano_fitness/...`)
 
 **Import Examples**:
 
