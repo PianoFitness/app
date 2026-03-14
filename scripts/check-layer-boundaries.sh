@@ -51,14 +51,14 @@ check_layer_imports() {
         # Find all .dart files in the layer and check for forbidden imports.
         # Matches both single and double quotes, import and export statements,
         # and relative paths (../application/, ./features/, etc.).
-        violations=$(find "$layer_path" -name "*.dart" -type f -exec grep -lE "(import|export) ['\"]((package:piano_fitness/|\.\./)$pattern|\.\\./$pattern|\./$pattern)" {} \; 2>/dev/null || true)
+        violations=$(find "$layer_path" -name "*.dart" -type f -exec grep -lE "(import|export) ['\"]((package:piano_fitness/|\.\./)$pattern|\./$pattern)" {} \; 2>/dev/null || true)
 
         if [ -n "$violations" ]; then
             echo -e "${RED}❌ $layer_name layer violation detected!${NC}"
             echo -e "${YELLOW}Files importing from forbidden layer '$pattern':${NC}"
             echo "$violations" | while IFS= read -r file; do
                 echo "  - $file"
-                grep -E --color=always "(import|export) ['\"]((package:piano_fitness/|\.\./)$pattern|\.\\./$pattern|\./$pattern)" "$file" | sed 's/^/    /'
+                grep -E --color=always "(import|export) ['\"]((package:piano_fitness/|\.\./)$pattern|\./$pattern)" "$file" | sed 's/^/    /'
             done
             echo ""
             violations_found=$((violations_found + 1))

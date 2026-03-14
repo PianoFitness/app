@@ -621,10 +621,14 @@ UI components, ViewModels, and presentation logic:
    - The conversion logic is non-trivial (more than a one-liner)
 
    **Do NOT add a bridge when:**
-   - The domain type itself could be extended to satisfy the package's interface (prefer that)
    - The conversion is a trivial one-liner that belongs inline in the widget
    - You are tempted to work around an overly strict domain boundary — question the boundary
      instead of papering over it
+
+   **Domain types must stay pure**: never implement a Flutter package's interface directly on a
+   domain type. Doing so would import that Flutter package into the domain, coupling it to the
+   very infrastructure the layer boundary exists to exclude. If an external interface must be
+   satisfied, the bridge in `lib/application/utils/` is the correct place.
 
 **Development Guidelines**:
 4. **Music Theory**: Always extend existing domain/services/music_theory/ classes
