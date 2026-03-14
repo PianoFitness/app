@@ -14,10 +14,15 @@
 
 set -e
 
+>&2 echo "DEBUG: HOME=$HOME"
+>&2 echo "DEBUG: PATH=$PATH"
+
 # 1. Check for flutter alongside the dart binary on PATH.
 DART_PATH=$(command -v dart 2>/dev/null || true)
+>&2 echo "DEBUG step1: DART_PATH=$DART_PATH"
 if [ -n "$DART_PATH" ]; then
   FLUTTER_CANDIDATE="$(dirname "$DART_PATH")/flutter"
+  >&2 echo "DEBUG step1: FLUTTER_CANDIDATE=$FLUTTER_CANDIDATE (exists=$([ -x "$FLUTTER_CANDIDATE" ] && echo yes || echo no))"
   if [ -x "$FLUTTER_CANDIDATE" ]; then
     exec "$FLUTTER_CANDIDATE" test "$@"
   fi
@@ -29,16 +34,20 @@ if [ -n "$FLUTTER_ROOT" ] && [ -x "$FLUTTER_ROOT/bin/flutter" ]; then
 fi
 
 # 3. Common installation paths.
+>&2 echo "DEBUG step3: checking common paths with HOME=$HOME"
 for CANDIDATE in \
   "$HOME/code/Flutter/SDK/bin/flutter" \
   "$HOME/development/flutter/bin/flutter" \
   "$HOME/flutter/bin/flutter" \
   "/opt/flutter/bin/flutter" \
   "/usr/local/flutter/bin/flutter"; do
+  >&2 echo "DEBUG step3: candidate=$CANDIDATE (exists=$([ -x "$CANDIDATE" ] && echo yes || echo no))"
   if [ -x "$CANDIDATE" ]; then
+    >&2 echo "DEBUG step3: USING $CANDIDATE"
     exec "$CANDIDATE" test "$@"
   fi
 done
 
 # 4. Last resort: rely on whatever flutter is on PATH.
+>&2 echo "DEBUG step4: falling back to flutter on PATH=$(command -v flutter 2>/dev/null || echo not-found)"
 exec flutter test "$@"
