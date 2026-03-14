@@ -151,6 +151,8 @@ class PracticeSettingsPanel extends StatelessWidget {
         return "Arpeggios";
       case PracticeMode.chordProgressions:
         return "Chord Progressions";
+      case PracticeMode.dominantCadence:
+        return "Dominant Cadence";
     }
   }
 
@@ -167,7 +169,8 @@ class PracticeSettingsPanel extends StatelessWidget {
     return configuration.practiceMode == PracticeMode.scales ||
         configuration.practiceMode == PracticeMode.chordsByKey ||
         configuration.practiceMode == PracticeMode.chordProgressions ||
-        configuration.practiceMode == PracticeMode.arpeggios;
+        configuration.practiceMode == PracticeMode.arpeggios ||
+        configuration.practiceMode == PracticeMode.dominantCadence;
   }
 
   String _getKeyString(music.Key key) {
@@ -387,6 +390,11 @@ class PracticeSettingsPanel extends StatelessWidget {
             )
           else if (configuration.practiceMode == PracticeMode.chordsByType)
             _ChordsByTypeSettings(
+              configuration: configuration,
+              onConfigurationChanged: onConfigurationChanged,
+            )
+          else if (configuration.practiceMode == PracticeMode.dominantCadence)
+            _DominantCadenceSettings(
               configuration: configuration,
               onConfigurationChanged: onConfigurationChanged,
             ),
@@ -715,6 +723,44 @@ class _ChordProgressionsSettings extends StatelessWidget {
               );
             }
           },
+        ),
+      ],
+    );
+  }
+}
+
+/// Settings widget for dominant cadence practice mode.
+///
+/// Shows a toggle to switch between triads (V→I) and seventh chords (V7→Imaj7).
+class _DominantCadenceSettings extends StatelessWidget {
+  const _DominantCadenceSettings({
+    required this.configuration,
+    required this.onConfigurationChanged,
+  });
+
+  final ExerciseConfiguration configuration;
+  final ValueChanged<ExerciseConfiguration> onConfigurationChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: Spacing.sm),
+        Semantics(
+          label: "Include dominant seventh chord (V7→Imaj7) instead of triads",
+          child: CheckboxListTile(
+            title: const Text("Include 7th Chords (V7→Imaj7)"),
+            subtitle: const Text("Dominant 7th resolves to major 7th tonic"),
+            value: configuration.includeSeventhChords,
+            onChanged: (value) {
+              if (value != null) {
+                onConfigurationChanged(
+                  configuration.copyWith(includeSeventhChords: value),
+                );
+              }
+            },
+            controlAffinity: ListTileControlAffinity.leading,
+          ),
         ),
       ],
     );

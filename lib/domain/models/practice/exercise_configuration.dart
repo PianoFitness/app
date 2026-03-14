@@ -172,6 +172,7 @@ class ExerciseConfiguration {
   /// - chordsByType: requires chordType
   /// - arpeggios: requires musicalNote, arpeggioType
   /// - chordProgressions: requires key, chordProgressionId
+  /// - dominantCadence: requires key
   void validate() {
     switch (practiceMode) {
       case PracticeMode.scales:
@@ -215,6 +216,12 @@ class ExerciseConfiguration {
           throw ArgumentError(
             "chordProgressionId is required for chordProgressions mode",
           );
+        }
+        break;
+
+      case PracticeMode.dominantCadence:
+        if (key == null) {
+          throw ArgumentError("key is required for dominantCadence mode");
         }
         break;
     }

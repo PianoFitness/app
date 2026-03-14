@@ -1,5 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:piano/piano.dart";
+import "package:piano_fitness/application/utils/piano_note_bridge.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;
@@ -75,24 +76,30 @@ void main() {
 
     group("noteToNotePosition", () {
       test("should convert natural notes correctly", () {
-        final c4 = NoteUtils.noteToNotePosition(MusicalNote.c, 4);
+        final c4 = PianoNoteBridge.noteToNotePosition(MusicalNote.c, 4);
         expect(c4.note, equals(Note.C));
         expect(c4.octave, equals(4));
         expect(c4.accidental, equals(Accidental.None));
 
-        final g4 = NoteUtils.noteToNotePosition(MusicalNote.g, 4);
+        final g4 = PianoNoteBridge.noteToNotePosition(MusicalNote.g, 4);
         expect(g4.note, equals(Note.G));
         expect(g4.octave, equals(4));
         expect(g4.accidental, equals(Accidental.None));
       });
 
       test("should convert sharp notes correctly", () {
-        final cSharp4 = NoteUtils.noteToNotePosition(MusicalNote.cSharp, 4);
+        final cSharp4 = PianoNoteBridge.noteToNotePosition(
+          MusicalNote.cSharp,
+          4,
+        );
         expect(cSharp4.note, equals(Note.C));
         expect(cSharp4.octave, equals(4));
         expect(cSharp4.accidental, equals(Accidental.Sharp));
 
-        final fSharp4 = NoteUtils.noteToNotePosition(MusicalNote.fSharp, 4);
+        final fSharp4 = PianoNoteBridge.noteToNotePosition(
+          MusicalNote.fSharp,
+          4,
+        );
         expect(fSharp4.note, equals(Note.F));
         expect(fSharp4.octave, equals(4));
         expect(fSharp4.accidental, equals(Accidental.Sharp));
@@ -102,10 +109,10 @@ void main() {
     group("convertNotePositionToMidi", () {
       test("should convert natural note positions correctly", () {
         final c4 = NotePosition(note: Note.C);
-        expect(NoteUtils.convertNotePositionToMidi(c4), equals(60));
+        expect(PianoNoteBridge.convertNotePositionToMidi(c4), equals(60));
 
         final g4 = NotePosition(note: Note.G);
-        expect(NoteUtils.convertNotePositionToMidi(g4), equals(67));
+        expect(PianoNoteBridge.convertNotePositionToMidi(g4), equals(67));
       });
 
       test("should convert sharp note positions correctly", () {
@@ -113,25 +120,25 @@ void main() {
           note: Note.C,
           accidental: Accidental.Sharp,
         );
-        expect(NoteUtils.convertNotePositionToMidi(cSharp4), equals(61));
+        expect(PianoNoteBridge.convertNotePositionToMidi(cSharp4), equals(61));
 
         final fSharp4 = NotePosition(
           note: Note.F,
           accidental: Accidental.Sharp,
         );
-        expect(NoteUtils.convertNotePositionToMidi(fSharp4), equals(66));
+        expect(PianoNoteBridge.convertNotePositionToMidi(fSharp4), equals(66));
       });
 
       test("should convert flat note positions correctly", () {
         final dFlat4 = NotePosition(note: Note.D, accidental: Accidental.Flat);
         expect(
-          NoteUtils.convertNotePositionToMidi(dFlat4),
+          PianoNoteBridge.convertNotePositionToMidi(dFlat4),
           equals(61),
         ); // Same as C#
 
         final bFlat4 = NotePosition(note: Note.B, accidental: Accidental.Flat);
         expect(
-          NoteUtils.convertNotePositionToMidi(bFlat4),
+          PianoNoteBridge.convertNotePositionToMidi(bFlat4),
           equals(70),
         ); // Same as A#
       });
@@ -140,14 +147,14 @@ void main() {
     group("midiNumberToNotePosition", () {
       test("should convert basic MIDI numbers to NotePosition", () {
         // Test middle C
-        final c4 = NoteUtils.midiNumberToNotePosition(60);
+        final c4 = PianoNoteBridge.midiNumberToNotePosition(60);
         expect(c4, isNotNull);
         expect(c4?.note, equals(Note.C));
         expect(c4?.octave, equals(4));
         expect(c4?.accidental, equals(Accidental.None));
 
         // Test A4
-        final a4 = NoteUtils.midiNumberToNotePosition(69);
+        final a4 = PianoNoteBridge.midiNumberToNotePosition(69);
         expect(a4, isNotNull);
         expect(a4?.note, equals(Note.A));
         expect(a4?.octave, equals(4));
@@ -156,19 +163,19 @@ void main() {
 
       test("should convert sharp notes correctly", () {
         // Test C#4
-        final cSharp4 = NoteUtils.midiNumberToNotePosition(61);
+        final cSharp4 = PianoNoteBridge.midiNumberToNotePosition(61);
         expect(cSharp4?.note, equals(Note.C));
         expect(cSharp4?.octave, equals(4));
         expect(cSharp4?.accidental, equals(Accidental.Sharp));
 
         // Test F#4
-        final fSharp4 = NoteUtils.midiNumberToNotePosition(66);
+        final fSharp4 = PianoNoteBridge.midiNumberToNotePosition(66);
         expect(fSharp4?.note, equals(Note.F));
         expect(fSharp4?.octave, equals(4));
         expect(fSharp4?.accidental, equals(Accidental.Sharp));
 
         // Test A#4
-        final aSharp4 = NoteUtils.midiNumberToNotePosition(70);
+        final aSharp4 = PianoNoteBridge.midiNumberToNotePosition(70);
         expect(aSharp4?.note, equals(Note.A));
         expect(aSharp4?.octave, equals(4));
         expect(aSharp4?.accidental, equals(Accidental.Sharp));
@@ -176,42 +183,42 @@ void main() {
 
       test("should handle different octaves", () {
         // Test C in different octaves
-        final c0 = NoteUtils.midiNumberToNotePosition(12);
+        final c0 = PianoNoteBridge.midiNumberToNotePosition(12);
         expect(c0?.note, equals(Note.C));
         expect(c0?.octave, equals(0));
 
-        final c1 = NoteUtils.midiNumberToNotePosition(24);
+        final c1 = PianoNoteBridge.midiNumberToNotePosition(24);
         expect(c1?.note, equals(Note.C));
         expect(c1?.octave, equals(1));
 
-        final c2 = NoteUtils.midiNumberToNotePosition(36);
+        final c2 = PianoNoteBridge.midiNumberToNotePosition(36);
         expect(c2?.note, equals(Note.C));
         expect(c2?.octave, equals(2));
 
-        final c6 = NoteUtils.midiNumberToNotePosition(84);
+        final c6 = PianoNoteBridge.midiNumberToNotePosition(84);
         expect(c6?.note, equals(Note.C));
         expect(c6?.octave, equals(6));
       });
 
       test("should handle extreme MIDI ranges", () {
         // Test lowest MIDI note (C-1)
-        final lowestC = NoteUtils.midiNumberToNotePosition(0);
+        final lowestC = PianoNoteBridge.midiNumberToNotePosition(0);
         expect(lowestC?.note, equals(Note.C));
         expect(lowestC?.octave, equals(-1));
 
         // Test highest MIDI note (G9)
-        final highestG = NoteUtils.midiNumberToNotePosition(127);
+        final highestG = PianoNoteBridge.midiNumberToNotePosition(127);
         expect(highestG?.note, equals(Note.G));
         expect(highestG?.octave, equals(9));
 
         // Test 88-key piano range boundaries
-        final a0 = NoteUtils.midiNumberToNotePosition(
+        final a0 = PianoNoteBridge.midiNumberToNotePosition(
           21,
         ); // A0 - lowest piano key
         expect(a0?.note, equals(Note.A));
         expect(a0?.octave, equals(0));
 
-        final c8 = NoteUtils.midiNumberToNotePosition(
+        final c8 = PianoNoteBridge.midiNumberToNotePosition(
           108,
         ); // C8 - highest piano key
         expect(c8?.note, equals(Note.C));
@@ -219,10 +226,10 @@ void main() {
       });
 
       test("should return null for invalid MIDI numbers", () {
-        expect(NoteUtils.midiNumberToNotePosition(-1), isNull);
-        expect(NoteUtils.midiNumberToNotePosition(128), isNull);
-        expect(NoteUtils.midiNumberToNotePosition(200), isNull);
-        expect(NoteUtils.midiNumberToNotePosition(-100), isNull);
+        expect(PianoNoteBridge.midiNumberToNotePosition(-1), isNull);
+        expect(PianoNoteBridge.midiNumberToNotePosition(128), isNull);
+        expect(PianoNoteBridge.midiNumberToNotePosition(200), isNull);
+        expect(PianoNoteBridge.midiNumberToNotePosition(-100), isNull);
       });
 
       test("should handle all chromatic notes in an octave", () {
@@ -244,7 +251,7 @@ void main() {
 
         for (var i = 0; i < 12; i++) {
           final midiNumber = 60 + i; // C4 to B4
-          final notePos = NoteUtils.midiNumberToNotePosition(midiNumber);
+          final notePos = PianoNoteBridge.midiNumberToNotePosition(midiNumber);
           final expected = expectedNotes[i];
 
           expect(
@@ -408,7 +415,7 @@ void main() {
 
       test("MIDI to NotePosition and back should be consistent", () {
         for (var midi = 0; midi <= 127; midi++) {
-          final notePos = NoteUtils.midiNumberToNotePosition(midi);
+          final notePos = PianoNoteBridge.midiNumberToNotePosition(midi);
           expect(
             notePos,
             isNotNull,
@@ -416,7 +423,9 @@ void main() {
           );
 
           if (notePos != null) {
-            final convertedBack = NoteUtils.convertNotePositionToMidi(notePos);
+            final convertedBack = PianoNoteBridge.convertNotePositionToMidi(
+              notePos,
+            );
             expect(
               convertedBack,
               equals(midi),
@@ -461,8 +470,8 @@ void main() {
 
         // Test normal cases where the conversion should be identical
         for (final originalPos in testCases) {
-          final midi = NoteUtils.convertNotePositionToMidi(originalPos);
-          final convertedPos = NoteUtils.midiNumberToNotePosition(midi);
+          final midi = PianoNoteBridge.convertNotePositionToMidi(originalPos);
+          final convertedPos = PianoNoteBridge.midiNumberToNotePosition(midi);
 
           expect(
             convertedPos,
@@ -480,8 +489,8 @@ void main() {
 
         // Test flat note equivalents (they should convert to their sharp equivalents)
         for (final (flatNote, expectedSharpNote) in flatToSharpEquivalents) {
-          final midi = NoteUtils.convertNotePositionToMidi(flatNote);
-          final convertedPos = NoteUtils.midiNumberToNotePosition(midi);
+          final midi = PianoNoteBridge.convertNotePositionToMidi(flatNote);
+          final convertedPos = PianoNoteBridge.midiNumberToNotePosition(midi);
 
           expect(
             convertedPos,

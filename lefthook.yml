@@ -52,15 +52,19 @@ pre-commit:
         Review the dependency diagram and fix the imports accordingly.
 
     # Step 5: Run analysis after fixes (only for Dart files)
+    # Uses `dart analyze` instead of `flutter analyze` so the hook works in any
+    # shell environment where the Dart SDK is on PATH (including git hook contexts
+    # that may not have the Flutter wrapper script on PATH). Both commands read
+    # analysis_options.yaml and apply the same rules for this project.
     dart-analyze:
       glob: "*.dart"
       run: |
         echo "🔍 Analyzing Dart code..."
-        flutter analyze --no-fatal-infos
+        dart analyze
       fail_text: |
-        ❌ Flutter analyze found issues that cannot be auto-fixed.
+        ❌ Dart analyze found issues that cannot be auto-fixed.
         Please review and fix the remaining warnings/errors before committing.
-        Run 'flutter analyze' to see details.
+        Run 'dart analyze' to see details.
 
 pre-push:
   commands:

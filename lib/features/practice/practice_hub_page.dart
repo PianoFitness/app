@@ -191,7 +191,17 @@ class PracticeHubPage extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          const Spacer(),
+          Expanded(
+            child: _buildPracticeModeCard(
+              context,
+              title: "Dominant Cadence",
+              icon: Icons.arrow_circle_right,
+              description: "V→I resolution in all inversions",
+              color: Theme.of(context).colorScheme.secondary,
+              onTap: () =>
+                  _navigateToPractice(context, PracticeMode.dominantCadence),
+            ),
+          ),
         ],
       ),
     );

@@ -4,12 +4,13 @@ import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 void main() {
   group("PracticeMode", () {
     test("should have all expected values", () {
-      expect(PracticeMode.values.length, equals(5));
+      expect(PracticeMode.values.length, equals(6));
       expect(PracticeMode.values, contains(PracticeMode.scales));
       expect(PracticeMode.values, contains(PracticeMode.chordsByKey));
       expect(PracticeMode.values, contains(PracticeMode.chordsByType));
       expect(PracticeMode.values, contains(PracticeMode.arpeggios));
       expect(PracticeMode.values, contains(PracticeMode.chordProgressions));
+      expect(PracticeMode.values, contains(PracticeMode.dominantCadence));
     });
 
     test("should have stable name property for serialization", () {
@@ -19,6 +20,7 @@ void main() {
       expect(PracticeMode.chordsByType.name, equals("chordsByType"));
       expect(PracticeMode.arpeggios.name, equals("arpeggios"));
       expect(PracticeMode.chordProgressions.name, equals("chordProgressions"));
+      expect(PracticeMode.dominantCadence.name, equals("dominantCadence"));
 
       // toString() includes type prefix, less ideal for serialization
       expect(PracticeMode.scales.toString(), equals("PracticeMode.scales"));
@@ -37,6 +39,10 @@ void main() {
       expect(
         PracticeMode.chordProgressions.toString(),
         equals("PracticeMode.chordProgressions"),
+      );
+      expect(
+        PracticeMode.dominantCadence.toString(),
+        equals("PracticeMode.dominantCadence"),
       );
     });
 
@@ -64,6 +70,8 @@ void main() {
             return "Arpeggios";
           case PracticeMode.chordProgressions:
             return "Chord Progressions";
+          case PracticeMode.dominantCadence:
+            return "Dominant Cadence";
         }
       }
 
@@ -74,6 +82,10 @@ void main() {
       expect(
         getModeString(PracticeMode.chordProgressions),
         equals("Chord Progressions"),
+      );
+      expect(
+        getModeString(PracticeMode.dominantCadence),
+        equals("Dominant Cadence"),
       );
     });
 
@@ -87,6 +99,7 @@ void main() {
         PracticeMode.chordProgressions.toJson(),
         equals("chordProgressions"),
       );
+      expect(PracticeMode.dominantCadence.toJson(), equals("dominantCadence"));
 
       // Test fromJson() reconstructs correct enum values
       expect(PracticeModeJson.fromJson("scales"), equals(PracticeMode.scales));
@@ -105,6 +118,10 @@ void main() {
       expect(
         PracticeModeJson.fromJson("chordProgressions"),
         equals(PracticeMode.chordProgressions),
+      );
+      expect(
+        PracticeModeJson.fromJson("dominantCadence"),
+        equals(PracticeMode.dominantCadence),
       );
 
       // Test round-trip serialization

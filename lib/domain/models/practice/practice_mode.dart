@@ -21,6 +21,9 @@ enum PracticeMode {
 
   /// Practice chord progressions using roman numeral notation
   chordProgressions,
+
+  /// Practice dominant cadence (V→I) resolution in all inversions
+  dominantCadence,
 }
 
 /// Extension to provide JSON serialization support for [PracticeMode].
