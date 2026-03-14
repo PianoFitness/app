@@ -619,11 +619,7 @@ UI components, ViewModels, and presentation logic:
 1. Dart core libraries first (`dart:async`, `dart:math`)
 2. Flutter framework libraries (`package:flutter/material.dart`)
 3. Third-party packages (`package:piano/piano.dart`)
-4. Local imports in order:
-   - Domain imports: `package:piano_fitness/domain/...`
-   - Application imports: `package:piano_fitness/application/...`
-   - Presentation imports: `package:piano_fitness/presentation/...`
-   - Feature imports: `package:piano_fitness/features/...`
+4. Local imports (`package:piano_fitness/...`)
 
 **Import Examples**:
 
