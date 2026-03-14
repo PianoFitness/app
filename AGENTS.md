@@ -124,7 +124,7 @@ We implement a **pragmatic hybrid** that balances architectural purity with deve
 **Key Architectural Rules:**
 
 1. **Dependency Rule**: Always point inward (Presentation → Application → Domain)
-2. **Domain Independence**: Domain has zero dependencies on Flutter or external packages
+2. **Domain Independence**: Domain is infrastructure-free — no Flutter, UI, database, or I/O dependencies. Pure Dart utility packages with no transitive Flutter coupling are permitted.
 3. **Interface Segregation**: Interfaces defined in domain, implemented in application
 4. **Single Responsibility**: Each layer has one reason to change
 5. **Feature Autonomy**: Features are self-contained with minimal coupling
@@ -152,17 +152,21 @@ We implement a **pragmatic hybrid** that balances architectural purity with deve
 
 ```text
 ✅ Domain Layer (lib/domain/):
-   - dart:* core libraries only
-   - package:meta (Dart SDK - for @immutable, @protected, etc.)
-   - package:collection (Dart SDK - for pure Dart collection utilities)
-   - package:piano_fitness/domain/* (internal domain imports only)
    ❌ NO imports from: lib/application/, lib/presentation/, lib/features/
-   ❌ NO imports from: Flutter or any other external packages
+   ❌ NO imports of Flutter or infrastructure packages
+      (package:flutter/*, UI widget libraries, databases, hardware drivers,
+       network clients)
+   ✅ dart:* core libraries
+   ✅ Pure Dart packages with no transitive Flutter dependency
+      (e.g. package:meta, package:collection, package:equatable)
+   ✅ package:piano_fitness/domain/* (internal domain imports)
 
-   Note: package:meta and package:collection are official core packages published 
-   by the Dart Team (dart.dev) with high SLO. These foundational packages complement 
-   the core libraries and are maintained to the same quality standards as dart:* 
-   libraries. See https://dart.dev/dart-team-packages for quality policy.
+   The test for any new domain package: run `dart pub deps | grep flutter`.
+   Empty output → no Flutter coupling → acceptable in domain.
+   Non-empty output → Flutter coupled → belongs in application layer instead.
+
+   If you need to bridge between domain types and Flutter widget library types,
+   create an adapter in lib/application/utils/ (see PianoNoteBridge).
 
 ✅ Application Layer (lib/application/):
    - lib/domain/* (domain only)

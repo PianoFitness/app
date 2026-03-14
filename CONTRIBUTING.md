@@ -210,8 +210,7 @@ This hybrid approach gives us the benefits of both patterns:
 **Key Principles:**
 
 - **Dependency Rule**: Dependencies point inward (Presentation → Application → Domain)
-- **Domain Independence**: Domain layer has no dependencies on frameworks or external libraries
-  - **Exception**: Official Dart Team packages (`package:meta`, `package:collection`) are permitted as they are foundational packages maintained to the same quality standards as `dart:*` core libraries. See [Dart Team Packages](https://dart.dev/dart-team-packages)
+- **Domain Independence**: Domain layer must not depend on Flutter, UI frameworks, databases, hardware drivers, or network clients. The concern is infrastructure coupling, not package count — pure Dart utility packages with no transitive Flutter dependency (e.g. `package:meta`, `package:collection`, `package:equatable`) are acceptable. Run `dart pub deps | grep flutter` to verify a candidate package has no Flutter coupling before adding it to the domain.
 - **Interface Segregation**: Repository interfaces in domain, implementations in application
 - **Feature Organization**: Features contain related pages, ViewModels, and feature-specific widgets
 
