@@ -69,9 +69,10 @@ pre-commit:
 pre-push:
   commands:
     # Run full test suite before pushing.
-    # Uses the flutter binary from the same SDK directory as dart (which is on
-    # PATH in hook environments) to avoid picking up a stale flutter wrapper
-    # that may not satisfy the project's Flutter SDK version constraint.
+    # Delegates to scripts/run-flutter-tests.sh which searches several
+    # locations for the Flutter binary. This is necessary because git hook
+    # environments use a minimal PATH that often omits the Flutter SDK
+    # directory added by shell profiles (~/.zprofile, ~/.zshrc).
     test:
-      run: "$(dirname $(which dart))/flutter test"
+      run: ./scripts/run-flutter-tests.sh
       fail_text: "Tests failed. Please fix them before pushing."
