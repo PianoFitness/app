@@ -450,7 +450,8 @@ lib/
 │   ├── state/                      # Application-wide state management
 │   │   ├── midi_state.dart         # MIDI state (ChangeNotifier)
 │   │   └── practice_session.dart   # Practice session coordination
-│   └── utils/                      # Application utilities
+│   └── utils/                      # Application utilities and adapters
+│       ├── piano_note_bridge.dart  # Adapter: MusicalNote/MIDI ↔ NotePosition (package:piano)
 │       └── virtual_piano_utils.dart # Virtual piano playback
 └── presentation/                   # Presentation Layer (UI & ViewModels)
     ├── shared/                     # Shared presentation components
@@ -549,6 +550,9 @@ Coordinates between domain and infrastructure:
     - `notification_service.dart` - Notification scheduling
     - `notification_manager.dart` - Settings persistence
 - **state/** - Application-wide state (future: global MIDI state)
+- **utils/** - Application utilities and adapters
+  - `piano_note_bridge.dart` - Adapter between domain `MusicalNote`/MIDI types and `package:piano`'s `NotePosition` — see *Bridge / Adapter Pattern* below
+  - `virtual_piano_utils.dart` - Virtual piano playback helpers
 
 **presentation/** - Presentation Layer (UI & ViewModels)
 
@@ -590,6 +594,33 @@ UI components, ViewModels, and presentation logic:
    - **Services**: Music theory algorithms (scales, chords, arpeggios)
    - **Constants**: Domain-level constants
    - No dependencies on frameworks or external libraries
+
+4. **Bridge / Adapter Pattern** (`lib/application/utils/`)
+
+   Some Flutter widget packages define their own type systems for concepts the domain already
+   models. Because the domain layer must stay Flutter-free, conversion between domain types
+   and those Flutter-specific types cannot live in `lib/domain/`. Scattering it across
+   ViewModels is equally bad — it hides the coupling and makes it untestable.
+
+   The correct home is `lib/application/utils/`: it can import both domain types and Flutter
+   packages, and it keeps the conversion logic centralised and independently testable.
+
+   **Canonical example:** `lib/application/utils/piano_note_bridge.dart`
+   - Converts `MusicalNote` + octave → `NotePosition` (`package:piano`)
+   - Converts MIDI number → `NotePosition`
+   - Converts `NotePosition` → MIDI number
+   - Tests: `test/application/utils/piano_note_bridge_test.dart`
+
+   **Add a bridge when:**
+   - A Flutter widget package introduces value types for concepts the domain already models
+   - Multiple ViewModels or widgets need the same conversion
+   - The conversion logic is non-trivial (more than a one-liner)
+
+   **Do NOT add a bridge when:**
+   - The domain type itself could be extended to satisfy the package's interface (prefer that)
+   - The conversion is a trivial one-liner that belongs inline in the widget
+   - You are tempted to work around an overly strict domain boundary — question the boundary
+     instead of papering over it
 
 **Development Guidelines**:
 4. **Music Theory**: Always extend existing domain/services/music_theory/ classes
