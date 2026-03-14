@@ -55,6 +55,7 @@ Piano Fitness teaches you piano through guided practice sessions for scales, cho
 
 Key Learning Features:
 • Hand Selection - Practice left hand, right hand, or both hands independently
+• Dominant Cadence (V→I) exercises with musically correct voice leading across all 12 keys
 • Practice Hub with progressive exercises (Beginner to Advanced)
 • Real-time visual feedback with MIDI keyboard integration
 • Complete scale & chord reference with interactive highlighting
@@ -81,7 +82,19 @@ Start building proper piano technique with guided exercises designed to improve 
 
 ---
 
-## 🆕 What's New in This Version (0.4.0)
+## 🆕 What's New in This Version (0.5.0)
+
+```text
+Dominant Cadence Practice (V→I) — Master the most essential chord movement in music. Piano Fitness now guides you through every inversion of the V→I cadence with smooth voice leading built in. The common tone stays put, the leading tone resolves up by a half-step, and the supertonic steps up to the third — exactly as music theory prescribes. Practice triads or add seventh chords (V7→Imaj7) across all 12 major keys.
+
+Multiple Inversion Pairs — Three triad pairs (six steps) cycle through all inversions so you experience every voice arrangement. Seventh-chord mode adds a fourth pair for a total of eight steps, covering root position through third inversion.
+
+Circle of Fifths Integration — Combine cadence practice with auto-progression through all 12 keys to build fluency in every tonal centre.
+```
+
+---
+
+## 🆕 What's New in Version 0.4.0
 
 ```text
 Hand Selection - Practice each hand independently! Choose left hand, right hand, or both hands for scales, arpeggios, chords, and progressions. Perfect for building hand independence and mastering complex pieces.
@@ -100,7 +113,7 @@ Quality Improvements - Enhanced code reliability with production-grade validatio
 ### Primary Keywords
 
 ```text
-piano,hand selection,MIDI,scales,chord progressions,practice,left hand,right hand
+piano,cadence,voice leading,MIDI,scales,chord progressions,practice,left hand,right hand
 ```
 
 ### Alternative Keyword Sets
@@ -267,5 +280,5 @@ piano practice,music education,chord progressions,scales,MIDI,notifications,hub
 
 ---
 
-*Last Updated: December 12, 2025*
-*Document Version: 1.4 - Piano Fitness 0.4.0 Release*
+*Last Updated: March 14, 2026*
+*Document Version: 1.5 - Piano Fitness 0.5.0 Release*
