@@ -5,6 +5,11 @@ import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;
 
+// TODO(refactor): PianoNoteBridge tests are co-located here because the bridge
+// was extracted from NoteUtils mid-session. Move or add a dedicated test file
+// at test/application/utils/piano_note_bridge_test.dart so PianoNoteBridge is
+// tested in its own application-layer file, separate from domain NoteUtils tests.
+
 void main() {
   group("NoteUtils", () {
     group("noteToMidiNumber", () {

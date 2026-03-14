@@ -34,7 +34,9 @@ enum PracticeMode {
 extension PracticeModeJson on PracticeMode {
   /// Converts the enum value to its string name for JSON serialization.
   ///
-  /// Returns the enum name (e.g., "scales", "chordsByKey", "chordsByType", "arpeggios").
+  /// Returns the enum name as a string. Valid values are:
+  /// `"scales"`, `"chordsByKey"`, `"chordsByType"`, `"arpeggios"`,
+  /// `"chordProgressions"`, `"dominantCadence"`.
   String toJson() => name;
 
   /// Creates a [PracticeMode] from a JSON string value.

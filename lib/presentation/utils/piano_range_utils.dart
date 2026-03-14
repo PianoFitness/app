@@ -131,7 +131,7 @@ class PianoRangeUtils {
     startMidi = startMidi.clamp(min88KeyMidi, max88KeyMidi);
     endMidi = endMidi.clamp(min88KeyMidi, max88KeyMidi);
 
-    // Convert back to note positions using NoteUtils
+    // Convert back to note positions using PianoNoteBridge
     final startPosition = PianoNoteBridge.midiNumberToNotePosition(startMidi);
     final endPosition = PianoNoteBridge.midiNumberToNotePosition(endMidi);
 
@@ -272,7 +272,7 @@ class PianoRangeUtils {
     startMidi = startMidi.clamp(min88KeyMidi, max88KeyMidi);
     endMidi = endMidi.clamp(min88KeyMidi, max88KeyMidi);
 
-    // Convert back to note positions using NoteUtils
+    // Convert back to note positions using PianoNoteBridge
     final startPosition = PianoNoteBridge.midiNumberToNotePosition(startMidi);
     final endPosition = PianoNoteBridge.midiNumberToNotePosition(endMidi);
 
@@ -361,7 +361,7 @@ class PianoRangeUtils {
       startNote = endNote - fixed49KeySemitones;
     }
 
-    // Convert MIDI notes to NotePosition using NoteUtils
+    // Convert MIDI notes to NotePosition using PianoNoteBridge
     final startPosition = PianoNoteBridge.midiNumberToNotePosition(startNote);
     final endPosition = PianoNoteBridge.midiNumberToNotePosition(endNote);
 
