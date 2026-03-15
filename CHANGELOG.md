@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+
+### Improved
+
+[0.5.0] - 2025-12-12
+
+### Added
+
 - **Dominant Cadence (V→I) Practice**: New cadence exercise mode in the Practice Hub teaching smooth harmonic resolution. Generates approach chord (V) and target chord (I) pairs across all inversions with musically correct voice leading — the common tone (scale degree 5) is held stationary at the same MIDI pitch, the leading tone resolves up by a half-step to tonic, and the supertonic resolves up by a whole-step to the mediant. Available in two modes: triad mode (3 pairs, 6 steps — V 1st inv → I Root, V Root → I 2nd inv, V 2nd inv → I 1st inv) and seventh-chord mode (V7 → Imaj7, 4 symmetric inversion pairs, 8 steps). Works across all 12 major keys.
 - **PianoNoteBridge**: New application-layer utility class (`lib/application/utils/piano_note_bridge.dart`) housing the three piano-widget bridge methods (`noteToNotePosition`, `convertNotePositionToMidi`, `midiNumberToNotePosition`). Enforces Clean Architecture by keeping Flutter package dependencies out of the domain layer.
 - **User Profile Management**: Multi-profile support with profile creation, editing, deletion, and profile-specific practice history tracking (#44)
