@@ -17,7 +17,7 @@ Build Technique, Note by Note
 ### Current Promotional Text
 
 ```text
-New in 0.5.0: dominant cadence (V→I) training with voice leading across all 12 keys. Plus hand selection, MIDI support, and daily practice reminders.
+New in 0.5.0: dominant cadence (V to I) training with voice leading across all 12 keys. Plus hand selection, MIDI support, and daily practice reminders.
 ```
 
 ## 📝 App Description
@@ -30,7 +30,7 @@ Piano Fitness helps you get familiar with the patterns that underlie most of the
 Understanding these patterns, both conceptually and through muscle memory, makes playing more intuitive and listening more rewarding.
 
 — New in 0.5.0: Dominant Cadence Practice —
-The V→I cadence is one of the most common movements in tonal music. You've heard it thousands of times: that sense of tension resolving to rest. Piano Fitness lets you feel how it works under your hands, guiding you through every inversion across all 12 keys. Notice how one note stays common between the chords, one steps up a half-step, and one moves by a step — patterns that generations of musicians have gravitated toward because they sound and feel natural. Add seventh chords (V7→Imaj7) and explore the circle of fifths to build familiarity in every key.
+The V to I cadence is one of the most common movements in tonal music. You've heard it thousands of times: that sense of tension resolving to rest. Piano Fitness lets you feel how it works under your hands, guiding you through every inversion across all 12 keys. Notice how one note stays common between the chords, one steps up a half-step, and one moves by a step — patterns that generations of musicians have gravitated toward because they sound and feel natural. Add seventh chords (V7 to Imaj7) and explore the circle of fifths to build familiarity in every key.
 
 What you can explore:
 • Scales in all 12 keys — left hand, right hand, or both
