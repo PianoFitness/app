@@ -84,6 +84,7 @@ Describe what the feature must do. Use sub-sections to group related requirement
 Describe the high-level structure — major components, data flow, and key abstractions.
 
 **[Component / model name]**
+
 - Must hold: field one, field two.
 - Must enforce: constraint (e.g., BPM between 20 and 300).
 - Must support operations: operation one, operation two.

@@ -231,9 +231,9 @@ Each feature follows the MVVM pattern:
 
 ### Key Dependencies
 
-- **flutter_midi_command** (^0.5.1) - MIDI device communication and Bluetooth handling
-- **piano** (^1.0.4) - Interactive piano keyboard UI component
-- **cupertino_icons** (^1.0.8) - iOS-style icons
+- **flutter_midi_command** - MIDI device communication and Bluetooth handling
+- **piano** - Interactive piano keyboard UI component
+- **cupertino_icons** - iOS-style icons
 
 ### MIDI Integration Patterns
 

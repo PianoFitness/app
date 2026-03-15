@@ -6,93 +6,62 @@ This document contains all the promotional and descriptive content for the Piano
 
 ### App Name
 
-**Piano Fitness App**
+Piano Fitness
 
 ### Subtitle (30 characters max)
 
-**Precision Piano Practice**
-
----
+Build Technique, Note by Note
 
 ## 📢 Promotional Text (170 characters max)
 
 ### Current Promotional Text
 
 ```text
-Practice with left hand, right hand, or both! Complete piano app with hand selection, notifications, and MIDI integration for systematic learning.
+New in 0.5.0: dominant cadence (V→I) training with voice leading across all 12 keys. Plus hand selection, MIDI support, and daily practice reminders.
 ```
-
-### Alternative Promotional Text Options
-
-**Option 1 - Notification Focus (146 chars):**
-
-```text
-Daily practice reminders, repertoire mode, dark theme! Complete piano app with MIDI integration and structured learning.
-```
-
-**Option 2 - Feature Comprehensive (169 chars):**
-
-```text
-Complete piano practice app with Practice Hub, chord progressions, MIDI keyboard support, and adaptive interface for structured learning.
-```
-
-**Option 3 - Education Focus (164 chars):**
-
-```text
-Learn piano systematically with guided exercises, chord progressions, scales, and real-time MIDI feedback. Daily reminders included!
-```
-
----
 
 ## 📝 App Description
 
 ### Main Description
 
 ```text
-Master piano fundamentals with structured learning exercises
+Piano Fitness helps you get familiar with the patterns that underlie most of the music you already know and love — scales, chord shapes, arpeggios, and cadences — through short, focused practice sessions.
 
-Piano Fitness teaches you piano through guided practice sessions for scales, chords, and arpeggios - not just sheet music. Unlike typical repertoire apps, Piano Fitness helps you build technique systematically.
+Understanding these patterns, both conceptually and through muscle memory, makes playing more intuitive and listening more rewarding.
 
-Key Learning Features:
-• Hand Selection - Practice left hand, right hand, or both hands independently
-• Dominant Cadence (V→I) exercises with musically correct voice leading across all 12 keys
-• Practice Hub with progressive exercises (Beginner to Advanced)
-• Real-time visual feedback with MIDI keyboard integration
-• Complete scale & chord reference with interactive highlighting
-• Chord progressions with roman numerals
-• Daily practice reminders to build consistent habits
+— New in 0.5.0: Dominant Cadence Practice —
+The V→I cadence is one of the most common movements in tonal music. You've heard it thousands of times: that sense of tension resolving to rest. Piano Fitness lets you feel how it works under your hands, guiding you through every inversion across all 12 keys. Notice how one note stays common between the chords, one steps up a half-step, and one moves by a step — patterns that generations of musicians have gravitated toward because they sound and feel natural. Add seventh chords (V7→Imaj7) and explore the circle of fifths to build familiarity in every key.
 
-What Makes Us Different:
-• Structured curriculum vs. random practice
-• Visual piano interface shows exactly what to play
-• Auto-start practice when you touch any key
-• Instant feedback on correct notes and completion
-• Built-in timer for focused practice sessions
+What you can explore:
+• Scales in all 12 keys — left hand, right hand, or both
+• Arpeggios and chord inversions across every major key
+• Dominant cadences with smooth voice movement (triads and seventh chords)
+• Chord progressions with roman numeral notation
+• Progressive exercises from beginner to advanced in the Practice Hub
 
-Perfect For:
-• Piano students building foundational skills
-• Self-taught learners wanting structured guidance
-• Anyone with a MIDI keyboard seeking visual feedback
-• Music teachers needing organized practice tools
+How it works:
+• Connect any MIDI keyboard (USB or Bluetooth) or use the built-in touch keyboard
+• Visual piano shows exactly which notes to play
+• Auto-starts when you touch a key; instant feedback on completion
+• Daily reminders to keep practice consistent
+• Built-in session timer and dark theme included
 
-Works with any MIDI keyboard (USB/Bluetooth) or use the built-in virtual piano. Includes dark theme, customizable notifications, and repertoire practice timer.
+A friendly tool for curious learners at any stage — students, self-taught players, and teachers. Works well alongside repertoire practice and sheet music apps.
 
-Start building proper piano technique with guided exercises designed to improve your skills systematically.
+Free to download.
 ```
-
----
 
 ## 🆕 What's New in This Version (0.5.0)
 
 ```text
-Dominant Cadence Practice (V→I) — Master the most essential chord movement in music. Piano Fitness now guides you through every inversion of the V→I cadence with smooth voice leading built in. The common tone stays put, the leading tone resolves up by a half-step, and the supertonic steps up to the third — exactly as music theory prescribes. Practice triads or add seventh chords (V7→Imaj7) across all 12 major keys.
+Dominant Cadence Practice (V→I)
 
-Multiple Inversion Pairs — Three triad pairs (six steps) cycle through all inversions so you experience every voice arrangement. Seventh-chord mode adds a fourth pair for a total of eight steps, covering root position through third inversion.
+The V→I movement is one of the most common patterns in tonal music — that familiar pull from tension to rest. Piano Fitness now helps you feel how it works across every inversion and all 12 keys.
 
-Circle of Fifths Integration — Combine cadence practice with auto-progression through all 12 keys to build fluency in every tonal centre.
+As you practice, notice the voice movement: one note is shared between the two chords and stays put, one steps up by a half-step, one moves by a whole step. These aren't arbitrary rules — they're patterns that musicians across many traditions have discovered and returned to because they flow naturally under the hands and to the ear.
+
+Practice triads or add seventh chords (V7→Imaj7). Three triad inversion pairs (six steps) cycle through every voice arrangement; seventh-chord mode adds a fourth pair for eight steps total, covering root position through third inversion. Use Circle of Fifths auto-progression to work through all 12 keys in sequence.
 ```
-
----
 
 ## 🆕 What's New in Version 0.4.0
 
@@ -106,55 +75,29 @@ Improved Practice Experience - Better visual feedback and intelligent octave man
 Quality Improvements - Enhanced code reliability with production-grade validation and error handling
 ```
 
----
-
 ## 🔍 Keywords (100 characters max)
 
 ### Primary Keywords
 
 ```text
-piano,cadence,voice leading,MIDI,scales,chord progressions,practice,left hand,right hand
+practice,music education,scales,chords,arpeggios,MIDI,cadence,technique,student,theory,beginner
 ```
-
-### Alternative Keyword Sets
-
-**Option 1 - Notification Focus:**
-
-```text
-piano practice,daily reminders,notifications,MIDI,scales,chord progressions,timer
-```
-
-**Option 2 - Feature Focus:**
-
-```text
-piano,MIDI keyboard,practice hub,repertoire,notifications,dark theme,progressions
-```
-
-**Option 3 - Educational Focus:**
-
-```text
-piano practice,music education,chord progressions,scales,MIDI,notifications,hub
-```
-
----
 
 ## 🏷️ Category & Subcategories
 
 ### Primary Category
 
-**Education**
+Education
 
 ### Secondary Category
 
-**Music**
-
----
+Music
 
 ## 🎯 Target Audience
 
 ### Age Rating
 
-**4+** (Suitable for all ages)
+4+ (Suitable for all ages)
 
 ### Primary Demographics
 
@@ -163,8 +106,6 @@ piano practice,music education,chord progressions,scales,MIDI,notifications,hub
 - Parents of piano students
 - Self-taught adult learners
 - Music schools and institutions
-
----
 
 ## 🌍 Localization
 
@@ -176,8 +117,6 @@ piano practice,music education,chord progressions,scales,MIDI,notifications,hub
 - German (Planned)
 - Japanese (Planned)
 - Mandarin Chinese (Planned)
-
----
 
 ## 📞 App Store Connect Metadata
 
@@ -201,8 +140,6 @@ piano practice,music education,chord progressions,scales,MIDI,notifications,hub
 
 © 2025 Piano Fitness. All rights reserved.
 
----
-
 ## 🎨 Visual Assets Required
 
 ### App Icon
@@ -222,8 +159,6 @@ piano practice,music education,chord progressions,scales,MIDI,notifications,hub
 - iPhone: Up to 3 videos, 15-30 seconds each
 - iPad: Up to 3 videos, 15-30 seconds each
 
----
-
 ## 📊 App Store Optimization (ASO) Strategy
 
 ### Key Performance Indicators
@@ -239,8 +174,6 @@ piano practice,music education,chord progressions,scales,MIDI,notifications,hub
 - Screenshot order and content
 - App description length and structure
 - Keyword optimization
-
----
 
 ## 📅 Content Update Schedule
 
@@ -262,8 +195,6 @@ piano practice,music education,chord progressions,scales,MIDI,notifications,hub
 - Visual asset refresh
 - Localization expansion
 
----
-
 ## 📈 Success Metrics
 
 ### Download Goals
@@ -278,7 +209,5 @@ piano practice,music education,chord progressions,scales,MIDI,notifications,hub
 - Retention rate: 70%+ at 7 days
 - Customer support rating: 95%+ satisfaction
 
----
-
-*Last Updated: March 14, 2026*
+*Last Updated: March 15, 2026*
 *Document Version: 1.5 - Piano Fitness 0.5.0 Release*
