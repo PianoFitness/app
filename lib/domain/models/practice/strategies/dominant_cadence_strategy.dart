@@ -7,6 +7,7 @@ import "package:piano_fitness/domain/services/music_theory/chord_builder.dart";
 import "package:piano_fitness/domain/services/music_theory/chord_definitions.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;
+import "package:piano_fitness/domain/services/music_theory/voice_leading_utils.dart";
 
 /// A pair of (V chord inversion, I chord inversion) for one cadence exercise step.
 typedef _CadencePair = ({ChordInversion vInv, ChordInversion iInv});
@@ -189,13 +190,24 @@ class DominantCadenceStrategy implements PracticeStrategy {
   /// A static offset cannot handle both directions across all 12 keys; proximity
   /// search across three candidates is the robust solution.
   ///
-  /// **Seventh chord mode**: Always returns [startOctave] to preserve common
-  /// tones (G and B in C major) at the same pitch and ensure the 7th (F) resolves
-  /// downward by step to the 3rd of Imaj7 (E). Changing the octave would reverse
-  /// the resolution direction and lose the common-tone anchor.
+  /// **Seventh chord mode**: Uses [VoiceLeadingUtils.calculateOptimalOctaveForResolution]
+  /// to preserve common tones (G and B in C major) at the same MIDI pitch and ensure
+  /// smooth voice leading. The voice leading utility accounts for auto-bump behavior
+  /// in `getMidiNotes()` and finds the octave that minimizes total voice movement
+  /// while keeping common tones stationary.
   int _selectIChordOctave(ChordInfo iChord, List<int> vBaseNotes) {
-    if (includeSeventhChords || vBaseNotes.isEmpty) {
+    if (vBaseNotes.isEmpty) {
       return startOctave;
+    }
+
+    // For seventh chords, use voice leading utility to handle auto-bump complexity
+    if (includeSeventhChords) {
+      return VoiceLeadingUtils.calculateOptimalOctaveForResolution(
+        vBaseNotes,
+        iChord,
+        startOctave,
+        searchRange: 2, // Wider search to handle auto-bump edge cases
+      );
     }
 
     final vMin = vBaseNotes.reduce(min);

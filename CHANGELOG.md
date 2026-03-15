@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+### Fixed
+
+- **Dominant Cadence Seventh Chord Voice Leading**: Fixed voice leading for V7→Imaj7 progressions where chords were jumping octaves instead of resolving smoothly. Created new `VoiceLeadingUtils` domain service with weighted octave search algorithm that prioritizes common tone preservation (1000x penalty weight) while minimizing total voice movement. The algorithm searches multiple octave candidates (searchRange=2) to find optimal voice leading despite auto-bump logic in chord generation. Comprehensive property-based tests validate voice leading invariants across all 12 keys × 4 inversion pairs.
+
 ### Improved
 
 ## [0.5.0] - 2025-12-12
