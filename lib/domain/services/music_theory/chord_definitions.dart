@@ -1,5 +1,6 @@
 import "package:piano_fitness/domain/constants/musical_constants.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 
 /// The different chord qualities supported for chord practice.
@@ -168,10 +169,10 @@ class ChordInfo {
 
   /// Converts the chord to MIDI note numbers for the specified octave.
   ///
-  /// Returns a list of MIDI note numbers representing the chord tones.
+  /// Returns a list of MIDI notes representing the chord tones.
   /// The [octave] parameter determines the starting octave for the chord.
-  List<int> getMidiNotes(int octave) {
-    final midiNotes = <int>[];
+  List<MidiNote> getMidiNotes(int octave) {
+    final midiNotes = <MidiNote>[];
 
     // Adjust the starting octave based on inversion to maintain natural progression
     var adjustedOctave = octave;
@@ -195,7 +196,8 @@ class ChordInfo {
 
       // For chord inversions, ensure ascending order by bumping notes up an octave as needed
       if (midiNotes.isNotEmpty) {
-        final previousMidi = midiNotes.last;
+        final previousMidi =
+            midiNotes.last.value; // Get int value from MidiNote
 
         // If this note would be lower than or equal to the previous note,
         // bump it up an octave to maintain proper ascending voicing
@@ -214,7 +216,7 @@ class ChordInfo {
       // Ensure we don't exceed MIDI range (but allow up to 127 for edge cases)
       // Prefer 88-key range (108) but allow higher for testing/edge cases
       if (baseMidiNote <= 127) {
-        midiNotes.add(baseMidiNote);
+        midiNotes.add(MidiNote(baseMidiNote));
       }
     }
 
@@ -237,7 +239,7 @@ class ChordInfo {
   /// - This approach prioritizes pattern awareness and muscle memory over voice leading
   /// - Students learn the full chord structure in both hands for foundational learning
   /// - This matches the scales/arpeggios pattern for pedagogical consistency
-  List<int> getMidiNotesForHand(int octave, HandSelection hand) {
+  List<MidiNote> getMidiNotesForHand(int octave, HandSelection hand) {
     final allNotes = getMidiNotes(octave);
 
     switch (hand) {
@@ -248,14 +250,11 @@ class ChordInfo {
         // This matches the scales/arpeggios pattern for pedagogical consistency.
         if (allNotes.isEmpty) return [];
 
-        final result = <int>[];
+        final result = <MidiNote>[];
         // Left hand: all notes one octave lower
         final octaveDown = MusicalConstants.semitonesPerOctave;
         result.addAll(
-          allNotes
-              .map((note) => note - octaveDown)
-              .where((note) => note >= 0) // Guard against negative MIDI notes
-              .toList(),
+          allNotes.map((note) => note.transpose(-octaveDown)).toList(),
         );
         // Right hand: all notes at the specified octave
         result.addAll(allNotes);
@@ -266,10 +265,7 @@ class ChordInfo {
         // practices the complete musical structure
         if (allNotes.isEmpty) return [];
         final octaveDown = MusicalConstants.semitonesPerOctave;
-        return allNotes
-            .map((note) => note - octaveDown)
-            .where((note) => note >= 0) // Guard against negative MIDI notes
-            .toList();
+        return allNotes.map((note) => note.transpose(-octaveDown)).toList();
       case HandSelection.right:
         // Right hand plays full chord at specified octave
         // This matches the scales/arpeggios pattern for pedagogical consistency

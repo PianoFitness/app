@@ -1,4 +1,5 @@
 import "package:piano_fitness/domain/constants/musical_constants.dart";
+import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/services/music_theory/chord_definitions.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart";
@@ -365,7 +366,7 @@ class ChordBuilder {
 
     for (final chord in progression) {
       final chordMidi = chord.getMidiNotes(startOctave);
-      midiSequence.addAll(chordMidi);
+      midiSequence.addAll(chordMidi.values); // Convert MidiNote to int
     }
 
     return midiSequence;
@@ -395,8 +396,8 @@ class ChordBuilder {
       // If this chord's lowest note would be significantly lower than
       // the previous chord's highest note, bump up the octave
       if (lastHighestNote != null && chordMidi.isNotEmpty) {
-        final chordLowest = chordMidi.first;
-        final chordHighest = chordMidi.last;
+        final chordLowest = chordMidi.first.value;
+        final chordHighest = chordMidi.last.value;
 
         // If there's a big downward jump (more than a perfect 5th),
         // try starting this chord in a higher octave
@@ -405,24 +406,24 @@ class ChordBuilder {
           final higherChordMidi = chord.getMidiNotes(currentOctave);
 
           // Only use the higher octave if it doesn't go too high
-          if (higherChordMidi.isNotEmpty && higherChordMidi.last <= 127) {
-            midiSequence.addAll(higherChordMidi);
-            lastHighestNote = higherChordMidi.last;
+          if (higherChordMidi.isNotEmpty && higherChordMidi.last.value <= 127) {
+            midiSequence.addAll(higherChordMidi.values);
+            lastHighestNote = higherChordMidi.last.value;
           } else {
             // Use original octave if higher would exceed range
-            midiSequence.addAll(chordMidi);
+            midiSequence.addAll(chordMidi.values);
             lastHighestNote = chordHighest;
             currentOctave--; // Reset for next iteration
           }
         } else {
-          midiSequence.addAll(chordMidi);
+          midiSequence.addAll(chordMidi.values);
           lastHighestNote = chordHighest;
         }
       } else {
         // First chord or no previous reference
-        midiSequence.addAll(chordMidi);
+        midiSequence.addAll(chordMidi.values);
         if (chordMidi.isNotEmpty) {
-          lastHighestNote = chordMidi.last;
+          lastHighestNote = chordMidi.last.value;
         }
       }
     }

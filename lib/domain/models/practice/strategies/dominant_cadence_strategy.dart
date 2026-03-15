@@ -1,6 +1,7 @@
 import "dart:math" show min;
 
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/models/practice/exercise.dart";
 import "package:piano_fitness/domain/models/practice/strategies/practice_strategy.dart";
 import "package:piano_fitness/domain/services/music_theory/chord_builder.dart";
@@ -116,7 +117,7 @@ class DominantCadenceStrategy implements PracticeStrategy {
 
       steps.add(
         PracticeStep(
-          notes: vNotes,
+          notes: vNotes.values,
           type: StepType.simultaneous,
           metadata: {
             "chordName": vChord.name,
@@ -140,7 +141,7 @@ class DominantCadenceStrategy implements PracticeStrategy {
 
       steps.add(
         PracticeStep(
-          notes: iNotes,
+          notes: iNotes.values,
           type: StepType.simultaneous,
           metadata: {
             "chordName": iChord.name,
@@ -195,7 +196,7 @@ class DominantCadenceStrategy implements PracticeStrategy {
   /// smooth voice leading. The voice leading utility accounts for auto-bump behavior
   /// in `getMidiNotes()` and finds the octave that minimizes total voice movement
   /// while keeping common tones stationary.
-  int _selectIChordOctave(ChordInfo iChord, List<int> vBaseNotes) {
+  int _selectIChordOctave(ChordInfo iChord, List<MidiNote> vBaseNotes) {
     if (vBaseNotes.isEmpty) {
       return startOctave;
     }
@@ -210,7 +211,7 @@ class DominantCadenceStrategy implements PracticeStrategy {
       );
     }
 
-    final vMin = vBaseNotes.reduce(min);
+    final vMin = vBaseNotes.values.reduce(min);
 
     var bestOctave = startOctave;
     var bestGap = double.maxFinite;
@@ -222,7 +223,7 @@ class DominantCadenceStrategy implements PracticeStrategy {
     ) {
       final iNotes = iChord.getMidiNotes(candidate);
       if (iNotes.isEmpty) continue;
-      final gap = (iNotes.reduce(min) - vMin).abs().toDouble();
+      final gap = (iNotes.values.reduce(min) - vMin).abs().toDouble();
       if (gap < bestGap) {
         bestGap = gap;
         bestOctave = candidate;

@@ -1,3 +1,4 @@
+import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
@@ -26,7 +27,7 @@ class ChordInversionUtils {
     required int octave,
   }) {
     final chord = ChordBuilder.getChord(rootNote, chordType, inversion);
-    return chord.getMidiNotes(octave);
+    return chord.getMidiNotes(octave).values;
   }
 
   /// Gets MIDI note numbers for a scale.

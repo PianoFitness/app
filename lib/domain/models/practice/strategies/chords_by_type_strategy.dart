@@ -1,4 +1,5 @@
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/models/practice/exercise.dart";
 import "package:piano_fitness/domain/models/practice/strategies/practice_strategy.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
@@ -51,7 +52,7 @@ class ChordsByTypeStrategy implements PracticeStrategy {
 
       steps.add(
         PracticeStep(
-          notes: chordNotes,
+          notes: chordNotes.values,
           type: StepType.simultaneous,
           metadata: {
             "chordName": chord.name,

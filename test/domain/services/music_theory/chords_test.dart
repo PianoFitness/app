@@ -1,5 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart";
@@ -196,7 +197,7 @@ void main() {
         );
 
         final midiNotes = chord.getMidiNotes(4);
-        expect(midiNotes, equals([60, 64, 67])); // C4, E4, G4
+        expect(midiNotes.values, equals([60, 64, 67])); // C4, E4, G4
       });
 
       test("should generate correct MIDI notes for C Major 1st inversion", () {
@@ -207,7 +208,7 @@ void main() {
         );
 
         final midiNotes = chord.getMidiNotes(4);
-        expect(midiNotes, equals([64, 67, 72])); // E4, G4, C5
+        expect(midiNotes.values, equals([64, 67, 72])); // E4, G4, C5
       });
 
       test("should generate correct MIDI notes for C Major 2nd inversion", () {
@@ -218,7 +219,7 @@ void main() {
         );
 
         final midiNotes = chord.getMidiNotes(4);
-        expect(midiNotes, equals([67, 72, 76])); // G4, C5, E5
+        expect(midiNotes.values, equals([67, 72, 76])); // G4, C5, E5
       });
 
       test("should handle different octaves correctly", () {
@@ -232,9 +233,9 @@ void main() {
         final octave4 = chord.getMidiNotes(4);
         final octave5 = chord.getMidiNotes(5);
 
-        expect(octave3, equals([48, 52, 55])); // C3, E3, G3
-        expect(octave4, equals([60, 64, 67])); // C4, E4, G4
-        expect(octave5, equals([72, 76, 79])); // C5, E5, G5
+        expect(octave3.values, equals([48, 52, 55])); // C3, E3, G3
+        expect(octave4.values, equals([60, 64, 67])); // C4, E4, G4
+        expect(octave5.values, equals([72, 76, 79])); // C5, E5, G5
       });
     });
 
@@ -376,17 +377,23 @@ void main() {
 
           // All inversions should span reasonable octave range
           expect(
-            rootMidi.last - rootMidi.first,
+            rootMidi.last.distanceTo(rootMidi.first),
             lessThanOrEqualTo(24),
           ); // Within two octaves
-          expect(firstMidi.last - firstMidi.first, lessThanOrEqualTo(24));
-          expect(secondMidi.last - secondMidi.first, lessThanOrEqualTo(24));
+          expect(
+            firstMidi.last.distanceTo(firstMidi.first),
+            lessThanOrEqualTo(24),
+          );
+          expect(
+            secondMidi.last.distanceTo(secondMidi.first),
+            lessThanOrEqualTo(24),
+          );
 
           // Inversions should be properly voiced (ascending)
-          expect(firstMidi[0], lessThan(firstMidi[1]));
-          expect(firstMidi[1], lessThan(firstMidi[2]));
-          expect(secondMidi[0], lessThan(secondMidi[1]));
-          expect(secondMidi[1], lessThan(secondMidi[2]));
+          expect(firstMidi[0].value, lessThan(firstMidi[1].value));
+          expect(firstMidi[1].value, lessThan(firstMidi[2].value));
+          expect(secondMidi[0].value, lessThan(secondMidi[1].value));
+          expect(secondMidi[1].value, lessThan(secondMidi[2].value));
         }
       });
     });
@@ -412,8 +419,8 @@ void main() {
               // MIDI notes should be in ascending order for proper voicing
               for (var i = 0; i < midiNotes.length - 1; i++) {
                 expect(
-                  midiNotes[i],
-                  lessThan(midiNotes[i + 1]),
+                  midiNotes[i].value,
+                  lessThan(midiNotes[i + 1].value),
                   reason:
                       "MIDI notes should be ascending for $note $type ($inversion)",
                 );
@@ -541,15 +548,15 @@ void main() {
               final midiNotes = chord.getMidiNotes(4);
               expect(midiNotes, hasLength(expectedNotes));
               for (final midi in midiNotes) {
-                expect(midi, greaterThanOrEqualTo(0));
-                expect(midi, lessThanOrEqualTo(127));
+                expect(midi.value, greaterThanOrEqualTo(0));
+                expect(midi.value, lessThanOrEqualTo(127));
               }
 
               // MIDI notes should be in ascending order
               for (var i = 0; i < midiNotes.length - 1; i++) {
                 expect(
-                  midiNotes[i],
-                  lessThan(midiNotes[i + 1]),
+                  midiNotes[i].value,
+                  lessThan(midiNotes[i + 1].value),
                   reason:
                       "MIDI notes should be ascending for $note $type ($inversion)",
                 );
@@ -579,11 +586,11 @@ void main() {
           expect(midiNotes, hasLength(3));
 
           // Validate ascending order
-          expect(midiNotes[0], lessThan(midiNotes[1]));
-          expect(midiNotes[1], lessThan(midiNotes[2]));
+          expect(midiNotes[0].value, lessThan(midiNotes[1].value));
+          expect(midiNotes[1].value, lessThan(midiNotes[2].value));
 
           // Validate reasonable range (within 2 octaves)
-          expect(midiNotes[2] - midiNotes[0], lessThanOrEqualTo(24));
+          expect(midiNotes[2].distanceTo(midiNotes[0]), lessThanOrEqualTo(24));
         }
       });
 
@@ -646,8 +653,8 @@ void main() {
                   // All notes should be ascending
                   for (var i = 0; i < midiNotes.length - 1; i++) {
                     expect(
-                      midiNotes[i],
-                      lessThan(midiNotes[i + 1]),
+                      midiNotes[i].value,
+                      lessThan(midiNotes[i + 1].value),
                       reason:
                           "Notes should be ascending for ${note.name} ${type.name} ${inversion.name} in octave $octave",
                     );
@@ -655,7 +662,7 @@ void main() {
 
                   // Should span reasonable range (within 2 octaves)
                   expect(
-                    midiNotes.last - midiNotes.first,
+                    midiNotes.last.distanceTo(midiNotes.first),
                     lessThanOrEqualTo(24),
                     reason:
                         "Chord span should be ≤24 semitones for ${note.name} ${type.name} ${inversion.name}",
@@ -680,7 +687,7 @@ void main() {
         // Left hand should return full triad one octave lower
         expect(leftHandNotes, hasLength(3));
         // C major root position one octave lower: C3, E3, G3
-        expect(leftHandNotes, equals([48, 52, 55]));
+        expect(leftHandNotes.values, equals([48, 52, 55]));
       });
 
       test("should generate right hand with full triad", () {
@@ -696,9 +703,9 @@ void main() {
         final regularMidi = chord.getMidiNotes(4);
 
         // Right hand should return full triad at specified octave
-        expect(rightHandNotes, equals(regularMidi));
+        expect(rightHandNotes.values, equals(regularMidi.values));
         // C major root position: C4, E4, G4
-        expect(rightHandNotes, equals([60, 64, 67]));
+        expect(rightHandNotes.values, equals([60, 64, 67]));
       });
 
       test("should generate both hands with full triads in each hand", () {
@@ -715,12 +722,12 @@ void main() {
 
         // Should be: all notes -12, then all notes
         final expected = <int>[];
-        expected.addAll(regularMidi.map((note) => note - 12));
-        expected.addAll(regularMidi);
-        expect(bothHandsNotes, equals(expected));
+        expected.addAll(regularMidi.map((note) => note.transpose(-12).value));
+        expected.addAll(regularMidi.values);
+        expect(bothHandsNotes.values, equals(expected));
 
         // Both hands C major: C3,E3,G3,C4,E4,G4
-        expect(bothHandsNotes, equals([48, 52, 55, 60, 64, 67]));
+        expect(bothHandsNotes.values, equals([48, 52, 55, 60, 64, 67]));
       });
 
       test("should handle chord inversions for all hand selections", () {
@@ -795,13 +802,13 @@ void main() {
           // Verify structure: all notes -12, then all notes
           for (var i = 0; i < regularMidi.length; i++) {
             expect(
-              bothHandsNotes[i],
-              equals(regularMidi[i] - 12),
+              bothHandsNotes[i].value,
+              equals(regularMidi[i].transpose(-12).value),
               reason: "$type left hand notes should be 12 semitones lower",
             );
             expect(
-              bothHandsNotes[i + regularMidi.length],
-              equals(regularMidi[i]),
+              bothHandsNotes[i + regularMidi.length].value,
+              equals(regularMidi[i].value),
               reason: "$type right hand notes should match regular MIDI",
             );
           }
@@ -832,13 +839,13 @@ void main() {
           // Verify structure: all notes -12, then all notes
           for (var i = 0; i < regularMidi.length; i++) {
             expect(
-              bothHandsNotes[i],
-              equals(regularMidi[i] - 12),
+              bothHandsNotes[i].value,
+              equals(regularMidi[i].transpose(-12).value),
               reason: "$rootNote left hand should be 12 semitones lower",
             );
             expect(
-              bothHandsNotes[i + regularMidi.length],
-              equals(regularMidi[i]),
+              bothHandsNotes[i + regularMidi.length].value,
+              equals(regularMidi[i].value),
               reason: "$rootNote right hand should match regular MIDI",
             );
           }
@@ -861,7 +868,7 @@ void main() {
         // C major first inversion regular: E4,G4,C5 -> [64, 67, 72]
         // Left hand (all -12): E3,G3,C4 -> [52, 55, 60]
         // Combined: [52, 55, 60, 64, 67, 72]
-        expect(bothHandsNotes, equals([52, 55, 60, 64, 67, 72]));
+        expect(bothHandsNotes.values, equals([52, 55, 60, 64, 67, 72]));
       });
     });
 
@@ -1517,7 +1524,7 @@ void main() {
           final midiNotes = chord.getMidiNotes(4);
 
           // C4=60, E4=64, G4=67, B4=71
-          expect(midiNotes, equals([60, 64, 67, 71]));
+          expect(midiNotes.values, equals([60, 64, 67, 71]));
           expect(midiNotes.length, equals(4));
         });
 
@@ -1535,7 +1542,7 @@ void main() {
               // Verify ascending order
               for (int i = 0; i < midiNotes.length - 1; i++) {
                 expect(
-                  midiNotes[i] < midiNotes[i + 1],
+                  midiNotes[i].value < midiNotes[i + 1].value,
                   isTrue,
                   reason: "MIDI notes should be ascending for $inversion",
                 );
@@ -1564,7 +1571,10 @@ void main() {
           // C4maj7 regular: [60, 64, 67, 71]
           // Left hand: [48, 52, 55, 59]
           // Combined: [48, 52, 55, 59, 60, 64, 67, 71]
-          expect(bothHandsNotes, equals([48, 52, 55, 59, 60, 64, 67, 71]));
+          expect(
+            bothHandsNotes.values,
+            equals([48, 52, 55, 59, 60, 64, 67, 71]),
+          );
         });
       });
 

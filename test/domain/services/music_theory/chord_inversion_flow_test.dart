@@ -1,4 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart";
@@ -29,22 +30,22 @@ void main() {
       final secondMidi = cMajorSecond.getMidiNotes(4);
 
       // C Major root: C4-E4-G4 (60-64-67)
-      expect(rootMidi, equals([60, 64, 67]));
+      expect(rootMidi.values, equals([60, 64, 67]));
 
       // C Major 1st inversion: E4-G4-C5 (64-67-72)
-      expect(firstMidi, equals([64, 67, 72]));
+      expect(firstMidi.values, equals([64, 67, 72]));
 
       // C Major 2nd inversion: G4-C5-E5 (67-72-76)
-      expect(secondMidi, equals([67, 72, 76]));
+      expect(secondMidi.values, equals([67, 72, 76]));
 
       // Verify left-to-right progression (each lowest note should be ascending)
       expect(
-        rootMidi.first < firstMidi.first,
+        rootMidi.first.value < firstMidi.first.value,
         isTrue,
         reason: "Root position should start lower than 1st inversion",
       );
       expect(
-        firstMidi.first < secondMidi.first,
+        firstMidi.first.value < secondMidi.first.value,
         isTrue,
         reason: "1st inversion should start lower than 2nd inversion",
       );
@@ -74,24 +75,24 @@ void main() {
         final secondMidi = fMajorSecond.getMidiNotes(4);
 
         // F Major root: F4-A4-C5 (65-69-72)
-        expect(rootMidi, equals([65, 69, 72]));
+        expect(rootMidi.values, equals([65, 69, 72]));
 
         // F Major 1st inversion: A4-C5-F5 (69-72-77)
-        expect(firstMidi, equals([69, 72, 77]));
+        expect(firstMidi.values, equals([69, 72, 77]));
 
         // F Major 2nd inversion: C5-F5-A5 (72-77-81)
-        expect(secondMidi, equals([72, 77, 81]));
+        expect(secondMidi.values, equals([72, 77, 81]));
 
         // Critical: F Major 2nd inversion should NOT wrap to C4 (60)
         expect(
-          secondMidi.first,
+          secondMidi.first.value,
           greaterThan(71),
           reason: "F Major 2nd inversion should not wrap to lower octave",
         );
 
         // Verify natural progression
-        expect(rootMidi.first < firstMidi.first, isTrue);
-        expect(firstMidi.first < secondMidi.first, isTrue);
+        expect(rootMidi.first.value < firstMidi.first.value, isTrue);
+        expect(firstMidi.first.value < secondMidi.first.value, isTrue);
       },
     );
 
@@ -143,13 +144,13 @@ void main() {
 
         // Verify natural left-to-right progression
         expect(
-          rootMidi.first <= firstMidi.first,
+          rootMidi.first.value <= firstMidi.first.value,
           isTrue,
           reason:
               "${rootChord.name} root should not be higher than 1st inversion",
         );
         expect(
-          firstMidi.first <= secondMidi.first,
+          firstMidi.first.value <= secondMidi.first.value,
           isTrue,
           reason: "${firstChord.name} should not be higher than 2nd inversion",
         );
@@ -157,13 +158,13 @@ void main() {
         // Verify no dramatic downward jumps (wrapping)
         const maxAllowedJump = 7; // Perfect 5th
         expect(
-          firstMidi.first - rootMidi.first,
+          firstMidi.first.value - rootMidi.first.value,
           lessThanOrEqualTo(maxAllowedJump),
           reason:
               "${rootChord.name} to 1st inversion jump should be reasonable",
         );
         expect(
-          secondMidi.first - firstMidi.first,
+          secondMidi.first.value - firstMidi.first.value,
           lessThanOrEqualTo(maxAllowedJump),
           reason:
               "${firstChord.name} to 2nd inversion jump should be reasonable",
@@ -182,7 +183,7 @@ void main() {
       );
       final gMajorSecondMidi = gMajorSecond.getMidiNotes(4);
       expect(
-        gMajorSecondMidi.first,
+        gMajorSecondMidi.first.value,
         greaterThan(61), // Higher than D4 (62)
         reason: "G Major 2nd inversion should not wrap to D4",
       );
@@ -195,7 +196,7 @@ void main() {
       );
       final aMinorFirstMidi = aMinorFirst.getMidiNotes(4);
       expect(
-        aMinorFirstMidi.first,
+        aMinorFirstMidi.first.value,
         greaterThan(59), // Higher than C4 (60)
         reason: "A minor 1st inversion should not wrap to C4",
       );
@@ -208,7 +209,7 @@ void main() {
       );
       final aMinorSecondMidi = aMinorSecond.getMidiNotes(4);
       expect(
-        aMinorSecondMidi.first,
+        aMinorSecondMidi.first.value,
         greaterThan(63), // Higher than E4 (64)
         reason: "A minor 2nd inversion should not wrap to E4",
       );
@@ -221,7 +222,7 @@ void main() {
       );
       final bDimFirstMidi = bDimFirst.getMidiNotes(4);
       expect(
-        bDimFirstMidi.first,
+        bDimFirstMidi.first.value,
         greaterThan(61), // Higher than D4 (62)
         reason: "B diminished 1st inversion should not wrap to D4",
       );
@@ -233,7 +234,7 @@ void main() {
       );
       final bDimSecondMidi = bDimSecond.getMidiNotes(4);
       expect(
-        bDimSecondMidi.first,
+        bDimSecondMidi.first.value,
         greaterThan(64), // Higher than F4 (65)
         reason: "B diminished 2nd inversion should not wrap to F4",
       );
@@ -263,17 +264,17 @@ void main() {
 
         // Verify natural progression within each chord group
         expect(
-          rootMidi.first <= firstMidi.first,
+          rootMidi.first.value <= firstMidi.first.value,
           isTrue,
           reason: "${rootChord.name} progression should be natural",
         );
         expect(
-          firstMidi.first <= secondMidi.first,
+          firstMidi.first.value <= secondMidi.first.value,
           isTrue,
           reason: "${firstChord.name} progression should be natural",
         );
         expect(
-          secondMidi.first >= firstAgainMidi.first,
+          secondMidi.first.value >= firstAgainMidi.first.value,
           isTrue,
           reason: "Return to 1st inversion should be lower than 2nd",
         );

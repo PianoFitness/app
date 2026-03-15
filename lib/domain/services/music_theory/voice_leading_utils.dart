@@ -1,5 +1,6 @@
 import "dart:math" show min;
 
+import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/services/music_theory/chord_definitions.dart";
 
 /// Utility class for voice leading calculations in chord progressions.
@@ -39,7 +40,7 @@ class VoiceLeadingUtils {
   /// 4. Returns the octave that minimizes total movement while preserving
   ///    common tones at the same MIDI pitch when possible
   ///
-  /// [sourceMidiNotes]: MIDI note numbers of the source chord (e.g., V7)
+  /// [sourceMidiNotes]: MIDI notes of the source chord (e.g., V7)
   /// [targetChord]: ChordInfo object for the destination chord (e.g., Imaj7)
   /// [startOctave]: The baseline octave for the target chord
   /// [searchRange]: How many octaves above/below to search (default: 1)
@@ -48,8 +49,8 @@ class VoiceLeadingUtils {
   ///
   /// Example:
   /// ```dart
-  /// // V7 in C major at octave 4: [67, 71, 74, 77]
-  /// final v7Notes = [67, 71, 74, 77];
+  /// // V7 in C major at octave 4: [G4, B4, D5, F5]
+  /// final v7Notes = [MidiNote.g4, MidiNote.b4, MidiNote.d5, MidiNote.f5];
   /// final imaj7 = ChordBuilder.getChord(MusicalNote.c, ChordType.major7, ChordInversion.root);
   /// final optimalOctave = VoiceLeadingUtils.calculateOptimalOctaveForResolution(
   ///   v7Notes,
@@ -59,7 +60,7 @@ class VoiceLeadingUtils {
   /// // Returns 4, keeping common tones G4(67) and B4(71) stationary
   /// ```
   static int calculateOptimalOctaveForResolution(
-    List<int> sourceMidiNotes,
+    List<MidiNote> sourceMidiNotes,
     ChordInfo targetChord,
     int startOctave, {
     int searchRange = 1,
@@ -69,7 +70,7 @@ class VoiceLeadingUtils {
     }
 
     // Extract pitch classes from source chord for common tone detection
-    final sourcePitchClasses = sourceMidiNotes.map((n) => n % 12).toSet();
+    final sourcePitchClasses = sourceMidiNotes.pitchClasses;
 
     var bestOctave = startOctave;
     var bestScore = double.infinity;
@@ -83,7 +84,7 @@ class VoiceLeadingUtils {
       final targetMidiNotes = targetChord.getMidiNotes(candidateOctave);
       if (targetMidiNotes.isEmpty) continue;
 
-      final targetPitchClasses = targetMidiNotes.map((n) => n % 12).toSet();
+      final targetPitchClasses = targetMidiNotes.pitchClasses;
       final commonPitchClasses = sourcePitchClasses.intersection(
         targetPitchClasses,
       );
@@ -94,9 +95,13 @@ class VoiceLeadingUtils {
       // Penalty 1: Common tones that don't stay at the same MIDI pitch
       var commonTonePenalty = 0.0;
       for (final pc in commonPitchClasses) {
-        final sourceNote = sourceMidiNotes.firstWhere((n) => n % 12 == pc);
-        final targetNote = targetMidiNotes.firstWhere((n) => n % 12 == pc);
-        final distance = (sourceNote - targetNote).abs();
+        final sourceNote = sourceMidiNotes.firstWhere(
+          (n) => n.pitchClass == pc,
+        );
+        final targetNote = targetMidiNotes.firstWhere(
+          (n) => n.pitchClass == pc,
+        );
+        final distance = sourceNote.distanceTo(targetNote);
         // VERY heavy penalty for moving common tones (should be 0)
         // This penalty dominates all other factors to ensure common tones stay stationary
         commonTonePenalty += distance * 1000.0;
@@ -105,10 +110,10 @@ class VoiceLeadingUtils {
 
       // Penalty 2: Total voice movement for non-common tones
       final sourceNonCommon = sourceMidiNotes
-          .where((n) => !commonPitchClasses.contains(n % 12))
+          .where((n) => !commonPitchClasses.contains(n.pitchClass))
           .toList();
       final targetNonCommon = targetMidiNotes
-          .where((n) => !commonPitchClasses.contains(n % 12))
+          .where((n) => !commonPitchClasses.contains(n.pitchClass))
           .toList();
 
       var nonCommonDistance = 0.0;
@@ -117,14 +122,14 @@ class VoiceLeadingUtils {
           // If target has no non-common notes, penalize based on distance to
           // nearest target note
           final minDist = targetMidiNotes
-              .map((t) => (t - sourceNote).abs())
+              .map((t) => sourceNote.distanceTo(t))
               .reduce(min)
               .toDouble();
           nonCommonDistance += minDist;
         } else {
           // Find closest non-common target note
           final minDist = targetNonCommon
-              .map((t) => (t - sourceNote).abs())
+              .map((t) => sourceNote.distanceTo(t))
               .reduce(min)
               .toDouble();
           nonCommonDistance += minDist;
@@ -134,9 +139,9 @@ class VoiceLeadingUtils {
 
       // Penalty 3: Large register jumps (prefer staying in similar range)
       if (targetMidiNotes.isNotEmpty && sourceMidiNotes.isNotEmpty) {
-        final sourceLowest = sourceMidiNotes.reduce(min);
-        final targetLowest = targetMidiNotes.reduce(min);
-        final registerJump = (sourceLowest - targetLowest).abs().toDouble();
+        final registerJump = sourceMidiNotes.lowest
+            .distanceTo(targetMidiNotes.lowest)
+            .toDouble();
         score += registerJump * 0.5; // Lighter weight than common tone penalty
       }
 
@@ -169,15 +174,15 @@ class VoiceLeadingUtils {
   ///
   /// Example:
   /// ```dart
-  /// final v7 = [67, 71, 74, 77]; // G7 root position
-  /// final imaj7 = [60, 64, 67, 71]; // Cmaj7 root position
+  /// final v7 = [MidiNote(67), MidiNote(71), MidiNote(74), MidiNote(77)]; // G7 root position
+  /// final imaj7 = [MidiNote(60), MidiNote(64), MidiNote(67), MidiNote(71)]; // Cmaj7 root position
   /// final result = VoiceLeadingUtils.validateVoiceLeadingInvariants(v7, imaj7);
   /// // result.isValid == true: G4 and B4 are common tones held stationary,
   /// // F5→E4 and D5→C4 move by step (accounting for direction)
   /// ```
   static VoiceLeadingValidationResult validateVoiceLeadingInvariants(
-    List<int> sourceNotes,
-    List<int> targetNotes, {
+    List<MidiNote> sourceNotes,
+    List<MidiNote> targetNotes, {
     int maxStepSize = 2,
   }) {
     final violations = <String>[];
@@ -185,17 +190,17 @@ class VoiceLeadingUtils {
     final stepwiseViolations = <String>[];
 
     // Extract pitch classes
-    final sourcePcs = sourceNotes.map((n) => n % 12).toSet();
-    final targetPcs = targetNotes.map((n) => n % 12).toSet();
+    final sourcePcs = sourceNotes.pitchClasses;
+    final targetPcs = targetNotes.pitchClasses;
     final commonPcs = sourcePcs.intersection(targetPcs);
 
     // Invariant 1: Common tones must be at the same MIDI pitch
     for (final pc in commonPcs) {
-      final sourceNote = sourceNotes.firstWhere((n) => n % 12 == pc);
-      final targetNote = targetNotes.firstWhere((n) => n % 12 == pc);
+      final sourceNote = sourceNotes.firstWhere((n) => n.pitchClass == pc);
+      final targetNote = targetNotes.firstWhere((n) => n.pitchClass == pc);
       if (sourceNote != targetNote) {
         final violation =
-            "Common tone (pc $pc) moved from $sourceNote to $targetNote";
+            "Common tone (pc $pc) moved from ${sourceNote.value} to ${targetNote.value}";
         violations.add(violation);
         commonToneViolations.add(violation);
       }
@@ -203,20 +208,20 @@ class VoiceLeadingUtils {
 
     // Invariant 2: Non-common tones must move by ≤ maxStepSize semitones
     final sourceNonCommon = sourceNotes
-        .where((n) => !commonPcs.contains(n % 12))
+        .where((n) => !commonPcs.contains(n.pitchClass))
         .toList();
     final targetNonCommon = targetNotes
-        .where((n) => !commonPcs.contains(n % 12))
+        .where((n) => !commonPcs.contains(n.pitchClass))
         .toList();
 
     for (final sourceNote in sourceNonCommon) {
       if (targetNonCommon.isEmpty) continue;
       final minDist = targetNonCommon
-          .map((t) => (t - sourceNote).abs())
+          .map((t) => sourceNote.distanceTo(t))
           .reduce(min);
       if (minDist > maxStepSize) {
         final violation =
-            "Note $sourceNote moved $minDist semitones "
+            "Note ${sourceNote.value} moved $minDist semitones "
             "(exceeds max $maxStepSize)";
         violations.add(violation);
         stepwiseViolations.add(violation);
@@ -246,38 +251,38 @@ class VoiceLeadingUtils {
   ///
   /// Example:
   /// ```dart
-  /// final v7 = [67, 71, 74, 77]; // G7 root
-  /// final imaj7 = [60, 64, 67, 71]; // Cmaj7 root
+  /// final v7 = [MidiNote(67), MidiNote(71), MidiNote(74), MidiNote(77)]; // G7 root
+  /// final imaj7 = [MidiNote(60), MidiNote(64), MidiNote(67), MidiNote(71)]; // Cmaj7 root
   /// final distance = VoiceLeadingUtils.getVoiceLeadingDistance(v7, imaj7);
-  /// // Returns: 0 (G4→G4) + 0 (B4→B4) + |-13| (F5→E4) + |-14| (D5→C4) = 27
+  /// // Returns: 0 (G4→G4) + 0 (B4→B4) + 13 (F5→E4) + 14 (D5→C4) = 27
   /// // (Note: This example shows why proximity search matters!)
   /// ```
   static int getVoiceLeadingDistance(
-    List<int> sourceNotes,
-    List<int> targetNotes,
+    List<MidiNote> sourceNotes,
+    List<MidiNote> targetNotes,
   ) {
     if (sourceNotes.isEmpty || targetNotes.isEmpty) {
       return 0;
     }
 
-    final sourcePcs = sourceNotes.map((n) => n % 12).toSet();
-    final targetPcs = targetNotes.map((n) => n % 12).toSet();
+    final sourcePcs = sourceNotes.pitchClasses;
+    final targetPcs = targetNotes.pitchClasses;
     final commonPcs = sourcePcs.intersection(targetPcs);
 
     var totalDistance = 0;
 
     // For all source notes, find their nearest target note movement
     for (final sourceNote in sourceNotes) {
-      final pc = sourceNote % 12;
+      final pc = sourceNote.pitchClass;
 
       if (commonPcs.contains(pc)) {
         // Common tone: find the matching pitch class in target
-        final targetNote = targetNotes.firstWhere((n) => n % 12 == pc);
-        totalDistance += (sourceNote - targetNote).abs();
+        final targetNote = targetNotes.firstWhere((n) => n.pitchClass == pc);
+        totalDistance += sourceNote.distanceTo(targetNote);
       } else {
         // Non-common tone: find nearest target note by distance
         final minDist = targetNotes
-            .map((t) => (t - sourceNote).abs())
+            .map((t) => sourceNote.distanceTo(t))
             .reduce(min);
         totalDistance += minDist;
       }

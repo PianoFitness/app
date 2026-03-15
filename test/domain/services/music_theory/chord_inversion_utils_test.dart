@@ -1,5 +1,6 @@
 import "package:logging/logging.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/music_theory/chord_inversion_utils.dart";
@@ -40,13 +41,16 @@ void main() {
       log.info("C Major 2nd: $secondMidi");
 
       // Verify proper ascending order
-      expect(rootMidi, equals([60, 64, 67])); // C4-E4-G4
-      expect(firstMidi, equals([64, 67, 72])); // E4-G4-C5 (C goes UP to C5)
-      expect(secondMidi, equals([67, 72, 76])); // G4-C5-E5
+      expect(rootMidi.values, equals([60, 64, 67])); // C4-E4-G4
+      expect(
+        firstMidi.values,
+        equals([64, 67, 72]),
+      ); // E4-G4-C5 (C goes UP to C5)
+      expect(secondMidi.values, equals([67, 72, 76])); // G4-C5-E5
 
       // Verify left-to-right progression
-      expect(rootMidi.first < firstMidi.first, isTrue);
-      expect(firstMidi.first < secondMidi.first, isTrue);
+      expect(rootMidi.first.value < firstMidi.first.value, isTrue);
+      expect(firstMidi.first.value < secondMidi.first.value, isTrue);
     });
 
     test("All chord types should have proper inversion progression", () {
@@ -85,50 +89,50 @@ void main() {
 
         // Each chord should be in ascending order
         expect(
-          rootMidi[0] < rootMidi[1],
+          rootMidi[0].value < rootMidi[1].value,
           isTrue,
           reason: "$chordName root should be ascending",
         );
         expect(
-          rootMidi[1] < rootMidi[2],
+          rootMidi[1].value < rootMidi[2].value,
           isTrue,
           reason: "$chordName root should be ascending",
         );
 
         expect(
-          firstMidi[0] < firstMidi[1],
+          firstMidi[0].value < firstMidi[1].value,
           isTrue,
           reason: "$chordName 1st should be ascending",
         );
         expect(
-          firstMidi[1] < firstMidi[2],
+          firstMidi[1].value < firstMidi[2].value,
           isTrue,
           reason: "$chordName 1st should be ascending",
         );
 
         expect(
-          secondMidi[0] < secondMidi[1],
+          secondMidi[0].value < secondMidi[1].value,
           isTrue,
           reason: "$chordName 2nd should be ascending",
         );
         expect(
-          secondMidi[1] < secondMidi[2],
+          secondMidi[1].value < secondMidi[2].value,
           isTrue,
           reason: "$chordName 2nd should be ascending",
         );
 
         // Inversions should progress left-to-right (bass notes ascending)
         expect(
-          rootMidi.first <= firstMidi.first,
+          rootMidi.first.value <= firstMidi.first.value,
           isTrue,
           reason:
-              "$chordName: root->1st should progress left-to-right (${rootMidi.first} -> ${firstMidi.first})",
+              "$chordName: root->1st should progress left-to-right (${rootMidi.first.value} -> ${firstMidi.first.value})",
         );
         expect(
-          firstMidi.first <= secondMidi.first,
+          firstMidi.first.value <= secondMidi.first.value,
           isTrue,
           reason:
-              "$chordName: 1st->2nd should progress left-to-right (${firstMidi.first} -> ${secondMidi.first})",
+              "$chordName: 1st->2nd should progress left-to-right (${firstMidi.first.value} -> ${secondMidi.first.value})",
         );
 
         log.info("$chordName: Root $rootMidi, 1st $firstMidi, 2nd $secondMidi");
@@ -146,10 +150,10 @@ void main() {
       );
       final cMajorFirstMidi = cMajorFirst.getMidiNotes(4);
 
-      expect(cMajorFirstMidi, equals([64, 67, 72])); // E4-G4-C5
+      expect(cMajorFirstMidi.values, equals([64, 67, 72])); // E4-G4-C5
       expect(
-        cMajorFirstMidi.last,
-        greaterThan(cMajorFirstMidi.first),
+        cMajorFirstMidi.last.value,
+        greaterThan(cMajorFirstMidi.first.value),
         reason: "C should go UP to C5, not down to C3",
       );
 
@@ -161,9 +165,9 @@ void main() {
       );
       final cMajorSecondMidi = cMajorSecond.getMidiNotes(4);
 
-      expect(cMajorSecondMidi, equals([67, 72, 76])); // G4-C5-E5
+      expect(cMajorSecondMidi.values, equals([67, 72, 76])); // G4-C5-E5
       expect(
-        cMajorSecondMidi.first,
+        cMajorSecondMidi.first.value,
         equals(67),
         reason: "2nd inversion should start with G4 (67), not C4 (60)",
       );
@@ -212,7 +216,7 @@ void main() {
             rootNote,
             chordType,
             inversion,
-          ).getMidiNotes(4);
+          ).getMidiNotes(4).values;
           final utilityResult = ChordInversionUtils.getChordMidiNotes(
             rootNote: rootNote,
             chordType: chordType,

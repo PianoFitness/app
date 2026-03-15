@@ -1,4 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/services/music_theory/chord_builder.dart";
 import "package:piano_fitness/domain/services/music_theory/chord_definitions.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
@@ -33,7 +34,7 @@ void main() {
         "preserves common tones at same MIDI pitch for V7→Imaj7 in C major",
         () {
           // V7 root position in C: G4(67), B4(71), D5(74), F5(77)
-          final v7Notes = [67, 71, 74, 77];
+          final v7Notes = [67, 71, 74, 77].toMidiNotes();
           final imaj7 = ChordBuilder.getChord(
             MusicalNote.c,
             ChordType.major7,
@@ -49,17 +50,17 @@ void main() {
 
           // Should return octave 4 to preserve common tones G4(67) and B4(71)
           final imaj7Notes = imaj7.getMidiNotes(optimalOctave);
-          expect(imaj7Notes, equals([60, 64, 67, 71])); // C4, E4, G4, B4
+          expect(imaj7Notes.values, equals([60, 64, 67, 71])); // C4, E4, G4, B4
 
           // Verify common tones are stationary
-          expect(imaj7Notes.contains(67), isTrue); // G4 held
-          expect(imaj7Notes.contains(71), isTrue); // B4 held
+          expect(imaj7Notes.any((n) => n.value == 67), isTrue); // G4 held
+          expect(imaj7Notes.any((n) => n.value == 71), isTrue); // B4 held
         },
       );
 
       test("handles first inversion V7→Imaj7 correctly", () {
         // V7 1st inv: B4(71), D5(74), F5(77), G5(79)
-        final v7FirstNotes = [71, 74, 77, 79];
+        final v7FirstNotes = [71, 74, 77, 79].toMidiNotes();
         final imaj7First = ChordBuilder.getChord(
           MusicalNote.c,
           ChordType.major7,
@@ -76,8 +77,8 @@ void main() {
         final imaj7Notes = imaj7First.getMidiNotes(optimalOctave);
 
         // Common tones G and B should be preserved
-        expect(imaj7Notes.contains(79), isTrue); // G5 held
-        expect(imaj7Notes.contains(71), isTrue); // B4 held
+        expect(imaj7Notes.any((n) => n.value == 79), isTrue); // G5 held
+        expect(imaj7Notes.any((n) => n.value == 71), isTrue); // B4 held
       });
 
       test("handles second inversion V7→Imaj7 correctly", () {
@@ -118,7 +119,7 @@ void main() {
 
       test("works for third inversion V7→Imaj7", () {
         // V7 3rd inv: F5(77), G5(79), B5(83), D6(86)
-        final v7ThirdNotes = [77, 79, 83, 86];
+        final v7ThirdNotes = [77, 79, 83, 86].toMidiNotes();
         final imaj7Third = ChordBuilder.getChord(
           MusicalNote.c,
           ChordType.major7,
@@ -135,7 +136,7 @@ void main() {
         final imaj7Notes = imaj7Third.getMidiNotes(optimalOctave);
 
         // Common tone G5(79) should be preserved
-        expect(imaj7Notes.contains(79), isTrue);
+        expect(imaj7Notes.any((n) => n.value == 79), isTrue);
       });
 
       test("works across all 12 keys for root position V7→Imaj7", () {
@@ -187,7 +188,7 @@ void main() {
 
       test("handles triads with proximity search", () {
         // C major triad V 1st inv → I root (the triad case from dominant cadence)
-        final vFirstNotes = [71, 74, 79]; // B4, D5, G5
+        final vFirstNotes = [71, 74, 79].toMidiNotes(); // B4, D5, G5
         final iRoot = ChordBuilder.getChord(
           MusicalNote.c,
           ChordType.major,
@@ -205,11 +206,11 @@ void main() {
         final iNotes = iRoot.getMidiNotes(optimalOctave);
 
         // Verify smooth voice leading: G held, B→C (+1), D→E (+2)
-        expect(iNotes.contains(79), isTrue); // G5 common tone held
+        expect(iNotes.any((n) => n.value == 79), isTrue); // G5 common tone held
       });
 
       test("searchRange parameter controls octave search span", () {
-        final vNotes = [67, 71, 74, 77];
+        final vNotes = [67, 71, 74, 77].toMidiNotes();
         final imaj7 = ChordBuilder.getChord(
           MusicalNote.c,
           ChordType.major7,
@@ -243,8 +244,8 @@ void main() {
 
     group("validateVoiceLeadingInvariants", () {
       test("validates smooth V7→Imaj7 root position voice leading", () {
-        final v7Notes = [67, 71, 74, 77]; // G4, B4, D5, F5
-        final imaj7Notes = [60, 64, 67, 71]; // C4, E4, G4, B4
+        final v7Notes = [67, 71, 74, 77].toMidiNotes(); // G4, B4, D5, F5
+        final imaj7Notes = [60, 64, 67, 71].toMidiNotes(); // C4, E4, G4, B4
 
         final result = VoiceLeadingUtils.validateVoiceLeadingInvariants(
           v7Notes,
@@ -258,9 +259,9 @@ void main() {
       });
 
       test("detects common tone violations", () {
-        final v7Notes = [67, 71, 74, 77]; // G4, B4, D5, F5
+        final v7Notes = [67, 71, 74, 77].toMidiNotes(); // G4, B4, D5, F5
         // Imaj7 with common tones moved up an octave (bad voice leading!)
-        final imaj7BadNotes = [60, 64, 79, 83]; // C4, E4, G5, B5
+        final imaj7BadNotes = [60, 64, 79, 83].toMidiNotes(); // C4, E4, G5, B5
 
         final result = VoiceLeadingUtils.validateVoiceLeadingInvariants(
           v7Notes,
@@ -272,9 +273,13 @@ void main() {
       });
 
       test("detects stepwise motion violations", () {
-        final sourceNotes = [60, 64, 67]; // C4, E4, G4
+        final sourceNotes = [60, 64, 67].toMidiNotes(); // C4, E4, G4
         // Target with large jumps
-        final targetNotes = [72, 76, 91]; // C5, E5, G6 (G jumped 24 semitones!)
+        final targetNotes = [
+          72,
+          76,
+          91,
+        ].toMidiNotes(); // C5, E5, G6 (G jumped 24 semitones!)
 
         final result = VoiceLeadingUtils.validateVoiceLeadingInvariants(
           sourceNotes,
@@ -297,11 +302,16 @@ void main() {
 
         // Let's use the inversions that the dominant cadence strategy uses
         // V7 root → Imaj7 root with same octave
-        final v7Notes = [67, 71, 74, 77]; // G4, B4, D5, F5
+        final v7Notes = [67, 71, 74, 77].toMidiNotes(); // G4, B4, D5, F5
 
         // This test is tricky because getMidiNotes has auto-bump logic
         // Let's test with manually constructed notes that represent ideal voice leading
-        final imaj7IdealNotes = [60, 64, 67, 71]; // C4, E4, G4, B4
+        final imaj7IdealNotes = [
+          60,
+          64,
+          67,
+          71,
+        ].toMidiNotes(); // C4, E4, G4, B4
 
         // Common tones G4 and B4 are held
         // F5(77) → E4(64) = 13 semitones down - this violates stepwise!
@@ -321,8 +331,12 @@ void main() {
       });
 
       test("maxStepSize parameter controls strictness", () {
-        final sourceNotes = [60, 64, 67]; // C4, E4, G4
-        final targetNotes = [62, 65, 69]; // D4, F4, A4 (all moved 2 semitones)
+        final sourceNotes = [60, 64, 67].toMidiNotes(); // C4, E4, G4
+        final targetNotes = [
+          62,
+          65,
+          69,
+        ].toMidiNotes(); // D4, F4, A4 (all moved 2 semitones)
 
         // Should pass with maxStepSize=2
         final result2 = VoiceLeadingUtils.validateVoiceLeadingInvariants(
@@ -341,11 +355,10 @@ void main() {
       });
 
       test("handles empty chord lists gracefully", () {
-        final result = VoiceLeadingUtils.validateVoiceLeadingInvariants([], [
-          60,
-          64,
-          67,
-        ]);
+        final result = VoiceLeadingUtils.validateVoiceLeadingInvariants(
+          [],
+          [60, 64, 67].toMidiNotes(),
+        );
         expect(result.isValid, isTrue); // No violations if no source notes
       });
     });
@@ -356,7 +369,7 @@ void main() {
 
     group("getVoiceLeadingDistance", () {
       test("returns 0 for identical chords", () {
-        final notes = [60, 64, 67];
+        final notes = [60, 64, 67].toMidiNotes();
         final distance = VoiceLeadingUtils.getVoiceLeadingDistance(
           notes,
           notes,
@@ -365,8 +378,13 @@ void main() {
       });
 
       test("calculates distance for chords with common tones held", () {
-        final v7Notes = [67, 71, 74, 77]; // G4, B4, D5, F5
-        final imaj7Notes = [67, 71, 72, 76]; // G4, B4, C5, E5 (G and B held)
+        final v7Notes = [67, 71, 74, 77].toMidiNotes(); // G4, B4, D5, F5
+        final imaj7Notes = [
+          67,
+          71,
+          72,
+          76,
+        ].toMidiNotes(); // G4, B4, C5, E5 (G and B held)
 
         final distance = VoiceLeadingUtils.getVoiceLeadingDistance(
           v7Notes,
@@ -379,8 +397,8 @@ void main() {
       });
 
       test("calculates distance for triads with stepwise motion", () {
-        final vNotes = [71, 74, 79]; // B4, D5, G5 (V 1st inv)
-        final iNotes = [72, 76, 79]; // C5, E5, G5 (I root)
+        final vNotes = [71, 74, 79].toMidiNotes(); // B4, D5, G5 (V 1st inv)
+        final iNotes = [72, 76, 79].toMidiNotes(); // C5, E5, G5 (I root)
 
         final distance = VoiceLeadingUtils.getVoiceLeadingDistance(
           vNotes,
@@ -393,8 +411,8 @@ void main() {
       });
 
       test("handles large register jumps", () {
-        final lowNotes = [48, 52, 55]; // C3, E3, G3
-        final highNotes = [72, 76, 79]; // C5, E5, G5
+        final lowNotes = [48, 52, 55].toMidiNotes(); // C3, E3, G3
+        final highNotes = [72, 76, 79].toMidiNotes(); // C5, E5, G5
 
         final distance = VoiceLeadingUtils.getVoiceLeadingDistance(
           lowNotes,
@@ -407,25 +425,23 @@ void main() {
       });
 
       test("returns 0 for empty source notes", () {
-        final distance = VoiceLeadingUtils.getVoiceLeadingDistance([], [
-          60,
-          64,
-          67,
-        ]);
+        final distance = VoiceLeadingUtils.getVoiceLeadingDistance(
+          [],
+          [60, 64, 67].toMidiNotes(),
+        );
         expect(distance, equals(0));
       });
 
       test("returns 0 for empty target notes", () {
-        final distance = VoiceLeadingUtils.getVoiceLeadingDistance([
-          60,
-          64,
-          67,
-        ], []);
+        final distance = VoiceLeadingUtils.getVoiceLeadingDistance(
+          [60, 64, 67].toMidiNotes(),
+          [],
+        );
         expect(distance, equals(0));
       });
 
       test("compares different octave placements", () {
-        final sourceNotes = [67, 71, 74, 77]; // V7 at octave 4
+        final sourceNotes = [67, 71, 74, 77].toMidiNotes(); // V7 at octave 4
 
         final imaj7 = ChordBuilder.getChord(
           MusicalNote.c,
