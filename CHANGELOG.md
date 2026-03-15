@@ -76,9 +76,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Code Quality**: Comprehensive refactoring with consistent theming, improved error handling, and better separation of concerns
 - **User Interface**: Enhanced visual consistency across all pages with semantic color usage and improved dark mode support
 
-[Unreleased]: https://github.com/PianoFitness/app/compare/v0.4.0...HEAD
-[0.4.0]: https://github.com/PianoFitness/app/compare/v0.3.0...v0.4.0
-
 ## [0.3.0] - 2025-08-25
 
 ### Added
@@ -116,10 +113,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Build System**: Updated macOS deployment target to 10.15 and iOS to 13.0
 - **Dependencies**: Added audioplayers and url_launcher for expanded functionality
 - **Code Documentation**: Comprehensive documentation updates and development guidelines
-
-[0.3.0]: https://github.com/PianoFitness/app/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/PianoFitness/app/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/PianoFitness/app/releases/tag/v0.1.0
 
 ## [0.2.0] - 2025-08-17
 
@@ -170,3 +163,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Scale, chord, and arpeggio practice modes
 - Piano keyboard visualization with note highlighting
 - Practice progress tracking and completion feedback
+
+## Release Links
+
+[Unreleased]: https://github.com/PianoFitness/app/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/PianoFitness/app/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/PianoFitness/app/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/PianoFitness/app/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/PianoFitness/app/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/PianoFitness/app/releases/tag/v0.1.0
