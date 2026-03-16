@@ -54,13 +54,13 @@ Free to download.
 ## 🆕 What's New in This Version (0.5.0)
 
 ```text
-Dominant Cadence Practice (V→I)
+Dominant Cadence Practice (V to I)
 
-The V→I movement is one of the most common patterns in tonal music — that familiar pull from tension to rest. Piano Fitness now helps you feel how it works across every inversion and all 12 keys.
+The V to I movement is one of the most common patterns in tonal music — that familiar pull from tension to rest. Piano Fitness now helps you feel how it works across every inversion and all 12 keys.
 
 As you practice, notice the voice movement: one note is shared between the two chords and stays put, one steps up by a half-step, one moves by a whole step. These aren't arbitrary rules — they're patterns that musicians across many traditions have discovered and returned to because they flow naturally under the hands and to the ear.
 
-Practice triads or add seventh chords (V7→Imaj7). Three triad inversion pairs (six steps) cycle through every voice arrangement; seventh-chord mode adds a fourth pair for eight steps total, covering root position through third inversion. Use Circle of Fifths auto-progression to work through all 12 keys in sequence.
+Practice triads or add seventh chords (V7 to Imaj7). Three triad inversion pairs (six steps) cycle through every voice arrangement; seventh-chord mode adds a fourth pair for eight steps total, covering root position through third inversion. Use Circle of Fifths auto-progression to work through all 12 keys in sequence.
 ```
 
 ## 🆕 What's New in Version 0.4.0
