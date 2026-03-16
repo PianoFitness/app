@@ -1,3 +1,4 @@
+import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/services/music_theory/chord_builder.dart";
 import "package:piano_fitness/domain/services/music_theory/chord_definitions.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
@@ -69,7 +70,7 @@ class ChordByType {
     final midiSequence = <int>[];
 
     for (final chord in chords) {
-      midiSequence.addAll(chord.getMidiNotes(startOctave));
+      midiSequence.addAll(chord.getMidiNotes(startOctave).values);
     }
 
     return midiSequence;
@@ -79,7 +80,7 @@ class ChordByType {
   List<int> getMidiSequenceFrom(List<ChordInfo> chords, int startOctave) {
     final midiSequence = <int>[];
     for (final chord in chords) {
-      midiSequence.addAll(chord.getMidiNotes(startOctave));
+      midiSequence.addAll(chord.getMidiNotes(startOctave).values);
     }
     return midiSequence;
   }

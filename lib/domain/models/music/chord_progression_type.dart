@@ -1,5 +1,6 @@
 import "package:piano_fitness/domain/constants/musical_constants.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
@@ -121,16 +122,16 @@ class IntervalBasedChordInfo implements ChordInfo {
   final List<int> midiNotes;
 
   @override
-  List<int> getMidiNotes(int octave) {
+  List<MidiNote> getMidiNotes(int octave) {
     // Adjust the pre-calculated MIDI notes to the desired octave
     final octaveOffset =
         (octave - MusicalConstants.baseOctave) *
         MusicalConstants.semitonesPerOctave; // Our base is the base octave
-    return midiNotes.map((note) => note + octaveOffset).toList();
+    return midiNotes.map((note) => MidiNote(note + octaveOffset)).toList();
   }
 
   @override
-  List<int> getMidiNotesForHand(int octave, HandSelection hand) {
+  List<MidiNote> getMidiNotesForHand(int octave, HandSelection hand) {
     final allNotes = getMidiNotes(octave);
 
     switch (hand) {
@@ -146,14 +147,11 @@ class IntervalBasedChordInfo implements ChordInfo {
         // interleave [L1,R1,L2,R2,...] for sequential note-by-note practice
         if (allNotes.isEmpty) return [];
 
-        final result = <int>[];
+        final result = <MidiNote>[];
         // Left hand: all notes one octave lower
         final octaveDown = MusicalConstants.semitonesPerOctave;
         result.addAll(
-          allNotes
-              .map((note) => note - octaveDown)
-              .where((note) => note >= 0) // Guard against negative MIDI notes
-              .toList(),
+          allNotes.map((note) => note.transpose(-octaveDown)).toList(),
         );
         // Right hand: all notes at the specified octave
         result.addAll(allNotes);
@@ -164,10 +162,7 @@ class IntervalBasedChordInfo implements ChordInfo {
         // practices the complete musical structure
         if (allNotes.isEmpty) return [];
         final octaveDown = MusicalConstants.semitonesPerOctave;
-        return allNotes
-            .map((note) => note - octaveDown)
-            .where((note) => note >= 0) // Guard against negative MIDI notes
-            .toList();
+        return allNotes.map((note) => note.transpose(-octaveDown)).toList();
       case HandSelection.right:
         // Right hand plays full triad at specified octave
         // This matches the scales/arpeggios pattern for pedagogical consistency

@@ -1,6 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;
@@ -21,12 +22,12 @@ void main() {
       // Check I chord (C major: C-E-G at octave 4 = MIDI 60,64,67)
       final iChord = chords[0];
       final iMidiNotes = iChord.getMidiNotes(4);
-      expect(iMidiNotes, equals([60, 64, 67])); // C, E, G
+      expect(iMidiNotes.values, equals([60, 64, 67])); // C, E, G
 
       // Check V chord (G major: G-B-D at octave 4 = MIDI 67,71,74)
       final vChord = chords[1];
       final vMidiNotes = vChord.getMidiNotes(4);
-      expect(vMidiNotes, equals([67, 71, 74])); // G, B, D
+      expect(vMidiNotes.values, equals([67, 71, 74])); // G, B, D
     });
 
     test("should generate correct I-V progression in different keys", () {
@@ -38,8 +39,8 @@ void main() {
       final iChordInD = chordsInD[0].getMidiNotes(4);
       final vChordInD = chordsInD[1].getMidiNotes(4);
 
-      expect(iChordInD, equals([62, 66, 69])); // D, F#, A
-      expect(vChordInD, equals([69, 73, 76])); // A, C#, E
+      expect(iChordInD.values, equals([62, 66, 69])); // D, F#, A
+      expect(vChordInD.values, equals([69, 73, 76])); // A, C#, E
     });
 
     test("should support chromatic progressions with flat seven", () {
@@ -56,15 +57,18 @@ void main() {
 
       // Check I chord (C major)
       final iChord = chords[0];
-      expect(iChord.getMidiNotes(4), equals([60, 64, 67])); // C, E, G
+      expect(iChord.getMidiNotes(4).values, equals([60, 64, 67])); // C, E, G
 
       // Check ♭VII chord (Bb major: Bb-D-F = MIDI 70,74,77)
       final flatSevenChord = chords[1];
-      expect(flatSevenChord.getMidiNotes(4), equals([70, 74, 77])); // Bb, D, F
+      expect(
+        flatSevenChord.getMidiNotes(4).values,
+        equals([70, 74, 77]),
+      ); // Bb, D, F
 
       // Check IV chord (F major: F-A-C = MIDI 65,69,72)
       final ivChord = chords[2];
-      expect(ivChord.getMidiNotes(4), equals([65, 69, 72])); // F, A, C
+      expect(ivChord.getMidiNotes(4).values, equals([65, 69, 72])); // F, A, C
     });
 
     test("should provide progressions organized by difficulty", () {
@@ -105,11 +109,11 @@ void main() {
 
       // Test octave 3
       final iChordOctave3 = chords[0].getMidiNotes(3);
-      expect(iChordOctave3, equals([48, 52, 55])); // C3, E3, G3
+      expect(iChordOctave3.values, equals([48, 52, 55])); // C3, E3, G3
 
       // Test octave 5
       final iChordOctave5 = chords[0].getMidiNotes(5);
-      expect(iChordOctave5, equals([72, 76, 79])); // C5, E5, G5
+      expect(iChordOctave5.values, equals([72, 76, 79])); // C5, E5, G5
     });
   });
 
@@ -187,12 +191,12 @@ void main() {
 
         // I chord left hand (C major): C3, E3, G3 (48, 52, 55)
         expect(
-          chords[0].getMidiNotesForHand(4, HandSelection.left),
+          chords[0].getMidiNotesForHand(4, HandSelection.left).values,
           equals([48, 52, 55]),
         );
         // V chord left hand (G major): G3, B3, D4 (55, 59, 62)
         expect(
-          chords[1].getMidiNotesForHand(4, HandSelection.left),
+          chords[1].getMidiNotesForHand(4, HandSelection.left).values,
           equals([55, 59, 62]),
         );
       });
@@ -208,14 +212,14 @@ void main() {
           4,
           HandSelection.right,
         );
-        expect(iRightHand, equals([60, 64, 67]));
+        expect(iRightHand.values, equals([60, 64, 67]));
 
         // V chord right hand: G4, B4, D5 (67, 71, 74)
         final vRightHand = chords[1].getMidiNotesForHand(
           4,
           HandSelection.right,
         );
-        expect(vRightHand, equals([67, 71, 74]));
+        expect(vRightHand.values, equals([67, 71, 74]));
       });
 
       test("should handle both hands for progression chords", () {
@@ -226,11 +230,11 @@ void main() {
 
         // I chord both hands: C3,E3,G3,C4,E4,G4 (48, 52, 55, 60, 64, 67)
         final iBothHands = chords[0].getMidiNotesForHand(4, HandSelection.both);
-        expect(iBothHands, equals([48, 52, 55, 60, 64, 67]));
+        expect(iBothHands.values, equals([48, 52, 55, 60, 64, 67]));
 
         // V chord both hands: G3,B3,D4,G4,B4,D5 (55, 59, 62, 67, 71, 74)
         final vBothHands = chords[1].getMidiNotesForHand(4, HandSelection.both);
-        expect(vBothHands, equals([55, 59, 62, 67, 71, 74]));
+        expect(vBothHands.values, equals([55, 59, 62, 67, 71, 74]));
       });
 
       test("should handle all hand selections for I-vi-IV-V progression", () {
@@ -258,9 +262,9 @@ void main() {
           // Verify both hands structure
           final regularMidi = chord.getMidiNotes(4);
           final expected = <int>[];
-          expected.addAll(regularMidi.map((note) => note - 12));
-          expected.addAll(regularMidi);
-          expect(bothNotes, equals(expected));
+          expected.addAll(regularMidi.map((note) => note.transpose(-12).value));
+          expected.addAll(regularMidi.values);
+          expect(bothNotes.values, equals(expected));
         }
       });
 
@@ -281,9 +285,11 @@ void main() {
         expect(flatVIIBothHands.length, equals(flatVIIRegular.length * 2));
 
         final expected = <int>[];
-        expected.addAll(flatVIIRegular.map((note) => note - 12));
-        expected.addAll(flatVIIRegular);
-        expect(flatVIIBothHands, equals(expected));
+        expected.addAll(
+          flatVIIRegular.map((note) => note.transpose(-12).value),
+        );
+        expected.addAll(flatVIIRegular.values);
+        expect(flatVIIBothHands.values, equals(expected));
       });
     });
 

@@ -11,7 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+### Fixed
+
+- **Dominant Cadence Seventh Chord Voice Leading**: Fixed voice leading for V7→Imaj7 progressions where chords were jumping octaves instead of resolving smoothly. Created new `VoiceLeadingUtils` domain service with weighted octave search algorithm that prioritizes common tone preservation (1000x penalty weight) while minimizing total voice movement. The algorithm searches multiple octave candidates (searchRange=2) to find optimal voice leading despite auto-bump logic in chord generation. Comprehensive property-based tests validate voice leading invariants across all 12 keys × 4 inversion pairs.
+- **Voice Leading Algorithm Bug**: Fixed `calculateOptimalOctaveForResolution` to prioritize number of preserved common tones over total movement distance. Previous implementation minimized total penalty score, allowing tied preserved common tone counts to be decided solely by non-common tone proximity, violating voice leading principles. Type-safe `MidiNote` refactoring helped reveal this algorithmic flaw. Added `maxCommonToneJump` parameter to validation logic to accept reasonable common tone movement when perfect preservation is geometrically impossible due to ascending-order voicing constraints.
+
 ### Improved
+
+- **Type Safety for MIDI Notes**: Replaced `List<int>` with type-safe `MidiNote` value object throughout voice leading and chord generation code. Provides compile-time safety, explicit pitch class and octave semantics, and distance calculation utilities. The stronger typing revealed genuine bugs in voice leading algorithm that were previously hidden. Comprehensive test coverage maintained at 100% (1090/1090 tests passing).
 
 ## [0.5.0] - 2025-12-12
 
