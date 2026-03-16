@@ -235,8 +235,7 @@ class VoiceLeadingUtils {
     if (commonPcs.isNotEmpty &&
         preservedCommonTones == 0 &&
         commonToneViolations.isNotEmpty) {
-      // Common tones moved excessively - this is a violation
-      // (if commonToneViolations is empty, movement is acceptable)
+      // Intentional no-op: violations already recorded in commonToneViolations above
     }
 
     // Invariant 2: Non-common tones must move by ≤ maxStepSize semitones
