@@ -27,8 +27,9 @@ void _checkVoiceLeading(
   List<int> vNotes,
   List<int> iNotes, {
   required String reason,
-  int maxStepSize = 2,
-  int maxCommonToneMovement = 0,
+  int maxStepSize =
+      2, // whole step covers typical triad motions (leading tone +1, supertonic +2)
+  int maxCommonToneMovement = 0, // prefer common tones to be stationary
 }) {
   final vPcs = vNotes.map((n) => n % 12).toSet();
   final iPcs = iNotes.map((n) => n % 12).toSet();

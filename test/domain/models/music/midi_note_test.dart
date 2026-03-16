@@ -20,12 +20,12 @@ void main() {
         expect(note.value, equals(127));
       });
 
-      test("throws assertion error for negative value", () {
-        expect(() => MidiNote(-1), throwsAssertionError);
+      test("throws ArgumentError for negative value", () {
+        expect(() => MidiNote(-1), throwsArgumentError);
       });
 
-      test("throws assertion error for value above 127", () {
-        expect(() => MidiNote(128), throwsAssertionError);
+      test("throws ArgumentError for value above 127", () {
+        expect(() => MidiNote(128), throwsArgumentError);
       });
     });
 
@@ -447,7 +447,7 @@ void main() {
 
     test("toMidiNotes throws for invalid MIDI values", () {
       final invalidValues = [60, 128];
-      expect(() => invalidValues.toMidiNotes(), throwsAssertionError);
+      expect(() => invalidValues.toMidiNotes(), throwsArgumentError);
     });
   });
 

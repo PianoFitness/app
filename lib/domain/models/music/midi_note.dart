@@ -53,11 +53,15 @@ class MidiNote {
   /// The [value] must be in the valid MIDI range (0-127).
   ///
   /// Throws [ArgumentError] if the value is outside the valid range.
-  const MidiNote(this.value)
-    : assert(
-        value >= 0 && value <= 127,
+  MidiNote(this.value) {
+    if (value < 0 || value > 127) {
+      throw ArgumentError.value(
+        value,
+        "value",
         "MIDI note value must be between 0 and 127",
       );
+    }
+  }
 
   /// Creates a MIDI note from a musical note and octave.
   ///
@@ -206,43 +210,43 @@ class MidiNote {
   /// Convenient factory constructors for common notes (middle octave, octave 4)
 
   /// C4 (middle C) - MIDI 60
-  static const c4 = MidiNote(60);
+  static final c4 = MidiNote(60);
 
   /// C#4 - MIDI 61
-  static const cSharp4 = MidiNote(61);
+  static final cSharp4 = MidiNote(61);
 
   /// D4 - MIDI 62
-  static const d4 = MidiNote(62);
+  static final d4 = MidiNote(62);
 
   /// D#4 - MIDI 63
-  static const dSharp4 = MidiNote(63);
+  static final dSharp4 = MidiNote(63);
 
   /// E4 - MIDI 64
-  static const e4 = MidiNote(64);
+  static final e4 = MidiNote(64);
 
   /// F4 - MIDI 65
-  static const f4 = MidiNote(65);
+  static final f4 = MidiNote(65);
 
   /// F#4 - MIDI 66
-  static const fSharp4 = MidiNote(66);
+  static final fSharp4 = MidiNote(66);
 
   /// G4 - MIDI 67
-  static const g4 = MidiNote(67);
+  static final g4 = MidiNote(67);
 
   /// G#4 - MIDI 68
-  static const gSharp4 = MidiNote(68);
+  static final gSharp4 = MidiNote(68);
 
   /// A4 (concert pitch, 440 Hz) - MIDI 69
-  static const a4 = MidiNote(69);
+  static final a4 = MidiNote(69);
 
   /// A#4 - MIDI 70
-  static const aSharp4 = MidiNote(70);
+  static final aSharp4 = MidiNote(70);
 
   /// B4 - MIDI 71
-  static const b4 = MidiNote(71);
+  static final b4 = MidiNote(71);
 }
 
-/// Extension on List<MidiNote> to provide collection-level operations.
+/// Extension on `List<MidiNote>` to provide collection-level operations.
 extension MidiNoteList on List<MidiNote> {
   /// Extracts the raw MIDI values from a list of MidiNotes.
   ///
@@ -292,7 +296,7 @@ extension MidiNoteList on List<MidiNote> {
   Set<int> get pitchClasses => map((note) => note.pitchClass).toSet();
 }
 
-/// Extension on List<int> to convert raw MIDI numbers to MidiNote objects.
+/// Extension on `List<int>` to convert raw MIDI numbers to MidiNote objects.
 extension MidiNumberList on List<int> {
   /// Converts a list of raw MIDI numbers to MidiNote objects.
   ///

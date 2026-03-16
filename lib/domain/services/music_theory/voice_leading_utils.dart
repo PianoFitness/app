@@ -230,14 +230,13 @@ class VoiceLeadingUtils {
     }
 
     // Check that at least one common tone is preserved (if any exist)
-    if (commonPcs.isNotEmpty && preservedCommonTones == 0) {
-      // All common tones moved - check if total movement is reasonable
-      // If movement for each common tone is small (≤ octave), it's acceptable
-      // This handles cases where ascending-order prevents perfect preservation
-      if (commonToneViolations.isEmpty) {
-        // No excessive jumps, so movement is acceptable even if not perfect
-        // This is realistic given ascending-order voicing constraints
-      }
+    // If all common tones moved but each moved by small amounts (≤ octave),
+    // that's acceptable - handles cases where ascending-order prevents perfect preservation
+    if (commonPcs.isNotEmpty &&
+        preservedCommonTones == 0 &&
+        commonToneViolations.isNotEmpty) {
+      // Common tones moved excessively - this is a violation
+      // (if commonToneViolations is empty, movement is acceptable)
     }
 
     // Invariant 2: Non-common tones must move by ≤ maxStepSize semitones
