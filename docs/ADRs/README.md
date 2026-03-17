@@ -66,3 +66,7 @@ ADRs are numbered sequentially (0001-0024, etc.). When creating new ADRs:
 - [ADR-0024: Drift for Database Persistence](0024-drift-database-persistence.md) - 2026-03-02
 - [ADR-0025: Exercise History Data Model](0025-exercise-history-data-model.md) - 2026-03-02
 - [ADR-0026: Unified Exercise Configuration Model](0026-unified-exercise-configuration-model.md) - 2026-03-02
+
+### Refactoring
+
+- [ADR-0027: Migrate Feature Modules into Presentation Layer](0027-migrate-features-to-presentation-layer.md) - 2026-03-16

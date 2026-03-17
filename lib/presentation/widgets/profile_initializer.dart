@@ -1,9 +1,9 @@
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 
-import "../../domain/repositories/user_profile_repository.dart";
-import "../../features/user_profile/user_profile_page.dart";
-import "../widgets/main_navigation.dart";
+import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
+import "package:piano_fitness/presentation/features/user_profile/user_profile_page.dart";
+import "package:piano_fitness/presentation/widgets/main_navigation.dart";
 
 /// Widget that handles profile initialization on app startup.
 ///

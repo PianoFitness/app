@@ -40,11 +40,11 @@ dart fix --apply    # auto-fix issues
 flutter test                           # all tests
 flutter test test/domain/              # domain layer tests  
 flutter test test/application/         # application layer tests
-flutter test test/features/play/       # play feature tests
-flutter test test/features/practice/   # practice feature tests
-flutter test test/domain/services/music_theory/scales_test.dart  # specific service test
-flutter test test/features/play/play_page_test.dart               # specific page test
-flutter test test/features/practice/practice_page_view_model_test.dart # specific ViewModel test
+flutter test test/presentation/features/play/       # play feature tests
+flutter test test/presentation/features/practice/   # practice feature tests
+flutter test test/domain/services/music_theory/scales_test.dart                              # specific service test
+flutter test test/presentation/features/play/play_page_test.dart                             # specific page test
+flutter test test/presentation/features/practice/practice_page_view_model_test.dart          # specific ViewModel test
 flutter test test/widget_integration_test.dart # integration tests
 flutter test --coverage               # with coverage
 
@@ -100,7 +100,8 @@ We implement a **pragmatic hybrid** that balances architectural purity with deve
 
 ```text
 ┌─────────────────────────────────────────────────────┐
-│  Presentation Layer (features/)                     │
+│  Presentation Layer (presentation/)                 │
+│  ├─ features/: MVVM feature modules                │
 │  ├─ Pages (Views): Flutter UI widgets              │
 │  ├─ ViewModels: Feature logic + ChangeNotifier     │
 │  └─ Feature Widgets: Reusable UI components        │
@@ -152,7 +153,7 @@ We implement a **pragmatic hybrid** that balances architectural purity with deve
 
 ```text
 ✅ Domain Layer (lib/domain/):
-   ❌ NO imports from: lib/application/, lib/presentation/, lib/features/
+   ❌ NO imports from: lib/application/, lib/presentation/
    ❌ NO imports of Flutter or infrastructure packages
       (package:flutter/*, UI widget libraries, databases, hardware drivers,
        network clients)
@@ -171,9 +172,9 @@ We implement a **pragmatic hybrid** that balances architectural purity with deve
 ✅ Application Layer (lib/application/):
    - lib/domain/* (domain only)
    - Infrastructure packages (flutter_midi_command, drift, etc.)
-   ❌ NO imports from: lib/presentation/, lib/features/
+   ❌ NO imports from: lib/presentation/
 
-✅ Presentation Layer (lib/presentation/, lib/features/):
+✅ Presentation Layer (lib/presentation/):
    - Can import from all layers (top-most layer)
 ```
 
@@ -209,14 +210,14 @@ git commit  # Pre-commit hook runs check
 
 - **Domain Layer** (`lib/domain/`) - Pure business logic, models, and services
 - **Application Layer** (`lib/application/`) - Service orchestration, repositories, state management
-- **Presentation Layer** (`lib/features/`) - UI, ViewModels, feature-specific components
+- **Presentation Layer** (`lib/presentation/`) - UI, ViewModels, feature-specific components; feature modules live in `lib/presentation/features/`
 
 Each feature follows the MVVM pattern:
 
-- **PlayPage** (`lib/features/play/`) - Main interface focused on piano interaction
-- **PracticePage** (`lib/features/practice/`) - Guided practice exercises with real-time feedback
-- **MidiSettingsPage** (`lib/features/midi_settings/`) - MIDI device configuration and connection management
-- **DeviceControllerPage** (`lib/features/device_controller/`) - Individual MIDI device testing and control
+- **PlayPage** (`lib/presentation/features/play/`) - Main interface focused on piano interaction
+- **PracticePage** (`lib/presentation/features/practice/`) - Guided practice exercises with real-time feedback
+- **MidiSettingsPage** (`lib/presentation/features/midi_settings/`) - MIDI device configuration and connection management
+- **DeviceControllerPage** (`lib/presentation/features/device_controller/`) - Individual MIDI device testing and control
 
 - **View** (Page): Pure UI layer, handles user interactions and displays data
 - **ViewModel**: Feature-specific business logic, manages state and coordinates between View and domain/application layers
@@ -416,19 +417,25 @@ Piano Fitness follows a **feature-based MVVM architecture** with a shared layer 
 ```text
 lib/
 ├── main.dart                       # App entry point and Provider configuration
-├── features/                       # Feature-based MVVM modules
-│   ├── device_controller/          # MIDI device testing and control
-│   │   ├── device_controller_page.dart      # UI layer (View)
-│   │   └── device_controller_view_model.dart # Business logic (ViewModel)
-│   ├── midi_settings/              # MIDI device configuration
-│   │   ├── midi_settings_page.dart          # UI layer (View)
-│   │   └── midi_settings_view_model.dart    # Business logic (ViewModel)
-│   ├── play/                       # Main piano interface
-│   │   ├── play_page.dart                   # UI layer (View)
-│   │   └── play_page_view_model.dart        # Business logic (ViewModel)
-│   └── practice/                   # Guided practice exercises
-│       ├── practice_page.dart               # UI layer (View)
-│       └── practice_page_view_model.dart    # Business logic (ViewModel)
+├── presentation/                   # Presentation Layer (UI & ViewModels)
+│   ├── features/                   # Feature-based MVVM modules
+│   │   ├── device_controller/      # MIDI device testing and control
+│   │   │   ├── device_controller_page.dart      # UI layer (View)
+│   │   │   └── device_controller_view_model.dart # Business logic (ViewModel)
+│   │   ├── midi_settings/          # MIDI device configuration
+│   │   │   ├── midi_settings_page.dart          # UI layer (View)
+│   │   │   └── midi_settings_view_model.dart    # Business logic (ViewModel)
+│   │   ├── play/                   # Main piano interface
+│   │   │   ├── play_page.dart                   # UI layer (View)
+│   │   │   └── play_page_view_model.dart        # Business logic (ViewModel)
+│   │   └── practice/               # Guided practice exercises
+│   │       ├── practice_page.dart               # UI layer (View)
+│   │       └── practice_page_view_model.dart    # Business logic (ViewModel)
+│   ├── widgets/                    # Reusable shared UI components
+│   │   ├── practice_progress_display.dart # Practice visualization
+│   │   └── practice_settings_panel.dart  # Practice configuration
+│   └── utils/                      # Presentation utilities
+│       └── piano_range_utils.dart  # Dynamic keyboard range calculation
 ├── domain/                         # Domain Layer (Pure Business Logic)
 │   ├── models/                     # Domain entities and value objects
 │   │   ├── music/                  # Musical concepts (chord types, progressions)
@@ -444,27 +451,19 @@ lib/
 │   └── constants/                  # Domain-level constants
 │       ├── musical_constants.dart  # Musical theory constants
 │       └── practice_constants.dart # Practice-related constants
-├── application/                    # Application Layer (Service Orchestration)
-│   ├── database/                   # Database layer (Drift)
-│   │   ├── app_database.dart       # Central database configuration
-│   │   └── app_database.g.dart     # Generated database code (drift_dev)
-│   ├── services/                   # Infrastructure integrations
-│   │   └── midi/                   # MIDI device management
-│   │       └── midi_connection_service.dart # Device lifecycle and connection
-│   ├── state/                      # Application-wide state management
-│   │   ├── midi_state.dart         # MIDI state (ChangeNotifier)
-│   │   └── practice_session.dart   # Practice session coordination
-│   └── utils/                      # Application utilities and adapters
-│       ├── piano_note_bridge.dart  # Adapter: MusicalNote/MIDI ↔ NotePosition (package:piano)
-│       └── virtual_piano_utils.dart # Virtual piano playback
-└── presentation/                   # Presentation Layer (UI & ViewModels)
-    ├── shared/                     # Shared presentation components
-    │   └── widgets/                # Reusable UI components
-    │       ├── midi_status_indicator.dart    # MIDI activity indicator
-    │       ├── practice_progress_display.dart # Practice visualization
-    │       └── practice_settings_panel.dart  # Practice configuration
-    └── utils/                      # Presentation utilities
-        └── piano_range_utils.dart  # Dynamic keyboard range calculation
+└── application/                    # Application Layer (Service Orchestration)
+    ├── database/                   # Database layer (Drift)
+    │   ├── app_database.dart       # Central database configuration
+    │   └── app_database.g.dart     # Generated database code (drift_dev)
+    ├── services/                   # Infrastructure integrations
+    │   └── midi/                   # MIDI device management
+    │       └── midi_connection_service.dart # Device lifecycle and connection
+    ├── state/                      # Application-wide state management
+    │   ├── midi_state.dart         # MIDI state (ChangeNotifier)
+    │   └── practice_session.dart   # Practice session coordination
+    └── utils/                      # Application utilities and adapters
+        ├── piano_note_bridge.dart  # Adapter: MusicalNote/MIDI ↔ NotePosition (package:piano)
+        └── virtual_piano_utils.dart # Virtual piano playback
 ```
 
 #### **File Purpose and Logic Placement Guide**
@@ -475,10 +474,10 @@ lib/
 - Routes to PlayPage as home screen  
 - Global ChangeNotifier providers (MidiState)
 
-**features/** - Feature-Based MVVM Modules
+**presentation/features/** - Feature-Based MVVM Modules
 Each feature follows the same MVVM pattern with clear separation:
 
-**features/play/** - Main Piano Interface
+**presentation/features/play/** - Main Piano Interface
 
 - **play_page.dart**: UI layer for piano interaction
   - Educational content, navigation to other features
@@ -488,7 +487,7 @@ Each feature follows the same MVVM pattern with clear separation:
   - MIDI data processing, virtual piano playback
   - Note conversion and piano range calculations
 
-**features/practice/** - Guided Practice Exercises  
+**presentation/features/practice/** - Guided Practice Exercises
 
 - **practice_page.dart**: UI layer for practice sessions
   - Practice settings panel, progress display, dynamic piano range
@@ -497,7 +496,7 @@ Each feature follows the same MVVM pattern with clear separation:
   - Practice session management, MIDI integration
   - Dynamic piano range calculation centered on exercises
 
-**features/midi_settings/** - MIDI Device Configuration
+**presentation/features/midi_settings/** - MIDI Device Configuration
 
 - **midi_settings_page.dart**: UI layer for MIDI setup
   - Device scanning, connection management, error handling
@@ -506,7 +505,7 @@ Each feature follows the same MVVM pattern with clear separation:
   - Device discovery, connection state management
   - MIDI channel selection and device communication
 
-**features/device_controller/** - MIDI Device Testing
+**presentation/features/device_controller/** - MIDI Device Testing
 
 - **device_controller_page.dart**: UI layer for device control
   - MIDI message monitoring, interactive controls
@@ -562,10 +561,9 @@ Coordinates between domain and infrastructure:
 
 UI components, ViewModels, and presentation logic:
 
-- **features/** - Feature modules with MVVM pattern
+- **features/** - Feature modules with MVVM pattern (`lib/presentation/features/`)
   - Each feature contains pages, ViewModels, and feature-specific widgets
-- **shared/widgets/** - Reusable UI components
-  - `midi_status_indicator.dart` - MIDI activity display
+- **widgets/** - Reusable shared UI components
   - `practice_progress_display.dart` - Practice visualization
   - `practice_settings_panel.dart` - Practice configuration
 - **utils/** - Presentation utilities
@@ -669,8 +667,8 @@ import "package:piano_fitness/domain/services/music_theory/scales.dart";
 import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
 
 // Page importing its ViewModel and presentation widgets
-import "package:piano_fitness/features/practice/practice_page_view_model.dart";
-import "package:piano_fitness/presentation/shared/widgets/practice_settings_panel.dart";
+import "package:piano_fitness/presentation/features/practice/practice_page_view_model.dart";
+import "package:piano_fitness/presentation/widgets/practice_settings_panel.dart";
 ```
 
 ### Testing Strategy
@@ -716,7 +714,7 @@ The codebase follows Flutter testing patterns with **mandatory test coverage req
 
 **Naming Convention**: For each source file, create a corresponding test file with `_test.dart` suffix:
 
-- `lib/features/play/play_page.dart` → `test/features/play/play_page_test.dart`
+- `lib/presentation/features/play/play_page.dart` → `test/presentation/features/play/play_page_test.dart`
 - `lib/domain/services/music_theory/scales.dart` → `test/domain/services/music_theory/scales_test.dart`
 - `lib/application/state/midi_state.dart` → `test/application/state/midi_state_test.dart`
 
@@ -725,8 +723,8 @@ The codebase follows Flutter testing patterns with **mandatory test coverage req
 ```bash
 flutter test test/domain/              # All domain layer tests
 flutter test test/application/         # All application layer tests
-flutter test test/features/play/       # Play feature tests
-flutter test test/features/practice/   # Practice feature tests
+flutter test test/presentation/features/play/       # Play feature tests
+flutter test test/presentation/features/practice/   # Practice feature tests
 ```
 
 **Test Categories and Coverage**:
@@ -765,15 +763,15 @@ flutter test test/features/practice/   # Practice feature tests
 
 ```bash
 # Development workflow - MVVM features
-flutter test test/features/practice/practice_page_view_model_test.dart  # ViewModel logic
-flutter test test/features/practice/practice_page_test.dart             # UI tests
-flutter test test/domain/services/music_theory/scales_test.dart        # Domain services
+flutter test test/presentation/features/practice/practice_page_view_model_test.dart  # ViewModel logic
+flutter test test/presentation/features/practice/practice_page_test.dart             # UI tests
+flutter test test/domain/services/music_theory/scales_test.dart                      # Domain services
 
 # Layer testing
 flutter test test/domain/              # All domain layer tests
 flutter test test/application/         # All application layer tests
-flutter test test/features/play/       # Play feature tests
-flutter test test/features/practice/   # Practice feature tests
+flutter test test/presentation/features/play/       # Play feature tests
+flutter test test/presentation/features/practice/   # Practice feature tests
 
 # Coverage verification
 flutter test --coverage              # Check coverage meets 80% requirement
@@ -824,8 +822,8 @@ keyWidth: dynamicKeyWidth.clamp(20.0, 60.0) // Reasonable limits
 - **Range**: C2 to C6 (exactly 49 keys spanning 4 octaves)
 - **Purpose**: Consistent layout for general piano interaction
 - **Implementation**:
-  - **ViewModel**: `lib/features/play/play_page_view_model.dart` - `getFixed49KeyRange()`
-  - **View**: `lib/features/play/play_page.dart` - Uses ViewModel for range calculation
+  - **ViewModel**: `lib/presentation/features/play/play_page_view_model.dart` - `getFixed49KeyRange()`
+  - **View**: `lib/presentation/features/play/play_page.dart` - Uses ViewModel for range calculation
 
 **PracticePage** - Dynamic Centering (MVVM):
 
@@ -838,8 +836,8 @@ keyWidth: dynamicKeyWidth.clamp(20.0, 60.0) // Reasonable limits
   5. Clamp to reasonable piano range (A0 to C8)
 - **Purpose**: Eliminates horizontal scrolling for all practice exercises
 - **Implementation**:
-  - **ViewModel**: `lib/features/practice/practice_page_view_model.dart` - `calculatePracticeRange()`
-  - **View**: `lib/features/practice/practice_page.dart` - Uses ViewModel for dynamic range
+  - **ViewModel**: `lib/presentation/features/practice/practice_page_view_model.dart` - `calculatePracticeRange()`
+  - **View**: `lib/presentation/features/practice/practice_page.dart` - Uses ViewModel for dynamic range
   - **Presentation Utility**: `lib/presentation/utils/piano_range_utils.dart` - Range calculation logic
 
 #### **Piano Range Calculation Logic**

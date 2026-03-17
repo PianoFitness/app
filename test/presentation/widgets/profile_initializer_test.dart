@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:mockito/mockito.dart";
 import "package:piano_fitness/domain/models/user_profile.dart";
-import "package:piano_fitness/features/user_profile/user_profile_page.dart";
+import "package:piano_fitness/presentation/features/user_profile/user_profile_page.dart";
 import "package:piano_fitness/presentation/widgets/main_navigation.dart";
 import "package:piano_fitness/presentation/widgets/profile_initializer.dart";
 

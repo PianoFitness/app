@@ -1,12 +1,12 @@
 import "package:flutter/material.dart";
 import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
-import "package:piano_fitness/features/midi_settings/midi_settings_page.dart";
-import "package:piano_fitness/features/notifications/notifications_page.dart";
-import "package:piano_fitness/features/play/play_page.dart";
-import "package:piano_fitness/features/practice/practice_hub_page.dart";
-import "package:piano_fitness/features/reference/reference_page.dart";
-import "package:piano_fitness/features/repertoire/repertoire_page.dart";
-import "package:piano_fitness/features/user_profile/user_profile_page.dart";
+import "package:piano_fitness/presentation/features/midi_settings/midi_settings_page.dart";
+import "package:piano_fitness/presentation/features/notifications/notifications_page.dart";
+import "package:piano_fitness/presentation/features/play/play_page.dart";
+import "package:piano_fitness/presentation/features/practice/practice_hub_page.dart";
+import "package:piano_fitness/presentation/features/reference/reference_page.dart";
+import "package:piano_fitness/presentation/features/repertoire/repertoire_page.dart";
+import "package:piano_fitness/presentation/features/user_profile/user_profile_page.dart";
 import "package:provider/provider.dart";
 
 /// Main navigation wrapper that provides bottom navigation between core app sections.
