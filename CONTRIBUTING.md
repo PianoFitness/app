@@ -131,29 +131,29 @@ Thank you for your interest in contributing to Piano Fitness! This document prov
 ```text
 lib/
 ├── main.dart                     # App entry point and Provider configuration
-├── features/                     # Feature-based MVVM modules
-│   ├── device_controller/        # MIDI device testing and control
-│   ├── midi_settings/            # MIDI device configuration
-│   ├── notifications/            # Practice reminders and notifications
-│   │   └── widgets/              # Notification-specific widgets
-│   ├── play/                     # Main piano interface
-│   ├── practice/                 # Guided practice exercises
-│   ├── reference/                # Scale and chord reference
-│   │   └── widgets/              # Reference-specific widgets
-│   └── repertoire/               # Repertoire practice with timer
-│       └── widgets/              # Repertoire-specific widgets
-├── shared/                       # Common code shared across features
+├── presentation/                 # Presentation layer (UI, ViewModels, feature modules)
+│   ├── features/                 # Feature-based MVVM modules
+│   │   ├── device_controller/    # MIDI device testing and control
+│   │   ├── midi_settings/        # MIDI device configuration
+│   │   ├── notifications/        # Practice reminders and notifications
+│   │   │   └── widgets/          # Notification-specific widgets
+│   │   ├── play/                 # Main piano interface
+│   │   ├── practice/             # Guided practice exercises
+│   │   ├── reference/            # Scale and chord reference
+│   │   ├── repertoire/           # Repertoire practice with timer
+│   │   │   └── widgets/          # Repertoire-specific widgets
+│   │   └── user_profile/         # User profile management
+│   │       ├── utils/            # Profile utilities
+│   │       └── widgets/          # Profile-specific widgets
 │   ├── accessibility/            # Accessibility framework
 │   │   ├── config/               # Accessibility configuration
-│   │   ├── mixins/               # Accessibility mixins
 │   │   ├── services/             # Accessibility services
-│   │   └── widgets/              # Accessible widget components
-│   ├── constants/                # App-wide constants
-│   ├── models/                   # Data models and business entities
-│   ├── services/                 # Business logic and external integrations
+│   ├── constants/                # Shared UI constants
 │   ├── theme/                    # Theming and visual design system
-│   ├── utils/                    # Music theory and helper functions
-│   └── widgets/                  # Reusable UI components
+│   ├── utils/                    # Shared presentation utilities
+│   └── widgets/                  # Reusable shared UI components
+├── application/                  # Application layer (services, repositories impl, state)
+├── domain/                       # Domain layer (models, interfaces, business logic)
 └── scripts/                      # Development and build scripts
 test/                             # Test files (mirrors lib/ structure)
 docs/                             # Project documentation
@@ -185,10 +185,11 @@ This hybrid approach gives us the benefits of both patterns:
 
 ```text
 ┌─────────────────────────────────────────────────────┐
-│  Presentation Layer (features/)                     │
+│  Presentation Layer (presentation/)                 │
 │  - Pages (Views): UI components                     │
 │  - ViewModels: Feature-specific business logic      │
 │  - Widgets: Reusable UI components                  │
+│  - Features: MVVM modules (presentation/features/)  │
 └────────────┬────────────────────────────────────────┘
              │ depends on ↓
 ┌────────────▼────────────────────────────────────────┐
@@ -350,32 +351,31 @@ test/
 │       ├── midi/                 # MIDI connection and management
 │       └── notifications/        # Notification services
 ├── presentation/                 # Presentation layer tests
-│   ├── shared/                   # Shared presentation code tests
-│   │   └── widgets/              # Reusable widget tests
+│   ├── features/                 # Feature-based MVVM tests
+│   │   ├── device_controller/
+│   │   │   ├── device_controller_page_test.dart          # UI tests
+│   │   │   └── device_controller_view_model_test.dart    # Business logic tests
+│   │   ├── midi_settings/
+│   │   │   ├── midi_settings_page_test.dart              # UI tests
+│   │   │   └── midi_settings_view_model_test.dart        # Business logic tests
+│   │   ├── notifications/
+│   │   │   ├── notifications_page_test.dart              # UI tests
+│   │   │   ├── notifications_page_view_model_test.dart   # Business logic tests
+│   │   │   └── widgets/                                  # Notification widget tests
+│   │   ├── play/
+│   │   │   ├── play_page_test.dart                       # UI tests
+│   │   │   └── play_page_view_model_test.dart            # Business logic tests
+│   │   ├── practice/
+│   │   │   ├── practice_page_test.dart                   # UI tests
+│   │   │   └── practice_page_view_model_test.dart        # Business logic tests
+│   │   ├── reference/
+│   │   │   ├── reference_page_test.dart                  # UI tests
+│   │   │   └── reference_page_view_model_test.dart       # Business logic tests
+│   │   └── repertoire/
+│   │       ├── repertoire_page_test.dart                 # UI tests
+│   │       └── repertoire_page_view_model_test.dart      # Business logic tests
+│   ├── widgets/                  # Reusable widget tests
 │   └── utils/                    # Presentation utility tests
-├── features/                     # Feature-based MVVM tests
-│   ├── device_controller/
-│   │   ├── device_controller_page_test.dart          # UI tests
-│   │   └── device_controller_view_model_test.dart    # Business logic tests
-│   ├── midi_settings/
-│   │   ├── midi_settings_page_test.dart              # UI tests
-│   │   └── midi_settings_view_model_test.dart        # Business logic tests
-│   ├── notifications/
-│   │   ├── notifications_page_test.dart              # UI tests
-│   │   ├── notifications_page_view_model_test.dart   # Business logic tests
-│   │   └── widgets/                                  # Notification widget tests
-│   ├── play/
-│   │   ├── play_page_test.dart                       # UI tests
-│   │   └── play_page_view_model_test.dart            # Business logic tests
-│   ├── practice/
-│   │   ├── practice_page_test.dart                   # UI tests
-│   │   └── practice_page_view_model_test.dart        # Business logic tests
-│   ├── reference/
-│   │   ├── reference_page_test.dart                  # UI tests
-│   │   └── reference_page_view_model_test.dart       # Business logic tests
-│   └── repertoire/
-│       ├── repertoire_page_test.dart                 # UI tests
-│       └── repertoire_page_view_model_test.dart      # Business logic tests
 └── widget_integration_test.dart  # Cross-feature integration tests
 ```
 
@@ -391,7 +391,7 @@ flutter test --coverage
 # Run specific test categories
 flutter test test/domain/              # Domain layer tests
 flutter test test/application/         # Application layer tests
-flutter test test/features/play/       # Play feature tests
+flutter test test/presentation/features/play/       # Play feature tests
 
 # Generate and view coverage report
 flutter test --coverage && genhtml coverage/lcov.info -o coverage/html
