@@ -78,6 +78,7 @@ void main() {
       );
 
       viewModelWithLocalState.dispose();
+      testMidiState.dispose();
     });
 
     group("MIDI Data Processing Integration", () {

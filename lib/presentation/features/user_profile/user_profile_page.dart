@@ -1,9 +1,9 @@
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 
-import "../../../domain/models/profile_sort_order.dart";
-import "../../../domain/models/user_profile.dart";
-import "../../../domain/repositories/user_profile_repository.dart";
+import "package:piano_fitness/domain/models/profile_sort_order.dart";
+import "package:piano_fitness/domain/models/user_profile.dart";
+import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
 import "user_profile_view_model.dart";
 import "utils/profile_dialogs.dart";
 import "widgets/user_profile_empty_state.dart";

@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 
-import "../../../../domain/models/user_profile.dart";
+import "package:piano_fitness/domain/models/user_profile.dart";
 import "../user_profile_view_model.dart";
 import "profile_list_item.dart";
 

@@ -95,9 +95,7 @@ void main() {
 
       // Tap the "I Understand" button
       await tester.tap(
-        find.byKey(
-          const Key("notification_permission_dialog_understand_button"),
-        ),
+        find.byKey(NotificationPermissionDialog.kUnderstandButtonKey),
       );
       await tester.pumpAndSettle();
 

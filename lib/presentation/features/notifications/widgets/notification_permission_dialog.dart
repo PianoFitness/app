@@ -9,6 +9,11 @@ class NotificationPermissionDialog extends StatelessWidget {
   /// Creates a notification permission dialog.
   const NotificationPermissionDialog({super.key});
 
+  /// Key for the "I Understand" button used in tests.
+  static const kUnderstandButtonKey = Key(
+    "notification_permission_dialog_understand_button",
+  );
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -85,7 +90,7 @@ class NotificationPermissionDialog extends StatelessWidget {
       ),
       actions: [
         TextButton(
-          key: const Key("notification_permission_dialog_understand_button"),
+          key: kUnderstandButtonKey,
           onPressed: () => Navigator.of(context).pop(),
           style: TextButton.styleFrom(
             foregroundColor: colorScheme.primary,

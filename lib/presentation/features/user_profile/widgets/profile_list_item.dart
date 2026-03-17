@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 import "package:intl/intl.dart";
 
-import "../../../../domain/models/user_profile.dart";
+import "package:piano_fitness/domain/models/user_profile.dart";
 
 /// List item widget for displaying a user profile.
 ///

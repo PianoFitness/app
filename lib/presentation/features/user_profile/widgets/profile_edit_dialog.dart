@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 
-import "../../../../domain/models/user_profile.dart";
+import "package:piano_fitness/domain/models/user_profile.dart";
 import "../utils/profile_validation.dart";
 
 /// Dialog for editing an existing user profile's display name.
