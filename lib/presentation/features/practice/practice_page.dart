@@ -1,0 +1,290 @@
+import "package:flutter/material.dart";
+import "package:piano/piano.dart";
+import "package:provider/provider.dart";
+import "package:piano_fitness/presentation/constants/practice_constants.dart";
+import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
+import "package:piano_fitness/domain/models/practice/practice_mode.dart";
+import "package:piano_fitness/presentation/features/practice/practice_page_view_model.dart";
+import "package:piano_fitness/domain/repositories/midi_repository.dart";
+import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/presentation/accessibility/config/accessibility_labels.dart";
+import "package:piano_fitness/presentation/constants/ui_constants.dart";
+import "package:piano_fitness/application/utils/piano_note_bridge.dart";
+import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
+import "package:piano_fitness/presentation/widgets/practice_progress_display.dart";
+import "package:piano_fitness/presentation/widgets/practice_settings_panel.dart";
+import "package:piano_fitness/presentation/utils/piano_accessibility_utils.dart";
+import "package:piano_fitness/presentation/theme/semantic_colors.dart";
+
+/// A comprehensive piano practice page with guided exercises and real-time feedback.
+///
+/// This page provides structured practice sessions for scales, chords, and arpeggios
+/// with MIDI input support, visual feedback, and progress tracking. It uses MVVM
+/// architecture with PracticePageViewModel for business logic separation.
+class PracticePage extends StatelessWidget {
+  /// Creates a new practice page with optional initial configuration.
+  ///
+  /// The [initialMode] determines which type of practice to start with.
+  /// The [midiChannel] sets the MIDI channel for input/output operations.
+  /// The [initialChordProgression] pre-selects a chord progression when mode is chordProgressions.
+  const PracticePage({
+    super.key,
+    this.initialMode = PracticeMode.scales,
+    this.midiChannel = 0,
+    this.initialChordProgression,
+  });
+
+  /// The initial practice mode to display when the page loads.
+  final PracticeMode initialMode;
+
+  /// The MIDI channel to use for input and output (0-15).
+  final int midiChannel;
+
+  /// The initial chord progression to pre-select (optional).
+  final ChordProgression? initialChordProgression;
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) {
+        final viewModel = PracticePageViewModel(
+          midiRepository: context.read<IMidiRepository>(),
+          midiState: context.read<MidiState>(),
+          initialChannel: midiChannel,
+        );
+
+        return viewModel;
+      },
+      child: _PracticePageView(
+        initialMode: initialMode,
+        initialChordProgression: initialChordProgression,
+      ),
+    );
+  }
+}
+
+class _PracticePageView extends StatefulWidget {
+  const _PracticePageView({
+    required this.initialMode,
+    this.initialChordProgression,
+  });
+
+  final PracticeMode initialMode;
+  final ChordProgression? initialChordProgression;
+
+  @override
+  State<_PracticePageView> createState() => _PracticePageViewState();
+}
+
+class _PracticePageViewState extends State<_PracticePageView> {
+  @override
+  void initState() {
+    super.initState();
+    final viewModel = context.read<PracticePageViewModel>();
+
+    // Initialize practice session with proper callbacks
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      viewModel.initializePracticeSession(
+        onExerciseCompleted: _completeExercise,
+        onHighlightedNotesChanged: (notes) {
+          // Notes are automatically updated in ViewModel
+        },
+        initialMode: widget.initialMode,
+        initialChordProgression: widget.initialChordProgression,
+      );
+    });
+  }
+
+  void _completeExercise() {
+    // Use a custom overlay approach to show completion message at top
+    final overlay = Overlay.of(context);
+    late OverlayEntry overlayEntry;
+
+    overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: MediaQuery.of(context).padding.top + Spacing.lg,
+        left: Spacing.lg,
+        right: Spacing.lg,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: PracticeUIConstants.completionOverlayPadding,
+            decoration: BoxDecoration(
+              color: context.semanticColors.success,
+              borderRadius: BorderRadius.circular(AppBorderRadius.small),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).shadowColor,
+                  blurRadius: ShadowConfig.subtleBlur,
+                  offset: ShadowConfig.subtleOffset,
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+                const SizedBox(width: Spacing.sm),
+                Text(
+                  "Exercise completed! Well done!",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    overlay.insert(overlayEntry);
+
+    // Remove the overlay after configured duration
+    Future.delayed(AnimationDurations.snackbar, () {
+      overlayEntry.remove();
+    });
+  }
+
+  void _resetPractice() {
+    context.read<PracticePageViewModel>().resetPractice();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: const Key("practice_page_scaffold"),
+      appBar: _buildAppBar(context),
+      body: Column(
+        children: [_buildContentArea(context), _buildPianoSection(context)],
+      ),
+    );
+  }
+
+  /// Builds the app bar with navigation and title.
+  AppBar _buildAppBar(BuildContext context) {
+    return AppBar(
+      title: const Text("Practice Session"),
+      backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      leading: IconButton(
+        key: const Key("practice_back_button"),
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () => Navigator.of(context).pop(),
+        tooltip: "Back to Practice Hub",
+      ),
+    );
+  }
+
+  /// Builds the content area containing settings panel and progress display.
+  Widget _buildContentArea(BuildContext context) {
+    final viewModel = context.watch<PracticePageViewModel>();
+
+    return Expanded(
+      flex: 4,
+      child: SafeArea(
+        bottom: false,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(Spacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: Spacing.lg),
+              _buildSettingsPanel(viewModel),
+              const SizedBox(height: Spacing.md),
+              _buildProgressDisplay(viewModel),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Builds the practice settings panel with animated state updates.
+  Widget _buildSettingsPanel(PracticePageViewModel viewModel) {
+    return AnimatedBuilder(
+      animation: viewModel,
+      builder: (context, child) {
+        final session = viewModel.practiceSession;
+        if (session == null) {
+          return const CircularProgressIndicator();
+        }
+
+        return PracticeSettingsPanel(
+          key: const Key("practice_settings_panel"),
+          configuration: session.config,
+          onConfigurationChanged: viewModel.updateConfiguration,
+          practiceActive: session.practiceActive,
+          onResetPractice: _resetPractice,
+          autoProgressKeys: session.autoProgressKeys,
+          onAutoProgressKeysChanged: viewModel.setAutoKeyProgression,
+        );
+      },
+    );
+  }
+
+  /// Builds the practice progress display with animated state updates.
+  Widget _buildProgressDisplay(PracticePageViewModel viewModel) {
+    return AnimatedBuilder(
+      animation: viewModel,
+      builder: (context, child) {
+        final session = viewModel.practiceSession;
+        if (session == null) {
+          return const SizedBox.shrink();
+        }
+
+        return PracticeProgressDisplay(
+          practiceMode: session.practiceMode,
+          practiceActive: session.practiceActive,
+          currentExercise: session.currentExercise,
+          currentStepIndex: session.currentStepIndex,
+        );
+      },
+    );
+  }
+
+  /// Builds the interactive piano section with dynamic range and highlighting.
+  Widget _buildPianoSection(BuildContext context) {
+    final viewModel = context.watch<PracticePageViewModel>();
+
+    return Expanded(
+      child: AnimatedBuilder(
+        animation: viewModel,
+        builder: (context, child) {
+          final highlightedNotes = viewModel.getDisplayHighlightedNotes();
+          final practiceRange = viewModel.calculatePracticeRange();
+          final screenWidth = MediaQuery.of(context).size.width;
+          final dynamicKeyWidth = PianoRangeUtils.calculateScreenBasedKeyWidth(
+            screenWidth,
+          );
+
+          return PianoAccessibilityUtils.createAccessiblePianoWrapper(
+            highlightedNotes: highlightedNotes,
+            mode: PianoMode.practice,
+            semanticLabel: AccessibilityLabels.piano.keyboardLabel(
+              PianoMode.practice,
+            ),
+            child: InteractivePiano(
+              key: const Key("practice_interactive_piano"),
+              highlightedNotes: highlightedNotes,
+              keyWidth: dynamicKeyWidth.clamp(
+                PianoRangeUtils.minKeyWidth,
+                PianoRangeUtils.maxKeyWidth,
+              ),
+              noteRange: practiceRange,
+              onNotePositionTapped: (position) async {
+                final midiNote = PianoNoteBridge.convertNotePositionToMidi(
+                  position,
+                );
+                await viewModel.playVirtualNote(midiNote, mounted: mounted);
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
