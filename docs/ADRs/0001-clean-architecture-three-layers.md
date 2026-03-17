@@ -9,6 +9,7 @@
 Piano Fitness needed an architectural foundation that would support long-term maintainability, testability, and platform independence. The application handles complex domain logic (music theory, MIDI processing), external infrastructure (MIDI devices, notifications, audio), and multiple UI features (play, practice, reference, etc.).
 
 Without clear architectural boundaries, codebases tend toward:
+
 - Business logic mixed with UI code
 - Direct framework dependencies in domain code
 - Difficult testing due to tight coupling
@@ -38,11 +39,11 @@ Adopt Clean Architecture with three distinct layers following the dependency rul
      - Application state management
      - Application utilities
 
-3. **Presentation Layer** (`lib/features/`, `lib/presentation/`)
+3. **Presentation Layer** (`lib/presentation/`)
    - UI components and presentation logic
    - Depends on domain and application layers
    - Contains:
-     - Feature modules with MVVM pattern
+     - Feature modules with MVVM pattern (`lib/presentation/features/`)
      - Shared widgets and utilities
      - Theme and styling
      - Accessibility infrastructure
@@ -74,6 +75,7 @@ Adopt Clean Architecture with three distinct layers following the dependency rul
 - [ADR-0004: Repository Pattern for External Dependencies](0004-repository-pattern-external-dependencies.md) - Application layer pattern
 - [ADR-0013: Music Theory Domain Services](0013-music-theory-domain-services.md) - Domain layer implementation
 - [ADR-0023: Import Organization Conventions](0023-import-organization-conventions.md) - Layer-specific import ordering
+- [ADR-0027: Migrate Feature Modules into Presentation Layer](0027-migrate-features-to-presentation-layer.md) - Consolidation of `lib/features/` into `lib/presentation/`
 
 ## Technical Story
 
@@ -81,5 +83,5 @@ Adopt Clean Architecture with three distinct layers following the dependency rul
 
 - Domain layer: `lib/domain/`
 - Application layer: `lib/application/`
-- Presentation layer: `lib/features/` and `lib/presentation/`
+- Presentation layer: `lib/presentation/` (feature modules in `lib/presentation/features/`)
 - Architecture documentation: `AGENTS.md` "Architecture Overview" section
