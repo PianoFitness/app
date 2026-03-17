@@ -1,8 +1,8 @@
 import "package:flutter/material.dart";
 
 import "package:piano_fitness/domain/models/user_profile.dart";
-import "../user_profile_view_model.dart";
-import "profile_list_item.dart";
+import "package:piano_fitness/presentation/features/user_profile/user_profile_view_model.dart";
+import "package:piano_fitness/presentation/features/user_profile/widgets/profile_list_item.dart";
 
 /// List widget displaying all user profiles.
 class UserProfileList extends StatelessWidget {
