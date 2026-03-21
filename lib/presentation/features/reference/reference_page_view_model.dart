@@ -8,7 +8,7 @@ import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/models/midi/midi_event.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as scales;
-import "package:piano_fitness/domain/services/music_theory/chords.dart";
+import "package:piano_fitness/domain/models/music/chord_type.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/music_theory/chord_inversion_utils.dart";
 

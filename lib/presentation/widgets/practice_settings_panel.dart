@@ -6,7 +6,7 @@ import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/models/music/arpeggio_type.dart";
-import "package:piano_fitness/domain/services/music_theory/chords.dart";
+import "package:piano_fitness/domain/models/music/chord_type.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;

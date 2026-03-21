@@ -5,41 +5,20 @@ Work these in order: lowest risk first, `scales.dart` last.
 
 ---
 
-## 1. Move `MidiEvent` / `MidiEventType` to `domain/models/midi/`
+## 1. Move `ChordType` / `ChordTypeDisplay` / `ChordInversion` to `domain/models/music/`
 
-**Why:** Both types are pure data — `MidiEvent` is an immutable value object,
-`MidiEventType` is an enum. They are defined inside `midi_service.dart`, causing
-ViewModels to import a domain service just to name the type.
-`domain/models/midi/` already exists (empty).
+**Why:** Enum types buried in `chord_definitions.dart` (part of the `chords.dart`
+barrel). ViewModels and pages import the full barrel when they only need the enums.
 
-**Scope:** 5 files import `midi_service.dart` for these types.
-
----
-
-## 2. Move `ArpeggioType` / `ArpeggioOctaves` to `domain/models/music/`
-
-**Why:** Both are plain enums — no behaviour. Defined in `arpeggios.dart`
-alongside service logic (`Arpeggio`, `ArpeggioDefinitions`), causing ViewModel
-to import the service file for the types only.
-
-**Scope:** 5 files import `arpeggios.dart`.
+**Scope:** 18 files import `chords.dart`; update presentation-layer callers to
+import `domain/models/music/chord_type.dart` directly.
 
 ---
 
-## 3. Move `ChordType` / `ChordTypeDisplay` / `ChordInversion` to `domain/models/music/`
+## 2. Move `ScaleType` / `Key` / `KeyDisplay` to `domain/models/music/`
 
-**Why:** Same pattern — enum types buried in `chord_definitions.dart` (part of
-the `chords.dart` barrel). ViewModels and pages import the full barrel when they
-only need the enums.
-
-**Scope:** 10 files import `chords.dart`.
-
----
-
-## 4. Move `ScaleType` / `Key` / `KeyDisplay` to `domain/models/music/`
-
-**Why:** Same pattern — enums and a display extension defined in `scales.dart`
-alongside `Scale` and `ScaleDefinitions` service classes.
+**Why:** Enums and a display extension defined in `scales.dart` alongside `Scale`
+and `ScaleDefinitions` service classes.
 
 **Scope:** 15 files import `scales.dart`. Do this last — `Key` is the most
 widely referenced type in the music theory layer and carries the highest
@@ -47,7 +26,7 @@ mechanical update cost.
 
 ---
 
-## 5. Introduce `MidiCoordinator` in the application layer
+## 3. Introduce `MidiCoordinator` in the application layer
 
 **Why:** All four MIDI-receiving ViewModels (`PracticePageViewModel`,
 `PlayPageViewModel`, `ReferencePageViewModel`, `DeviceControllerViewModel`)

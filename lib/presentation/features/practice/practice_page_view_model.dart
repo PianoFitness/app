@@ -7,7 +7,7 @@ import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
-import "package:piano_fitness/domain/services/music_theory/chords.dart";
+import "package:piano_fitness/domain/models/music/chord_type.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/state/practice_session.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
