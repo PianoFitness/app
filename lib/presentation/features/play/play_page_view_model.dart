@@ -2,7 +2,7 @@ import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
-import "package:piano_fitness/application/utils/midi_data_handler.dart";
+import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/models/midi/midi_event.dart";
@@ -16,6 +16,7 @@ import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
 class PlayPageViewModel extends ChangeNotifier {
   /// Creates a new PlayPageViewModel with dependency injection.
   PlayPageViewModel({
+    required MidiCoordinator midiCoordinator,
     required IMidiRepository midiRepository,
     required MidiState midiState,
     int initialChannel = 0,
@@ -23,14 +24,14 @@ class PlayPageViewModel extends ChangeNotifier {
        _midiState = midiState,
        _midiChannel = initialChannel {
     _midiState.setSelectedChannel(_midiChannel);
-    // Forward global MIDI state changes to ViewModel listeners
     _midiState.addListener(_forwardMidiStateChanges);
-    _initializeMidiConnection();
+    _subscription = midiCoordinator.subscribe(midiState, _handleMidiEvent);
   }
 
   final IMidiRepository _midiRepository;
   final MidiState _midiState;
   final int _midiChannel;
+  late final MidiSubscription _subscription;
 
   /// Forwards MIDI state changes to ViewModel listeners.
   void _forwardMidiStateChanges() {
@@ -43,31 +44,21 @@ class PlayPageViewModel extends ChangeNotifier {
   /// MIDI channel for input and output operations (0-15).
   int get midiChannel => _midiChannel;
 
-  /// Initializes the MIDI connection and sets up data handling.
-  void _initializeMidiConnection() {
-    // Register this ViewModel's MIDI data handler
-    _midiRepository.registerDataHandler(_handleMidiData);
-  }
-
-  /// Handles incoming MIDI data and updates global state.
-  ///
-  void _handleMidiData(Uint8List data) {
-    MidiDataHandler.dispatch(data, _midiState, (MidiEvent event) {
-      switch (event.type) {
-        case MidiEventType.noteOn:
-          _midiState.noteOn(event.data1, event.data2, event.channel);
-          break;
-        case MidiEventType.noteOff:
-          _midiState.noteOff(event.data1, event.channel);
-          break;
-        case MidiEventType.controlChange:
-        case MidiEventType.programChange:
-        case MidiEventType.pitchBend:
-        case MidiEventType.other:
-          _midiState.setLastNote(event.displayMessage);
-          break;
-      }
-    });
+  void _handleMidiEvent(MidiEvent event) {
+    switch (event.type) {
+      case MidiEventType.noteOn:
+        _midiState.noteOn(event.data1, event.data2, event.channel);
+        break;
+      case MidiEventType.noteOff:
+        _midiState.noteOff(event.data1, event.channel);
+        break;
+      case MidiEventType.controlChange:
+      case MidiEventType.programChange:
+      case MidiEventType.pitchBend:
+      case MidiEventType.other:
+        _midiState.setLastNote(event.displayMessage);
+        break;
+    }
   }
 
   /// Plays a virtual note through MIDI output.
@@ -87,10 +78,8 @@ class PlayPageViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    // Remove listener before disposing
     _midiState.removeListener(_forwardMidiStateChanges);
-    // Unregister our data handler
-    _midiRepository.unregisterDataHandler(_handleMidiData);
+    _subscription.cancel();
     super.dispose();
   }
 }

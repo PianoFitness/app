@@ -1,4 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/presentation/features/reference/reference_page_view_model.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
@@ -21,6 +22,7 @@ void main() {
       mockMidiRepository = MockIMidiRepository();
       midiState = MidiState();
       viewModel = ReferencePageViewModel(
+        midiCoordinator: MidiCoordinator(mockMidiRepository),
         midiRepository: mockMidiRepository,
         midiState: midiState,
       );
@@ -311,9 +313,12 @@ void main() {
       });
 
       test("should handle note playing with local MIDI state", () async {
+        final localRepo = MockIMidiRepository();
+        final localMidiState = MidiState();
         final viewModelWithLocalState = ReferencePageViewModel(
-          midiRepository: MockIMidiRepository(),
-          midiState: MidiState(),
+          midiCoordinator: MidiCoordinator(localRepo),
+          midiRepository: localRepo,
+          midiState: localMidiState,
         );
 
         // Should not crash and should work with local MIDI state
@@ -329,6 +334,7 @@ void main() {
         );
 
         viewModelWithLocalState.dispose();
+        localMidiState.dispose();
       });
     });
 

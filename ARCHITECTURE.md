@@ -150,9 +150,21 @@ export "package:piano_fitness/domain/models/music/scale_types.dart";
 
 New code should import the model file directly; only files that also use the service class need the service import.
 
-### MIDI Data Handling
+### MIDI Subscriptions via `MidiCoordinator`
 
-All four MIDI-receiving ViewModels delegate raw MIDI dispatch to `MidiDataHandler.dispatch()` in the application layer. This centralises parse-error recovery and event-callback error logging in one place; ViewModels only contain the feature-specific switch over `MidiEventType`.
+ViewModels that receive MIDI input subscribe through `MidiCoordinator` (in `application/utils/`), not directly against `IMidiRepository`. `MidiCoordinator.subscribe()` owns `registerDataHandler`/`unregisterDataHandler` lifecycle, delegates raw byte → `MidiEvent` parsing to `MidiDataHandler.dispatch()`, and returns a `MidiSubscription` that is cancelled in `dispose()`. ViewModels only implement the feature-specific switch over `MidiEventType`.
+
+---
+
+## Accepted Import Patterns
+
+These patterns may appear to violate layer boundaries at first glance but are explicitly correct:
+
+- **Domain models in ViewModels** — `PracticeMode`, `ExerciseConfiguration`, `HandSelection`, `ChordProgression`, `MidiChannel`, `MidiDevice`, and similar value objects are domain model types. ViewModels may use them as parameter and return types without violating clean architecture.
+- **Domain constants in ViewModels** — `MidiProtocol` and similar domain-layer constants are acceptable in ViewModels, e.g. for validation guards on user input. This is not a domain service call — it is reading a constant.
+- **Domain repository interfaces in ViewModels** — `IMidiRepository` in a ViewModel is correct. ViewModels depend on interfaces, not on infrastructure implementations.
+- **Application state in ViewModels** — `MidiState`, `PracticeSession`, and other `ChangeNotifier` state objects live in `application/state/` and are expected ViewModel dependencies.
+- **Presentation utilities in Views** — `isWhiteKey`/`isBlackKey` from `presentation/utils/piano_key_utils.dart` and similar helpers belong in the view class, not the ViewModel.
 
 ---
 

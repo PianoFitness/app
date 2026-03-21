@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/constants/midi_protocol_constants.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/presentation/features/device_controller/device_controller_constants.dart";
@@ -26,6 +27,7 @@ class DeviceControllerPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => DeviceControllerViewModel(
+        midiCoordinator: context.read<MidiCoordinator>(),
         midiRepository: context.read<IMidiRepository>(),
         midiState: context.read<MidiState>(),
         device: device,

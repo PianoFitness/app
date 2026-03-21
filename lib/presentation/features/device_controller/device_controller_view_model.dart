@@ -4,7 +4,7 @@ import "package:logging/logging.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/domain/constants/midi_protocol_constants.dart";
 import "package:piano_fitness/domain/models/midi_channel.dart";
-import "package:piano_fitness/application/utils/midi_data_handler.dart";
+import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/services/midi/midi_service.dart";
 
@@ -15,13 +15,14 @@ import "package:piano_fitness/domain/services/midi/midi_service.dart";
 class DeviceControllerViewModel extends ChangeNotifier {
   /// Creates a new DeviceControllerViewModel with dependency injection.
   DeviceControllerViewModel({
+    required MidiCoordinator midiCoordinator,
     required IMidiRepository midiRepository,
     required MidiState midiState,
     required MidiDevice device,
   }) : _midiRepository = midiRepository,
        _midiState = midiState,
        _device = device {
-    _setupMidiListener();
+    _subscription = midiCoordinator.subscribe(midiState, _handleMidiEvent);
   }
 
   static final _log = Logger("DeviceControllerViewModel");
@@ -29,6 +30,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
   final IMidiRepository _midiRepository;
   final MidiState _midiState;
   final MidiDevice _device;
+  late final MidiSubscription _subscription;
 
   int _selectedChannel = 0;
   int _ccController = 1;
@@ -179,29 +181,22 @@ class DeviceControllerViewModel extends ChangeNotifier {
     }
   }
 
-  void _setupMidiListener() {
-    // Register our data handler with the repository
-    _midiRepository.registerDataHandler(_handleMidiData);
-  }
-
-  void _handleMidiData(Uint8List data) {
-    MidiDataHandler.dispatch(data, _midiState, (MidiEvent event) {
-      switch (event.type) {
-        case MidiEventType.noteOn:
-          _midiState.noteOn(event.data1, event.data2, event.channel);
-          break;
-        case MidiEventType.noteOff:
-          _midiState.noteOff(event.data1, event.channel);
-          break;
-        case MidiEventType.controlChange:
-        case MidiEventType.programChange:
-        case MidiEventType.pitchBend:
-        case MidiEventType.other:
-          _midiState.setLastNote(event.displayMessage);
-          break;
-      }
-      _processMidiEvent(event);
-    });
+  void _handleMidiEvent(MidiEvent event) {
+    switch (event.type) {
+      case MidiEventType.noteOn:
+        _midiState.noteOn(event.data1, event.data2, event.channel);
+        break;
+      case MidiEventType.noteOff:
+        _midiState.noteOff(event.data1, event.channel);
+        break;
+      case MidiEventType.controlChange:
+      case MidiEventType.programChange:
+      case MidiEventType.pitchBend:
+      case MidiEventType.other:
+        _midiState.setLastNote(event.displayMessage);
+        break;
+    }
+    _processMidiEvent(event);
   }
 
   void _processMidiEvent(MidiEvent event) {
@@ -234,7 +229,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _midiRepository.unregisterDataHandler(_handleMidiData);
+    _subscription.cancel();
     super.dispose();
   }
 }

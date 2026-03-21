@@ -3,6 +3,7 @@
 // Tests the business logic, state management, and MIDI operations of the ViewModel.
 
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/presentation/features/device_controller/device_controller_view_model.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
@@ -32,6 +33,7 @@ void main() {
       mockMidiRepository = MockIMidiRepository();
       midiState = MidiState();
       viewModel = DeviceControllerViewModel(
+        midiCoordinator: MidiCoordinator(mockMidiRepository),
         device: mockDevice,
         midiRepository: mockMidiRepository,
         midiState: midiState,

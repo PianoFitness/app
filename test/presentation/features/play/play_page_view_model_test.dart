@@ -1,5 +1,6 @@
 import "dart:typed_data";
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/presentation/features/play/play_page_view_model.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/domain/services/midi/midi_service.dart";
@@ -23,6 +24,7 @@ void main() {
 
       // Create ViewModel with injected dependencies
       viewModel = PlayPageViewModel(
+        midiCoordinator: MidiCoordinator(mockMidiRepository),
         midiRepository: mockMidiRepository,
         midiState: midiState,
         initialChannel: 5,
@@ -64,6 +66,7 @@ void main() {
       final testMidiRepository = MockIMidiRepository();
       final testMidiState = MidiState();
       final viewModelWithLocalState = PlayPageViewModel(
+        midiCoordinator: MidiCoordinator(testMidiRepository),
         midiRepository: testMidiRepository,
         midiState: testMidiState,
       );

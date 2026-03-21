@@ -9,6 +9,7 @@ import "package:timezone/data/latest.dart" as tz;
 import "package:piano_fitness/application/database/app_database.dart";
 import "package:piano_fitness/application/repositories/audio_service_impl.dart";
 import "package:piano_fitness/application/repositories/midi_repository_impl.dart";
+import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/application/repositories/notification_repository_impl.dart";
 import "package:piano_fitness/application/repositories/settings_repository_impl.dart";
 import "package:piano_fitness/application/repositories/user_profile_repository_impl.dart";
@@ -113,6 +114,11 @@ void main() async {
             database: database,
             prefs: sharedPreferences,
           ),
+        ),
+
+        // MIDI subscription coordinator (derived from IMidiRepository)
+        ProxyProvider<IMidiRepository, MidiCoordinator>(
+          update: (_, repo, _) => MidiCoordinator(repo),
         ),
 
         // Global MIDI state (shared across all features)

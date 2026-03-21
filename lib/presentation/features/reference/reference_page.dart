@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:piano/piano.dart";
 import "package:provider/provider.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/presentation/features/reference/reference_constants.dart";
 import "package:piano_fitness/presentation/features/reference/reference_page_view_model.dart";
@@ -28,6 +29,7 @@ class ReferencePage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) {
         final viewModel = ReferencePageViewModel(
+          midiCoordinator: context.read<MidiCoordinator>(),
           midiRepository: context.read<IMidiRepository>(),
           midiState: context.read<MidiState>(),
         );

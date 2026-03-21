@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 import "package:mockito/mockito.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/repositories/notification_repository.dart";
 import "package:piano_fitness/domain/repositories/settings_repository.dart";
@@ -37,6 +38,9 @@ Widget createTestWidget(Widget child) {
   return MultiProvider(
     providers: [
       Provider<IMidiRepository>.value(value: mockMidiRepository),
+      Provider<MidiCoordinator>(
+        create: (_) => MidiCoordinator(mockMidiRepository),
+      ),
       Provider<INotificationRepository>.value(
         value: mockNotificationRepository,
       ),
@@ -97,6 +101,9 @@ Widget createTestWidgetWithMocks({
   return MultiProvider(
     providers: [
       Provider<IMidiRepository>.value(value: mockMidiRepository),
+      Provider<MidiCoordinator>(
+        create: (_) => MidiCoordinator(mockMidiRepository),
+      ),
       Provider<INotificationRepository>.value(
         value: mockNotificationRepository,
       ),
