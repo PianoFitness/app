@@ -5,7 +5,7 @@ import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/utils/midi_data_handler.dart";
 import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
-import "package:piano_fitness/domain/services/midi/midi_service.dart";
+import "package:piano_fitness/domain/models/midi/midi_event.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as scales;
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
