@@ -12,8 +12,7 @@ import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/domain/services/music_theory/circle_of_fifths.dart";
 import "package:piano_fitness/application/utils/piano_note_bridge.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
-import "package:piano_fitness/domain/services/music_theory/scales.dart"
-    as music;
+import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
 
 /// Manages the state and logic for piano practice sessions.
 ///

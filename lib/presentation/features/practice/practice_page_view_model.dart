@@ -16,8 +16,7 @@ import "package:piano_fitness/domain/models/midi/midi_event.dart";
 import "package:piano_fitness/domain/models/music/arpeggio_type.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
-import "package:piano_fitness/domain/services/music_theory/scales.dart"
-    as music;
+import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
 import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
 
 /// ViewModel for managing practice page state and operations.

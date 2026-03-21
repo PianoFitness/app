@@ -5,17 +5,7 @@ Work these in order: lowest risk first, `scales.dart` last.
 
 ---
 
-## 1. Move `ChordType` / `ChordTypeDisplay` / `ChordInversion` to `domain/models/music/`
-
-**Why:** Enum types buried in `chord_definitions.dart` (part of the `chords.dart`
-barrel). ViewModels and pages import the full barrel when they only need the enums.
-
-**Scope:** 18 files import `chords.dart`; update presentation-layer callers to
-import `domain/models/music/chord_type.dart` directly.
-
----
-
-## 2. Move `ScaleType` / `Key` / `KeyDisplay` to `domain/models/music/`
+## 1. Move `ScaleType` / `Key` / `KeyDisplay` to `domain/models/music/`
 
 **Why:** Enums and a display extension defined in `scales.dart` alongside `Scale`
 and `ScaleDefinitions` service classes.

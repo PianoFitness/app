@@ -1,4 +1,4 @@
-import "package:piano_fitness/domain/services/music_theory/scales.dart";
+import "package:piano_fitness/domain/models/music/scale_types.dart";
 
 /// Utility class for navigating keys according to the Circle of Fifths.
 ///

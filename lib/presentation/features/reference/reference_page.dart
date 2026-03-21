@@ -10,8 +10,7 @@ import "package:piano_fitness/domain/constants/musical_constants.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:piano_fitness/application/utils/piano_note_bridge.dart";
 import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
-import "package:piano_fitness/domain/services/music_theory/scales.dart"
-    as scales;
+import "package:piano_fitness/domain/models/music/scale_types.dart" as scales;
 import "package:piano_fitness/domain/models/music/chord_type.dart";
 import "package:piano_fitness/presentation/utils/piano_accessibility_utils.dart";
 
