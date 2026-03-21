@@ -15,7 +15,7 @@ import "package:piano_fitness/presentation/utils/piano_key_utils.dart";
 /// This page provides comprehensive controls for testing and interacting
 /// with a connected MIDI device, including sending test notes, monitoring
 /// MIDI messages, and device-specific operations.
-class DeviceControllerPage extends StatefulWidget {
+class DeviceControllerPage extends StatelessWidget {
   /// Creates a device controller page for the specified MIDI device.
   const DeviceControllerPage({required this.device, super.key});
 
@@ -23,39 +23,40 @@ class DeviceControllerPage extends StatefulWidget {
   final MidiDevice device;
 
   @override
-  State<DeviceControllerPage> createState() => _DeviceControllerPageState();
-}
-
-class _DeviceControllerPageState extends State<DeviceControllerPage> {
-  @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => DeviceControllerViewModel(
         midiRepository: context.read<IMidiRepository>(),
         midiState: context.read<MidiState>(),
-        device: widget.device,
+        device: device,
       ),
-      child: Consumer<DeviceControllerViewModel>(
-        builder: (context, viewModel, child) {
-          return Scaffold(
-            appBar: AppBar(
-              title: Text("${viewModel.device.name} Controller"),
-              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            ),
-            body: ListView(
-              padding: const EdgeInsets.all(Spacing.md),
-              children: [
-                _buildDeviceInfoCard(context, viewModel),
-                _buildLastMessageCard(context, viewModel),
-                _buildChannelCard(context, viewModel),
-                _buildControlChangeCard(context, viewModel),
-                _buildProgramChangeCard(context, viewModel),
-                _buildPitchBendCard(context, viewModel),
-                _buildVirtualPianoCard(context, viewModel),
-              ],
-            ),
-          );
-        },
+      child: const _DeviceControllerView(),
+    );
+  }
+}
+
+class _DeviceControllerView extends StatelessWidget {
+  const _DeviceControllerView();
+
+  @override
+  Widget build(BuildContext context) {
+    final viewModel = context.watch<DeviceControllerViewModel>();
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("${viewModel.device.name} Controller"),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(Spacing.md),
+        children: [
+          _buildDeviceInfoCard(context, viewModel),
+          _buildLastMessageCard(context, viewModel),
+          _buildChannelCard(context, viewModel),
+          _buildControlChangeCard(context, viewModel),
+          _buildProgramChangeCard(context, viewModel),
+          _buildPitchBendCard(context, viewModel),
+          _buildVirtualPianoCard(context, viewModel),
+        ],
       ),
     );
   }
@@ -103,13 +104,11 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
     DeviceControllerViewModel viewModel,
   ) {
     return Card(
-      color:
-          Theme.of(
-            context,
-          ).extension<SemanticColors>()?.success.withValues(alpha: 0.1) ??
-          Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3),
+      color: context.semanticColors.success.withValues(
+        alpha: OpacityValues.backgroundLight,
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(Spacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -117,7 +116,7 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
               "Last Received MIDI Message",
               style: Theme.of(context).textTheme.titleLarge,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: Spacing.sm),
             Text(viewModel.lastReceivedMessage),
           ],
         ),
@@ -131,7 +130,7 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
   ) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(Spacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -142,7 +141,7 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: Spacing.sm),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -249,7 +248,10 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("MIDI Channel", style: Theme.of(context).textTheme.titleLarge),
+            Text(
+              "Program Change",
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
             const SizedBox(height: Spacing.sm),
             Row(
               children: [
@@ -322,14 +324,14 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
                 const SizedBox(
                   width: DeviceControllerUIConstants.blackKeyLeftOffset,
                 ),
-                _buildDevicePianoKey(61, viewModel), // C# black key
-                _buildDevicePianoKey(63, viewModel), // D# black key
+                _buildDevicePianoKey(context, 61, viewModel), // C# black key
+                _buildDevicePianoKey(context, 63, viewModel), // D# black key
                 const SizedBox(
                   width: DeviceControllerUIConstants.blackKeyGroupGap,
                 ),
-                _buildDevicePianoKey(66, viewModel), // F# black key
-                _buildDevicePianoKey(68, viewModel), // G# black key
-                _buildDevicePianoKey(70, viewModel), // A# black key
+                _buildDevicePianoKey(context, 66, viewModel), // F# black key
+                _buildDevicePianoKey(context, 68, viewModel), // G# black key
+                _buildDevicePianoKey(context, 70, viewModel), // A# black key
               ],
             ),
             const SizedBox(height: Spacing.sm),
@@ -339,7 +341,11 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
               children: [
                 for (int note = 60; note <= 71; note++)
                   if (isWhiteKey(note))
-                    _buildDevicePianoKey(note, viewModel), // White keys
+                    _buildDevicePianoKey(
+                      context,
+                      note,
+                      viewModel,
+                    ), // White keys
               ],
             ),
           ],
@@ -349,6 +355,7 @@ class _DeviceControllerPageState extends State<DeviceControllerPage> {
   }
 
   Widget _buildDevicePianoKey(
+    BuildContext context,
     int midiNote,
     DeviceControllerViewModel viewModel,
   ) {
