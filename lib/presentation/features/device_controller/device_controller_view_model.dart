@@ -4,6 +4,7 @@ import "package:logging/logging.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/domain/constants/midi_protocol_constants.dart";
 import "package:piano_fitness/domain/models/midi_channel.dart";
+import "package:piano_fitness/application/utils/midi_data_handler.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/services/midi/midi_service.dart";
 
@@ -184,9 +185,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
   }
 
   void _handleMidiData(Uint8List data) {
-    // Parse MIDI data once and handle both global state and local display
-    MidiService.handleMidiData(data, (MidiEvent event) {
-      // Update global MIDI state
+    MidiDataHandler.dispatch(data, _midiState, (MidiEvent event) {
       switch (event.type) {
         case MidiEventType.noteOn:
           _midiState.noteOn(event.data1, event.data2, event.channel);
@@ -201,8 +200,6 @@ class DeviceControllerViewModel extends ChangeNotifier {
           _midiState.setLastNote(event.displayMessage);
           break;
       }
-
-      // Update local display state (reuse parsed event)
       _processMidiEvent(event);
     });
   }

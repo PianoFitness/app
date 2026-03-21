@@ -11,6 +11,7 @@ import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/state/practice_session.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
+import "package:piano_fitness/application/utils/midi_data_handler.dart";
 import "package:piano_fitness/domain/services/midi/midi_service.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
@@ -105,44 +106,31 @@ class PracticePageViewModel extends ChangeNotifier {
 
   /// Handles incoming MIDI data and updates state with practice session integration.
   ///
-  /// Uses the domain service for MIDI parsing and coordinates with both
-  /// MidiState (application layer) and PracticeSession for exercise tracking.
+  /// Delegates parsing and error recovery to [MidiDataHandler], then coordinates
+  /// with MidiState and PracticeSession for exercise tracking.
   /// The PracticeSession handles its own auto-start logic when notes are pressed.
   ///
   /// This method is public for testing purposes.
   @visibleForTesting
   void handleMidiData(Uint8List data) {
-    try {
-      // Use domain service for MIDI parsing
-      MidiService.handleMidiData(data, (MidiEvent event) {
-        try {
-          switch (event.type) {
-            case MidiEventType.noteOn:
-              // Update application state
-              _midiState.noteOn(event.data1, event.data2, event.channel);
-              // Coordinate with practice session for exercise tracking
-              _practiceSession?.handleNotePressed(event.data1);
-              break;
-            case MidiEventType.noteOff:
-              _midiState.noteOff(event.data1, event.channel);
-              _practiceSession?.handleNoteReleased(event.data1);
-              break;
-            case MidiEventType.controlChange:
-            case MidiEventType.programChange:
-            case MidiEventType.pitchBend:
-            case MidiEventType.other:
-              _midiState.setLastNote(event.displayMessage);
-              break;
-          }
-        } catch (e, stackTrace) {
-          _log.warning("Error handling MIDI event: $e", e, stackTrace);
-          _midiState.setLastNote("Error processing MIDI event");
-        }
-      });
-    } catch (e, stackTrace) {
-      _log.severe("Error parsing MIDI data: $e", e, stackTrace);
-      _midiState.setLastNote("Error parsing MIDI data");
-    }
+    MidiDataHandler.dispatch(data, _midiState, (MidiEvent event) {
+      switch (event.type) {
+        case MidiEventType.noteOn:
+          _midiState.noteOn(event.data1, event.data2, event.channel);
+          _practiceSession?.handleNotePressed(event.data1);
+          break;
+        case MidiEventType.noteOff:
+          _midiState.noteOff(event.data1, event.channel);
+          _practiceSession?.handleNoteReleased(event.data1);
+          break;
+        case MidiEventType.controlChange:
+        case MidiEventType.programChange:
+        case MidiEventType.pitchBend:
+        case MidiEventType.other:
+          _midiState.setLastNote(event.displayMessage);
+          break;
+      }
+    });
   }
 
   /// Starts the current practice session.

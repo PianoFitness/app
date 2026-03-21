@@ -1,8 +1,8 @@
 import "dart:async";
 import "package:flutter/foundation.dart";
-import "package:logging/logging.dart";
 import "package:piano_fitness/domain/constants/musical_constants.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/application/utils/midi_data_handler.dart";
 import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/services/midi/midi_service.dart";
@@ -40,8 +40,6 @@ class ReferencePageViewModel extends ChangeNotifier {
 
   final IMidiRepository _midiRepository;
   final MidiState _localMidiState;
-
-  static final Logger _log = Logger("ReferencePageViewModel");
 
   // Current selections
   ReferenceMode _selectedMode = ReferenceMode.scales;
@@ -189,33 +187,22 @@ class ReferencePageViewModel extends ChangeNotifier {
   /// Wraps MIDI parsing and event handling in error recovery to prevent
   /// stale state from parsing/runtime errors.
   void _handleMidiData(Uint8List data) {
-    try {
-      // Use domain service for MIDI parsing and update local application state
-      MidiService.handleMidiData(data, (MidiEvent event) {
-        try {
-          switch (event.type) {
-            case MidiEventType.noteOn:
-              _localMidiState.noteOn(event.data1, event.data2, event.channel);
-              break;
-            case MidiEventType.noteOff:
-              _localMidiState.noteOff(event.data1, event.channel);
-              break;
-            case MidiEventType.controlChange:
-            case MidiEventType.programChange:
-            case MidiEventType.pitchBend:
-            case MidiEventType.other:
-              _localMidiState.setLastNote(event.displayMessage);
-              break;
-          }
-        } catch (e, stackTrace) {
-          _log.warning("Error handling MIDI event: $e", e, stackTrace);
-          _localMidiState.setLastNote("Error processing MIDI event");
-        }
-      });
-    } catch (e, stackTrace) {
-      _log.severe("Error parsing MIDI data: $e", e, stackTrace);
-      _localMidiState.setLastNote("Error parsing MIDI data");
-    }
+    MidiDataHandler.dispatch(data, _localMidiState, (MidiEvent event) {
+      switch (event.type) {
+        case MidiEventType.noteOn:
+          _localMidiState.noteOn(event.data1, event.data2, event.channel);
+          break;
+        case MidiEventType.noteOff:
+          _localMidiState.noteOff(event.data1, event.channel);
+          break;
+        case MidiEventType.controlChange:
+        case MidiEventType.programChange:
+        case MidiEventType.pitchBend:
+        case MidiEventType.other:
+          _localMidiState.setLastNote(event.displayMessage);
+          break;
+      }
+    });
   }
 
   /// Applies a config mutation, then resets/stops any ongoing operations and rebuilds the display.
