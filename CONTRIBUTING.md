@@ -124,153 +124,18 @@ Thank you for your interest in contributing to Piano Fitness! This document prov
    - Reference any related issues
    - Include screenshots for UI changes
 
-## 🏗️ Project Architecture
+## Project Architecture
 
-### Directory Structure
+Piano Fitness follows Clean Architecture with three strictly ordered layers. See [ARCHITECTURE.md](ARCHITECTURE.md) for the complete reference: layer contracts, MVVM pattern, key patterns, and enforcement.
 
-```text
-lib/
-├── main.dart                     # App entry point and Provider configuration
-├── presentation/                 # Presentation layer (UI, ViewModels, feature modules)
-│   ├── features/                 # Feature-based MVVM modules
-│   │   ├── device_controller/    # MIDI device testing and control
-│   │   ├── midi_settings/        # MIDI device configuration
-│   │   ├── notifications/        # Practice reminders and notifications
-│   │   │   └── widgets/          # Notification-specific widgets
-│   │   ├── play/                 # Main piano interface
-│   │   ├── practice/             # Guided practice exercises
-│   │   ├── reference/            # Scale and chord reference
-│   │   ├── repertoire/           # Repertoire practice with timer
-│   │   │   └── widgets/          # Repertoire-specific widgets
-│   │   └── user_profile/         # User profile management
-│   │       ├── utils/            # Profile utilities
-│   │       └── widgets/          # Profile-specific widgets
-│   ├── accessibility/            # Accessibility framework
-│   │   ├── config/               # Accessibility configuration
-│   │   ├── services/             # Accessibility services
-│   ├── constants/                # Shared UI constants
-│   ├── theme/                    # Theming and visual design system
-│   ├── utils/                    # Shared presentation utilities
-│   └── widgets/                  # Reusable shared UI components
-├── application/                  # Application layer (services, repositories impl, state)
-├── domain/                       # Domain layer (models, interfaces, business logic)
-└── scripts/                      # Development and build scripts
-test/                             # Test files (mirrors lib/ structure)
-docs/                             # Project documentation
-coverage/                         # Test coverage reports
-scripts/                          # Development scripts (simulators, etc.)
-android/                          # Android platform files
-ios/                              # iOS platform files
-macos/                            # macOS platform files
-windows/                          # Windows platform files
-linux/                            # Linux platform files
-web/                              # Web platform files
-```
+At a glance:
 
-### Architecture Pattern: Clean Architecture + Features
+- `lib/presentation/` — UI widgets, ViewModels, and MVVM feature modules
+- `lib/application/` — service orchestration, repository implementations, global state
+- `lib/domain/` — pure business logic, models, repository interfaces
+- `test/` — mirrors `lib/` structure
 
-Piano Fitness implements a **hybrid architecture** that combines:
-
-1. **Clean Architecture** principles (Uncle Bob) - Separation of concerns via layered dependencies
-2. **Feature-based organization** (Flutter team recommendations) - Code organized by business capabilities
-
-This hybrid approach gives us the benefits of both patterns:
-
-- ✅ **Domain independence**: Business logic isolated from frameworks and infrastructure
-- ✅ **Feature clarity**: Related code co-located for better developer experience
-- ✅ **Testability**: Clear dependency boundaries enable comprehensive unit testing
-- ✅ **Scalability**: New features can be added without affecting existing code
-
-#### Three-Layer Architecture
-
-```text
-┌─────────────────────────────────────────────────────┐
-│  Presentation Layer (presentation/)                 │
-│  - Pages (Views): UI components                     │
-│  - ViewModels: Feature-specific business logic      │
-│  - Widgets: Reusable UI components                  │
-│  - Features: MVVM modules (presentation/features/)  │
-└────────────┬────────────────────────────────────────┘
-             │ depends on ↓
-┌────────────▼────────────────────────────────────────┐
-│  Application Layer (application/)                   │
-│  - Services: Infrastructure orchestration           │
-│  - State: Global application state                  │
-│  - Repositories: Interface implementations          │
-└────────────┬────────────────────────────────────────┘
-             │ depends on ↓
-┌────────────▼────────────────────────────────────────┐
-│  Domain Layer (domain/)                             │
-│  - Models: Pure business entities                   │
-│  - Services: Pure business logic (music theory)     │
-│  - Repository Interfaces: Contracts for I/O         │
-│  - Constants: Domain-level constants                │
-└─────────────────────────────────────────────────────┘
-```
-
-**Key Principles:**
-
-- **Dependency Rule**: Dependencies point inward (Presentation → Application → Domain)
-- **Domain Independence**: Domain layer must not depend on Flutter, UI frameworks, databases, hardware drivers, or network clients. The rule is about *infrastructure coupling*, not package count. Pure Dart utility packages — those that perform computation, data modelling, or annotation with no rendering, I/O, or platform coupling — are acceptable in the domain. Examples: `package:meta` (annotations), `package:collection` (collection algorithms), `package:equatable` (value equality). These packages are analogous to extending `dart:*`; they carry no Flutter dependency and do not tie the domain to any infrastructure. To verify a candidate package before adding it to the domain, check its `pubspec.yaml` on [pub.dev](https://pub.dev) and confirm `flutter` does not appear in its `dependencies`. Alternatively, run `dart pub deps` from the project root and inspect the candidate package's subtree for any `flutter` entry.
-- **Interface Segregation**: Repository interfaces in domain, implementations in application
-- **Feature Organization**: Features contain related pages, ViewModels, and feature-specific widgets
-
-#### MVVM Within Features
-
-Each feature follows the **MVVM pattern**:
-
-- **View (Page)**: Pure UI layer, handles user interactions
-- **ViewModel**: Business logic layer, manages state and coordinates between View and repositories
-- **Model**: Data structures and business rules (in domain layer)
-- **Repository**: Interface-based abstraction for external dependencies (MIDI, settings, etc.)
-
-Each feature is self-contained with its own View and ViewModel, using **Provider** for dependency injection and state management.
-
-#### Further Reading
-
-Learn more about the architectural patterns we follow:
-
-- **Clean Architecture**: [The Clean Architecture by Robert C. Martin](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
-- **Flutter Architecture**: [Flutter architectural overview (official docs)](https://docs.flutter.dev/resources/architectural-overview)
-- **Feature-First Organization**: [Flutter development best practices (official)](https://docs.flutter.dev/perf/best-practices)
-- **MVVM Pattern**: [Microsoft's MVVM documentation](https://learn.microsoft.com/en-us/dotnet/architecture/maui/mvvm)
-- **Repository Pattern**: [Martin Fowler's Repository Pattern](https://martinfowler.com/eaaCatalog/repository.html)
-- **Dependency Injection**: [Dependency Inversion Principle (SOLID)](https://en.wikipedia.org/wiki/Dependency_inversion_principle)
-
-For Piano Fitness-specific architectural decisions, see our [Architecture Decision Records (ADRs)](../docs/ADRs/README.md).
-
-#### Dependency Injection Pattern
-
-**ViewModels receive dependencies via constructor injection:**
-
-```dart
-class PlayPageViewModel extends ChangeNotifier {
-  final IMidiRepository _midiRepository;
-  
-  PlayPageViewModel({required IMidiRepository midiRepository})
-      : _midiRepository = midiRepository;
-}
-```
-
-**Pages provide ViewModels using ChangeNotifierProvider:**
-
-```dart
-ChangeNotifierProvider(
-  create: (context) => PlayPageViewModel(
-    midiRepository: context.read<IMidiRepository>(),
-  ),
-  child: PlayPageContent(),
-)
-```
-
-**Tests use mock repositories:**
-
-```dart
-final mockMidiRepository = MockMidiRepository();
-final viewModel = PlayPageViewModel(midiRepository: mockMidiRepository);
-```
-
-See `test/shared/test_helpers/mock_repositories.dart` for available mocks.
+For architectural decisions and rationale, see [docs/ADRs/README.md](docs/ADRs/README.md).
 
 ## 📋 Development Guidelines
 
@@ -281,13 +146,6 @@ See `test/shared/test_helpers/mock_repositories.dart` for available mocks.
 - **Files**: Use snake_case (`piano_keyboard_component.dart`)
 - **Classes**: Use PascalCase (`PianoKeyboard`, `MidiController`)
 - **Variables/Methods**: Use camelCase (`currentNote`, `playSound()`)
-
-### MVVM Implementation Guidelines
-
-1. **Pages (Views)** should be focused purely on UI and user interaction
-2. **ViewModels** should handle all business logic and extend `ChangeNotifier`
-3. **Shared utilities** should contain pure functions and music theory
-4. **Models** should represent data structures and global state
 
 ### Package Management
 

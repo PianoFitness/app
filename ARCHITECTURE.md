@@ -1,0 +1,183 @@
+# Architecture
+
+Piano Fitness follows **Clean Architecture** with three strictly ordered layers. Dependencies flow inward only: Presentation → Application → Domain.
+
+---
+
+## Layers
+
+### Domain (`lib/domain/`)
+
+The innermost layer. Contains pure business logic with no external dependencies — no Flutter, no I/O, no infrastructure packages.
+
+**Allowed imports:** `dart:*` core libraries, pure Dart packages with no transitive Flutter dependency (e.g. `package:meta`, `package:collection`), and other `lib/domain/*` files.
+
+**Prohibited imports:** `lib/application/*`, `lib/presentation/*`, any Flutter or infrastructure package.
+
+> To verify a new package is safe for the domain layer: `dart pub deps | grep flutter`. Empty output → acceptable. Non-empty → belongs in application layer.
+
+Contains:
+
+- **`models/`** — Value objects and domain entities (e.g. `MidiNote`, `MidiChannel`, `ChordType`, `ScaleType`)
+- **`services/`** — Pure functions implementing music theory (scale generation, chord construction, MIDI parsing)
+- **`repositories/`** — Interface contracts (e.g. `IMidiRepository`) implemented in the application layer
+- **`constants/`** — Domain-level constants (musical theory, practice)
+
+### Application (`lib/application/`)
+
+Orchestrates domain services, repository implementations, and cross-cutting infrastructure concerns.
+
+**Allowed imports:** `lib/domain/*`, Flutter framework, and infrastructure packages.
+
+**Prohibited imports:** `lib/presentation/*`.
+
+Contains:
+
+- **`repositories/`** — Concrete repository implementations (e.g. `MidiRepositoryImpl`)
+- **`services/`** — Infrastructure integrations (MIDI device connection, notifications)
+- **`state/`** — Global `ChangeNotifier` state shared across features (e.g. `MidiState`, `PracticeSession`)
+- **`utils/`** — Application-layer utilities and adapters (e.g. `MidiDataHandler`, `PianoNoteBridge`, `VirtualPianoUtils`)
+- **`database/`** — Drift ORM configuration and schema management
+
+### Presentation (`lib/presentation/`)
+
+The outermost layer. UI widgets and ViewModels. May import from all layers.
+
+Contains:
+
+- **`features/`** — MVVM feature modules (one directory per feature)
+- **`widgets/`** — Shared UI components used across features
+- **`theme/`** — Material theme configuration and semantic colour extensions
+- **`constants/`** — UI constants (`Spacing`, `ResponsiveBreakpoints`, `AppBorderRadius`, etc.)
+- **`utils/`** — Presentation utilities (piano range calculation, accessibility helpers)
+- **`accessibility/`** — Semantic label constants and accessible widget wrappers
+
+---
+
+## MVVM Pattern
+
+Each feature in `lib/presentation/features/<feature>/` follows a consistent structure:
+
+```text
+feature_page.dart          # Thin StatelessWidget — creates ChangeNotifierProvider, renders _FeatureView
+feature_page_view_model.dart  # ChangeNotifier — all feature business logic and state
+```
+
+**Page responsibilities:**
+
+- Creates the `ChangeNotifierProvider` with the ViewModel, injecting dependencies via `context.read<T>()`
+- Delegates all UI building to a private `_FeatureView` `StatelessWidget`
+- Contains no business logic
+
+**ViewModel responsibilities:**
+
+- Extends `ChangeNotifier`
+- Coordinates application-layer state and services
+- Exposes immutable getters; calls `notifyListeners()` after state changes
+- Disposes all subscriptions and handlers in `dispose()`
+
+**View responsibilities:**
+
+- Reads ViewModel via `context.watch<FeaturePageViewModel>()` or `Consumer`
+- Handles user interaction by delegating to ViewModel methods
+- No business logic — only layout, styling, and user interaction
+
+---
+
+## Key Patterns
+
+### Repository Interface
+
+Interfaces are defined in `domain/repositories/` and implemented in `application/repositories/`. ViewModels receive the interface type via constructor injection; tests use mock implementations.
+
+```dart
+// Domain: interface contract
+abstract class IMidiRepository {
+  Future<void> sendNoteOn(int note, int velocity, int channel);
+  void registerDataHandler(void Function(Uint8List) handler);
+  void unregisterDataHandler(void Function(Uint8List) handler);
+}
+
+// Application: concrete implementation
+class MidiRepositoryImpl implements IMidiRepository { ... }
+
+// Presentation: ViewModel receives interface
+class PlayPageViewModel extends ChangeNotifier {
+  PlayPageViewModel({required IMidiRepository midiRepository}) ...
+}
+```
+
+### Value Objects
+
+Domain value objects enforce invariants at construction time, preventing invalid state from propagating. Follow the `MidiNote` / `MidiChannel` pattern: constructor guard, `validate()` static helper, `isValid()` predicate.
+
+```dart
+class MidiNote {
+  static const int min = 0;
+  static const int max = 127;
+
+  MidiNote(this.value) {
+    if (value < min || value > max) throw RangeError(...);
+  }
+
+  static int validate(int note) { ... }  // returns note or throws
+  static bool isValid(int note) => note >= min && note <= max;
+}
+```
+
+### Bridge / Adapter
+
+When a Flutter widget package introduces its own type system for a concept the domain already models, a bridge in `lib/application/utils/` converts between the two. This keeps domain types pure and the conversion logic centralised and testable.
+
+**Example:** `PianoNoteBridge` converts between domain `MusicalNote`/MIDI integers and `package:piano`'s `NotePosition`.
+
+Add a bridge when:
+
+- Multiple sites need the same conversion between a domain type and a Flutter package type
+- The conversion is non-trivial
+
+Do **not** implement a Flutter package's interface directly on a domain type — that would import Flutter into the domain layer.
+
+### Re-export for Backward Compatibility
+
+When a type is extracted from a service file into `domain/models/`, the service file re-exports it so existing callers are not broken:
+
+```dart
+// domain/services/music_theory/scales.dart
+import "package:piano_fitness/domain/models/music/scale_types.dart";
+export "package:piano_fitness/domain/models/music/scale_types.dart";
+```
+
+New code should import the model file directly; only files that also use the service class need the service import.
+
+### MIDI Data Handling
+
+All four MIDI-receiving ViewModels delegate raw MIDI dispatch to `MidiDataHandler.dispatch()` in the application layer. This centralises parse-error recovery and event-callback error logging in one place; ViewModels only contain the feature-specific switch over `MidiEventType`.
+
+---
+
+## Architecture Enforcement
+
+### Pre-commit Hook
+
+`scripts/check-layer-boundaries.sh` (configured via `lefthook.yml`) runs automatically on commits that touch `lib/domain/` or `lib/application/`. It scans for forbidden cross-layer imports and explains violations with remediation guidance.
+
+Run manually:
+
+```bash
+./scripts/check-layer-boundaries.sh
+```
+
+### Static Analysis
+
+`analysis_options.yaml` enforces strict type checking. Layer dependency rules are documented inline.
+
+---
+
+## Further Reading
+
+- [Architecture Decision Records](docs/ADRs/README.md) — rationale behind specific architectural choices
+- [ADR-003: Repository Pattern](docs/ADRs/003-repository-pattern-implementation.md)
+- [ADR-005: Dependency Injection Strategy](docs/ADRs/005-dependency-injection-strategy.md)
+- [Clean Architecture — Robert C. Martin](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
+- [Dependency Inversion Principle](https://en.wikipedia.org/wiki/Dependency_inversion_principle)
