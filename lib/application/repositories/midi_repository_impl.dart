@@ -5,6 +5,7 @@ import "package:flutter_midi_command/flutter_midi_command.dart" as midi_cmd;
 import "package:logging/logging.dart";
 import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
 import "package:piano_fitness/domain/models/midi_channel.dart";
+import "package:piano_fitness/domain/models/midi_note.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 
 /// Implementation of IMidiRepository wrapping MidiConnectionService
@@ -177,7 +178,7 @@ class MidiRepositoryImpl implements IMidiRepository {
 
   @override
   Future<void> sendNoteOn(int note, int velocity, int channel) async {
-    // Validate channel before constructing MIDI message
+    MidiNote.validate(note);
     MidiChannel.validate(channel);
 
     final data = Uint8List.fromList([0x90 + channel, note, velocity]);
@@ -186,7 +187,7 @@ class MidiRepositoryImpl implements IMidiRepository {
 
   @override
   Future<void> sendNoteOff(int note, int channel) async {
-    // Validate channel before constructing MIDI message
+    MidiNote.validate(note);
     MidiChannel.validate(channel);
 
     final data = Uint8List.fromList([0x80 + channel, note, 0]);
