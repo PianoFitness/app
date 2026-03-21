@@ -12,25 +12,6 @@
 class RepertoireUIConstants {
   RepertoireUIConstants._(); // Private constructor to prevent instantiation
 
-  // Timer Configuration
-  /// Default timer duration in minutes
-  static const int defaultDurationMinutes = 15;
-
-  /// Available timer duration options in minutes
-  static const List<int> timerDurations = [5, 10, 15, 20, 30];
-
-  /// Seconds per minute conversion constant
-  static const int secondsPerMinute = 60;
-
-  /// Timer tick interval for countdown updates
-  static const Duration timerTickDuration = Duration(seconds: 1);
-
-  /// Minimum padding for zero value in time formatting
-  static const int timePaddingWidth = 2;
-
-  /// Padding character for time formatting
-  static const String timePaddingChar = "0";
-
   // Responsive Font Sizes (Compact Layouts)
   // Note: Standard font sizes should use Theme.of(context).textTheme instead
   // These compact sizes are for responsive layouts with height < 600px
@@ -100,11 +81,4 @@ class RepertoireUIConstants {
   // Border Radius (Feature-Specific)
   /// Container border radius
   static const double containerBorderRadius = 6.0;
-
-  // Notification Configuration
-  /// Timer completion notification title
-  static const String notificationTitle = "Great Practice Session! 🎹";
-
-  /// Timer completion notification payload
-  static const String notificationPayload = "timer_completion";
 }
