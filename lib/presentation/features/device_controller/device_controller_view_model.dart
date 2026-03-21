@@ -1,12 +1,13 @@
+import "dart:async" show unawaited;
+
 import "package:flutter/foundation.dart";
-import "package:flutter_midi_command/flutter_midi_command_messages.dart";
 import "package:logging/logging.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/constants/midi_protocol_constants.dart";
 import "package:piano_fitness/domain/models/midi_channel.dart";
-import "package:piano_fitness/application/utils/midi_coordinator.dart";
+import "package:piano_fitness/domain/models/midi/midi_event.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
-import "package:piano_fitness/domain/services/midi/midi_service.dart";
 
 /// ViewModel for managing device controller state and MIDI operations.
 ///
@@ -99,7 +100,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
     if (value >= 0 && value <= MidiProtocol.controllerMax) {
       _ccValue = value;
       notifyListeners();
-      sendControlChange();
+      unawaited(_sendControlChange());
     }
   }
 
@@ -108,7 +109,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
     if (program >= 0 && program <= MidiProtocol.programMax) {
       _programNumber = program;
       notifyListeners();
-      sendProgramChange();
+      unawaited(_sendProgramChange());
     }
   }
 
@@ -118,7 +119,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
         bend <= MidiProtocol.pitchBendNormalizedMax) {
       _pitchBend = bend;
       notifyListeners();
-      sendPitchBend();
+      unawaited(_sendPitchBend());
     }
   }
 
@@ -126,35 +127,32 @@ class DeviceControllerViewModel extends ChangeNotifier {
   void resetPitchBend() {
     _pitchBend = 0.0;
     notifyListeners();
-    sendPitchBend();
+    unawaited(_sendPitchBend());
   }
 
-  /// Sends a control change message.
-  void sendControlChange() {
+  Future<void> _sendControlChange() async {
     try {
-      CCMessage(
-        channel: _selectedChannel,
-        controller: _ccController,
-        value: _ccValue,
-      ).send();
+      await _midiRepository.sendControlChange(
+        _ccController,
+        _ccValue,
+        _selectedChannel,
+      );
     } on Exception catch (e) {
       _log.warning("Error sending CC: $e");
     }
   }
 
-  /// Sends a program change message.
-  void sendProgramChange() {
+  Future<void> _sendProgramChange() async {
     try {
-      PCMessage(channel: _selectedChannel, program: _programNumber).send();
+      await _midiRepository.sendProgramChange(_programNumber, _selectedChannel);
     } on Exception catch (e) {
       _log.warning("Error sending PC: $e");
     }
   }
 
-  /// Sends a pitch bend message.
-  void sendPitchBend() {
+  Future<void> _sendPitchBend() async {
     try {
-      PitchBendMessage(channel: _selectedChannel, bend: _pitchBend).send();
+      await _midiRepository.sendPitchBend(_pitchBend, _selectedChannel);
     } on Exception catch (e) {
       _log.warning("Error sending pitch bend: $e");
     }
@@ -214,7 +212,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
           _programNumber = event.data1;
           break;
         case MidiEventType.pitchBend:
-          _pitchBend = MidiService.getPitchBendValue(event.data1, event.data2);
+          _pitchBend = event.pitchBendValue;
           break;
         case MidiEventType.noteOn:
         case MidiEventType.noteOff:

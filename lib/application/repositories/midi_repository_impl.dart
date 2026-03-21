@@ -195,6 +195,36 @@ class MidiRepositoryImpl implements IMidiRepository {
   }
 
   @override
+  Future<void> sendControlChange(int controller, int value, int channel) async {
+    MidiChannel.validate(channel);
+    final data = Uint8List.fromList([
+      0xB0 + channel,
+      controller & 0x7F,
+      value & 0x7F,
+    ]);
+    await sendData(data);
+  }
+
+  @override
+  Future<void> sendProgramChange(int program, int channel) async {
+    MidiChannel.validate(channel);
+    final data = Uint8List.fromList([0xC0 + channel, program & 0x7F]);
+    await sendData(data);
+  }
+
+  @override
+  Future<void> sendPitchBend(double bend, int channel) async {
+    MidiChannel.validate(channel);
+    final rawBend = ((bend + 1.0) / 2.0 * 0x3FFF).round().clamp(0, 0x3FFF);
+    final data = Uint8List.fromList([
+      0xE0 + channel,
+      rawBend & 0x7F,
+      (rawBend >> 7) & 0x7F,
+    ]);
+    await sendData(data);
+  }
+
+  @override
   void registerDataHandler(void Function(Uint8List) handler) {
     // Only register with service if this is a new handler
     if (_registeredHandlers.add(handler)) {

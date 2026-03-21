@@ -32,6 +32,18 @@ abstract class IMidiRepository {
   /// Send structured MIDI note-off message
   Future<void> sendNoteOff(int note, int channel);
 
+  /// Send a MIDI control change (CC) message
+  Future<void> sendControlChange(int controller, int value, int channel);
+
+  /// Send a MIDI program change message
+  Future<void> sendProgramChange(int program, int channel);
+
+  /// Send a MIDI pitch bend message
+  ///
+  /// [bend] must be in the range -1.0 (minimum) to 1.0 (maximum), where
+  /// 0.0 is the center (no bend).
+  Future<void> sendPitchBend(double bend, int channel);
+
   /// Register handler for incoming MIDI data
   void registerDataHandler(void Function(Uint8List) handler);
 

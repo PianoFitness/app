@@ -142,6 +142,37 @@ class MockIMidiRepository extends _i1.Mock implements _i7.IMidiRepository {
           as _i8.Future<void>);
 
   @override
+  _i8.Future<void> sendControlChange(
+    int? controller,
+    int? value,
+    int? channel,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#sendControlChange, [controller, value, channel]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> sendProgramChange(int? program, int? channel) =>
+      (super.noSuchMethod(
+            Invocation.method(#sendProgramChange, [program, channel]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> sendPitchBend(double? bend, int? channel) =>
+      (super.noSuchMethod(
+            Invocation.method(#sendPitchBend, [bend, channel]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
+
+  @override
   void registerDataHandler(void Function(_i9.Uint8List)? handler) =>
       super.noSuchMethod(
         Invocation.method(#registerDataHandler, [handler]),

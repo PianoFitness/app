@@ -55,4 +55,14 @@ class MidiEvent {
 
   /// Human-readable description of this MIDI event for debugging/display.
   final String displayMessage;
+
+  /// Normalized pitch bend value in the range -1.0 (min) to 1.0 (max).
+  ///
+  /// Only meaningful when [type] is [MidiEventType.pitchBend].
+  /// Uses the standard 14-bit MIDI pitch bend encoding: [data1] is the LSB
+  /// and [data2] is the MSB of the 14-bit value.
+  double get pitchBendValue {
+    final rawPitch = data1 + (data2 << 7);
+    return ((rawPitch / 0x3FFF) * 2.0) - 1;
+  }
 }
