@@ -2,13 +2,11 @@ import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
-import "package:piano_fitness/domain/constants/midi_protocol_constants.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/presentation/features/device_controller/device_controller_constants.dart";
 import "package:piano_fitness/presentation/features/device_controller/device_controller_view_model.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:piano_fitness/presentation/theme/semantic_colors.dart";
-import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/presentation/utils/piano_key_utils.dart";
 
 /// A detailed controller interface for a specific MIDI device.
@@ -209,8 +207,8 @@ class _DeviceControllerView extends StatelessWidget {
                 Expanded(
                   child: Slider(
                     value: viewModel.ccController.toDouble(),
-                    max: MidiProtocol.controllerMax.toDouble(),
-                    divisions: MidiProtocol.controllerMax,
+                    max: DeviceControllerViewModel.controllerMax.toDouble(),
+                    divisions: DeviceControllerViewModel.controllerMax,
                     label: viewModel.ccController.toString(),
                     onChanged: (value) =>
                         viewModel.setCCController(value.toInt()),
@@ -225,8 +223,8 @@ class _DeviceControllerView extends StatelessWidget {
                 Expanded(
                   child: Slider(
                     value: viewModel.ccValue.toDouble(),
-                    max: MidiProtocol.controllerMax.toDouble(),
-                    divisions: MidiProtocol.controllerMax,
+                    max: DeviceControllerViewModel.controllerMax.toDouble(),
+                    divisions: DeviceControllerViewModel.controllerMax,
                     label: viewModel.ccValue.toString(),
                     onChanged: (value) => viewModel.setCCValue(value.toInt()),
                   ),
@@ -261,8 +259,8 @@ class _DeviceControllerView extends StatelessWidget {
                 Expanded(
                   child: Slider(
                     value: viewModel.programNumber.toDouble(),
-                    max: MidiProtocol.programMax.toDouble(),
-                    divisions: MidiProtocol.programMax,
+                    max: DeviceControllerViewModel.programMax.toDouble(),
+                    divisions: DeviceControllerViewModel.programMax,
                     label: viewModel.programNumber.toString(),
                     onChanged: (value) =>
                         viewModel.setProgramNumber(value.toInt()),
@@ -291,7 +289,7 @@ class _DeviceControllerView extends StatelessWidget {
             const SizedBox(height: Spacing.md),
             Slider(
               value: viewModel.pitchBend,
-              min: MidiProtocol.pitchBendNormalizedMin,
+              min: DeviceControllerViewModel.pitchBendMin,
               divisions: MidiUiConstants.pitchBendDivisions,
               label: viewModel.pitchBend.toStringAsFixed(2),
               onChanged: viewModel.setPitchBend,
@@ -362,7 +360,7 @@ class _DeviceControllerView extends StatelessWidget {
     DeviceControllerViewModel viewModel,
   ) {
     // Use centralized compact note naming to ensure consistency across the app
-    final noteName = NoteUtils.getCompactNoteName(midiNote);
+    final noteName = viewModel.getNoteLabel(midiNote);
     final theme = Theme.of(context);
     final isBlack = isBlackKey(midiNote);
 

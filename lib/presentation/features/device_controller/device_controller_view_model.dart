@@ -8,6 +8,7 @@ import "package:piano_fitness/domain/constants/midi_protocol_constants.dart";
 import "package:piano_fitness/domain/models/midi_channel.dart";
 import "package:piano_fitness/domain/models/midi/midi_event.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
+import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 
 /// ViewModel for managing device controller state and MIDI operations.
 ///
@@ -60,6 +61,26 @@ class DeviceControllerViewModel extends ChangeNotifier {
 
   /// Last received MIDI message as human-readable string.
   String get lastReceivedMessage => _lastReceivedMessage;
+
+  // ---------------------------------------------------------------------------
+  // Slider bounds exposed for the view (item 4)
+  // ---------------------------------------------------------------------------
+
+  /// Maximum CC controller/value (0–127).
+  static const int controllerMax = MidiProtocol.controllerMax;
+
+  /// Maximum program number (0–127).
+  static const int programMax = MidiProtocol.programMax;
+
+  /// Minimum normalized pitch bend value (-1.0).
+  static const double pitchBendMin = MidiProtocol.pitchBendNormalizedMin;
+
+  // ---------------------------------------------------------------------------
+  // Display helpers (item 3)
+  // ---------------------------------------------------------------------------
+
+  /// Returns the compact note name for [midiNote] (e.g. "C4", "F#3").
+  String getNoteLabel(int midiNote) => NoteUtils.getCompactNoteName(midiNote);
 
   /// Sets the selected MIDI channel.
   void setSelectedChannel(int channel) {
