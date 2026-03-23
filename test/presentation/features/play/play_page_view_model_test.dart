@@ -1,5 +1,6 @@
 import "dart:typed_data";
 import "package:flutter_test/flutter_test.dart";
+import "package:piano/piano.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/presentation/features/play/play_page_view_model.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
@@ -57,6 +58,17 @@ void main() {
       // Verify the last note message was set in local MIDI state
       expect(
         viewModel.midiState.lastNote.contains("Virtual Note ON: $testNote"),
+        isTrue,
+      );
+    });
+
+    test("should play virtual note from NotePosition", () async {
+      // C5 = MIDI note 72 ((5+1)*12 + 0)
+      final position = NotePosition(note: Note.C, octave: 5);
+      await viewModel.playVirtualNoteFromPosition(position);
+
+      expect(
+        viewModel.midiState.lastNote.contains("Virtual Note ON: 72"),
         isTrue,
       );
     });

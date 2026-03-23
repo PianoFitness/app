@@ -3,10 +3,10 @@ import "package:flutter/foundation.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
+import "package:piano_fitness/application/utils/piano_note_bridge.dart";
 import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/models/midi/midi_event.dart";
-import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
 
 /// ViewModel for managing play page state and MIDI operations.
 ///
@@ -71,9 +71,10 @@ class PlayPageViewModel extends ChangeNotifier {
     );
   }
 
-  /// Returns the fixed 49-key range (C2 to C6) for consistent layout.
-  NoteRange getFixed49KeyRange() {
-    return PianoRangeUtils.standard49KeyRange;
+  /// Converts a piano key tap to a MIDI note and plays it.
+  Future<void> playVirtualNoteFromPosition(NotePosition position) async {
+    final midiNote = PianoNoteBridge.convertNotePositionToMidi(position);
+    await playVirtualNote(midiNote);
   }
 
   @override
