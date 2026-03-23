@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:piano_fitness/presentation/accessibility/services/musical_announcements_service.dart";
+import "package:piano_fitness/presentation/features/repertoire/repertoire_constants.dart";
 
 /// Reusable widget for selecting practice duration in repertoire practice.
 class RepertoireDurationSelector extends StatelessWidget {
@@ -36,10 +37,14 @@ class RepertoireDurationSelector extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         // Determine if we're in a very constrained space
-        final isVeryConstrained = constraints.maxHeight < 120;
+        final isVeryConstrained =
+            constraints.maxHeight <
+            RepertoireUIConstants.durationVeryConstrainedHeight;
 
         // Check if we're in a horizontal layout (landscape) where space is more constrained
-        final isHorizontalLayout = constraints.maxWidth < 300;
+        final isHorizontalLayout =
+            constraints.maxWidth <
+            RepertoireUIConstants.durationHorizontalLayoutWidth;
 
         // Adaptive styling based on available space
         final padding = isVeryConstrained ? 8.0 : (isCompact ? 12.0 : 16.0);
@@ -103,7 +108,9 @@ class RepertoireDurationSelector extends StatelessWidget {
                       : (isHorizontalLayout ? 6 : 10),
                   children: availableDurations.map((duration) {
                     final isSelected = selectedDuration == duration;
-                    final isRecommended = duration == 15;
+                    final isRecommended =
+                        duration ==
+                        RepertoireUIConstants.recommendedDurationMinutes;
 
                     return Semantics(
                       label:
@@ -197,7 +204,8 @@ class RepertoireDurationSelector extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
-                  selectedDuration == 15
+                  selectedDuration ==
+                          RepertoireUIConstants.recommendedDurationMinutes
                       ? "⭐ Recommended for focused practice"
                       : "", // Empty text maintains space
                   style: TextStyle(

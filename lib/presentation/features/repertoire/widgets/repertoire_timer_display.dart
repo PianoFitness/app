@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:piano_fitness/presentation/accessibility/services/musical_announcements_service.dart";
+import "package:piano_fitness/presentation/features/repertoire/repertoire_constants.dart";
 
 /// Configuration object for timer state.
 class TimerState {
@@ -100,8 +101,13 @@ class RepertoireTimerDisplay extends StatelessWidget {
         // Responsive sizing based on available space
         final availableHeight = constraints.maxHeight;
         final availableWidth = constraints.maxWidth;
-        final isVeryConstrained = availableHeight < 140 || availableWidth < 200;
-        final isExtremelyConstrained = availableHeight < 100;
+        final isVeryConstrained =
+            availableHeight <
+                RepertoireUIConstants.timerVeryConstrainedHeight ||
+            availableWidth < RepertoireUIConstants.timerVeryConstrainedWidth;
+        final isExtremelyConstrained =
+            availableHeight <
+            RepertoireUIConstants.timerExtremelyConstrainedHeight;
         final isLandscape = availableWidth > availableHeight;
 
         // Ultra-compact sizing for very constrained spaces
@@ -109,7 +115,12 @@ class RepertoireTimerDisplay extends StatelessWidget {
             ? 30.0
             : (isVeryConstrained
                   ? 40.0
-                  : (isCompact ? 55.0 : (availableHeight > 150 ? 70.0 : 60.0)));
+                  : (isCompact
+                        ? 55.0
+                        : (availableHeight >
+                                  RepertoireUIConstants.timerComfortableHeight
+                              ? 70.0
+                              : 60.0)));
         final timerFontSize = isExtremelyConstrained
             ? 10.0
             : (isVeryConstrained ? 11.0 : (isCompact ? 14.0 : 16.0));
@@ -527,15 +538,14 @@ class RepertoireTimerDisplay extends StatelessWidget {
   }
 
   Color _getStatusColor() {
-    // Use hardcoded colors in helper methods since we don't have access to context
     if (state.isRunning && !state.isPaused) {
-      return const Color(0xFF4CAF50); // Green for running
+      return RepertoireUIConstants.timerRunningColor;
     } else if (state.isPaused) {
-      return const Color(0xFFFF9800); // Amber for paused
+      return RepertoireUIConstants.timerPausedColor;
     } else if (state.remainingSeconds == 0) {
-      return const Color(0xFF9C27B0); // Purple for completed
+      return RepertoireUIConstants.timerCompletedColor;
     } else {
-      return const Color(0xFF3F51B5); // Indigo for ready
+      return RepertoireUIConstants.timerReadyColor;
     }
   }
 
