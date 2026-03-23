@@ -10,7 +10,6 @@ import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/presentation/accessibility/config/accessibility_labels.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
-import "package:piano_fitness/application/utils/piano_note_bridge.dart";
 import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
 import "package:piano_fitness/presentation/widgets/practice_progress_display.dart";
 import "package:piano_fitness/presentation/widgets/practice_settings_panel.dart";
@@ -257,7 +256,9 @@ class _PracticePageViewState extends State<_PracticePageView> {
         animation: viewModel,
         builder: (context, child) {
           final highlightedNotes = viewModel.getDisplayHighlightedNotes();
-          final practiceRange = viewModel.calculatePracticeRange();
+          final practiceRange = PianoRangeUtils.calculateFixed49KeyRange(
+            viewModel.notesForRangeCalculation,
+          );
           final screenWidth = MediaQuery.of(context).size.width;
           final dynamicKeyWidth = PianoRangeUtils.calculateScreenBasedKeyWidth(
             screenWidth,
@@ -277,12 +278,8 @@ class _PracticePageViewState extends State<_PracticePageView> {
                 PianoRangeUtils.maxKeyWidth,
               ),
               noteRange: practiceRange,
-              onNotePositionTapped: (position) async {
-                final midiNote = PianoNoteBridge.convertNotePositionToMidi(
-                  position,
-                );
-                await viewModel.playVirtualNote(midiNote, mounted: mounted);
-              },
+              onNotePositionTapped: (position) => viewModel
+                  .playVirtualNoteFromPosition(position, mounted: mounted),
             ),
           );
         },

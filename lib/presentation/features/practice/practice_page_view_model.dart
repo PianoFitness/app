@@ -15,7 +15,7 @@ import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/models/midi/midi_event.dart";
 import "package:piano_fitness/domain/models/music/arpeggio_type.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
-import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
+import "package:piano_fitness/application/utils/piano_note_bridge.dart";
 import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
 import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
 
@@ -233,19 +233,17 @@ class PracticePageViewModel extends ChangeNotifier {
         : _midiState.highlightedNotePositions;
   }
 
-  /// Calculates the 49-key range centered around the current practice exercise.
-  ///
-  /// Delegates to PracticeSession to get all notes that will be visible,
-  /// which automatically accounts for hand selection.
-  NoteRange calculatePracticeRange() {
-    final session = _practiceSession;
-    if (session == null) {
-      return PianoRangeUtils.calculateFixed49KeyRange([]);
-    }
+  /// MIDI notes for piano range calculation, used by the view to compute display range.
+  List<int> get notesForRangeCalculation =>
+      _practiceSession?.getNotesForRangeCalculation() ?? [];
 
-    // Get all notes from the single source of truth
-    final allNotes = session.getNotesForRangeCalculation();
-    return PianoRangeUtils.calculateFixed49KeyRange(allNotes);
+  /// Plays a virtual note from a NotePosition.
+  Future<void> playVirtualNoteFromPosition(
+    NotePosition position, {
+    bool mounted = true,
+  }) async {
+    final midiNote = PianoNoteBridge.convertNotePositionToMidi(position);
+    await playVirtualNote(midiNote, mounted: mounted);
   }
 
   @override

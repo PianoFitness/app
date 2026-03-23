@@ -191,11 +191,19 @@ void main() {
       );
     });
 
-    test("should calculate practice range correctly", () {
-      final range = viewModel.calculatePracticeRange();
+    test("should expose notes for range calculation", () {
+      final notes = viewModel.notesForRangeCalculation;
+      expect(notes, isA<List<int>>());
+    });
 
-      expect(range, isNotNull);
-      expect(range, isA<NoteRange>());
+    test("should play virtual note from NotePosition", () async {
+      // C5 = MIDI 72 ((5+1)*12 + 0)
+      final position = NotePosition(note: Note.C, octave: 5);
+      await viewModel.playVirtualNoteFromPosition(position, mounted: false);
+      expect(
+        viewModel.midiState.lastNote.contains("Virtual Note ON: 72"),
+        isTrue,
+      );
     });
 
     test("should handle virtual note playing without throwing", () async {
