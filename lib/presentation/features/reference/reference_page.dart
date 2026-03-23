@@ -9,7 +9,6 @@ import "package:piano_fitness/presentation/features/reference/reference_page_vie
 import "package:piano_fitness/presentation/accessibility/config/accessibility_labels.dart";
 import "package:piano_fitness/domain/constants/musical_constants.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
-import "package:piano_fitness/application/utils/piano_note_bridge.dart";
 import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
 import "package:piano_fitness/domain/models/music/scale_types.dart" as scales;
 import "package:piano_fitness/domain/models/music/chord_type.dart";
@@ -152,15 +151,8 @@ class ReferencePage extends StatelessWidget {
                 return ListenableBuilder(
                   listenable: viewModel,
                   builder: (context, child) {
-                    // Convert local highlighted MIDI notes to NotePositions using shared utility
-                    final localHighlightedPositions = viewModel
-                        .localHighlightedNotes
-                        .map<NotePosition?>(
-                          PianoNoteBridge.midiNumberToNotePosition,
-                        )
-                        .where((position) => position != null)
-                        .cast<NotePosition>()
-                        .toList();
+                    final localHighlightedPositions =
+                        viewModel.highlightedNotePositions;
 
                     return PianoAccessibilityUtils.createAccessiblePianoWrapper(
                       highlightedNotes: localHighlightedPositions,
@@ -174,13 +166,7 @@ class ReferencePage extends StatelessWidget {
                           PianoRangeUtils.maxKeyWidth,
                         ),
                         noteRange: fixed49KeyRange,
-                        onNotePositionTapped: (position) {
-                          final midiNote =
-                              PianoNoteBridge.convertNotePositionToMidi(
-                                position,
-                              );
-                          viewModel.playNote(midiNote);
-                        },
+                        onNotePositionTapped: viewModel.playNoteFromPosition,
                       ),
                     );
                   },
