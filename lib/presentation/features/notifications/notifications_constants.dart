@@ -18,7 +18,8 @@ class NotificationsUIConstants {
 
   /// Section padding based on device type
   /// Tablet: 20.0, Mobile: Spacing.md
-  static double sectionPadding(bool isTablet) => isTablet ? 20.0 : Spacing.md;
+  static double sectionPadding(bool isTablet) =>
+      isTablet ? Spacing.lg : Spacing.md;
 
   /// Section icon size based on device type
   /// Tablet: ComponentDimensions.iconSizeLarge, Mobile: ComponentDimensions.iconSizeMedium
