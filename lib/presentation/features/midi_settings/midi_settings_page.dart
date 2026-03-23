@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
-import "package:flutter_midi_command/flutter_midi_command.dart" as midi_cmd;
+import "package:piano_fitness/domain/repositories/midi_repository.dart";
+import "package:piano_fitness/domain/services/midi_device_discovery_service.dart";
 import "package:piano_fitness/presentation/features/device_controller/device_controller_page.dart";
 import "package:piano_fitness/presentation/features/midi_settings/midi_settings_view_model.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
@@ -26,8 +27,10 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) =>
-          MidiSettingsViewModel(initialChannel: widget.initialChannel),
+      create: (context) => MidiSettingsViewModel(
+        discoveryService: context.read<IMidiDeviceDiscoveryService>(),
+        initialChannel: widget.initialChannel,
+      ),
       child: Consumer<MidiSettingsViewModel>(
         builder: (context, viewModel, child) {
           return Scaffold(
@@ -395,7 +398,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
   }
 
   Future<void> _openDeviceController(
-    midi_cmd.MidiDevice device,
+    MidiDevice device,
     MidiSettingsViewModel viewModel,
   ) async {
     final preparedDevice = await viewModel.prepareDeviceForController(

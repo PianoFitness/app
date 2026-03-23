@@ -9,11 +9,13 @@ import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/repositories/notification_repository.dart";
 import "package:piano_fitness/domain/repositories/settings_repository.dart";
 import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
+import "package:piano_fitness/domain/services/midi_device_discovery_service.dart";
 import "mock_repositories.mocks.dart";
 
 // Generate mocks for repository interfaces and MIDI services
 @GenerateMocks([
   IMidiRepository,
+  IMidiDeviceDiscoveryService,
   INotificationRepository,
   ISettingsRepository,
   IUserProfileRepository,
