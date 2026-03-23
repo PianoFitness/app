@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 
-import "../user_profile_view_model.dart";
+import "package:piano_fitness/presentation/features/user_profile/user_profile_view_model.dart";
 
 /// Error state widget displayed when profile loading fails.
 class UserProfileErrorState extends StatelessWidget {

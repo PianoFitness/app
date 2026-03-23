@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 
-import "../utils/profile_validation.dart";
+import "package:piano_fitness/presentation/features/user_profile/utils/profile_validation.dart";
 
 /// Dialog for creating a new user profile.
 ///

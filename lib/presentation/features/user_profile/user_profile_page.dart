@@ -4,11 +4,11 @@ import "package:provider/provider.dart";
 import "package:piano_fitness/domain/models/profile_sort_order.dart";
 import "package:piano_fitness/domain/models/user_profile.dart";
 import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
-import "user_profile_view_model.dart";
-import "utils/profile_dialogs.dart";
-import "widgets/user_profile_empty_state.dart";
-import "widgets/user_profile_error_state.dart";
-import "widgets/user_profile_list.dart";
+import "package:piano_fitness/presentation/features/user_profile/user_profile_view_model.dart";
+import "package:piano_fitness/presentation/features/user_profile/utils/profile_dialogs.dart";
+import "package:piano_fitness/presentation/features/user_profile/widgets/user_profile_empty_state.dart";
+import "package:piano_fitness/presentation/features/user_profile/widgets/user_profile_error_state.dart";
+import "package:piano_fitness/presentation/features/user_profile/widgets/user_profile_list.dart";
 
 /// Profile chooser page for selecting, creating, and managing user profiles.
 ///

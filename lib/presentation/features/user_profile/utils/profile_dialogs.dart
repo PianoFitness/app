@@ -1,9 +1,9 @@
 import "package:flutter/material.dart";
 
-import "../../../../domain/models/user_profile.dart";
-import "../widgets/profile_create_dialog.dart";
-import "../widgets/profile_delete_confirmation_dialog.dart";
-import "../widgets/profile_edit_dialog.dart";
+import "package:piano_fitness/domain/models/user_profile.dart";
+import "package:piano_fitness/presentation/features/user_profile/widgets/profile_create_dialog.dart";
+import "package:piano_fitness/presentation/features/user_profile/widgets/profile_delete_confirmation_dialog.dart";
+import "package:piano_fitness/presentation/features/user_profile/widgets/profile_edit_dialog.dart";
 
 /// Helper class for showing profile-related dialogs.
 class ProfileDialogs {

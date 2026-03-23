@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 
 import "package:piano_fitness/domain/models/user_profile.dart";
-import "../utils/profile_validation.dart";
+import "package:piano_fitness/presentation/features/user_profile/utils/profile_validation.dart";
 
 /// Dialog for editing an existing user profile's display name.
 class ProfileEditDialog extends StatefulWidget {
