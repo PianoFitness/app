@@ -1,5 +1,6 @@
 import "dart:typed_data";
 import "package:flutter_test/flutter_test.dart";
+import "package:mockito/mockito.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
@@ -192,18 +193,30 @@ void main() {
     });
 
     test("should expose notes for range calculation", () {
+      // Default session: C major scale, both hands, starting at baseOctave (4).
+      // Right hand plays C4–C5 (MIDI 60–72); left hand plays C3–C4 (MIDI 48–60).
+      // getAllNotes() collects the 15 unique MIDI values across all paired steps.
+      const expectedNotes = [
+        48, 50, 52, 53, 55, 57, 59, // C3–B3 (left hand)
+        60, 62, 64, 65, 67, 69, 71, // C4–B4
+        72, // C5 (right hand top)
+      ];
       final notes = viewModel.notesForRangeCalculation;
-      expect(notes, isA<List<int>>());
+      expect(notes, unorderedEquals(expectedNotes));
     });
 
     test("should play virtual note from NotePosition", () async {
       // C5 = MIDI 72 ((5+1)*12 + 0)
       final position = NotePosition(note: Note.C, octave: 5);
       await viewModel.playVirtualNoteFromPosition(position, mounted: false);
+
+      // initialChannel=3 → selectedChannel=3 → displayed as Ch: 4; velocity=64.
       expect(
-        viewModel.midiState.lastNote.contains("Virtual Note ON: 72"),
-        isTrue,
+        viewModel.midiState.lastNote,
+        equals("Virtual Note ON: 72 (Ch: 4, Vel: 64)"),
       );
+      // Verify midiRepository was called with MIDI 72, velocity 64, channel 3.
+      verify(mockMidiRepository.sendNoteOn(72, 64, 3)).called(1);
     });
 
     test("should handle virtual note playing without throwing", () async {
