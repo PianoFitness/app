@@ -169,6 +169,22 @@ void main() {
           verify(mockMidiRepository.sendControlChange(7, 100, 0)).called(1);
         },
       );
+
+      test(
+        "should not throw and retain cc value when sendControlChange fails",
+        () async {
+          when(
+            mockMidiRepository.sendControlChange(any, any, any),
+          ).thenAnswer((_) => Future.error(Exception("send failed")));
+
+          expect(() => viewModel.setCCValue(99), returnsNormally);
+          await Future<void>.value(); // pump microtask queue
+
+          verify(mockMidiRepository.sendControlChange(any, 99, any)).called(1);
+          // Optimistic update: new value is retained even after send failure.
+          expect(viewModel.ccValue, equals(99));
+        },
+      );
     });
 
     group("Program Change Management", () {
@@ -188,6 +204,22 @@ void main() {
           viewModel.setProgramNumber(42);
           await Future<void>.value();
           verify(mockMidiRepository.sendProgramChange(42, 0)).called(1);
+        },
+      );
+
+      test(
+        "should not throw and retain program number when sendProgramChange fails",
+        () async {
+          when(
+            mockMidiRepository.sendProgramChange(any, any),
+          ).thenAnswer((_) => Future.error(Exception("send failed")));
+
+          expect(() => viewModel.setProgramNumber(10), returnsNormally);
+          await Future<void>.value();
+
+          verify(mockMidiRepository.sendProgramChange(10, any)).called(1);
+          // Optimistic update: new value is retained even after send failure.
+          expect(viewModel.programNumber, equals(10));
         },
       );
     });
@@ -223,6 +255,42 @@ void main() {
         await Future<void>.value();
         verify(mockMidiRepository.sendPitchBend(0.0, 0)).called(1);
       });
+
+      test(
+        "should not throw and retain pitch bend when sendPitchBend fails",
+        () async {
+          when(
+            mockMidiRepository.sendPitchBend(any, any),
+          ).thenAnswer((_) => Future.error(Exception("send failed")));
+
+          expect(() => viewModel.setPitchBend(0.5), returnsNormally);
+          await Future<void>.value();
+
+          verify(mockMidiRepository.sendPitchBend(0.5, any)).called(1);
+          // Optimistic update: new value is retained even after send failure.
+          expect(viewModel.pitchBend, equals(0.5));
+        },
+      );
+
+      test(
+        "should not throw and reset pitch bend to 0.0 when sendPitchBend fails on reset",
+        () async {
+          // Seed a non-zero value with a succeeding stub so setUp mock is used.
+          viewModel.setPitchBend(0.8);
+          await Future<void>.value();
+
+          when(
+            mockMidiRepository.sendPitchBend(any, any),
+          ).thenAnswer((_) => Future.error(Exception("send failed")));
+
+          expect(() => viewModel.resetPitchBend(), returnsNormally);
+          await Future<void>.value();
+
+          verify(mockMidiRepository.sendPitchBend(0.0, any)).called(1);
+          // Optimistic update: reset value is retained even after send failure.
+          expect(viewModel.pitchBend, equals(0.0));
+        },
+      );
     });
 
     group("MIDI Data Processing", () {
