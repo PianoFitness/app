@@ -350,9 +350,19 @@ void main() {
 
         final positions = viewModel.highlightedNotePositions;
 
-        // C Major has 7 notes, all should convert to valid NotePositions
-        expect(positions.length, equals(7));
-        expect(positions, everyElement(isA<NotePosition>()));
+        // C major at baseOctave (4): 7 scale degrees (no octave duplicate).
+        // MIDI 60→C4, 62→D4, 64→E4, 65→F4, 67→G4, 69→A4, 71→B4.
+        // Order mirrors insertion into the LinkedHashSet in _getScaleMidiNotes().
+        final expectedPositions = [
+          NotePosition(note: Note.C),
+          NotePosition(note: Note.D),
+          NotePosition(note: Note.E),
+          NotePosition(note: Note.F),
+          NotePosition(note: Note.G),
+          NotePosition(note: Note.A),
+          NotePosition(note: Note.B),
+        ];
+        expect(positions, equals(expectedPositions));
       });
     });
 

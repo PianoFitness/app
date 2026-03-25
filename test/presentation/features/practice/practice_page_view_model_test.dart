@@ -192,6 +192,10 @@ void main() {
       );
     });
 
+    // TODO(refactor): replace List<int> with List<MidiNote> throughout the
+    // notesForRangeCalculation call chain (exercise.dart → practice_session.dart
+    // → practice_page_view_model.dart → practice_page.dart / PianoRangeUtils).
+    // https://github.com/PianoFitness/app/issues/55
     test("should expose notes for range calculation", () {
       // Default session: C major scale, both hands, starting at baseOctave (4).
       // Right hand plays C4–C5 (MIDI 60–72); left hand plays C3–C4 (MIDI 48–60).
