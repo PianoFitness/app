@@ -14,7 +14,7 @@ class PlayUIConstants {
 
   // ==================== Info Banner ====================
 
-  /// Padding for the practice info banner.
+  /// Padding for the play info banner.
   static const EdgeInsets infoBannerPadding = EdgeInsets.symmetric(
     horizontal: Spacing.md,
     vertical: Spacing.sm,
