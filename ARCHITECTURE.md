@@ -19,7 +19,9 @@ The innermost layer. Contains pure business logic with no external dependencies 
 Contains:
 
 - **`models/`** — Value objects and domain entities (e.g. `MidiNote`, `MidiChannel`, `ChordType`, `ScaleType`)
-- **`services/`** — Pure functions implementing music theory (scale generation, chord construction, MIDI parsing)
+- **`services/`** — Pure functions with no external dependencies. Two sub-areas:
+  - **`music_theory/`** — Scale/chord generation, note utilities, circle of fifths, voice leading
+  - **`midi/`** — Protocol-level MIDI message parsing (`midi_service.dart`): converts raw `Uint8List` bytes into typed `MidiEvent` objects. Uses only `dart:typed_data` and domain models — no I/O, no Flutter
 - **`repositories/`** — Interface contracts (e.g. `IMidiRepository`) implemented in the application layer
 - **`constants/`** — Domain-level constants (musical theory, practice)
 
@@ -34,7 +36,7 @@ Orchestrates domain services, repository implementations, and cross-cutting infr
 Contains:
 
 - **`repositories/`** — Concrete repository implementations (e.g. `MidiRepositoryImpl`)
-- **`services/`** — Infrastructure integrations (MIDI device connection, notifications)
+- **`services/`** — Infrastructure integrations that require Flutter or platform packages. Includes `midi/` for MIDI device connection (`midi_connection_service.dart`) and device discovery (`midi_device_discovery_service_impl.dart`). Distinct from `domain/services/midi/` which handles pure protocol parsing
 - **`state/`** — Global `ChangeNotifier` state shared across features (e.g. `MidiState`, `PracticeSession`)
 - **`utils/`** — Application-layer utilities and adapters (e.g. `MidiDataHandler`, `PianoNoteBridge`, `VirtualPianoUtils`)
 - **`database/`** — Drift ORM configuration and schema management
