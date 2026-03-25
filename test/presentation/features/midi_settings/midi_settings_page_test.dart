@@ -82,15 +82,34 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(buildTestWidget());
+      // pumpAndSettle ensures _setupMidi() fully completes: _midiStatus becomes
+      // "Ready - No MIDI devices found..." which sets shouldShowErrorButtons=true
+      // and places the FAB in retry mode. A single pump() can leave the chain
+      // incomplete, causing the tap to call scanForDevices() instead.
+      await tester.pumpAndSettle();
+
+      final scanFab = find.byKey(const Key("midi_settings_scan_fab"));
+      expect(scanFab, findsOneWidget);
+      // Confirm the FAB is in retry mode (shouldShowErrorButtons=true): the
+      // "Retry" ElevatedButton is only rendered when that getter is true.
+      expect(find.text("Retry"), findsAtLeastNWidgets(1));
+
+      // Zero out calls accumulated during initial setup so the verification
+      // below counts only the call from the FAB tap.
+      clearInteractions(mockService);
+      await tester.tap(scanFab);
+      // retrySetup() chains several async boundaries (retrySetup →
+      // _cleanupResources → _setupMidi → updateDeviceList → getDevices).
+      // runAsync(Duration.zero) drains the real-async queue so all those
+      // microtasks complete before the subsequent pump() flushes rebuilds.
+      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      await tester.pump();
       await tester.pump();
 
-      final refreshButton = find.byIcon(Icons.refresh);
-      if (refreshButton.evaluate().isNotEmpty) {
-        await tester.tap(refreshButton.first);
-        await tester.pump();
-
-        expect(find.byType(MidiSettingsPage), findsOneWidget);
-      }
+      expect(find.byType(MidiSettingsPage), findsOneWidget);
+      // Verifies the FAB → retrySetup() → getDevices() dependency path:
+      // the test fails if that wiring is ever broken.
+      verify(mockService.getDevices()).called(1);
     });
 
     testWidgets("should handle navigation back with channel result", (
@@ -185,7 +204,7 @@ void main() {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      expect(find.byType(FloatingActionButton), findsAtLeastNWidgets(1));
+      expect(find.byKey(const Key("midi_settings_scan_fab")), findsOneWidget);
 
       final hasBluetoothIcon = find
           .byIcon(Icons.bluetooth_searching)

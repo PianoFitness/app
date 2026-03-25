@@ -365,6 +365,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
     MidiSettingsViewModel viewModel,
   ) {
     return FloatingActionButton(
+      key: const Key("midi_settings_scan_fab"),
       heroTag: "main",
       onPressed: viewModel.isScanning
           ? null
