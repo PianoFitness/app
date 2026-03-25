@@ -308,7 +308,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
     try {
       if (device.connected) {
         _log.info("Disconnecting from ${device.name}");
-        _discoveryService.disconnectDevice(device);
+        await _discoveryService.disconnectDevice(device);
         showSnackBar("Disconnected from ${device.name}");
       } else {
         _log.info("Connecting to ${device.name}");

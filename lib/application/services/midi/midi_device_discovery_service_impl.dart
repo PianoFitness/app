@@ -53,17 +53,25 @@ class MidiDeviceDiscoveryServiceImpl implements IMidiDeviceDiscoveryService {
   @override
   Future<void> connectToDevice(MidiDevice device) async {
     final libraryDevice = _deviceCache[device.id];
-    if (libraryDevice != null) {
-      await _midiCommand.connectToDevice(libraryDevice);
+    if (libraryDevice == null) {
+      throw StateError(
+        "Device \"${device.name}\" (id: ${device.id}) not found in device cache. "
+        "Call getDevices() to refresh the cache before connecting.",
+      );
     }
+    await _midiCommand.connectToDevice(libraryDevice);
   }
 
   @override
-  void disconnectDevice(MidiDevice device) {
+  Future<void> disconnectDevice(MidiDevice device) async {
     final libraryDevice = _deviceCache[device.id];
-    if (libraryDevice != null) {
-      _midiCommand.disconnectDevice(libraryDevice);
+    if (libraryDevice == null) {
+      throw StateError(
+        "Device \"${device.name}\" (id: ${device.id}) not found in device cache. "
+        "Call getDevices() to refresh the cache before disconnecting.",
+      );
     }
+    _midiCommand.disconnectDevice(libraryDevice);
   }
 
   @override

@@ -45,7 +45,7 @@ abstract class IMidiDeviceDiscoveryService {
   Future<void> connectToDevice(MidiDevice device);
 
   /// Disconnects the given [device].
-  void disconnectDevice(MidiDevice device);
+  Future<void> disconnectDevice(MidiDevice device);
 
   /// Releases any resources held by the service.
   void dispose();

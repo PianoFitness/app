@@ -281,10 +281,13 @@ class MockIMidiDeviceDiscoveryService extends _i1.Mock
           as _i8.Future<void>);
 
   @override
-  void disconnectDevice(_i7.MidiDevice? device) => super.noSuchMethod(
-    Invocation.method(#disconnectDevice, [device]),
-    returnValueForMissingStub: null,
-  );
+  _i8.Future<void> disconnectDevice(_i7.MidiDevice? device) =>
+      (super.noSuchMethod(
+            Invocation.method(#disconnectDevice, [device]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
 
   @override
   void dispose() => super.noSuchMethod(
