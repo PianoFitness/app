@@ -165,7 +165,9 @@ void main() {
         () async {
           viewModel.setCCController(7);
           viewModel.setCCValue(100);
-          await Future<void>.value(); // pump microtask queue
+          await untilCalled(
+            mockMidiRepository.sendControlChange(any, any, any),
+          );
           verify(mockMidiRepository.sendControlChange(7, 100, 0)).called(1);
         },
       );
@@ -178,11 +180,15 @@ void main() {
           ).thenAnswer((_) => Future.error(Exception("send failed")));
 
           expect(() => viewModel.setCCValue(99), returnsNormally);
-          await Future<void>.value(); // pump microtask queue
+          await untilCalled(
+            mockMidiRepository.sendControlChange(any, any, any),
+          );
+          await Future<void>.value(); // allow catch block to execute
 
           verify(mockMidiRepository.sendControlChange(any, 99, any)).called(1);
           // Optimistic update: new value is retained even after send failure.
           expect(viewModel.ccValue, equals(99));
+          expect(viewModel.lastError, isA<Exception>());
         },
       );
     });
@@ -202,7 +208,7 @@ void main() {
         "should send program change via repository when number changes",
         () async {
           viewModel.setProgramNumber(42);
-          await Future<void>.value();
+          await untilCalled(mockMidiRepository.sendProgramChange(any, any));
           verify(mockMidiRepository.sendProgramChange(42, 0)).called(1);
         },
       );
@@ -215,11 +221,13 @@ void main() {
           ).thenAnswer((_) => Future.error(Exception("send failed")));
 
           expect(() => viewModel.setProgramNumber(10), returnsNormally);
-          await Future<void>.value();
+          await untilCalled(mockMidiRepository.sendProgramChange(any, any));
+          await Future<void>.value(); // allow catch block to execute
 
           verify(mockMidiRepository.sendProgramChange(10, any)).called(1);
           // Optimistic update: new value is retained even after send failure.
           expect(viewModel.programNumber, equals(10));
+          expect(viewModel.lastError, isA<Exception>());
         },
       );
     });
@@ -243,7 +251,7 @@ void main() {
         "should send pitch bend via repository when value changes",
         () async {
           viewModel.setPitchBend(0.5);
-          await Future<void>.value();
+          await untilCalled(mockMidiRepository.sendPitchBend(any, any));
           verify(mockMidiRepository.sendPitchBend(0.5, 0)).called(1);
         },
       );
@@ -252,7 +260,7 @@ void main() {
         viewModel
           ..setPitchBend(0.8)
           ..resetPitchBend();
-        await Future<void>.value();
+        await untilCalled(mockMidiRepository.sendPitchBend(any, any));
         verify(mockMidiRepository.sendPitchBend(0.0, 0)).called(1);
       });
 
@@ -264,11 +272,13 @@ void main() {
           ).thenAnswer((_) => Future.error(Exception("send failed")));
 
           expect(() => viewModel.setPitchBend(0.5), returnsNormally);
-          await Future<void>.value();
+          await untilCalled(mockMidiRepository.sendPitchBend(any, any));
+          await Future<void>.value(); // allow catch block to execute
 
           verify(mockMidiRepository.sendPitchBend(0.5, any)).called(1);
           // Optimistic update: new value is retained even after send failure.
           expect(viewModel.pitchBend, equals(0.5));
+          expect(viewModel.lastError, isA<Exception>());
         },
       );
 
@@ -284,11 +294,13 @@ void main() {
           ).thenAnswer((_) => Future.error(Exception("send failed")));
 
           expect(() => viewModel.resetPitchBend(), returnsNormally);
-          await Future<void>.value();
+          await untilCalled(mockMidiRepository.sendPitchBend(any, any));
+          await Future<void>.value(); // allow catch block to execute
 
           verify(mockMidiRepository.sendPitchBend(0.0, any)).called(1);
           // Optimistic update: reset value is retained even after send failure.
           expect(viewModel.pitchBend, equals(0.0));
+          expect(viewModel.lastError, isA<Exception>());
         },
       );
     });

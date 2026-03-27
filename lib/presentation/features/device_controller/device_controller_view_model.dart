@@ -40,6 +40,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
   int _programNumber = 0;
   double _pitchBend = 0;
   String _lastReceivedMessage = "No MIDI data received yet";
+  Exception? _lastError;
 
   /// The MIDI device being controlled.
   MidiDevice get device => _device;
@@ -61,6 +62,9 @@ class DeviceControllerViewModel extends ChangeNotifier {
 
   /// Last received MIDI message as human-readable string.
   String get lastReceivedMessage => _lastReceivedMessage;
+
+  /// The last error that occurred during a MIDI send operation, if any.
+  Exception? get lastError => _lastError;
 
   // ---------------------------------------------------------------------------
   // Slider bounds exposed for the view (item 4)
@@ -160,6 +164,8 @@ class DeviceControllerViewModel extends ChangeNotifier {
       );
     } on Exception catch (e) {
       _log.warning("Error sending CC: $e");
+      _lastError = e;
+      notifyListeners();
     }
   }
 
@@ -168,6 +174,8 @@ class DeviceControllerViewModel extends ChangeNotifier {
       await _midiRepository.sendProgramChange(_programNumber, _selectedChannel);
     } on Exception catch (e) {
       _log.warning("Error sending PC: $e");
+      _lastError = e;
+      notifyListeners();
     }
   }
 
@@ -176,6 +184,8 @@ class DeviceControllerViewModel extends ChangeNotifier {
       await _midiRepository.sendPitchBend(_pitchBend, _selectedChannel);
     } on Exception catch (e) {
       _log.warning("Error sending pitch bend: $e");
+      _lastError = e;
+      notifyListeners();
     }
   }
 
