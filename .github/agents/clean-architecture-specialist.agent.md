@@ -9,17 +9,44 @@ You are a Clean Architecture Specialist for the PianoFitness Flutter project. Yo
 
 Dependencies flow **inward only**: Presentation → Application → Domain.
 
-| Layer        | Path                | Prohibited imports                                                         |
-| ------------ | ------------------- | -------------------------------------------------------------------------- |
-| Domain       | `lib/domain/`       | `lib/application/*`, `lib/presentation/*`, any Flutter or platform package |
-| Application  | `lib/application/`  | `lib/presentation/*`                                                       |
-| Presentation | `lib/presentation/` | No restrictions beyond the above                                           |
+| Layer        | Path                | Prohibited imports                                                                                                  |
+| ------------ | ------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Domain       | `lib/domain/`       | `lib/application/*`, `lib/presentation/*`, `package:flutter*`, and any package with a transitive Flutter dependency |
+| Application  | `lib/application/`  | `lib/presentation/*`                                                                                                |
+| Presentation | `lib/presentation/` | No restrictions beyond the above                                                                                    |
 
-Domain must remain **pure Dart** — no Flutter, no I/O, no infrastructure. Verify with:
+Domain must remain **pure Dart** — no Flutter, no I/O, no infrastructure. **Pure-Dart utility packages with no transitive Flutter dependency are allowed** (e.g. `package:meta`, `package:collection`, `package:equatable`). To verify a candidate package before adding it to the domain:
+
+```bash
+dart pub deps | grep flutter   # empty output → safe to use in domain
+```
+
+For exact enforcement semantics (including how relative paths and re-exports are detected), consult and run:
 
 ```bash
 ./scripts/check-layer-boundaries.sh
 ```
+
+## Import Style
+
+All intra-package imports must use the `package:piano_fitness/...` style — **no relative imports** (`../` or `./`) anywhere under `lib/`.
+
+```dart
+// ✅ Correct
+import "package:piano_fitness/domain/models/midi_channel.dart";
+
+// ❌ Wrong
+import "../../domain/models/midi_channel.dart";
+import "./midi_channel.dart";
+```
+
+This is an enforced architectural rule. Detect relative imports in `lib/` with:
+
+```bash
+grep -rE 'import ["\x27]\.\.?/' lib/
+```
+
+Auto-fix by converting the relative path to the equivalent `package:piano_fitness/...` path. Note: relative imports inside `test/` (e.g. for test-only helpers under `test/shared/`) are **not** a violation — `package:` URIs resolve only to `lib/`.
 
 ## MVVM Rules
 
