@@ -198,6 +198,8 @@ class DeviceControllerViewModel extends ChangeNotifier {
       await _midiRepository.sendNoteOn(midiNote, velocity, _selectedChannel);
     } on Exception catch (e) {
       _log.warning("Error sending note: $e");
+      _lastError = e;
+      notifyListeners();
     }
   }
 
@@ -207,6 +209,8 @@ class DeviceControllerViewModel extends ChangeNotifier {
       await _midiRepository.sendNoteOff(midiNote, _selectedChannel);
     } on Exception catch (e) {
       _log.warning("Error sending note off: $e");
+      _lastError = e;
+      notifyListeners();
     }
   }
 

@@ -44,6 +44,10 @@ void main() {
         mockMidiRepository.sendProgramChange(any, any),
       ).thenAnswer((_) async {});
       when(mockMidiRepository.sendPitchBend(any, any)).thenAnswer((_) async {});
+      when(
+        mockMidiRepository.sendNoteOn(any, any, any),
+      ).thenAnswer((_) async {});
+      when(mockMidiRepository.sendNoteOff(any, any)).thenAnswer((_) async {});
       midiState = MidiState();
       viewModel = DeviceControllerViewModel(
         midiCoordinator: MidiCoordinator(mockMidiRepository),
@@ -56,6 +60,28 @@ void main() {
     tearDown(() {
       viewModel.dispose();
       midiState.dispose();
+    });
+
+    group("Note Send Error Handling", () {
+      test("should set lastError when sendNoteOn fails", () async {
+        when(
+          mockMidiRepository.sendNoteOn(any, any, any),
+        ).thenAnswer((_) => Future.error(Exception("note on failed")));
+
+        await viewModel.sendNoteOn(60);
+
+        expect(viewModel.lastError, isA<Exception>());
+      });
+
+      test("should set lastError when sendNoteOff fails", () async {
+        when(
+          mockMidiRepository.sendNoteOff(any, any),
+        ).thenAnswer((_) => Future.error(Exception("note off failed")));
+
+        await viewModel.sendNoteOff(60);
+
+        expect(viewModel.lastError, isA<Exception>());
+      });
     });
 
     group("Initialization", () {
