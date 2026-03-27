@@ -101,7 +101,7 @@ ViewModels subscribe via `MidiCoordinator.subscribe()` only — never call `regi
 
 For each violation found:
 
-```
+```text
 VIOLATION: <type>
 File: <path#line>
 Rule: <which rule it breaks>
