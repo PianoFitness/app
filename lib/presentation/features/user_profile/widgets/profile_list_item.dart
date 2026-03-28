@@ -13,6 +13,7 @@ class ProfileListItem extends StatelessWidget {
     required this.onEdit,
     required this.onDelete,
     super.key,
+    @visibleForTesting this.nowOverride,
   });
 
   /// The profile to display.
@@ -27,10 +28,14 @@ class ProfileListItem extends StatelessWidget {
   /// Callback when the delete button is tapped.
   final VoidCallback onDelete;
 
+  /// Overrides [DateTime.now()] for deterministic tests.
+  @visibleForTesting
+  final DateTime? nowOverride;
+
   String _formatLastPractice(DateTime? lastPractice) {
     if (lastPractice == null) return "Never practiced";
 
-    final now = DateTime.now();
+    final now = nowOverride ?? DateTime.now();
     final nowDate = DateTime(now.year, now.month, now.day);
     final practiceDate = DateTime(
       lastPractice.year,

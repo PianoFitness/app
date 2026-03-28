@@ -21,7 +21,7 @@ void main() {
       deleteCalled = false;
     });
 
-    Widget createTestWidget(UserProfile profile) {
+    Widget createTestWidget(UserProfile profile, {DateTime? now}) {
       return MaterialApp(
         home: Scaffold(
           body: ProfileListItem(
@@ -35,6 +35,7 @@ void main() {
             onDelete: () {
               deleteCalled = true;
             },
+            nowOverride: now,
           ),
         ),
       );
@@ -147,11 +148,15 @@ void main() {
     testWidgets("should display '1 month ago' for practice ~5 weeks ago", (
       tester,
     ) async {
+      // Fixed: now = March 15 2026, lastPractice = Feb 10 2026 → months = 1
+      final fixedNow = DateTime(2026, 3, 15);
       final profileWith5WeeksAgo = testProfile.copyWith(
-        lastPracticeDate: DateTime.now().subtract(const Duration(days: 35)),
+        lastPracticeDate: DateTime(2026, 2, 10),
       );
 
-      await tester.pumpWidget(createTestWidget(profileWith5WeeksAgo));
+      await tester.pumpWidget(
+        createTestWidget(profileWith5WeeksAgo, now: fixedNow),
+      );
 
       expect(find.text("Last practiced 1 month ago"), findsOneWidget);
     });
@@ -159,11 +164,15 @@ void main() {
     testWidgets("should display '3 months ago' for practice ~95 days ago", (
       tester,
     ) async {
+      // Fixed: now = March 15 2026, lastPractice = Dec 10 2025 → months = 3
+      final fixedNow = DateTime(2026, 3, 15);
       final profileWith3MonthsAgo = testProfile.copyWith(
-        lastPracticeDate: DateTime.now().subtract(const Duration(days: 95)),
+        lastPracticeDate: DateTime(2025, 12, 10),
       );
 
-      await tester.pumpWidget(createTestWidget(profileWith3MonthsAgo));
+      await tester.pumpWidget(
+        createTestWidget(profileWith3MonthsAgo, now: fixedNow),
+      );
 
       expect(find.text("Last practiced 3 months ago"), findsOneWidget);
     });
@@ -171,11 +180,15 @@ void main() {
     testWidgets("should display '1 year ago' for practice ~400 days ago", (
       tester,
     ) async {
+      // Fixed: now = March 15 2026, lastPractice = Jan 10 2025 → months = 14 → 1 year
+      final fixedNow = DateTime(2026, 3, 15);
       final profileWith1YearAgo = testProfile.copyWith(
-        lastPracticeDate: DateTime.now().subtract(const Duration(days: 400)),
+        lastPracticeDate: DateTime(2025, 1, 10),
       );
 
-      await tester.pumpWidget(createTestWidget(profileWith1YearAgo));
+      await tester.pumpWidget(
+        createTestWidget(profileWith1YearAgo, now: fixedNow),
+      );
 
       expect(find.text("Last practiced 1 year ago"), findsOneWidget);
     });
@@ -183,11 +196,15 @@ void main() {
     testWidgets("should display '2 years ago' for practice 730+ days ago", (
       tester,
     ) async {
+      // Fixed: now = March 15 2026, lastPractice = Jan 10 2024 → months = 26 → 2 years
+      final fixedNow = DateTime(2026, 3, 15);
       final profileWith2YearsAgo = testProfile.copyWith(
-        lastPracticeDate: DateTime.now().subtract(const Duration(days: 750)),
+        lastPracticeDate: DateTime(2024, 1, 10),
       );
 
-      await tester.pumpWidget(createTestWidget(profileWith2YearsAgo));
+      await tester.pumpWidget(
+        createTestWidget(profileWith2YearsAgo, now: fixedNow),
+      );
 
       expect(find.text("Last practiced 2 years ago"), findsOneWidget);
     });
