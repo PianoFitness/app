@@ -50,6 +50,15 @@ class AppDatabase extends _$AppDatabase {
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
+      onCreate: (m) async {
+        await m.createAll();
+        // Index for efficiently querying a profile's history by date —
+        // must be created on fresh installs as well as upgrades.
+        await m.issueCustomQuery(
+          "CREATE INDEX IF NOT EXISTS idx_exercise_history_profile_date "
+          "ON exercise_history_table (profile_id, completed_at DESC)",
+        );
+      },
       onUpgrade: stepByStep(
         from1To2: (m, schema) async {
           // Create the user_profile_table for version 2
