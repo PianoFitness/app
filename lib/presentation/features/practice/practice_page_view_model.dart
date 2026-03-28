@@ -85,8 +85,10 @@ class PracticePageViewModel extends ChangeNotifier {
   }) {
     _practiceSession = PracticeSession(
       onExerciseCompleted: () {
-        // Save history first (fire-and-forget), then notify the UI.
-        unawaited(_recordExerciseHistory());
+        // Snapshot configuration synchronously before crossing the async
+        // boundary so _recordExerciseHistory reads consistent state.
+        final config = _practiceSession?.config;
+        unawaited(_recordExerciseHistory(config));
         onExerciseCompleted();
       },
       onHighlightedNotesChanged: (List<NotePosition> notes) {
@@ -105,21 +107,23 @@ class PracticePageViewModel extends ChangeNotifier {
 
   /// Records the just-completed exercise to the history log.
   ///
-  /// Silently skips (with a warning) when no active profile is set, so that
-  /// the exercise completion UI is never blocked by a missing profile.
-  Future<void> _recordExerciseHistory() async {
+  /// [config] must be snapshotted synchronously by the caller before any
+  /// async boundary, to avoid reading stale session state.
+  ///
+  /// Silently skips (with a warning) when no active profile is set or when
+  /// [config] is null, so that the exercise completion UI is never blocked.
+  Future<void> _recordExerciseHistory(ExerciseConfiguration? config) async {
     try {
+      if (config == null) {
+        _log.warning("Skipping exercise history save: no active configuration");
+        return;
+      }
+
       final profileId = await _userProfileRepository.getActiveProfileId();
       if (profileId == null) {
         _log.warning(
           "Skipping exercise history save: no active profile selected",
         );
-        return;
-      }
-
-      final config = _practiceSession?.config;
-      if (config == null) {
-        _log.warning("Skipping exercise history save: no active configuration");
         return;
       }
 
