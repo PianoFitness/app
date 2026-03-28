@@ -14,6 +14,7 @@ import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/application/repositories/notification_repository_impl.dart";
 import "package:piano_fitness/application/repositories/settings_repository_impl.dart";
 import "package:piano_fitness/application/repositories/user_profile_repository_impl.dart";
+import "package:piano_fitness/application/repositories/exercise_history_repository_impl.dart";
 import "package:piano_fitness/application/services/notifications/notification_manager.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/domain/repositories/audio_service.dart";
@@ -21,6 +22,7 @@ import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/services/midi_device_discovery_service.dart";
 import "package:piano_fitness/domain/repositories/notification_repository.dart";
 import "package:piano_fitness/domain/repositories/settings_repository.dart";
+import "package:piano_fitness/domain/repositories/exercise_history_repository.dart";
 import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
 import "package:piano_fitness/presentation/constants/typography_constants.dart";
 import "package:piano_fitness/presentation/theme/semantic_colors.dart";
@@ -116,6 +118,11 @@ void main() async {
             database: database,
             prefs: sharedPreferences,
           ),
+        ),
+
+        // Exercise history repository
+        Provider<IExerciseHistoryRepository>(
+          create: (_) => ExerciseHistoryRepositoryImpl(database: database),
         ),
 
         // MIDI device discovery service (Bluetooth lifecycle + device scanning)

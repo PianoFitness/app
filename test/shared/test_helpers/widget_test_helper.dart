@@ -3,6 +3,7 @@ import "package:provider/provider.dart";
 import "package:mockito/mockito.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
+import "package:piano_fitness/domain/repositories/exercise_history_repository.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/repositories/notification_repository.dart";
 import "package:piano_fitness/domain/repositories/settings_repository.dart";
@@ -25,6 +26,7 @@ Widget createTestWidget(Widget child) {
   final mockSettingsRepository = MockISettingsRepository();
   final mockAudioService = MockIAudioService();
   final mockUserProfileRepository = MockIUserProfileRepository();
+  final mockExerciseHistoryRepository = MockIExerciseHistoryRepository();
 
   // Stub createPlayer for AudioService to prevent MissingStubError
   final mockAudioPlayer = MockAudioPlayerHandle();
@@ -47,6 +49,9 @@ Widget createTestWidget(Widget child) {
       Provider<ISettingsRepository>.value(value: mockSettingsRepository),
       Provider<IAudioService>.value(value: mockAudioService),
       Provider<IUserProfileRepository>.value(value: mockUserProfileRepository),
+      Provider<IExerciseHistoryRepository>.value(
+        value: mockExerciseHistoryRepository,
+      ),
       ChangeNotifierProvider<MidiState>(create: (_) => MidiState()),
     ],
     child: MaterialApp(home: child),
@@ -74,6 +79,7 @@ Widget createTestWidgetWithMocks({
   ISettingsRepository? settingsRepository,
   IAudioService? audioService,
   IUserProfileRepository? userProfileRepository,
+  IExerciseHistoryRepository? exerciseHistoryRepository,
   MidiState? midiState,
 }) {
   final mockMidiRepository = midiRepository ?? MockIMidiRepository();
@@ -84,6 +90,8 @@ Widget createTestWidgetWithMocks({
   final mockAudioService = audioService ?? MockIAudioService();
   final mockUserProfileRepository =
       userProfileRepository ?? MockIUserProfileRepository();
+  final mockExerciseHistoryRepository =
+      exerciseHistoryRepository ?? MockIExerciseHistoryRepository();
 
   // Stub createPlayer for AudioService if not already stubbed
   if (audioService == null) {
@@ -110,6 +118,9 @@ Widget createTestWidgetWithMocks({
       Provider<ISettingsRepository>.value(value: mockSettingsRepository),
       Provider<IAudioService>.value(value: mockAudioService),
       Provider<IUserProfileRepository>.value(value: mockUserProfileRepository),
+      Provider<IExerciseHistoryRepository>.value(
+        value: mockExerciseHistoryRepository,
+      ),
       // Use .value() if custom MidiState provided, otherwise use create for auto-disposal
       if (midiState != null)
         ChangeNotifierProvider<MidiState>.value(value: midiState)

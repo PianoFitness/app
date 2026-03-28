@@ -4,6 +4,8 @@ import "package:provider/provider.dart";
 import "package:piano_fitness/presentation/constants/practice_constants.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
+import "package:piano_fitness/domain/repositories/exercise_history_repository.dart";
+import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
 import "package:piano_fitness/presentation/features/practice/practice_page_view_model.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
@@ -51,6 +53,8 @@ class PracticePage extends StatelessWidget {
           midiCoordinator: context.read<MidiCoordinator>(),
           midiRepository: context.read<IMidiRepository>(),
           midiState: context.read<MidiState>(),
+          userProfileRepository: context.read<IUserProfileRepository>(),
+          exerciseHistoryRepository: context.read<IExerciseHistoryRepository>(),
           initialChannel: midiChannel,
         );
 

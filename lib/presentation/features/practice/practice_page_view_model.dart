@@ -3,14 +3,19 @@ import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:logging/logging.dart";
 import "package:piano/piano.dart";
+import "package:uuid/uuid.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
+import "package:piano_fitness/domain/models/practice/exercise_history_entry.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/models/music/chord_type.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/state/practice_session.dart";
+import "package:piano_fitness/domain/models/user_profile.dart";
+import "package:piano_fitness/domain/repositories/exercise_history_repository.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
+import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/models/midi/midi_event.dart";
 import "package:piano_fitness/domain/models/music/arpeggio_type.dart";
@@ -28,9 +33,13 @@ class PracticePageViewModel extends ChangeNotifier {
     required MidiCoordinator midiCoordinator,
     required IMidiRepository midiRepository,
     required MidiState midiState,
+    required IUserProfileRepository userProfileRepository,
+    required IExerciseHistoryRepository exerciseHistoryRepository,
     int initialChannel = 0,
   }) : _midiRepository = midiRepository,
        _midiState = midiState,
+       _userProfileRepository = userProfileRepository,
+       _exerciseHistoryRepository = exerciseHistoryRepository,
        _midiChannel = initialChannel {
     _midiState.setSelectedChannel(_midiChannel);
     _midiState.addListener(notifyListeners);
@@ -38,9 +47,12 @@ class PracticePageViewModel extends ChangeNotifier {
   }
 
   static final _log = Logger("PracticePageViewModel");
+  static const _uuid = Uuid();
 
   final IMidiRepository _midiRepository;
   final MidiState _midiState;
+  final IUserProfileRepository _userProfileRepository;
+  final IExerciseHistoryRepository _exerciseHistoryRepository;
   final int _midiChannel;
   late final MidiSubscription _subscription;
 
@@ -73,7 +85,13 @@ class PracticePageViewModel extends ChangeNotifier {
     ChordProgression? initialChordProgression,
   }) {
     _practiceSession = PracticeSession(
-      onExerciseCompleted: onExerciseCompleted,
+      onExerciseCompleted: () {
+        // Snapshot configuration synchronously before crossing the async
+        // boundary so _recordExerciseHistory reads consistent state.
+        final config = _practiceSession?.config;
+        unawaited(_recordExerciseHistory(config));
+        onExerciseCompleted();
+      },
       onHighlightedNotesChanged: (List<NotePosition> notes) {
         _highlightedNotes = notes;
         onHighlightedNotesChanged(notes);
@@ -85,6 +103,55 @@ class PracticePageViewModel extends ChangeNotifier {
     // Set initial chord progression if provided
     if (initialChordProgression != null) {
       _practiceSession!.setSelectedChordProgression(initialChordProgression);
+    }
+  }
+
+  /// Records the just-completed exercise to the history log.
+  ///
+  /// [config] must be snapshotted synchronously by the caller before any
+  /// async boundary, to avoid reading stale session state.
+  ///
+  /// Silently skips (with a warning) when no active profile is set or when
+  /// [config] is null, so that the exercise completion UI is never blocked.
+  Future<void> _recordExerciseHistory(ExerciseConfiguration? config) async {
+    try {
+      if (config == null) {
+        _log.warning("Skipping exercise history save: no active configuration");
+        return;
+      }
+
+      final profileId = await _userProfileRepository.getActiveProfileId();
+      if (profileId == null) {
+        _log.warning(
+          "Skipping exercise history save: no active profile selected",
+        );
+        return;
+      }
+
+      final entry = ExerciseHistoryEntry.fromConfiguration(
+        id: _uuid.v4(),
+        profileId: profileId,
+        completedAt: DateTime.now(),
+        config: config,
+      );
+
+      await _exerciseHistoryRepository.saveEntry(entry);
+      _log.fine("Saved exercise history entry: ${entry.id}");
+
+      // Stamp lastPracticeDate on the profile so the profile chooser
+      // can show when this profile last practiced.
+      final UserProfile? profile = await _userProfileRepository.getProfile(
+        profileId,
+      );
+      if (profile != null) {
+        await _userProfileRepository.updateProfile(
+          profile.copyWith(lastPracticeDate: entry.completedAt),
+        );
+      }
+    } catch (e, stackTrace) {
+      // Log but do not rethrow: history save failures must not disrupt the
+      // user's practice flow.
+      _log.severe("Failed to save exercise history", e, stackTrace);
     }
   }
 

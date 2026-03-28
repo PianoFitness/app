@@ -3,7 +3,9 @@ import "package:drift_flutter/drift_flutter.dart";
 import "package:path_provider/path_provider.dart";
 
 import "app_database.steps.dart";
+import "daos/exercise_history_dao.dart";
 import "daos/user_profile_dao.dart";
+import "tables/exercise_history_table.dart";
 import "tables/user_profile_table.dart";
 
 part "app_database.g.dart";
@@ -28,7 +30,10 @@ part "app_database.g.dart";
 ///   dispose: (_, db) => db.close(),
 /// )
 /// ```
-@DriftDatabase(tables: [UserProfileTable], daos: [UserProfileDao])
+@DriftDatabase(
+  tables: [UserProfileTable, ExerciseHistoryTable],
+  daos: [UserProfileDao, ExerciseHistoryDao],
+)
 class AppDatabase extends _$AppDatabase {
   /// Creates the database, optionally accepting a custom [QueryExecutor].
   ///
@@ -40,15 +45,33 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
+      onCreate: (m) async {
+        await m.createAll();
+        // Index for efficiently querying a profile's history by date —
+        // must be created on fresh installs as well as upgrades.
+        await m.issueCustomQuery(
+          "CREATE INDEX IF NOT EXISTS idx_exercise_history_profile_date "
+          "ON exercise_history_table (profile_id, completed_at DESC)",
+        );
+      },
       onUpgrade: stepByStep(
         from1To2: (m, schema) async {
           // Create the user_profile_table for version 2
           await m.createTable(schema.userProfileTable);
+        },
+        from2To3: (m, schema) async {
+          // Create the exercise_history_table for version 3
+          await m.createTable(schema.exerciseHistoryTable);
+          // Index for efficiently querying a profile's history by date
+          await m.issueCustomQuery(
+            "CREATE INDEX IF NOT EXISTS idx_exercise_history_profile_date "
+            "ON exercise_history_table (profile_id, completed_at DESC)",
+          );
         },
       ),
     );

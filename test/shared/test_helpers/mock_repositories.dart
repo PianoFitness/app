@@ -5,6 +5,7 @@ import "package:mockito/mockito.dart";
 import "package:piano_fitness/application/repositories/notification_manager_interface.dart";
 import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
 import "package:piano_fitness/domain/repositories/audio_service.dart";
+import "package:piano_fitness/domain/repositories/exercise_history_repository.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/repositories/notification_repository.dart";
 import "package:piano_fitness/domain/repositories/settings_repository.dart";
@@ -19,6 +20,7 @@ import "mock_repositories.mocks.dart";
   INotificationRepository,
   ISettingsRepository,
   IUserProfileRepository,
+  IExerciseHistoryRepository,
   INotificationManager,
   IAudioService,
   AudioPlayerHandle,
