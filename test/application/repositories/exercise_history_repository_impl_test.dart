@@ -122,6 +122,11 @@ void main() {
         limit: 3,
       );
       expect(limited.length, equals(3));
+      // Results must be ordered most-recent-first (completedAt DESC).
+      // With entries dated Jan 1..5, limit 3 returns Jan 5, 4, 3.
+      expect(limited[0].id, equals("entry-5"));
+      expect(limited[1].id, equals("entry-4"));
+      expect(limited[2].id, equals("entry-3"));
     });
 
     test("should return all entries when limit is null", () async {
@@ -253,8 +258,8 @@ void main() {
       expect(restored.scaleType, isNull);
       expect(restored.musicalNote, isNull);
       expect(restored.arpeggioType, isNull);
-      // arpeggioOctaves defaults to ArpeggioOctaves.one in ExerciseConfiguration
-      // so round-tripping a null produces the default, not null
+      // arpeggioOctaves defaults to ArpeggioOctaves.one in ExerciseConfiguration,
+      // so the DB always stores "one" (not null) and the mapper returns ArpeggioOctaves.one.
       expect(restored.arpeggioOctaves, equals(ArpeggioOctaves.one));
       expect(restored.chordProgressionId, isNull);
     });
@@ -272,5 +277,53 @@ void main() {
       final results = await repository.getEntriesForProfile(testProfileId);
       expect(results.first.completedAt, equals(timestamp));
     });
+    test(
+      "should round-trip chordsByKey with includeSeventhChords: true",
+      () async {
+        final config = ExerciseConfiguration(
+          practiceMode: PracticeMode.chordsByKey,
+          handSelection: HandSelection.both,
+          key: music.Key.g,
+          scaleType: music.ScaleType.major,
+          includeSeventhChords: true,
+        );
+        await repository.saveEntry(
+          makeEntry(
+            id: "chords-key-sevenths",
+            profileId: testProfileId,
+            config: config,
+          ),
+        );
+
+        final results = await repository.getEntriesForProfile(testProfileId);
+        final restored = results.first;
+
+        expect(restored.includeSeventhChords, isTrue);
+        expect(restored.musicalKey, equals(music.Key.g));
+        expect(restored.scaleType, equals(music.ScaleType.major));
+      },
+    );
+
+    test(
+      "should round-trip chordProgressions with non-null chordProgressionId",
+      () async {
+        const progressionId = "i_iv_v_i";
+        final config = ExerciseConfiguration(
+          practiceMode: PracticeMode.chordProgressions,
+          handSelection: HandSelection.right,
+          key: music.Key.c,
+          chordProgressionId: progressionId,
+        );
+        await repository.saveEntry(
+          makeEntry(id: "chord-prog", profileId: testProfileId, config: config),
+        );
+
+        final results = await repository.getEntriesForProfile(testProfileId);
+        final restored = results.first;
+
+        expect(restored.chordProgressionId, equals(progressionId));
+        expect(restored.musicalKey, equals(music.Key.c));
+      },
+    );
   });
 }

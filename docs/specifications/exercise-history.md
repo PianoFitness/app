@@ -28,9 +28,9 @@ This specification covers the **MVP implementation**, focusing on simple, reliab
 
 - **Log completed exercises**: When a user completes a practice exercise, create a timestamped database entry
 - **Profile association**: Each entry must be linked to the active user profile
-- **Composite identification**: Exercises are identified by practice mode + musical key + optional exercise type (e.g., scales/C/major or chordProgressions/C/i_iv_v_i)
 - **Hand selection tracking**: Record whether the exercise was practiced with left hand, right hand, or both hands
-- **Extensible metadata**: Support storing additional configuration details (tempo, progression name, etc.) without schema changes
+- **Typed configuration columns**: Each `ExerciseConfiguration` field is stored as an individual typed column (no JSON serialization), making every field independently queryable and type-safe; see ADR-0028
+- **Extensible schema**: Adding new metrics or configuration fields requires a schema migration; each new field maps to a new typed column in `ExerciseHistoryTable`, consistent with the column-mirroring design
 
 ### Data Retention Requirements
 

@@ -8,6 +8,7 @@ import "generated/schema.dart";
 
 import "generated/schema_v1.dart" as v1;
 import "generated/schema_v2.dart" as v2;
+import "generated/schema_v3.dart" as v3;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -57,6 +58,35 @@ void main() {
       openTestedDatabase: AppDatabase.new,
       createItems: (batch, oldDb) {},
       validateItems: (newDb) async {},
+    );
+  });
+
+  test("migration from v2 to v3 preserves existing user profiles", () async {
+    await verifier.testWithDataIntegrity(
+      oldVersion: 2,
+      newVersion: 3,
+      createOld: v2.DatabaseAtV2.new,
+      createNew: v3.DatabaseAtV3.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) {
+        // Insert a profile row into the v2 database before migration.
+        batch.insert(
+          oldDb.userProfileTable,
+          RawValuesInsertable<v2.UserProfileTableData>({
+            "id": const Constant("test-profile-id"),
+            "display_name": const Constant("Test User"),
+            "created_at": Constant(DateTime(2025).millisecondsSinceEpoch),
+          }),
+        );
+      },
+      validateItems: (newDb) async {
+        // The v2→v3 migration is additive (new table only); existing rows
+        // in user_profile_table must survive unchanged.
+        final profiles = await newDb.select(newDb.userProfileTable).get();
+        expect(profiles.length, equals(1));
+        expect(profiles.first.id, equals("test-profile-id"));
+        expect(profiles.first.displayName, equals("Test User"));
+      },
     );
   });
 }
