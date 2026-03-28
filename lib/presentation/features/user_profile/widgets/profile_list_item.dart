@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import "package:intl/intl.dart";
 
 import "package:piano_fitness/domain/models/user_profile.dart";
 
@@ -29,39 +28,38 @@ class ProfileListItem extends StatelessWidget {
   final VoidCallback onDelete;
 
   String _formatLastPractice(DateTime? lastPractice) {
-    if (lastPractice == null) {
-      return "Never practiced";
-    }
+    if (lastPractice == null) return "Never practiced";
 
     final now = DateTime.now();
-    // Create date-only versions for accurate day comparison
     final nowDate = DateTime(now.year, now.month, now.day);
-    final lastPracticeDate = DateTime(
+    final practiceDate = DateTime(
       lastPractice.year,
       lastPractice.month,
       lastPractice.day,
     );
 
-    // Compare calendar dates instead of duration
-    if (nowDate == lastPracticeDate) {
-      return "Last practiced today";
+    final daysDiff = nowDate.difference(practiceDate).inDays;
+    if (daysDiff == 0) return "Last practiced today";
+    if (daysDiff == 1) return "Last practiced yesterday";
+    if (daysDiff < 7) return "Last practiced $daysDiff days ago";
+    if (daysDiff < 14) return "Last practiced 1 week ago";
+    if (daysDiff < 21) return "Last practiced 2 weeks ago";
+    if (daysDiff < 28) return "Last practiced 3 weeks ago";
+
+    final months =
+        ((nowDate.year - practiceDate.year) * 12 +
+                (nowDate.month - practiceDate.month))
+            .clamp(1, 9999);
+    if (months < 12) {
+      return months == 1
+          ? "Last practiced 1 month ago"
+          : "Last practiced $months months ago";
     }
 
-    final yesterday = nowDate.subtract(const Duration(days: 1));
-    if (yesterday == lastPracticeDate) {
-      return "Last practiced yesterday";
-    }
-
-    final daysDifference = nowDate.difference(lastPracticeDate).inDays;
-    if (daysDifference == 0) {
-      return "Last practiced today";
-    } else if (daysDifference == 1) {
-      return "Last practiced 1 day ago";
-    } else if (daysDifference < 7) {
-      return "Last practiced $daysDifference days ago";
-    } else {
-      return "Last practiced ${DateFormat.yMMMd().format(lastPractice)}";
-    }
+    final years = months ~/ 12;
+    return years == 1
+        ? "Last practiced 1 year ago"
+        : "Last practiced $years years ago";
   }
 
   @override
