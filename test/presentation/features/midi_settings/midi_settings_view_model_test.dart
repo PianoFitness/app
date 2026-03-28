@@ -3,32 +3,40 @@
 // Tests the business logic, state management, and MIDI operations of the ViewModel.
 
 import "package:flutter/material.dart";
-import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:mockito/mockito.dart";
+import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/presentation/features/midi_settings/midi_settings_view_model.dart";
-import "../../../shared/midi_mocks.dart";
+import "../../../shared/test_helpers/mock_repositories.mocks.dart";
 
 void main() {
-  setUpAll(MidiMocks.setUp);
-
-  tearDownAll(MidiMocks.tearDown);
-
   group("MidiSettingsViewModel Tests", () {
     late MidiSettingsViewModel viewModel;
+    late MockIMidiDeviceDiscoveryService mockService;
 
     setUp(() async {
-      viewModel = MidiSettingsViewModel(initialChannel: 5);
+      mockService = MockIMidiDeviceDiscoveryService();
 
-      // Wait for async initialization to complete
-      await Future<void>.delayed(const Duration(milliseconds: 50));
+      // Stub streams to return empty streams (no events)
+      when(mockService.setupChanged).thenAnswer((_) => const Stream.empty());
+      when(
+        mockService.bluetoothStatusChanged,
+      ).thenAnswer((_) => const Stream.empty());
+
+      // Stub getDevices to return empty list
+      when(mockService.getDevices()).thenAnswer((_) async => []);
+
+      viewModel = MidiSettingsViewModel(
+        discoveryService: mockService,
+        initialChannel: 5,
+      );
+
+      // Drain microtask queue through nested awaits in _setupMidi
+      await Future<void>.delayed(Duration.zero);
     });
 
-    tearDown(() async {
-      // Ensure proper cleanup to avoid "used after disposed" errors
+    tearDown(() {
       viewModel.dispose();
-
-      // Wait for any pending async operations to complete
-      await Future<void>.delayed(const Duration(milliseconds: 10));
     });
 
     group("Initialization", () {
@@ -41,14 +49,24 @@ void main() {
         expect(viewModel.didAskForBluetoothPermissions, equals(false));
       });
 
-      test("should initialize with default channel when not specified", () {
-        final defaultViewModel = MidiSettingsViewModel();
-        expect(defaultViewModel.selectedChannel, equals(0));
-      });
+      test(
+        "should initialize with default channel when not specified",
+        () async {
+          final defaultViewModel = MidiSettingsViewModel(
+            discoveryService: mockService,
+          );
+          expect(defaultViewModel.selectedChannel, equals(0));
+          await Future<void>.delayed(Duration.zero);
+          defaultViewModel.dispose();
+        },
+      );
 
       test("should throw RangeError for invalid initialChannel below 0", () {
         expect(
-          () => MidiSettingsViewModel(initialChannel: -1),
+          () => MidiSettingsViewModel(
+            discoveryService: mockService,
+            initialChannel: -1,
+          ),
           throwsA(
             isA<RangeError>().having(
               (e) => e.toString(),
@@ -61,7 +79,10 @@ void main() {
 
       test("should throw RangeError for invalid initialChannel above 15", () {
         expect(
-          () => MidiSettingsViewModel(initialChannel: 16),
+          () => MidiSettingsViewModel(
+            discoveryService: mockService,
+            initialChannel: 16,
+          ),
           throwsA(
             isA<RangeError>().having(
               (e) => e.toString(),
@@ -72,12 +93,19 @@ void main() {
         );
       });
 
-      test("should accept valid initialChannel at boundaries", () {
-        final viewModelZero = MidiSettingsViewModel();
-        expect(viewModelZero.selectedChannel, equals(0));
+      test("should accept valid initialChannel at boundaries", () async {
+        final vmZero = MidiSettingsViewModel(discoveryService: mockService);
+        expect(vmZero.selectedChannel, equals(0));
+        await Future<void>.delayed(Duration.zero);
+        vmZero.dispose();
 
-        final viewModelFifteen = MidiSettingsViewModel(initialChannel: 15);
-        expect(viewModelFifteen.selectedChannel, equals(15));
+        final vmFifteen = MidiSettingsViewModel(
+          discoveryService: mockService,
+          initialChannel: 15,
+        );
+        expect(vmFifteen.selectedChannel, equals(15));
+        await Future<void>.delayed(Duration.zero);
+        vmFifteen.dispose();
       });
     });
 
@@ -134,14 +162,30 @@ void main() {
 
     group("Device Management", () {
       test("should update device list", () async {
-        // Initial state
         expect(viewModel.devices, isEmpty);
 
-        // Call updateDeviceList (this will use mocked MIDI command)
         await viewModel.updateDeviceList();
 
-        // Should not crash
         expect(viewModel.devices, isA<List<MidiDevice>>());
+      });
+
+      test("should reflect devices returned by service", () async {
+        final fakeDevices = [
+          MidiDevice(
+            id: "dev-1",
+            name: "Test Keyboard",
+            type: "BLE",
+            connected: false,
+            inputPorts: [],
+            outputPorts: [],
+          ),
+        ];
+        when(mockService.getDevices()).thenAnswer((_) async => fakeDevices);
+
+        await viewModel.updateDeviceList();
+
+        expect(viewModel.devices.length, equals(1));
+        expect(viewModel.devices.first.name, equals("Test Keyboard"));
       });
 
       test("should provide device icon for different types", () {
@@ -176,10 +220,9 @@ void main() {
       });
 
       test("should provide state flags correctly", () {
-        // After initialization, status will contain "No MIDI devices found"
-        // which triggers shouldShowErrorButtons = true
+        // After initialization with empty device list, status contains
+        // "No MIDI devices found" which triggers shouldShowErrorButtons
         expect(viewModel.shouldShowErrorButtons, isTrue);
-        // shouldShowResetInfo is now true because "No MIDI devices found" triggers it
         expect(viewModel.shouldShowResetInfo, isTrue);
         expect(viewModel.shouldShowMidiActivity, isFalse);
       });
@@ -189,7 +232,6 @@ void main() {
       test("should handle retry setup", () async {
         await viewModel.retrySetup();
 
-        // Should reset state appropriately
         expect(viewModel.devices, isEmpty);
         expect(viewModel.lastNote, equals(""));
         expect(viewModel.isScanning, equals(false));
@@ -197,34 +239,8 @@ void main() {
       });
 
       test("should clean up resources properly during retry setup", () async {
-        // Act: Call retrySetup
         await viewModel.retrySetup();
 
-        // Assert: Verify that state is properly reset after cleanup
-        expect(
-          viewModel.devices,
-          isEmpty,
-          reason: "Devices should be cleared during retry setup",
-        );
-        expect(
-          viewModel.lastNote,
-          equals(""),
-          reason: "Last note should be cleared during retry setup",
-        );
-        expect(
-          viewModel.isScanning,
-          equals(false),
-          reason: "Scanning should be stopped during retry setup",
-        );
-        expect(
-          viewModel.didAskForBluetoothPermissions,
-          equals(false),
-          reason:
-              "Bluetooth permissions flag should be reset during retry setup",
-        );
-
-        // Verify that retrySetup is idempotent (safe to call multiple times)
-        await viewModel.retrySetup();
         expect(viewModel.devices, isEmpty);
         expect(viewModel.lastNote, equals(""));
         expect(viewModel.isScanning, equals(false));
@@ -232,80 +248,39 @@ void main() {
       });
 
       test("should reset state before calling cleanup in retrySetup", () async {
-        // This test verifies the order of operations in retrySetup:
-        // 1. Set status to "Retrying..."
-        // 2. Clear devices, lastNote, and reset flags
-        // 3. Call notifyListeners
-        // 4. Clean up resources
-        // 5. Setup MIDI
-
-        // Act: Call retrySetup and immediately check state
         final future = viewModel.retrySetup();
 
-        // The state should be immediately reset (before async operations)
+        // State is synchronously reset before async operations
         expect(viewModel.devices, isEmpty);
         expect(viewModel.lastNote, equals(""));
         expect(viewModel.didAskForBluetoothPermissions, equals(false));
 
-        // Wait for async operations to complete
         await future;
 
-        // Final state should remain reset
         expect(viewModel.devices, isEmpty);
-        expect(viewModel.lastNote, equals(""));
         expect(viewModel.isScanning, equals(false));
-        expect(viewModel.didAskForBluetoothPermissions, equals(false));
       });
 
       test("should handle sequential retry setup calls safely", () async {
-        // This test verifies that sequential calls to retrySetup
-        // don't cause resource conflicts or disposal issues
-
-        // Act: Call retrySetup sequentially (not concurrently)
         await viewModel.retrySetup();
         await viewModel.retrySetup();
         await viewModel.retrySetup();
 
-        // Assert: Should maintain consistent state after all calls
         expect(viewModel.devices, isEmpty);
         expect(viewModel.lastNote, equals(""));
         expect(viewModel.isScanning, equals(false));
-        expect(viewModel.didAskForBluetoothPermissions, equals(false));
-
-        // MIDI status should be in a ready state after setup completes
-        expect(viewModel.midiStatus, isNotNull);
         expect(viewModel.midiStatus, isNotEmpty);
-      });
-    });
-
-    group("MidiService Integration", () {
-      test("should handle MidiService integration for event parsing", () {
-        // Test that demonstrates MidiService integration expectations
-        // This is a unit test since we can't easily mock MIDI hardware
-
-        // Verify that MidiService can handle typical MIDI data
-        const noteOnData = [0x90, 60, 127]; // Note On, Middle C, Velocity 127
-
-        // This test verifies the MidiService is available and functional
-        // The actual MIDI data handling is tested in MidiService tests
-        expect(noteOnData.length, equals(3));
-        expect(noteOnData[0] & 0xF0, equals(0x90)); // Note On message
       });
     });
 
     group("Disposal", () {
       test("should dispose resources properly", () async {
-        // Create a separate view model for disposal test to avoid conflicts
-        final disposalViewModel = MidiSettingsViewModel(initialChannel: 1);
-
-        // Wait for initialization
-        await Future<void>.delayed(const Duration(milliseconds: 50));
-
-        // Dispose should not throw
+        final disposalViewModel = MidiSettingsViewModel(
+          discoveryService: mockService,
+          initialChannel: 1,
+        );
+        await Future<void>.delayed(Duration.zero);
         expect(disposalViewModel.dispose, returnsNormally);
-
-        // Wait for cleanup to complete
-        await Future<void>.delayed(const Duration(milliseconds: 10));
       });
     });
   });

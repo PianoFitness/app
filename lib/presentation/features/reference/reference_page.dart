@@ -2,17 +2,16 @@ import "package:flutter/material.dart";
 import "package:piano/piano.dart";
 import "package:provider/provider.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/presentation/features/reference/reference_constants.dart";
 import "package:piano_fitness/presentation/features/reference/reference_page_view_model.dart";
 import "package:piano_fitness/presentation/accessibility/config/accessibility_labels.dart";
 import "package:piano_fitness/domain/constants/musical_constants.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
-import "package:piano_fitness/application/utils/piano_note_bridge.dart";
 import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
-import "package:piano_fitness/domain/services/music_theory/scales.dart"
-    as scales;
-import "package:piano_fitness/domain/services/music_theory/chords.dart";
+import "package:piano_fitness/domain/models/music/scale_types.dart" as scales;
+import "package:piano_fitness/domain/models/music/chord_type.dart";
 import "package:piano_fitness/presentation/utils/piano_accessibility_utils.dart";
 
 /// Reference page for viewing scales and chords on the piano.
@@ -29,6 +28,7 @@ class ReferencePage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) {
         final viewModel = ReferencePageViewModel(
+          midiCoordinator: context.read<MidiCoordinator>(),
           midiRepository: context.read<IMidiRepository>(),
           midiState: context.read<MidiState>(),
         );
@@ -151,15 +151,8 @@ class ReferencePage extends StatelessWidget {
                 return ListenableBuilder(
                   listenable: viewModel,
                   builder: (context, child) {
-                    // Convert local highlighted MIDI notes to NotePositions using shared utility
-                    final localHighlightedPositions = viewModel
-                        .localHighlightedNotes
-                        .map<NotePosition?>(
-                          PianoNoteBridge.midiNumberToNotePosition,
-                        )
-                        .where((position) => position != null)
-                        .cast<NotePosition>()
-                        .toList();
+                    final localHighlightedPositions =
+                        viewModel.highlightedNotePositions;
 
                     return PianoAccessibilityUtils.createAccessiblePianoWrapper(
                       highlightedNotes: localHighlightedPositions,
@@ -173,13 +166,7 @@ class ReferencePage extends StatelessWidget {
                           PianoRangeUtils.maxKeyWidth,
                         ),
                         noteRange: fixed49KeyRange,
-                        onNotePositionTapped: (position) {
-                          final midiNote =
-                              PianoNoteBridge.convertNotePositionToMidi(
-                                position,
-                              );
-                          viewModel.playNote(midiNote);
-                        },
+                        onNotePositionTapped: viewModel.playNoteFromPosition,
                       ),
                     );
                   },

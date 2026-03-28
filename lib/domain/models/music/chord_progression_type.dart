@@ -3,8 +3,7 @@ import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
-import "package:piano_fitness/domain/services/music_theory/scales.dart"
-    as music;
+import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
 
 /// Difficulty levels for chord progressions based on complexity and voice leading.
 enum ProgressionDifficulty {

@@ -67,7 +67,7 @@ class NotificationsPage extends StatelessWidget {
   ) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isTablet = constraints.maxWidth >= 768;
+        final isTablet = constraints.maxWidth >= ResponsiveBreakpoints.tablet;
         final padding = _calculateResponsivePadding(constraints, isTablet);
 
         return SingleChildScrollView(

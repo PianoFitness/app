@@ -125,12 +125,7 @@ else
     echo "Layer dependency rules (dependencies must point inward only):"
     echo ""
     echo "  ┌─────────────────────────────────────┐"
-    echo "  │  Features (Presentation Layer)      │ ← Can import from all layers"
-    echo "  │  lib/features/                      │"
-    echo "  └─────────────┬───────────────────────┘"
-    echo "                │"
-    echo "  ┌─────────────▼───────────────────────┐"
-    echo "  │  Presentation Layer                 │ ← Can import from application & domain"
+    echo "  │  Presentation Layer                 │ ← Can import from all layers"
     echo "  │  lib/presentation/                  │"
     echo "  └─────────────┬───────────────────────┘"
     echo "                │"
@@ -150,7 +145,7 @@ else
     echo "  3. Use dependency inversion (define interface in domain)"
     echo "  4. For Flutter widget type conversions, add an adapter in application/utils/"
     echo ""
-    echo "See AGENTS.md for Clean Architecture guidelines."
+    echo "See ARCHITECTURE.md for Clean Architecture guidelines."
     echo ""
     exit 1
 fi

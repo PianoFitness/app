@@ -3,21 +3,20 @@ import "dart:async";
 import "package:flutter/foundation.dart";
 import "package:logging/logging.dart";
 import "package:piano/piano.dart";
-import "package:piano_fitness/domain/constants/midi_protocol_constants.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
-import "package:piano_fitness/domain/services/music_theory/chords.dart";
+import "package:piano_fitness/domain/models/music/chord_type.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/state/practice_session.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
-import "package:piano_fitness/domain/services/midi/midi_service.dart";
-import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
+import "package:piano_fitness/application/utils/midi_coordinator.dart";
+import "package:piano_fitness/domain/models/midi/midi_event.dart";
+import "package:piano_fitness/domain/models/music/arpeggio_type.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
-import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
-import "package:piano_fitness/domain/services/music_theory/scales.dart"
-    as music;
+import "package:piano_fitness/application/utils/piano_note_bridge.dart";
+import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
 import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
 
 /// ViewModel for managing practice page state and operations.
@@ -26,6 +25,7 @@ import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
 class PracticePageViewModel extends ChangeNotifier {
   /// Creates a new PracticePageViewModel with injected dependencies.
   PracticePageViewModel({
+    required MidiCoordinator midiCoordinator,
     required IMidiRepository midiRepository,
     required MidiState midiState,
     int initialChannel = 0,
@@ -34,7 +34,7 @@ class PracticePageViewModel extends ChangeNotifier {
        _midiChannel = initialChannel {
     _midiState.setSelectedChannel(_midiChannel);
     _midiState.addListener(notifyListeners);
-    _setupMidiHandlers();
+    _subscription = midiCoordinator.subscribe(midiState, _handleMidiEvent);
   }
 
   static final _log = Logger("PracticePageViewModel");
@@ -42,7 +42,7 @@ class PracticePageViewModel extends ChangeNotifier {
   final IMidiRepository _midiRepository;
   final MidiState _midiState;
   final int _midiChannel;
-  late final void Function(Uint8List) _dataHandler;
+  late final MidiSubscription _subscription;
 
   PracticeSession? _practiceSession;
   List<NotePosition> _highlightedNotes = [];
@@ -88,61 +88,25 @@ class PracticePageViewModel extends ChangeNotifier {
     }
   }
 
-  /// Sets up MIDI handlers through repository.
-  void _setupMidiHandlers() {
-    _dataHandler = (Uint8List data) {
-      if (kDebugMode) {
-        _log.fine("Received MIDI data: $data");
-      }
-      try {
-        handleMidiData(data);
-      } on Exception catch (e) {
-        _log.warning("MIDI data handler error: $e");
-      }
-    };
-
-    _midiRepository.registerDataHandler(_dataHandler);
-  }
-
-  /// Handles incoming MIDI data and updates state with practice session integration.
-  ///
-  /// Uses the domain service for MIDI parsing and coordinates with both
-  /// MidiState (application layer) and PracticeSession for exercise tracking.
-  /// The PracticeSession handles its own auto-start logic when notes are pressed.
-  ///
-  /// This method is public for testing purposes.
-  @visibleForTesting
-  void handleMidiData(Uint8List data) {
-    try {
-      // Use domain service for MIDI parsing
-      MidiService.handleMidiData(data, (MidiEvent event) {
-        try {
-          switch (event.type) {
-            case MidiEventType.noteOn:
-              // Update application state
-              _midiState.noteOn(event.data1, event.data2, event.channel);
-              // Coordinate with practice session for exercise tracking
-              _practiceSession?.handleNotePressed(event.data1);
-              break;
-            case MidiEventType.noteOff:
-              _midiState.noteOff(event.data1, event.channel);
-              _practiceSession?.handleNoteReleased(event.data1);
-              break;
-            case MidiEventType.controlChange:
-            case MidiEventType.programChange:
-            case MidiEventType.pitchBend:
-            case MidiEventType.other:
-              _midiState.setLastNote(event.displayMessage);
-              break;
-          }
-        } catch (e, stackTrace) {
-          _log.warning("Error handling MIDI event: $e", e, stackTrace);
-          _midiState.setLastNote("Error processing MIDI event");
-        }
-      });
-    } catch (e, stackTrace) {
-      _log.severe("Error parsing MIDI data: $e", e, stackTrace);
-      _midiState.setLastNote("Error parsing MIDI data");
+  void _handleMidiEvent(MidiEvent event) {
+    if (kDebugMode) {
+      _log.fine("Received MIDI event: ${event.displayMessage}");
+    }
+    switch (event.type) {
+      case MidiEventType.noteOn:
+        _midiState.noteOn(event.data1, event.data2, event.channel);
+        _practiceSession?.handleNotePressed(event.data1);
+        break;
+      case MidiEventType.noteOff:
+        _midiState.noteOff(event.data1, event.channel);
+        _practiceSession?.handleNoteReleased(event.data1);
+        break;
+      case MidiEventType.controlChange:
+      case MidiEventType.programChange:
+      case MidiEventType.pitchBend:
+      case MidiEventType.other:
+        _midiState.setLastNote(event.displayMessage);
+        break;
     }
   }
 
@@ -253,16 +217,6 @@ class PracticePageViewModel extends ChangeNotifier {
   /// The practice session handles its own auto-start logic when notes are pressed.
   /// Validates that [note] is within the valid MIDI range (0-127) before forwarding.
   Future<void> playVirtualNote(int note, {bool mounted = true}) async {
-    // Validate MIDI note range using domain constants
-    if (note < MidiProtocol.noteMin || note > MidiProtocol.noteMax) {
-      _log.warning(
-        "Invalid MIDI note: $note (must be between "
-        "${MidiProtocol.noteMin} and ${MidiProtocol.noteMax})",
-      );
-      _midiState.setLastNote("Invalid MIDI note: $note");
-      return;
-    }
-
     await VirtualPianoUtils.playVirtualNote(
       note,
       _midiRepository,
@@ -279,24 +233,22 @@ class PracticePageViewModel extends ChangeNotifier {
         : _midiState.highlightedNotePositions;
   }
 
-  /// Calculates the 49-key range centered around the current practice exercise.
-  ///
-  /// Delegates to PracticeSession to get all notes that will be visible,
-  /// which automatically accounts for hand selection.
-  NoteRange calculatePracticeRange() {
-    final session = _practiceSession;
-    if (session == null) {
-      return PianoRangeUtils.calculateFixed49KeyRange([]);
-    }
+  /// MIDI notes for piano range calculation, used by the view to compute display range.
+  List<int> get notesForRangeCalculation =>
+      _practiceSession?.getNotesForRangeCalculation() ?? [];
 
-    // Get all notes from the single source of truth
-    final allNotes = session.getNotesForRangeCalculation();
-    return PianoRangeUtils.calculateFixed49KeyRange(allNotes);
+  /// Plays a virtual note from a NotePosition.
+  Future<void> playVirtualNoteFromPosition(
+    NotePosition position, {
+    bool mounted = true,
+  }) async {
+    final midiNote = PianoNoteBridge.convertNotePositionToMidi(position);
+    await playVirtualNote(midiNote, mounted: mounted);
   }
 
   @override
   void dispose() {
-    _midiRepository.unregisterDataHandler(_dataHandler);
+    _subscription.cancel();
     _midiState.removeListener(notifyListeners);
     unawaited(VirtualPianoUtils.dispose(_midiRepository));
     super.dispose();

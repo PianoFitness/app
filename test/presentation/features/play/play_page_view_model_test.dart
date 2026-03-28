@@ -1,5 +1,7 @@
 import "dart:typed_data";
 import "package:flutter_test/flutter_test.dart";
+import "package:piano/piano.dart";
+import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/presentation/features/play/play_page_view_model.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/domain/services/midi/midi_service.dart";
@@ -23,6 +25,7 @@ void main() {
 
       // Create ViewModel with injected dependencies
       viewModel = PlayPageViewModel(
+        midiCoordinator: MidiCoordinator(mockMidiRepository),
         midiRepository: mockMidiRepository,
         midiState: midiState,
         initialChannel: 5,
@@ -59,11 +62,23 @@ void main() {
       );
     });
 
+    test("should play virtual note from NotePosition", () async {
+      // C5 = MIDI note 72 ((5+1)*12 + 0)
+      final position = NotePosition(note: Note.C, octave: 5);
+      await viewModel.playVirtualNoteFromPosition(position);
+
+      expect(
+        viewModel.midiState.lastNote.contains("Virtual Note ON: 72"),
+        isTrue,
+      );
+    });
+
     test("should handle virtual note playing with local MIDI state", () async {
       // Create another ViewModel instance with different dependencies for this test
       final testMidiRepository = MockIMidiRepository();
       final testMidiState = MidiState();
       final viewModelWithLocalState = PlayPageViewModel(
+        midiCoordinator: MidiCoordinator(testMidiRepository),
         midiRepository: testMidiRepository,
         midiState: testMidiState,
       );

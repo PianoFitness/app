@@ -2,9 +2,9 @@ import "package:collection/collection.dart";
 import "package:flutter/foundation.dart";
 import "package:logging/logging.dart";
 
-import "../../../domain/models/profile_sort_order.dart";
-import "../../../domain/models/user_profile.dart";
-import "../../../domain/repositories/user_profile_repository.dart";
+import "package:piano_fitness/domain/models/profile_sort_order.dart";
+import "package:piano_fitness/domain/models/user_profile.dart";
+import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
 
 /// ViewModel for managing user profile state and operations.
 ///

@@ -1,11 +1,14 @@
+import "dart:async" show unawaited;
+
 import "package:flutter/foundation.dart";
-import "package:flutter_midi_command/flutter_midi_command_messages.dart";
 import "package:logging/logging.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/constants/midi_protocol_constants.dart";
 import "package:piano_fitness/domain/models/midi_channel.dart";
+import "package:piano_fitness/domain/models/midi/midi_event.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
-import "package:piano_fitness/domain/services/midi/midi_service.dart";
+import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 
 /// ViewModel for managing device controller state and MIDI operations.
 ///
@@ -14,13 +17,14 @@ import "package:piano_fitness/domain/services/midi/midi_service.dart";
 class DeviceControllerViewModel extends ChangeNotifier {
   /// Creates a new DeviceControllerViewModel with dependency injection.
   DeviceControllerViewModel({
+    required MidiCoordinator midiCoordinator,
     required IMidiRepository midiRepository,
     required MidiState midiState,
     required MidiDevice device,
   }) : _midiRepository = midiRepository,
        _midiState = midiState,
        _device = device {
-    _setupMidiListener();
+    _subscription = midiCoordinator.subscribe(midiState, _handleMidiEvent);
   }
 
   static final _log = Logger("DeviceControllerViewModel");
@@ -28,6 +32,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
   final IMidiRepository _midiRepository;
   final MidiState _midiState;
   final MidiDevice _device;
+  late final MidiSubscription _subscription;
 
   int _selectedChannel = 0;
   int _ccController = 1;
@@ -35,6 +40,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
   int _programNumber = 0;
   double _pitchBend = 0;
   String _lastReceivedMessage = "No MIDI data received yet";
+  Exception? _lastError;
 
   /// The MIDI device being controlled.
   MidiDevice get device => _device;
@@ -56,6 +62,29 @@ class DeviceControllerViewModel extends ChangeNotifier {
 
   /// Last received MIDI message as human-readable string.
   String get lastReceivedMessage => _lastReceivedMessage;
+
+  /// The last error that occurred during a MIDI send operation, if any.
+  Exception? get lastError => _lastError;
+
+  // ---------------------------------------------------------------------------
+  // Slider bounds exposed for the view (item 4)
+  // ---------------------------------------------------------------------------
+
+  /// Maximum CC controller/value (0–127).
+  static const int controllerMax = MidiProtocol.controllerMax;
+
+  /// Maximum program number (0–127).
+  static const int programMax = MidiProtocol.programMax;
+
+  /// Minimum normalized pitch bend value (-1.0).
+  static const double pitchBendMin = MidiProtocol.pitchBendNormalizedMin;
+
+  // ---------------------------------------------------------------------------
+  // Display helpers (item 3)
+  // ---------------------------------------------------------------------------
+
+  /// Returns the compact note name for [midiNote] (e.g. "C4", "F#3").
+  String getNoteLabel(int midiNote) => NoteUtils.getCompactNoteName(midiNote);
 
   /// Sets the selected MIDI channel.
   void setSelectedChannel(int channel) {
@@ -96,7 +125,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
     if (value >= 0 && value <= MidiProtocol.controllerMax) {
       _ccValue = value;
       notifyListeners();
-      sendControlChange();
+      unawaited(_sendControlChange());
     }
   }
 
@@ -105,7 +134,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
     if (program >= 0 && program <= MidiProtocol.programMax) {
       _programNumber = program;
       notifyListeners();
-      sendProgramChange();
+      unawaited(_sendProgramChange());
     }
   }
 
@@ -115,7 +144,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
         bend <= MidiProtocol.pitchBendNormalizedMax) {
       _pitchBend = bend;
       notifyListeners();
-      sendPitchBend();
+      unawaited(_sendPitchBend());
     }
   }
 
@@ -123,37 +152,40 @@ class DeviceControllerViewModel extends ChangeNotifier {
   void resetPitchBend() {
     _pitchBend = 0.0;
     notifyListeners();
-    sendPitchBend();
+    unawaited(_sendPitchBend());
   }
 
-  /// Sends a control change message.
-  void sendControlChange() {
+  Future<void> _sendControlChange() async {
     try {
-      CCMessage(
-        channel: _selectedChannel,
-        controller: _ccController,
-        value: _ccValue,
-      ).send();
+      await _midiRepository.sendControlChange(
+        _ccController,
+        _ccValue,
+        _selectedChannel,
+      );
     } on Exception catch (e) {
       _log.warning("Error sending CC: $e");
+      _lastError = e;
+      notifyListeners();
     }
   }
 
-  /// Sends a program change message.
-  void sendProgramChange() {
+  Future<void> _sendProgramChange() async {
     try {
-      PCMessage(channel: _selectedChannel, program: _programNumber).send();
+      await _midiRepository.sendProgramChange(_programNumber, _selectedChannel);
     } on Exception catch (e) {
       _log.warning("Error sending PC: $e");
+      _lastError = e;
+      notifyListeners();
     }
   }
 
-  /// Sends a pitch bend message.
-  void sendPitchBend() {
+  Future<void> _sendPitchBend() async {
     try {
-      PitchBendMessage(channel: _selectedChannel, bend: _pitchBend).send();
+      await _midiRepository.sendPitchBend(_pitchBend, _selectedChannel);
     } on Exception catch (e) {
       _log.warning("Error sending pitch bend: $e");
+      _lastError = e;
+      notifyListeners();
     }
   }
 
@@ -166,6 +198,8 @@ class DeviceControllerViewModel extends ChangeNotifier {
       await _midiRepository.sendNoteOn(midiNote, velocity, _selectedChannel);
     } on Exception catch (e) {
       _log.warning("Error sending note: $e");
+      _lastError = e;
+      notifyListeners();
     }
   }
 
@@ -175,36 +209,27 @@ class DeviceControllerViewModel extends ChangeNotifier {
       await _midiRepository.sendNoteOff(midiNote, _selectedChannel);
     } on Exception catch (e) {
       _log.warning("Error sending note off: $e");
+      _lastError = e;
+      notifyListeners();
     }
   }
 
-  void _setupMidiListener() {
-    // Register our data handler with the repository
-    _midiRepository.registerDataHandler(_handleMidiData);
-  }
-
-  void _handleMidiData(Uint8List data) {
-    // Parse MIDI data once and handle both global state and local display
-    MidiService.handleMidiData(data, (MidiEvent event) {
-      // Update global MIDI state
-      switch (event.type) {
-        case MidiEventType.noteOn:
-          _midiState.noteOn(event.data1, event.data2, event.channel);
-          break;
-        case MidiEventType.noteOff:
-          _midiState.noteOff(event.data1, event.channel);
-          break;
-        case MidiEventType.controlChange:
-        case MidiEventType.programChange:
-        case MidiEventType.pitchBend:
-        case MidiEventType.other:
-          _midiState.setLastNote(event.displayMessage);
-          break;
-      }
-
-      // Update local display state (reuse parsed event)
-      _processMidiEvent(event);
-    });
+  void _handleMidiEvent(MidiEvent event) {
+    switch (event.type) {
+      case MidiEventType.noteOn:
+        _midiState.noteOn(event.data1, event.data2, event.channel);
+        break;
+      case MidiEventType.noteOff:
+        _midiState.noteOff(event.data1, event.channel);
+        break;
+      case MidiEventType.controlChange:
+      case MidiEventType.programChange:
+      case MidiEventType.pitchBend:
+      case MidiEventType.other:
+        _midiState.setLastNote(event.displayMessage);
+        break;
+    }
+    _processMidiEvent(event);
   }
 
   void _processMidiEvent(MidiEvent event) {
@@ -222,7 +247,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
           _programNumber = event.data1;
           break;
         case MidiEventType.pitchBend:
-          _pitchBend = MidiService.getPitchBendValue(event.data1, event.data2);
+          _pitchBend = event.pitchBendValue;
           break;
         case MidiEventType.noteOn:
         case MidiEventType.noteOff:
@@ -237,7 +262,7 @@ class DeviceControllerViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
-    _midiRepository.unregisterDataHandler(_handleMidiData);
+    _subscription.cancel();
     super.dispose();
   }
 }

@@ -1,4 +1,6 @@
 import "package:flutter/material.dart";
+import "package:piano_fitness/presentation/constants/ui_constants.dart";
+import "package:piano_fitness/presentation/features/notifications/notifications_constants.dart";
 
 /// Dialog displayed when notification permissions are denied.
 ///
@@ -20,17 +22,19 @@ class NotificationPermissionDialog extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppBorderRadius.large),
+      ),
       backgroundColor: colorScheme.surface,
       title: Row(
         children: [
           Icon(
             Icons.notifications_off,
             color: colorScheme.tertiary,
-            size: 24,
+            size: ComponentDimensions.iconSizeLarge,
             semanticLabel: "Notifications are disabled",
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: NotificationsUIConstants.sectionInnerSpacing),
           Expanded(
             child: Text(
               "Notifications Disabled",
@@ -53,31 +57,33 @@ class NotificationPermissionDialog extends StatelessWidget {
                 color: colorScheme.onSurface,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: Spacing.md),
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(
+                NotificationsUIConstants.sectionInnerSpacing,
+              ),
               decoration: BoxDecoration(
                 color: colorScheme.surfaceContainerHighest.withValues(
                   alpha: 0.5,
                 ),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(AppBorderRadius.small),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildStep(context, "1.", "Open your device Settings"),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: Spacing.sm),
                   _buildStep(
                     context,
                     "2.",
                     "Find Piano Fitness in the app list",
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: Spacing.sm),
                   _buildStep(context, "3.", "Enable Notifications"),
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: Spacing.md),
             Text(
               "You can always change notification settings later in the Piano Fitness app.",
               style: theme.textTheme.bodyMedium?.copyWith(
@@ -109,11 +115,13 @@ class NotificationPermissionDialog extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          width: 20,
-          height: 20,
+          width: ComponentDimensions.iconSizeMedium,
+          height: ComponentDimensions.iconSizeMedium,
           decoration: BoxDecoration(
             color: colorScheme.tertiary.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(
+              ComponentDimensions.iconSizeMedium / 2,
+            ),
           ),
           child: Center(
             child: Text(
@@ -125,7 +133,7 @@ class NotificationPermissionDialog extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: NotificationsUIConstants.sectionInnerSpacing),
         Expanded(
           child: Text(
             description,

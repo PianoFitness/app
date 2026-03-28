@@ -1,14 +1,17 @@
 import "dart:async";
 import "package:flutter/foundation.dart";
-import "package:logging/logging.dart";
+import "package:piano/piano.dart";
+import "package:piano_fitness/application/utils/piano_note_bridge.dart";
 import "package:piano_fitness/domain/constants/musical_constants.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
+import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
-import "package:piano_fitness/domain/services/midi/midi_service.dart";
+import "package:piano_fitness/domain/models/midi/midi_event.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as scales;
-import "package:piano_fitness/domain/services/music_theory/chords.dart";
+import "package:piano_fitness/domain/models/music/chord_type.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/music_theory/chord_inversion_utils.dart";
 
@@ -30,18 +33,18 @@ enum ReferenceMode {
 class ReferencePageViewModel extends ChangeNotifier {
   /// Creates a new ReferencePageViewModel.
   ReferencePageViewModel({
+    required MidiCoordinator midiCoordinator,
     required IMidiRepository midiRepository,
     required MidiState midiState,
   }) : _midiRepository = midiRepository,
        _localMidiState = midiState {
-    _midiRepository.registerDataHandler(_handleMidiData);
+    _subscription = midiCoordinator.subscribe(midiState, _handleMidiEvent);
     _initializeState();
   }
 
   final IMidiRepository _midiRepository;
   final MidiState _localMidiState;
-
-  static final Logger _log = Logger("ReferencePageViewModel");
+  late final MidiSubscription _subscription;
 
   // Current selections
   ReferenceMode _selectedMode = ReferenceMode.scales;
@@ -51,7 +54,7 @@ class ReferencePageViewModel extends ChangeNotifier {
   ChordInversion _selectedChordInversion = ChordInversion.root;
 
   // Local reference highlighting state (separate from shared MIDI state)
-  Set<int> _localHighlightedNotes = <int>{};
+  Set<MidiNote> _localHighlightedNotes = <MidiNote>{};
 
   /// The currently selected reference mode (scales or chord types).
   ReferenceMode get selectedMode => _selectedMode;
@@ -69,7 +72,7 @@ class ReferencePageViewModel extends ChangeNotifier {
   ChordInversion get selectedChordInversion => _selectedChordInversion;
 
   /// Gets the locally managed highlighted notes for this reference page.
-  Set<int> get localHighlightedNotes =>
+  Set<MidiNote> get localHighlightedNotes =>
       Set.unmodifiable(_localHighlightedNotes);
 
   /// Gets the local MIDI state for this reference view model.
@@ -124,8 +127,8 @@ class ReferencePageViewModel extends ChangeNotifier {
     }
   }
 
-  /// Returns the MIDI note numbers that should be highlighted on the piano.
-  Set<int> getHighlightedMidiNotes() {
+  /// Returns the MIDI notes that should be highlighted on the piano.
+  Set<MidiNote> getHighlightedMidiNotes() {
     if (_selectedMode == ReferenceMode.scales) {
       return _getScaleMidiNotes();
     } else {
@@ -133,14 +136,23 @@ class ReferencePageViewModel extends ChangeNotifier {
     }
   }
 
-  /// Gets the MIDI note numbers for the currently selected scale.
-  Set<int> _getScaleMidiNotes() {
+  /// Gets the highlighted note positions for the piano widget.
+  List<NotePosition> get highlightedNotePositions => _localHighlightedNotes
+      .map<NotePosition?>(
+        (note) => PianoNoteBridge.midiNumberToNotePosition(note.value),
+      )
+      .where((position) => position != null)
+      .cast<NotePosition>()
+      .toList();
+
+  /// Gets the MIDI notes for the currently selected scale.
+  Set<MidiNote> _getScaleMidiNotes() {
     final scale = scales.ScaleDefinitions.getScale(
       _selectedKey,
       _selectedScaleType,
     );
     final scaleNotes = scale.getNotes();
-    final midiNotes = <int>{};
+    final midiNotes = <MidiNote>{};
 
     // Show the scale in only one octave for cleaner learning
     // Use base octave (middle octave) for consistency
@@ -161,60 +173,40 @@ class ReferencePageViewModel extends ChangeNotifier {
         currentOctave++;
       }
 
-      final midiNote = NoteUtils.noteToMidiNumber(note, currentOctave);
-      midiNotes.add(midiNote);
+      midiNotes.add(MidiNote(NoteUtils.noteToMidiNumber(note, currentOctave)));
       previousNote = note;
     }
 
     return midiNotes;
   }
 
-  /// Gets the MIDI note numbers for the currently selected chord.
-  Set<int> _getChordMidiNotes() {
+  /// Gets the MIDI notes for the currently selected chord.
+  Set<MidiNote> _getChordMidiNotes() {
     final rootNote = ChordInversionUtils.keyToMusicalNote(_selectedKey);
 
-    // Use the standard chord inversion utility
-    final midiNotes = ChordInversionUtils.getChordMidiNotes(
+    return ChordInversionUtils.getChordMidiNotes(
       rootNote: rootNote,
       chordType: _selectedChordType,
       inversion: _selectedChordInversion,
-      octave: MusicalConstants.baseOctave, // Base octave for chord display
-    );
-
-    return midiNotes.toSet();
+      octave: MusicalConstants.baseOctave,
+    ).map(MidiNote.new).toSet();
   }
 
   /// Handles incoming MIDI data and updates state.
-  ///
-  /// Wraps MIDI parsing and event handling in error recovery to prevent
-  /// stale state from parsing/runtime errors.
-  void _handleMidiData(Uint8List data) {
-    try {
-      // Use domain service for MIDI parsing and update local application state
-      MidiService.handleMidiData(data, (MidiEvent event) {
-        try {
-          switch (event.type) {
-            case MidiEventType.noteOn:
-              _localMidiState.noteOn(event.data1, event.data2, event.channel);
-              break;
-            case MidiEventType.noteOff:
-              _localMidiState.noteOff(event.data1, event.channel);
-              break;
-            case MidiEventType.controlChange:
-            case MidiEventType.programChange:
-            case MidiEventType.pitchBend:
-            case MidiEventType.other:
-              _localMidiState.setLastNote(event.displayMessage);
-              break;
-          }
-        } catch (e, stackTrace) {
-          _log.warning("Error handling MIDI event: $e", e, stackTrace);
-          _localMidiState.setLastNote("Error processing MIDI event");
-        }
-      });
-    } catch (e, stackTrace) {
-      _log.severe("Error parsing MIDI data: $e", e, stackTrace);
-      _localMidiState.setLastNote("Error parsing MIDI data");
+  void _handleMidiEvent(MidiEvent event) {
+    switch (event.type) {
+      case MidiEventType.noteOn:
+        _localMidiState.noteOn(event.data1, event.data2, event.channel);
+        break;
+      case MidiEventType.noteOff:
+        _localMidiState.noteOff(event.data1, event.channel);
+        break;
+      case MidiEventType.controlChange:
+      case MidiEventType.programChange:
+      case MidiEventType.pitchBend:
+      case MidiEventType.other:
+        _localMidiState.setLastNote(event.displayMessage);
+        break;
     }
   }
 
@@ -237,20 +229,28 @@ class ReferencePageViewModel extends ChangeNotifier {
   }
 
   /// Plays a note through MIDI output.
-  Future<void> playNote(int midiNote) async {
+  Future<void> playNote(MidiNote midiNote) async {
     await VirtualPianoUtils.playVirtualNote(
-      midiNote,
+      midiNote.value,
       _midiRepository,
       _localMidiState,
       (_) {}, // No specific callback needed for reference page
     );
   }
 
+  /// Converts a piano key tap to a MIDI note and plays it.
+  Future<void> playNoteFromPosition(NotePosition position) async {
+    final midiNote = MidiNote(
+      PianoNoteBridge.convertNotePositionToMidi(position),
+    );
+    await playNote(midiNote);
+  }
+
   @override
   void dispose() {
     // Clear reference display when disposing
     deactivateReferenceDisplay();
-    _midiRepository.unregisterDataHandler(_handleMidiData);
+    _subscription.cancel();
     super.dispose();
   }
 }

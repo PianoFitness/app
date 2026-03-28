@@ -5,11 +5,11 @@ import "package:piano_fitness/presentation/constants/practice_constants.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/presentation/features/practice/practice_page_view_model.dart";
+import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/presentation/accessibility/config/accessibility_labels.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
-import "package:piano_fitness/application/utils/piano_note_bridge.dart";
 import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
 import "package:piano_fitness/presentation/widgets/practice_progress_display.dart";
 import "package:piano_fitness/presentation/widgets/practice_settings_panel.dart";
@@ -48,6 +48,7 @@ class PracticePage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) {
         final viewModel = PracticePageViewModel(
+          midiCoordinator: context.read<MidiCoordinator>(),
           midiRepository: context.read<IMidiRepository>(),
           midiState: context.read<MidiState>(),
           initialChannel: midiChannel,
@@ -255,7 +256,9 @@ class _PracticePageViewState extends State<_PracticePageView> {
         animation: viewModel,
         builder: (context, child) {
           final highlightedNotes = viewModel.getDisplayHighlightedNotes();
-          final practiceRange = viewModel.calculatePracticeRange();
+          final practiceRange = PianoRangeUtils.calculateFixed49KeyRange(
+            viewModel.notesForRangeCalculation,
+          );
           final screenWidth = MediaQuery.of(context).size.width;
           final dynamicKeyWidth = PianoRangeUtils.calculateScreenBasedKeyWidth(
             screenWidth,
@@ -275,12 +278,8 @@ class _PracticePageViewState extends State<_PracticePageView> {
                 PianoRangeUtils.maxKeyWidth,
               ),
               noteRange: practiceRange,
-              onNotePositionTapped: (position) async {
-                final midiNote = PianoNoteBridge.convertNotePositionToMidi(
-                  position,
-                );
-                await viewModel.playVirtualNote(midiNote, mounted: mounted);
-              },
+              onNotePositionTapped: (position) => viewModel
+                  .playVirtualNoteFromPosition(position, mounted: mounted),
             ),
           );
         },

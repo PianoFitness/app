@@ -1,5 +1,4 @@
-import "package:piano_fitness/domain/services/music_theory/scales.dart"
-    as music;
+import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
 
 /// The twelve chromatic musical notes in Western music.
 ///

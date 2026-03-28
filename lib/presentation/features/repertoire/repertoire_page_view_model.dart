@@ -4,7 +4,6 @@ import "package:flutter/services.dart";
 import "package:piano_fitness/domain/repositories/audio_service.dart";
 import "package:piano_fitness/domain/repositories/notification_repository.dart";
 import "package:piano_fitness/domain/repositories/settings_repository.dart";
-import "package:piano_fitness/presentation/features/repertoire/repertoire_constants.dart";
 
 /// ViewModel for managing repertoire page state and logic.
 ///
@@ -22,6 +21,15 @@ class RepertoirePageViewModel extends ChangeNotifier {
     _player = _audioService.createPlayer();
   }
 
+  // Timer behavior constants (ViewModel-owned, not presentation-layer)
+  static const int _defaultDurationMinutes = 15;
+  static const List<int> _timerDurationOptions = [5, 10, 15, 20, 30];
+  static const int _secondsPerMinute = 60;
+  static const Duration _timerTickDuration = Duration(seconds: 1);
+  static const int _timePaddingWidth = 2;
+  static const String _timePaddingChar = "0";
+  static const String _notificationTitle = "Great Practice Session! 🎹";
+
   final IAudioService _audioService;
   final INotificationRepository _notificationRepository;
   final ISettingsRepository _settingsRepository;
@@ -29,15 +37,13 @@ class RepertoirePageViewModel extends ChangeNotifier {
   Timer? _timer;
 
   // Timer state
-  int _selectedDurationMinutes = RepertoireUIConstants.defaultDurationMinutes;
-  int _remainingSeconds =
-      RepertoireUIConstants.defaultDurationMinutes *
-      RepertoireUIConstants.secondsPerMinute;
+  int _selectedDurationMinutes = _defaultDurationMinutes;
+  int _remainingSeconds = _defaultDurationMinutes * _secondsPerMinute;
   bool _isRunning = false;
   bool _isPaused = false;
 
   /// Available timer duration options in minutes.
-  static const List<int> timerDurations = RepertoireUIConstants.timerDurations;
+  static const List<int> timerDurations = _timerDurationOptions;
 
   /// Currently selected timer duration in minutes.
   int get selectedDurationMinutes => _selectedDurationMinutes;
@@ -63,20 +69,18 @@ class RepertoirePageViewModel extends ChangeNotifier {
   /// Whether the timer can be reset.
   bool get canReset =>
       _isRunning ||
-      _remainingSeconds !=
-          _selectedDurationMinutes * RepertoireUIConstants.secondsPerMinute;
+      _remainingSeconds != _selectedDurationMinutes * _secondsPerMinute;
 
   /// Formatted remaining time as MM:SS.
   String get formattedTime {
-    final minutes = _remainingSeconds ~/ RepertoireUIConstants.secondsPerMinute;
-    final seconds = _remainingSeconds % RepertoireUIConstants.secondsPerMinute;
-    return "${minutes.toString().padLeft(RepertoireUIConstants.timePaddingWidth, RepertoireUIConstants.timePaddingChar)}:${seconds.toString().padLeft(RepertoireUIConstants.timePaddingWidth, RepertoireUIConstants.timePaddingChar)}";
+    final minutes = _remainingSeconds ~/ _secondsPerMinute;
+    final seconds = _remainingSeconds % _secondsPerMinute;
+    return "${minutes.toString().padLeft(_timePaddingWidth, _timePaddingChar)}:${seconds.toString().padLeft(_timePaddingWidth, _timePaddingChar)}";
   }
 
   /// Progress value between 0.0 and 1.0.
   double get progress {
-    final totalSeconds =
-        _selectedDurationMinutes * RepertoireUIConstants.secondsPerMinute;
+    final totalSeconds = _selectedDurationMinutes * _secondsPerMinute;
     if (totalSeconds == 0) return 1.0;
     return 1.0 - (_remainingSeconds / totalSeconds);
   }
@@ -144,12 +148,11 @@ class RepertoirePageViewModel extends ChangeNotifier {
     _timer?.cancel();
     _isRunning = false;
     _isPaused = false;
-    _remainingSeconds =
-        _selectedDurationMinutes * RepertoireUIConstants.secondsPerMinute;
+    _remainingSeconds = _selectedDurationMinutes * _secondsPerMinute;
   }
 
   void _startCountdown() {
-    _timer = Timer.periodic(RepertoireUIConstants.timerTickDuration, (_) {
+    _timer = Timer.periodic(_timerTickDuration, (_) {
       if (_remainingSeconds > 0) {
         _remainingSeconds--;
         notifyListeners();
@@ -177,7 +180,7 @@ class RepertoirePageViewModel extends ChangeNotifier {
       if (settings.timerCompletionEnabled && settings.permissionGranted) {
         await _notificationRepository.showInstantNotification(
           id: 0,
-          title: RepertoireUIConstants.notificationTitle,
+          title: _notificationTitle,
           body:
               "You completed $_selectedDurationMinutes minutes of practice. Well done!",
         );

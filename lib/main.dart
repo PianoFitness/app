@@ -9,6 +9,8 @@ import "package:timezone/data/latest.dart" as tz;
 import "package:piano_fitness/application/database/app_database.dart";
 import "package:piano_fitness/application/repositories/audio_service_impl.dart";
 import "package:piano_fitness/application/repositories/midi_repository_impl.dart";
+import "package:piano_fitness/application/services/midi/midi_device_discovery_service_impl.dart";
+import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/application/repositories/notification_repository_impl.dart";
 import "package:piano_fitness/application/repositories/settings_repository_impl.dart";
 import "package:piano_fitness/application/repositories/user_profile_repository_impl.dart";
@@ -16,6 +18,7 @@ import "package:piano_fitness/application/services/notifications/notification_ma
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/domain/repositories/audio_service.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
+import "package:piano_fitness/domain/services/midi_device_discovery_service.dart";
 import "package:piano_fitness/domain/repositories/notification_repository.dart";
 import "package:piano_fitness/domain/repositories/settings_repository.dart";
 import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
@@ -113,6 +116,17 @@ void main() async {
             database: database,
             prefs: sharedPreferences,
           ),
+        ),
+
+        // MIDI device discovery service (Bluetooth lifecycle + device scanning)
+        Provider<IMidiDeviceDiscoveryService>(
+          create: (_) => MidiDeviceDiscoveryServiceImpl(),
+          dispose: (_, service) => service.dispose(),
+        ),
+
+        // MIDI subscription coordinator (derived from IMidiRepository)
+        ProxyProvider<IMidiRepository, MidiCoordinator>(
+          update: (_, repo, _) => MidiCoordinator(repo),
         ),
 
         // Global MIDI state (shared across all features)

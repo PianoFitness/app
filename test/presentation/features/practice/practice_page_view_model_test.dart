@@ -1,7 +1,9 @@
 import "dart:typed_data";
 import "package:flutter_test/flutter_test.dart";
+import "package:mockito/mockito.dart";
 import "package:piano/piano.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
@@ -12,6 +14,7 @@ import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;
 import "package:piano_fitness/presentation/features/practice/practice_page_view_model.dart";
 import "../../../shared/midi_mocks.dart";
+import "../../../shared/test_helpers/mock_repositories.dart";
 import "../../../shared/test_helpers/mock_repositories.mocks.dart";
 
 void main() {
@@ -24,6 +27,7 @@ void main() {
   group("PracticePageViewModel Tests", () {
     late PracticePageViewModel viewModel;
     late MockIMidiRepository mockMidiRepository;
+    late MockMidiRepositoryHelper helper;
     late MidiState midiState;
     var exerciseCompletedCalled = false;
     var receivedHighlightedNotes = <NotePosition>[];
@@ -31,10 +35,12 @@ void main() {
     setUp(() {
       // Create mock dependencies
       mockMidiRepository = MockIMidiRepository();
+      helper = MockMidiRepositoryHelper(mockMidiRepository);
       midiState = MidiState();
 
       // Create ViewModel with injected dependencies
       viewModel = PracticePageViewModel(
+        midiCoordinator: MidiCoordinator(mockMidiRepository),
         midiRepository: mockMidiRepository,
         midiState: midiState,
         initialChannel: 3,
@@ -76,7 +82,7 @@ void main() {
     test("should handle MIDI data and update state for note on events", () {
       final midiData = Uint8List.fromList([0x90, 60, 100]);
 
-      viewModel.handleMidiData(midiData);
+      helper.simulateMidiData(midiData);
 
       expect(viewModel.midiState.activeNotes.contains(60), isTrue);
       expect(viewModel.midiState.lastNote, "Note ON: 60 (Ch: 1, Vel: 100)");
@@ -90,7 +96,7 @@ void main() {
 
       final midiData = Uint8List.fromList([0x80, 60, 0]);
 
-      viewModel.handleMidiData(midiData);
+      helper.simulateMidiData(midiData);
 
       expect(viewModel.midiState.activeNotes.contains(60), isFalse);
       expect(viewModel.midiState.lastNote, "Note OFF: 60 (Ch: 1)");
@@ -186,42 +192,72 @@ void main() {
       );
     });
 
-    test("should calculate practice range correctly", () {
-      final range = viewModel.calculatePracticeRange();
+    // TODO(refactor): replace List<int> with List<MidiNote> throughout the
+    // notesForRangeCalculation call chain (exercise.dart → practice_session.dart
+    // → practice_page_view_model.dart → practice_page.dart / PianoRangeUtils).
+    // https://github.com/PianoFitness/app/issues/55
+    test("should expose notes for range calculation", () {
+      // Default session: C major scale, both hands, starting at baseOctave (4).
+      // Right hand plays C4–C5 (MIDI 60–72); left hand plays C3–C4 (MIDI 48–60).
+      // getAllNotes() collects the 15 unique MIDI values across all paired steps.
+      const expectedNotes = [
+        48, 50, 52, 53, 55, 57, 59, // C3–B3 (left hand)
+        60, 62, 64, 65, 67, 69, 71, // C4–B4
+        72, // C5 (right hand top)
+      ];
+      final notes = viewModel.notesForRangeCalculation;
+      expect(notes, unorderedEquals(expectedNotes));
+    });
 
-      expect(range, isNotNull);
-      expect(range, isA<NoteRange>());
+    test("should play virtual note from NotePosition", () async {
+      // C5 = MIDI 72 ((5+1)*12 + 0)
+      final position = NotePosition(note: Note.C, octave: 5);
+      await viewModel.playVirtualNoteFromPosition(position, mounted: false);
+
+      // initialChannel=3 → selectedChannel=3 → displayed as Ch: 4; velocity=64.
+      expect(
+        viewModel.midiState.lastNote,
+        equals("Virtual Note ON: 72 (Ch: 4, Vel: 64)"),
+      );
+      // Verify midiRepository was called with MIDI 72, velocity 64, channel 3.
+      verify(mockMidiRepository.sendNoteOn(72, 64, 3)).called(1);
     });
 
     test("should handle virtual note playing without throwing", () async {
       const testNote = 60;
 
       // This test verifies the method handles missing practice session gracefully
+      final uninitRepo = MockIMidiRepository();
+      final uninitMidiState = MidiState();
       final uninitializedViewModel = PracticePageViewModel(
-        midiRepository: MockIMidiRepository(),
-        midiState: MidiState(),
+        midiCoordinator: MidiCoordinator(uninitRepo),
+        midiRepository: uninitRepo,
+        midiState: uninitMidiState,
       );
 
       // Should not crash when no practice session is initialized
       await uninitializedViewModel.playVirtualNote(testNote, mounted: false);
 
       uninitializedViewModel.dispose();
+      uninitMidiState.dispose();
     });
 
     test("should handle cases with no practice session initialized", () {
+      final uninitRepo2 = MockIMidiRepository();
+      final uninitHelper2 = MockMidiRepositoryHelper(uninitRepo2);
+      final uninitMidiState2 = MidiState();
       final uninitializedViewModel = PracticePageViewModel(
-        midiRepository: MockIMidiRepository(),
-        midiState: MidiState(),
+        midiCoordinator: MidiCoordinator(uninitRepo2),
+        midiRepository: uninitRepo2,
+        midiState: uninitMidiState2,
       );
       final midiData = Uint8List.fromList([0x90, 60, 100]);
 
       // Should not crash when no practice session is set
-      expect(
-        () => uninitializedViewModel.handleMidiData(midiData),
-        returnsNormally,
-      );
+      expect(() => uninitHelper2.simulateMidiData(midiData), returnsNormally);
 
       uninitializedViewModel.dispose();
+      uninitMidiState2.dispose();
     });
 
     group("Practice Session Integration", () {
@@ -266,7 +302,7 @@ void main() {
       test("should handle control change messages", () {
         final midiData = Uint8List.fromList([0xB0, 7, 100]);
 
-        viewModel.handleMidiData(midiData);
+        helper.simulateMidiData(midiData);
 
         expect(viewModel.midiState.lastNote, "CC: Controller 7 = 100 (Ch: 1)");
       });
@@ -274,7 +310,7 @@ void main() {
       test("should handle program change messages", () {
         final midiData = Uint8List.fromList([0xC0, 42]);
 
-        viewModel.handleMidiData(midiData);
+        helper.simulateMidiData(midiData);
 
         expect(viewModel.midiState.lastNote, "Program Change: 42 (Ch: 1)");
       });
@@ -282,7 +318,7 @@ void main() {
       test("should handle pitch bend messages", () {
         final midiData = Uint8List.fromList([0xE0, 0x00, 0x60]);
 
-        viewModel.handleMidiData(midiData);
+        helper.simulateMidiData(midiData);
 
         expect(viewModel.midiState.lastNote.contains("Pitch Bend"), isTrue);
       });
@@ -293,10 +329,10 @@ void main() {
 
         viewModel.midiState.setLastNote("Previous message");
 
-        viewModel.handleMidiData(clockMessage);
+        helper.simulateMidiData(clockMessage);
         expect(viewModel.midiState.lastNote, equals("Previous message"));
 
-        viewModel.handleMidiData(activeSenseMessage);
+        helper.simulateMidiData(activeSenseMessage);
         expect(viewModel.midiState.lastNote, equals("Previous message"));
       });
     });

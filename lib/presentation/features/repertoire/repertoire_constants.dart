@@ -1,3 +1,5 @@
+import "package:flutter/material.dart";
+
 /// Constants for Repertoire page UI elements and timer logic.
 ///
 /// Contains feature-specific constants for repertoire interface including
@@ -11,25 +13,6 @@
 /// - ResponsiveBreakpoints (tablet, compactHeight)
 class RepertoireUIConstants {
   RepertoireUIConstants._(); // Private constructor to prevent instantiation
-
-  // Timer Configuration
-  /// Default timer duration in minutes
-  static const int defaultDurationMinutes = 15;
-
-  /// Available timer duration options in minutes
-  static const List<int> timerDurations = [5, 10, 15, 20, 30];
-
-  /// Seconds per minute conversion constant
-  static const int secondsPerMinute = 60;
-
-  /// Timer tick interval for countdown updates
-  static const Duration timerTickDuration = Duration(seconds: 1);
-
-  /// Minimum padding for zero value in time formatting
-  static const int timePaddingWidth = 2;
-
-  /// Padding character for time formatting
-  static const String timePaddingChar = "0";
 
   // Responsive Font Sizes (Compact Layouts)
   // Note: Standard font sizes should use Theme.of(context).textTheme instead
@@ -101,10 +84,47 @@ class RepertoireUIConstants {
   /// Container border radius
   static const double containerBorderRadius = 6.0;
 
-  // Notification Configuration
-  /// Timer completion notification title
-  static const String notificationTitle = "Great Practice Session! 🎹";
+  // Brand Gradient Colors
+  /// Primary gradient color (indigo) — used in timer container and header
+  static const Color gradientPrimaryColor = Color(0xFF6366F1);
 
-  /// Timer completion notification payload
-  static const String notificationPayload = "timer_completion";
+  /// Secondary gradient color (purple) — used in timer container gradient
+  static const Color gradientSecondaryColor = Color(0xFF8B5CF6);
+
+  // Timer Status Colors
+  /// Color indicating timer is running (green)
+  static const Color timerRunningColor = Color(0xFF4CAF50);
+
+  /// Color indicating timer is paused (amber)
+  static const Color timerPausedColor = Color(0xFFFF9800);
+
+  /// Color indicating session is complete (purple)
+  static const Color timerCompletedColor = Color(0xFF9C27B0);
+
+  /// Color indicating timer is ready to start (indigo)
+  static const Color timerReadyColor = Color(0xFF3F51B5);
+
+  // Timer Display Constraint Thresholds
+  /// Height below which the timer enters extremely constrained mode
+  static const double timerExtremelyConstrainedHeight = 100.0;
+
+  /// Height below which the timer enters very constrained mode
+  static const double timerVeryConstrainedHeight = 140.0;
+
+  /// Width below which the timer enters very constrained mode
+  static const double timerVeryConstrainedWidth = 200.0;
+
+  /// Height above which the timer uses its larger circle size
+  static const double timerComfortableHeight = 150.0;
+
+  // Duration Selector Constraint Thresholds
+  /// Height below which the duration selector enters very constrained mode
+  static const double durationVeryConstrainedHeight = 120.0;
+
+  /// Width below which the duration selector uses horizontal-layout sizing
+  static const double durationHorizontalLayoutWidth = 300.0;
+
+  // Recommended Duration
+  /// Recommended practice duration in minutes (shown with star indicator)
+  static const int recommendedDurationMinutes = 15;
 }

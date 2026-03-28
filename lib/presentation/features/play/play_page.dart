@@ -2,12 +2,12 @@ import "package:flutter/material.dart";
 import "package:piano/piano.dart";
 import "package:provider/provider.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
+import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/presentation/features/play/play_constants.dart";
 import "package:piano_fitness/presentation/features/play/play_page_view_model.dart";
 import "package:piano_fitness/presentation/accessibility/config/accessibility_labels.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
-import "package:piano_fitness/application/utils/piano_note_bridge.dart";
 import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
 import "package:piano_fitness/presentation/utils/piano_accessibility_utils.dart";
 
@@ -29,6 +29,7 @@ class PlayPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) => PlayPageViewModel(
+        midiCoordinator: context.read<MidiCoordinator>(),
         midiRepository: context.read<IMidiRepository>(),
         midiState: context.read<MidiState>(),
         initialChannel: midiChannel,
@@ -152,7 +153,7 @@ class _PlayPageView extends StatelessWidget {
               animation: viewModel,
               builder: (context, child) {
                 // Define a fixed 49-key range for consistent layout
-                final fixed49KeyRange = viewModel.getFixed49KeyRange();
+                final fixed49KeyRange = PianoRangeUtils.standard49KeyRange;
 
                 // Calculate dynamic key width based on screen width
                 final screenWidth = MediaQuery.of(context).size.width;
@@ -175,13 +176,11 @@ class _PlayPageView extends StatelessWidget {
                     ),
                     noteRange: fixed49KeyRange,
                     onNotePositionTapped: (position) {
-                      final midiNote =
-                          PianoNoteBridge.convertNotePositionToMidi(position);
-                      viewModel.playVirtualNote(midiNote).catchError((
-                        Object e,
-                      ) {
-                        debugPrint("Error playing note: $e");
-                      });
+                      viewModel
+                          .playVirtualNoteFromPosition(position)
+                          .catchError((Object e) {
+                            debugPrint("Error playing note: $e");
+                          });
                     },
                   ),
                 );

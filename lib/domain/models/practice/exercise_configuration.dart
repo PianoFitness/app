@@ -4,8 +4,7 @@ import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/chord_definitions.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
-import "package:piano_fitness/domain/services/music_theory/scales.dart"
-    as music;
+import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
 
 /// Helper class for copyWith to distinguish between
 /// "field not provided" and "field explicitly set to null".

@@ -6,6 +6,7 @@
 library;
 
 import "package:flutter/material.dart";
+import "package:piano_fitness/presentation/constants/ui_constants.dart";
 
 /// Play page-specific UI dimension and layout constants.
 class PlayUIConstants {
@@ -13,9 +14,9 @@ class PlayUIConstants {
 
   // ==================== Info Banner ====================
 
-  /// Padding for the practice info banner.
+  /// Padding for the play info banner.
   static const EdgeInsets infoBannerPadding = EdgeInsets.symmetric(
-    horizontal: 16,
-    vertical: 8,
+    horizontal: Spacing.md,
+    vertical: Spacing.sm,
   );
 }
