@@ -1,8 +1,10 @@
 # ADR-0025: Exercise History Data Model
 
-**Status:** Accepted
+**Status:** Superseded by [ADR-0028](0028-exercise-history-configuration-mirroring-schema.md)
 
 **Date:** 2026-03-02
+
+> **Note:** This ADR was superseded before implementation. The JSON `configuration` blob, composite `exerciseType` string, and integer autoincrement primary key described here were replaced by a column-mirroring schema with a UUID text primary key (see ADR-0028). The context and requirements remain accurate; only the schema design and repository API differ.
 
 ## Context
 

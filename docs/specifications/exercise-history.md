@@ -1,7 +1,7 @@
 <!--
-  Status: Draft
+  Status: Accepted
   Created: 2026-03-02
-  Last updated: 2026-03-02
+  Last updated: 2026-03-28
 -->
 
 # Exercise History Specification
@@ -52,159 +52,60 @@ This feature has no direct UI surface in the MVP—it is a background data persi
 
 Exercise configurations are represented by the **`ExerciseConfiguration`** domain model (see ADR-0026). This immutable model unifies all practice mode configuration parameters (13 fields) into a single, type-safe structure with JSON serialization support.
 
-The `configuration` field in `ExerciseHistoryTable` stores the serialized `ExerciseConfiguration` object, providing:
+Each `ExerciseHistoryEntry` in the database mirrors all fields of `ExerciseConfiguration` as individual typed columns (see ADR-0028). There is no JSON blob; every field is independently queryable.
 
-- **Complete reproducibility**: All configuration parameters preserved for re-creating the exact exercise
-- **Type-safe deserialization**: JSON can be deserialized back to `ExerciseConfiguration` using `ExerciseConfiguration.fromJson()`
-- **Extensibility**: Adding new configuration fields to the domain model doesn't require database schema migrations
-- **Validation**: Configuration validation rules are enforced in the domain model via `config.validate()`
-
-**Integration with history logging:**
+**Integration with history logging** — `PracticePageViewModel` intercepts the exercise-completed callback and records history before notifying the UI:
 
 ```dart
-// In PracticePageViewModel when exercise completes
-final entry = ExerciseHistoryEntry(
-  profileId: currentProfile.id,
-  completedAt: DateTime.now(),
-  practiceMode: config.practiceMode.name,
-  musicalKey: deriveMusicalKey(config),  // Mode-specific derivation
-  exerciseType: deriveExerciseType(config),  // Mode-specific derivation
-  handSelection: config.handSelection.name,
-  configuration: jsonEncode(config.toJson()),  // Serialize complete config
+// In PracticePageViewModel.initializePracticeSession()
+_practiceSession = PracticeSession(
+  onExerciseCompleted: () {
+    unawaited(_recordExerciseHistory()); // fire-and-forget, never blocks UI
+    onExerciseCompleted();
+  },
+  // …
 );
-await exerciseHistoryRepository.logExercise(entry);
+
+// _recordExerciseHistory builds the entry from the live ExerciseConfiguration:
+final entry = ExerciseHistoryEntry.fromConfiguration(
+  id: _uuid.v4(),
+  profileId: profileId,
+  completedAt: DateTime.now(),
+  config: _practiceSession!.config,
+);
+await _exerciseHistoryRepository.saveEntry(entry);
 ```
+
+If no active profile exists, or if `saveEntry` throws, the error is logged and silently swallowed — a history save failure must never interrupt practice.
 
 ### Exercise History Data Model
 
 The core entity is an **exercise history entry**, representing one completed practice "set."
 
-**ExerciseHistoryEntry** must hold:
+**`ExerciseHistoryEntry`** holds the following fields. The domain model uses typed Dart enums; the database stores their `.name` strings.
 
-- `id`: Auto-incrementing integer primary key
-- `profileId`: Foreign key to `UserProfileTable` (CASCADE delete)
-- `completedAt`: Timestamp when the exercise was completed (DateTime)
-- `practiceMode`: String representation of `PracticeMode` enum (scales, chordsByKey, chordsByType, arpeggios, chordProgressions)
-- `musicalKey`: Tonal center as string (e.g., "C", "Am", "F#", "Bb")
-- `exerciseType`: Optional string for mode-specific refinement (e.g., "major_scale", "minor_triad", "i_iv_v_i")
-- `handSelection`: Optional string indicating which hands were used ("left", "right", "both")
-- `configuration`: Required JSON string containing complete `ExerciseConfiguration` serialized via `config.toJson()`
+| Field                  | Type               | Nullable | Notes                                                   |
+| ---------------------- | ------------------ | -------- | ------------------------------------------------------- |
+| `id`                   | `String` (UUID v4) | No       | Unique identifier generated at save time                |
+| `profileId`            | `String`           | No       | FK → `UserProfileTable.id`, CASCADE delete              |
+| `completedAt`          | `DateTime`         | No       | Wall-clock time the exercise was finished               |
+| `practiceMode`         | `PracticeMode`     | No       | Always present                                          |
+| `handSelection`        | `HandSelection`    | No       | Always present                                          |
+| `musicalKey`           | `Key?`             | Yes      | scales, chordsByKey, chordProgressions modes            |
+| `scaleType`            | `ScaleType?`       | Yes      | scales, chordsByKey modes                               |
+| `chordType`            | `ChordType?`       | Yes      | chordsByType mode                                       |
+| `includeInversions`    | `bool`             | No       | chordsByType mode; default `false`                      |
+| `includeSeventhChords` | `bool`             | No       | chordsByKey mode; default `false`                       |
+| `musicalNote`          | `MusicalNote?`     | Yes      | arpeggios mode (root note)                              |
+| `arpeggioType`         | `ArpeggioType?`    | Yes      | arpeggios mode                                          |
+| `arpeggioOctaves`      | `ArpeggioOctaves?` | Yes      | arpeggios mode; default `one`                           |
+| `chordProgressionId`   | `String?`          | Yes      | chordProgressions mode; maps to `ChordProgression.name` |
 
-**Composite exercise identification**: Exercises are uniquely described (not uniquely constrained) by:
-
-```text
-(practiceMode, musicalKey, exerciseType)
-```
-
-Multiple completions of the same exercise create separate rows—each is an independent event.
-
-#### Composite Key Derivation Rules
-
-The composite key components are derived from `ExerciseConfiguration` using mode-specific rules:
-
-| Practice Mode         | `musicalKey` Derivation         | `exerciseType` Derivation                                      | Example Composite Key                   |
-| --------------------- | ------------------------------- | -------------------------------------------------------------- | --------------------------------------- |
-| **scales**            | `config.key.name`               | `config.scaleType.name`                                        | (scales, C, major)                      |
-| **chordsByKey**       | `config.key.name`               | `config.scaleType.name + "_chords"`                            | (chordsByKey, Am, harmonicMinor_chords) |
-| **chordsByType**      | Iteration key (e.g., "C", "Db") | `config.chordType.name` + inversion suffix                     | (chordsByType, C, majorTriad_first)     |
-| **arpeggios**         | `config.musicalNote.name`       | `config.arpeggioType.name + "_" + config.arpeggioOctaves.name` | (arpeggios, C, majorSeventh_two)        |
-| **chordProgressions** | `config.key.name`               | `config.chordProgressionId`                                    | (chordProgressions, C, I - V)           |
-
-**Derivation notes:**
-
-- **chordsByType iteration**: This mode iterates through all 12 chromatic keys. Each iteration logs a separate entry with its own `musicalKey` (C, Db, D, etc.).
-- **Inversion suffixes**: When `includeInversions` is true, each inversion (root, first, second) is logged as a separate `exerciseType` (e.g., "majorTriad", "majorTriad_first", "majorTriad_second").
-- **ChordProgression IDs**: The `chordProgressionId` field stores `ChordProgression.name` directly (e.g., "I - V", "I - ♭VII").
-- **Scale type suffixes**: For chordsByKey, the "_chords" suffix differentiates chord exercises from scale exercises in the same key.
-
-**Configuration field** (JSON string) stores the complete `ExerciseConfiguration` object serialized via `config.toJson()`. This captures all mode-specific parameters for reproducibility and analysis.
-
-#### Configuration Field Structure by Practice Mode
-
-Each practice mode has a specific set of required and optional configuration fields:
-
-**Scales Configuration:**
-
-```json
-{
-  "practiceMode": "scales",
-  "handSelection": "both",
-  "key": "C",
-  "scaleType": "major",
-  "startOctave": 4,
-  "autoProgressKeys": false
-}
-```
-
-*Required*: practiceMode, handSelection, key, scaleType  
-*Optional*: startOctave (default: 4), autoProgressKeys (default: false)
-
-**Chords by Key Configuration:**
-
-```json
-{
-  "practiceMode": "chordsByKey",
-  "handSelection": "right",
-  "key": "Am",
-  "scaleType": "harmonicMinor",
-  "includeSeventhChords": true,
-  "startOctave": 4,
-  "autoProgressKeys": true
-}
-```
-
-*Required*: practiceMode, handSelection, key, scaleType  
-*Optional*: includeSeventhChords (default: false), startOctave (default: 4), autoProgressKeys (default: false)
-
-**Chords by Type Configuration:**
-
-```json
-{
-  "practiceMode": "chordsByType",
-  "handSelection": "left",
-  "chordType": "diminishedTriad",
-  "includeInversions": true,
-  "startOctave": 3
-}
-```
-
-*Required*: practiceMode, handSelection, chordType  
-*Optional*: includeInversions (default: false), startOctave (default: 4), autoProgressKeys (default: false)
-
-**Arpeggios Configuration:**
-
-```json
-{
-  "practiceMode": "arpeggios",
-  "handSelection": "both",
-  "musicalNote": "C",
-  "arpeggioType": "majorSeventh",
-  "arpeggioOctaves": "two",
-  "startOctave": 4
-}
-```
-
-*Required*: practiceMode, handSelection, musicalNote (root note), arpeggioType  
-*Optional*: arpeggioOctaves (default: one), startOctave (default: 4), autoProgressKeys (default: false)
-
-**Chord Progressions Configuration:**
-
-```json
-{
-  "practiceMode": "chordProgressions",
-  "handSelection": "both",
-  "key": "C",
-  "chordProgressionId": "I - V",
-  "startOctave": 4
-}
-```
-
-*Required*: practiceMode, handSelection, key, chordProgressionId  
-*Optional*: startOctave (default: 4), autoProgressKeys (default: false)
+Multiple completions of the same exercise produce separate rows — each is an independent event.
 
 #### Enum Serialization
 
-All domain enums use the `.name` property for JSON serialization (e.g., `PracticeMode.scales.name → "scales"`). Deserialization uses `EnumType.values.byName(string)` for type-safe reconstruction.
+All domain enums are stored as their `.name` string (e.g., `PracticeMode.scales.name → "scales"`). Deserialization uses `EnumType.values.byName(string)`, which throws a descriptive error if an unknown name is encountered.
 
 ### Completion Criteria (MVP)
 
@@ -226,47 +127,74 @@ Future phases may introduce:
 Implemented as a Drift table in `lib/application/database/tables/exercise_history_table.dart`:
 
 ```dart
-@DataClassName("ExerciseHistoryEntry")
+@DataClassName("ExerciseHistoryTableData")
 class ExerciseHistoryTable extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get profileId => text()
-    .references(UserProfileTable, #id, onDelete: KeyAction.cascade)();
+  TextColumn get id => text()();
+
+  TextColumn get profileId => text().customConstraint(
+    "NOT NULL REFERENCES user_profile_table(id) ON DELETE CASCADE",
+  )();
+
   DateTimeColumn get completedAt => dateTime()();
+
+  // ── Exercise configuration columns ──────────────────────────────────────
   TextColumn get practiceMode => text()();
-  TextColumn get musicalKey => text()();
-  TextColumn get exerciseType => text().nullable()();
-  TextColumn get handSelection => text().nullable()();
-  TextColumn get configuration => text();
-  
+  TextColumn get handSelection => text()();
+  TextColumn get musicalKey => text().nullable()();
+  TextColumn get scaleType => text().nullable()();
+  TextColumn get chordType => text().nullable()();
+  BoolColumn get includeInversions =>
+      boolean().withDefault(const Constant(false))();
+  BoolColumn get includeSeventhChords =>
+      boolean().withDefault(const Constant(false))();
+  TextColumn get musicalNote => text().nullable()();
+  TextColumn get arpeggioType => text().nullable()();
+  TextColumn get arpeggioOctaves => text().nullable()();
+  TextColumn get chordProgressionId => text().nullable()();
+
   @override
-  Set<Index> get indexes => {
-    Index(['profileId', 'completedAt'], orders: [OrderingMode.desc]),
-  };
+  Set<Column> get primaryKey => {id};
 }
 ```
 
-**Required Indexes**:
+**Notes**:
 
-- **Composite index on `(profileId, completedAt DESC)`**: Required for meeting performance targets (< 100ms writes, < 200ms aggregation queries). This index enables efficient "recent practice activity" queries and aggregations like "count exercises for this profile in the last 7 days."
+- `@DataClassName("ExerciseHistoryTableData")` avoids a name collision with the domain model `ExerciseHistoryEntry`.
+- The `ON DELETE CASCADE` constraint on `profileId` is expressed via `customConstraint` because Drift v2 does not support `ON DELETE CASCADE` through the regular `.references()` DSL for text columns.
+- The **composite index on `(profileId, completedAt DESC)`** is declared in the `AppDatabase.from2To3` migration via `issueCustomQuery` rather than in the table definition, to ensure full SQLite `DESC` ordering support:
+
+```dart
+await m.issueCustomQuery(
+  "CREATE INDEX IF NOT EXISTS idx_exercise_history_profile_date "
+  "ON exercise_history_table (profile_id, completed_at DESC)",
+);
+```
 
 ### Repository Interface
 
-Define a domain repository interface for exercise history operations:
+The domain interface (`lib/domain/repositories/exercise_history_repository.dart`) exposes two operations for the MVP:
 
-**IExerciseHistoryRepository** must support:
+```dart
+abstract class IExerciseHistoryRepository {
+  /// Saves a completed exercise to the history log.
+  Future<void> saveEntry(ExerciseHistoryEntry entry);
 
-- `Future<void> logExercise(ExerciseHistoryEntry entry)` — Create a new history entry
-- `Future<List<ExerciseHistoryEntry>> getHistory(String profileId, {DateTime? since, DateTime? until})` — Retrieve entries for a profile, optionally filtered by date range
-- `Future<int> countExercises(String profileId, {DateTime? since})` — Count completed exercises for a profile
-- `Future<void> deleteHistory(String profileId)` — Delete all history for a profile (admin/testing, not user-facing in MVP)
+  /// Returns history entries for a profile, most recent first.
+  /// Pass [limit] to cap the result (e.g. for "last 10" widgets).
+  Future<List<ExerciseHistoryEntry>> getEntriesForProfile(
+    String profileId, {
+    int? limit,
+  });
+}
+```
 
-Implementation resides in `lib/application/database/daos/exercise_history_dao.dart`.
+The Drift-backed implementation (`ExerciseHistoryRepositoryImpl`) rounds enums through `.name` / `values.byName()` on every write and read, keeping the database content human-readable and the in-memory representation fully typed.
 
 ## Integration Points
 
 - **User Profiles** (`docs/specifications/user-profiles.md`): Exercise history is linked to profiles via `profileId` foreign key with CASCADE delete
-- **Exercise Configuration Model** (ADR-0026): The `configuration` field stores serialized `ExerciseConfiguration` objects
-- **Practice Sessions** (`docs/specifications/practice-sessions.md`): PracticePageViewModel calls the repository to log exercises upon completion
+- **Exercise Configuration Model** (ADR-0026): `ExerciseHistoryEntry.fromConfiguration()` constructs an entry directly from a live `ExerciseConfiguration`; no serialization step
+- **Practice Sessions** (`docs/specifications/practice-sessions.md`): `PracticePageViewModel` intercepts the exercise-completed callback to call `saveEntry` (fire-and-forget via `unawaited`) before notifying the UI
 - **Drift Database** (ADR-0024): Database schema and DAO implementation follow established Drift patterns from user profiles feature
 - **Repository Pattern** (ADR-0004): Data access abstracted behind domain interface for testability and Clean Architecture compliance
 
@@ -342,7 +270,8 @@ Use `NativeDatabase.memory()` for isolated, fast database tests. Seed with sampl
 
 ✅ **Data integrity**:
 
-- All required fields (`id`, `profileId`, `completedAt`, `practiceMode`, `musicalKey`) are populated
+- All required fields (`id`, `profileId`, `completedAt`, `practiceMode`, `handSelection`) are populated
+- Mode-specific optional fields (`musicalKey`, `scaleType`, `chordType`, etc.) are set when relevant and null otherwise
 - Foreign key constraint to `UserProfileTable` is enforced
 
 ✅ **Testability**:
@@ -371,8 +300,9 @@ Use `NativeDatabase.memory()` for isolated, fast database tests. Seed with sampl
 
 ## Related Documentation
 
-- **ADR-0026**: Unified Exercise Configuration Model — Domain model for representing practice configurations
-- **ADR-0025**: Exercise History Data Model — Architectural decision rationale for composite key approach and JSON configuration field
-- **ADR-0024**: Drift for Database Persistence — Database implementation strategy
-- **exercise-system.md**: Describes the structure of practice exercises, relevant for understanding `exerciseType` values
+- **ADR-0028**: Exercise History: Configuration-Mirroring Column Schema — Supersedes ADR-0025; documents the column-mirroring design, UUID PK, and fire-and-forget integration that was implemented
+- **ADR-0025**: Exercise History Data Model — Original design proposal (superseded); context and requirements remain accurate
+- **ADR-0026**: Unified Exercise Configuration Model — Domain model mirrored by the history table schema
+- **ADR-0024**: Drift for Database Persistence — Database implementation strategy and migration conventions
+- **exercise-system.md**: Describes the structure of practice exercises and the five practice modes
 - **user-profiles.md**: Describes user profile model and lifecycle, including deletion behavior
