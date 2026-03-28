@@ -63,11 +63,7 @@ class ExerciseHistoryRepositoryImpl implements IExerciseHistoryRepository {
       );
       return rows.map(_toDomainModel).toList();
     } catch (e, stackTrace) {
-      _logger.severe(
-        "Error loading exercise history for profile $profileId",
-        e,
-        stackTrace,
-      );
+      _logger.severe("Error loading exercise history entries", e, stackTrace);
       rethrow;
     }
   }
@@ -100,6 +96,9 @@ class ExerciseHistoryRepositoryImpl implements IExerciseHistoryRepository {
       arpeggioType: row.arpeggioType != null
           ? ArpeggioType.values.byName(row.arpeggioType!)
           : null,
+      // arpeggioOctaves is non-nullable in ExerciseConfiguration (defaults to
+      // ArpeggioOctaves.one), so null is never written to this column through
+      // the normal save path. The fallback is kept for defensive correctness.
       arpeggioOctaves: row.arpeggioOctaves != null
           ? ArpeggioOctaves.values.byName(row.arpeggioOctaves!)
           : ArpeggioOctaves.one,
