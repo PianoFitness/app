@@ -6,6 +6,7 @@ import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
+import "package:piano_fitness/domain/models/practice/exercise_history_entry.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
@@ -29,6 +30,8 @@ void main() {
     late MockIMidiRepository mockMidiRepository;
     late MockMidiRepositoryHelper helper;
     late MidiState midiState;
+    late MockIExerciseHistoryRepository mockExerciseHistoryRepository;
+    late MockIUserProfileRepository mockUserProfileRepository;
     var exerciseCompletedCalled = false;
     var receivedHighlightedNotes = <NotePosition>[];
 
@@ -37,12 +40,24 @@ void main() {
       mockMidiRepository = MockIMidiRepository();
       helper = MockMidiRepositoryHelper(mockMidiRepository);
       midiState = MidiState();
+      mockExerciseHistoryRepository = MockIExerciseHistoryRepository();
+      mockUserProfileRepository = MockIUserProfileRepository();
+
+      // Stub repository methods used by _recordExerciseHistory
+      when(
+        mockUserProfileRepository.getActiveProfileId(),
+      ).thenAnswer((_) async => "test-profile-id");
+      when(
+        mockExerciseHistoryRepository.saveEntry(any),
+      ).thenAnswer((_) async {});
 
       // Create ViewModel with injected dependencies
       viewModel = PracticePageViewModel(
         midiCoordinator: MidiCoordinator(mockMidiRepository),
         midiRepository: mockMidiRepository,
         midiState: midiState,
+        exerciseHistoryRepository: mockExerciseHistoryRepository,
+        userProfileRepository: mockUserProfileRepository,
         initialChannel: 3,
       );
 
@@ -229,10 +244,17 @@ void main() {
       // This test verifies the method handles missing practice session gracefully
       final uninitRepo = MockIMidiRepository();
       final uninitMidiState = MidiState();
+      final uninitHistoryRepo = MockIExerciseHistoryRepository();
+      final uninitUserProfileRepo = MockIUserProfileRepository();
+      when(
+        uninitUserProfileRepo.getActiveProfileId(),
+      ).thenAnswer((_) async => null);
       final uninitializedViewModel = PracticePageViewModel(
         midiCoordinator: MidiCoordinator(uninitRepo),
         midiRepository: uninitRepo,
         midiState: uninitMidiState,
+        exerciseHistoryRepository: uninitHistoryRepo,
+        userProfileRepository: uninitUserProfileRepo,
       );
 
       // Should not crash when no practice session is initialized
@@ -246,10 +268,17 @@ void main() {
       final uninitRepo2 = MockIMidiRepository();
       final uninitHelper2 = MockMidiRepositoryHelper(uninitRepo2);
       final uninitMidiState2 = MidiState();
+      final uninitHistoryRepo2 = MockIExerciseHistoryRepository();
+      final uninitUserProfileRepo2 = MockIUserProfileRepository();
+      when(
+        uninitUserProfileRepo2.getActiveProfileId(),
+      ).thenAnswer((_) async => null);
       final uninitializedViewModel = PracticePageViewModel(
         midiCoordinator: MidiCoordinator(uninitRepo2),
         midiRepository: uninitRepo2,
         midiState: uninitMidiState2,
+        exerciseHistoryRepository: uninitHistoryRepo2,
+        userProfileRepository: uninitUserProfileRepo2,
       );
       final midiData = Uint8List.fromList([0x90, 60, 100]);
 
@@ -765,6 +794,81 @@ void main() {
           equals(originalHandSelection),
         );
         expect(viewModel.practiceSession!.selectedKey, equals(music.Key.f));
+      });
+    });
+
+    group("Exercise History Recording", () {
+      test("should call saveEntry once when exercise completes", () async {
+        viewModel.startPractice();
+
+        // Trigger exercise completion
+        viewModel.practiceSession!.onExerciseCompleted();
+
+        // Allow the fire-and-forget async work to finish
+        await Future<void>.delayed(Duration.zero);
+
+        verify(mockExerciseHistoryRepository.saveEntry(any)).called(1);
+      });
+
+      test("should call saveEntry with correct profileId", () async {
+        viewModel.startPractice();
+        viewModel.practiceSession!.onExerciseCompleted();
+        await Future<void>.delayed(Duration.zero);
+
+        final captured = verify(
+          mockExerciseHistoryRepository.saveEntry(captureAny),
+        ).captured;
+        expect(captured.length, 1);
+        final entry = captured.first as ExerciseHistoryEntry;
+        expect(entry.profileId, equals("test-profile-id"));
+      });
+
+      test("should record entry matching current configuration", () async {
+        viewModel
+          ..setPracticeMode(PracticeMode.scales)
+          ..setSelectedKey(music.Key.g);
+        viewModel.startPractice();
+        viewModel.practiceSession!.onExerciseCompleted();
+        await Future<void>.delayed(Duration.zero);
+
+        final captured = verify(
+          mockExerciseHistoryRepository.saveEntry(captureAny),
+        ).captured;
+        final entry = captured.first as ExerciseHistoryEntry;
+        expect(entry.practiceMode, equals(PracticeMode.scales));
+        expect(entry.musicalKey, equals(music.Key.g));
+        expect(entry.completedAt, isNotNull);
+        expect(entry.id, isNotEmpty);
+      });
+
+      test("should not call saveEntry when no active profile", () async {
+        // Override stub: no active profile
+        when(
+          mockUserProfileRepository.getActiveProfileId(),
+        ).thenAnswer((_) async => null);
+
+        viewModel.startPractice();
+        viewModel.practiceSession!.onExerciseCompleted();
+        await Future<void>.delayed(Duration.zero);
+
+        verifyNever(mockExerciseHistoryRepository.saveEntry(any));
+      });
+
+      test("should still fire UI callback even if saveEntry throws", () async {
+        when(
+          mockExerciseHistoryRepository.saveEntry(any),
+        ).thenThrow(Exception("DB error"));
+
+        var callbackFired = false;
+        viewModel.initializePracticeSession(
+          onExerciseCompleted: () => callbackFired = true,
+          onHighlightedNotesChanged: (_) {},
+        );
+        viewModel.startPractice();
+        viewModel.practiceSession!.onExerciseCompleted();
+
+        // UI callback must fire synchronously before the async save
+        expect(callbackFired, isTrue);
       });
     });
   });

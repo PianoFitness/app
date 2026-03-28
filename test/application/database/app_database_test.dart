@@ -28,9 +28,9 @@ void main() {
       expect(db, isA<AppDatabase>());
     });
 
-    test("schemaVersion is 2", () {
-      // Schema version 2 includes UserProfileTable
-      expect(db.schemaVersion, 2);
+    test("schemaVersion is 3", () {
+      // Schema version 3 adds ExerciseHistoryTable
+      expect(db.schemaVersion, 3);
     });
 
     test("opens and closes without error", () async {

@@ -11,14 +11,18 @@ import 'package:mockito/mockito.dart' as _i1;
 import 'package:piano_fitness/application/models/notification_settings.dart'
     as _i4;
 import 'package:piano_fitness/application/repositories/notification_manager_interface.dart'
-    as _i15;
+    as _i17;
 import 'package:piano_fitness/application/services/midi/midi_connection_service.dart'
-    as _i16;
+    as _i18;
 import 'package:piano_fitness/domain/models/notification_settings_data.dart'
     as _i2;
+import 'package:piano_fitness/domain/models/practice/exercise_history_entry.dart'
+    as _i16;
 import 'package:piano_fitness/domain/models/profile_sort_order.dart' as _i14;
 import 'package:piano_fitness/domain/models/user_profile.dart' as _i3;
 import 'package:piano_fitness/domain/repositories/audio_service.dart' as _i5;
+import 'package:piano_fitness/domain/repositories/exercise_history_repository.dart'
+    as _i15;
 import 'package:piano_fitness/domain/repositories/midi_repository.dart' as _i7;
 import 'package:piano_fitness/domain/repositories/notification_repository.dart'
     as _i11;
@@ -564,11 +568,47 @@ class MockIUserProfileRepository extends _i1.Mock
           as _i8.Future<void>);
 }
 
+/// A class which mocks [IExerciseHistoryRepository].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockIExerciseHistoryRepository extends _i1.Mock
+    implements _i15.IExerciseHistoryRepository {
+  MockIExerciseHistoryRepository() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i8.Future<void> saveEntry(_i16.ExerciseHistoryEntry? entry) =>
+      (super.noSuchMethod(
+            Invocation.method(#saveEntry, [entry]),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
+
+  @override
+  _i8.Future<List<_i16.ExerciseHistoryEntry>> getEntriesForProfile(
+    String? profileId, {
+    int? limit,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #getEntriesForProfile,
+              [profileId],
+              {#limit: limit},
+            ),
+            returnValue: _i8.Future<List<_i16.ExerciseHistoryEntry>>.value(
+              <_i16.ExerciseHistoryEntry>[],
+            ),
+          )
+          as _i8.Future<List<_i16.ExerciseHistoryEntry>>);
+}
+
 /// A class which mocks [INotificationManager].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockINotificationManager extends _i1.Mock
-    implements _i15.INotificationManager {
+    implements _i17.INotificationManager {
   MockINotificationManager() {
     _i1.throwOnMissingStub(this);
   }
@@ -713,7 +753,7 @@ class MockAudioPlayerHandle extends _i1.Mock implements _i5.AudioPlayerHandle {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockMidiConnectionService extends _i1.Mock
-    implements _i16.MidiConnectionService {
+    implements _i18.MidiConnectionService {
   MockMidiConnectionService() {
     _i1.throwOnMissingStub(this);
   }
