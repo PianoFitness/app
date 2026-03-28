@@ -910,6 +910,23 @@ void main() {
 
         verifyNever(mockUserProfileRepository.updateProfile(any));
       });
+
+      test(
+        "should save history but not update profile when getProfile returns null",
+        () async {
+          // getActiveProfileId returns a valid ID, but getProfile finds nothing
+          when(
+            mockUserProfileRepository.getProfile("test-profile-id"),
+          ).thenAnswer((_) async => null);
+
+          viewModel.startPractice();
+          viewModel.practiceSession!.onExerciseCompleted();
+          await Future<void>.delayed(Duration.zero);
+
+          verify(mockExerciseHistoryRepository.saveEntry(any)).called(1);
+          verifyNever(mockUserProfileRepository.updateProfile(any));
+        },
+      );
     });
   });
 }
