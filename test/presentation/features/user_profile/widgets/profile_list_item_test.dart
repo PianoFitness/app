@@ -95,6 +95,18 @@ void main() {
       expect(find.text("Last practiced 3 days ago"), findsOneWidget);
     });
 
+    testWidgets("should display '1 week ago' for practice exactly 7 days ago", (
+      tester,
+    ) async {
+      final profileWith7DaysAgo = testProfile.copyWith(
+        lastPracticeDate: DateTime.now().subtract(const Duration(days: 7)),
+      );
+
+      await tester.pumpWidget(createTestWidget(profileWith7DaysAgo));
+
+      expect(find.text("Last practiced 1 week ago"), findsOneWidget);
+    });
+
     testWidgets("should display '1 week ago' for practice 10 days ago", (
       tester,
     ) async {
@@ -106,6 +118,19 @@ void main() {
 
       expect(find.text("Last practiced 1 week ago"), findsOneWidget);
     });
+
+    testWidgets(
+      "should display '2 weeks ago' for practice exactly 14 days ago",
+      (tester) async {
+        final profileWith14DaysAgo = testProfile.copyWith(
+          lastPracticeDate: DateTime.now().subtract(const Duration(days: 14)),
+        );
+
+        await tester.pumpWidget(createTestWidget(profileWith14DaysAgo));
+
+        expect(find.text("Last practiced 2 weeks ago"), findsOneWidget);
+      },
+    );
 
     testWidgets("should display '3 weeks ago' for practice 21 days ago", (
       tester,
@@ -153,6 +178,18 @@ void main() {
       await tester.pumpWidget(createTestWidget(profileWith1YearAgo));
 
       expect(find.text("Last practiced 1 year ago"), findsOneWidget);
+    });
+
+    testWidgets("should display '2 years ago' for practice 730+ days ago", (
+      tester,
+    ) async {
+      final profileWith2YearsAgo = testProfile.copyWith(
+        lastPracticeDate: DateTime.now().subtract(const Duration(days: 750)),
+      );
+
+      await tester.pumpWidget(createTestWidget(profileWith2YearsAgo));
+
+      expect(find.text("Last practiced 2 years ago"), findsOneWidget);
     });
 
     testWidgets("should call onTap when profile card is tapped", (
