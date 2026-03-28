@@ -12,6 +12,7 @@ import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/models/music/chord_type.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/state/practice_session.dart";
+import "package:piano_fitness/domain/models/user_profile.dart";
 import "package:piano_fitness/domain/repositories/exercise_history_repository.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
@@ -136,6 +137,17 @@ class PracticePageViewModel extends ChangeNotifier {
 
       await _exerciseHistoryRepository.saveEntry(entry);
       _log.fine("Saved exercise history entry: ${entry.id}");
+
+      // Stamp lastPracticeDate on the profile so the profile chooser
+      // can show when this profile last practiced.
+      final UserProfile? profile = await _userProfileRepository.getProfile(
+        profileId,
+      );
+      if (profile != null) {
+        await _userProfileRepository.updateProfile(
+          profile.copyWith(lastPracticeDate: entry.completedAt),
+        );
+      }
     } catch (e, stackTrace) {
       // Log but do not rethrow: history save failures must not disrupt the
       // user's practice flow.

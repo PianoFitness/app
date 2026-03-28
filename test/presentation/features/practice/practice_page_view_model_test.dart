@@ -8,6 +8,7 @@ import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/exercise_history_entry.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
+import "package:piano_fitness/domain/models/user_profile.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
@@ -47,6 +48,16 @@ void main() {
       when(
         mockUserProfileRepository.getActiveProfileId(),
       ).thenAnswer((_) async => "test-profile-id");
+      when(mockUserProfileRepository.getProfile("test-profile-id")).thenAnswer(
+        (_) async => UserProfile(
+          id: "test-profile-id",
+          displayName: "Test User",
+          createdAt: DateTime(2026),
+        ),
+      );
+      when(
+        mockUserProfileRepository.updateProfile(any),
+      ).thenAnswer((inv) async => inv.positionalArguments[0] as UserProfile);
       when(
         mockExerciseHistoryRepository.saveEntry(any),
       ).thenAnswer((_) async {});
@@ -869,6 +880,35 @@ void main() {
 
         // UI callback must fire synchronously before the async save
         expect(callbackFired, isTrue);
+      });
+
+      test(
+        "should update UserProfile.lastPracticeDate after recording history",
+        () async {
+          viewModel.startPractice();
+          viewModel.practiceSession!.onExerciseCompleted();
+          await Future<void>.delayed(Duration.zero);
+
+          final captured = verify(
+            mockUserProfileRepository.updateProfile(captureAny),
+          ).captured;
+          expect(captured.length, 1);
+          final updated = captured.first as UserProfile;
+          expect(updated.id, equals("test-profile-id"));
+          expect(updated.lastPracticeDate, isNotNull);
+        },
+      );
+
+      test("should not update profile when no active profile is set", () async {
+        when(
+          mockUserProfileRepository.getActiveProfileId(),
+        ).thenAnswer((_) async => null);
+
+        viewModel.startPractice();
+        viewModel.practiceSession!.onExerciseCompleted();
+        await Future<void>.delayed(Duration.zero);
+
+        verifyNever(mockUserProfileRepository.updateProfile(any));
       });
     });
   });
