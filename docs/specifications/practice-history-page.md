@@ -85,7 +85,7 @@ If a field required for formatting is unexpectedly null, the card falls back to 
 
 ### Widget Structure
 
-```
+```text
 HistoryPage (StatelessWidget + ChangeNotifierProvider)
 └── Consumer<HistoryPageViewModel>
     └── Scaffold
