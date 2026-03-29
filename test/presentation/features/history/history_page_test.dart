@@ -286,6 +286,72 @@ void main() {
       expect(find.textContaining("I-IV-V-I"), findsOneWidget);
       expect(find.text("Chord Progressions"), findsOneWidget);
     });
+    testWidgets("renders scales minor scale", (tester) async {
+      final e = ExerciseHistoryEntry.fromConfiguration(
+        id: "sm",
+        profileId: "p1",
+        completedAt: DateTime(2026),
+        config: const ExerciseConfiguration(
+          practiceMode: PracticeMode.scales,
+          handSelection: HandSelection.both,
+          key: music.Key.a,
+          scaleType: music.ScaleType.minor,
+        ),
+      );
+      await tester.pumpWidget(wrap(e));
+      await tester.pump();
+      expect(find.text("A Minor Scale"), findsOneWidget);
+    });
+
+    testWidgets("renders scales dorian scale", (tester) async {
+      final e = ExerciseHistoryEntry.fromConfiguration(
+        id: "sd",
+        profileId: "p1",
+        completedAt: DateTime(2026),
+        config: const ExerciseConfiguration(
+          practiceMode: PracticeMode.scales,
+          handSelection: HandSelection.both,
+          key: music.Key.d,
+          scaleType: music.ScaleType.dorian,
+        ),
+      );
+      await tester.pumpWidget(wrap(e));
+      await tester.pump();
+      expect(find.text("D Dorian Scale"), findsOneWidget);
+    });
+
+    testWidgets("renders chordsByType diminished", (tester) async {
+      final e = ExerciseHistoryEntry.fromConfiguration(
+        id: "cd",
+        profileId: "p1",
+        completedAt: DateTime(2026),
+        config: const ExerciseConfiguration(
+          practiceMode: PracticeMode.chordsByType,
+          handSelection: HandSelection.both,
+          chordType: ChordType.diminished,
+        ),
+      );
+      await tester.pumpWidget(wrap(e));
+      await tester.pump();
+      expect(find.text("Diminished Chords"), findsOneWidget);
+    });
+
+    testWidgets("renders arpeggios minor", (tester) async {
+      final e = ExerciseHistoryEntry.fromConfiguration(
+        id: "am",
+        profileId: "p1",
+        completedAt: DateTime(2026),
+        config: const ExerciseConfiguration(
+          practiceMode: PracticeMode.arpeggios,
+          handSelection: HandSelection.both,
+          musicalNote: MusicalNote.a,
+          arpeggioType: ArpeggioType.minor,
+        ),
+      );
+      await tester.pumpWidget(wrap(e));
+      await tester.pump();
+      expect(find.text("A Minor Arpeggio (1 oct)"), findsOneWidget);
+    });
 
     testWidgets("renders dominantCadence entry", (tester) async {
       await tester.pumpWidget(wrap(_makeDominantCadenceEntry()));
