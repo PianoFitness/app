@@ -14,7 +14,7 @@ The design is intentionally minimal for this milestone: a plain timeline of card
 
 ## Goals
 
-- **Surfacing practice activity**: Let users easily browse what they have practised, when, and with which settings.
+- **Surfacing practice activity**: Let users easily browse what they have practiced, when, and with which settings.
 - **Habit reinforcement**: Seeing a list of past completions provides lightweight motivation to keep practising.
 - **Foundation for analytics**: Establish the page scaffold and ViewModel that later phases extend with statistics and filters without structural rewrites.
 
@@ -36,7 +36,7 @@ The design is intentionally minimal for this milestone: a plain timeline of card
 ### Out of Scope (Deferred to Phase 3)
 
 - Date-grouped headers or sections
-- Aggregate statistics (total count, streaks, most-practised keys)
+- Aggregate statistics (total count, streaks, most-practiced keys)
 - Filtering or sorting controls
 - Pull-to-refresh (entries are loaded once at page open)
 
@@ -74,7 +74,7 @@ If a field required for formatting is unexpectedly null, the card falls back to 
 
 ### ViewModel State Machine
 
-`HistoryPageViewModel` exposes three mutually exclusive states via its properties, which the page maps to three layouts:
+`HistoryPageViewModel` exposes four mutually exclusive states via its properties, which the page maps to four layouts:
 
 | VM state  | `isLoading` | `error`  | `entries` | Page shows                           |
 | --------- | ----------- | -------- | --------- | ------------------------------------ |
@@ -115,4 +115,4 @@ HistoryPage (StatelessWidget + ChangeNotifierProvider)
 - Completing a practice exercise while the History tab is in the `IndexedStack` and then returning to it shows the new entry (entries reload when the ViewModel is (re)created by the page).
 - The empty state is shown when no history exists for the active profile.
 - The loading indicator is visible during initial data fetch.
-- All new ViewModel and widget tests pass; `flutter analyze` reports no issues.
+- All new ViewModel and widget tests pass; no new analyzer warnings or errors are introduced by changed files (pre-existing info-level hints in unmodified files are exempt).

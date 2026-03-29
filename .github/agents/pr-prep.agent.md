@@ -67,7 +67,13 @@ If formatting changes exist, run `dart format .` to fix.
 ./scripts/check-layer-boundaries.sh
 ```
 
-Domain layer must have no Flutter or infrastructure imports. Application layer must not import presentation. Zero violations required.
+Enforced rules:
+
+- **Domain** must not import from `application/`, `presentation/`, or `features/` (directional rule).
+- **Domain** must not import `package:flutter` or `package:flutter_*` (infrastructure-free principle). Pure Dart packages without Flutter coupling are allowed.
+- **Application** must not import from `presentation/` or `features/` (directional rule).
+
+Zero violations required.
 
 ### 2d. Test Suite
 
