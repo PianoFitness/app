@@ -93,7 +93,7 @@ git log main..HEAD --format="%s"
 
 Each subject line must match conventional-commit format:
 
-```
+```text
 <type>(<optional scope>): <description>
 ```
 
@@ -137,20 +137,25 @@ Skip this step only if the branch contains _exclusively_ documentation, test, or
 
 Using the diff and commit log, produce:
 
-```
+```markdown
 ## Title
+
 <type>(<scope>): <short imperative summary>
 
 ## Summary
+
 <!-- 2–4 sentences: what changed and why -->
 
 ## Changes
+
 <!-- Bullet list: new files, modified files, deleted files -->
 
 ## Testing
+
 <!-- How the changes are tested; coverage for key new code -->
 
 ## Checklist
+
 - [ ] `flutter analyze` — zero issues
 - [ ] `dart format` — no changes needed
 - [ ] Layer boundaries — no violations
