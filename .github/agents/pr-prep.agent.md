@@ -133,7 +133,7 @@ For each changed Dart file under `lib/`, verify:
 
 Skip this step only if the branch contains _exclusively_ documentation, test, or tooling changes that have no user-visible impact (e.g. ADR additions, test helper refactors). When in doubt, add an entry.
 
-## Step 6 — Generate PR Description
+## Step 5 — Generate PR Description
 
 Using the diff and commit log, produce:
 
@@ -160,7 +160,7 @@ Using the diff and commit log, produce:
 - [ ] `CHANGELOG.md` updated under `[Unreleased]`
 ```
 
-## Step 7 — Report
+## Step 6 — Report
 
 Present a single consolidated report:
 
