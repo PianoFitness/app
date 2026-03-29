@@ -1,4 +1,5 @@
 ---
+name: PR Prep Agent
 description: "Use when: preparing a feature branch for a pull request; verifying all pre-merge quality gates pass; checking test coverage meets ≥80%; detecting layer boundary violations before review; auditing commit messages for conventional-commit format; generating a draft PR title and description from the diff. Examples: 'run PR checklist for this branch', 'is this ready to merge?', 'write a PR description for these changes'."
 tools: [read, search, execute]
 ---
