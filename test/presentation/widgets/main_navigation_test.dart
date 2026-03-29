@@ -241,7 +241,7 @@ void main() {
           find.byType(IndexedStack),
         );
         expect(indexedStack.index, equals(0));
-        expect(indexedStack.children.length, equals(4));
+        expect(indexedStack.children.length, equals(5));
       });
     });
 
