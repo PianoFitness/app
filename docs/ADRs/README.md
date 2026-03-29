@@ -70,3 +70,8 @@ ADRs are numbered sequentially (0001-0024, etc.). When creating new ADRs:
 ### Refactoring
 
 - [ADR-0027: Migrate Feature Modules into Presentation Layer](0027-migrate-features-to-presentation-layer.md) - 2026-03-16
+
+### History Feature
+
+- [ADR-0028: Exercise History Configuration-Mirroring Schema](0028-exercise-history-configuration-mirroring-schema.md) - 2026-03-28
+- [ADR-0029: Practice History Page — Navigation Placement and MVP Scope](0029-practice-history-navigation-and-scope.md) - 2026-03-29

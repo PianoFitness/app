@@ -1,7 +1,7 @@
 <!--
-  Status: Accepted
+  Status: Active
   Created: 2026-03-02
-  Last updated: 2026-03-28
+  Last updated: 2026-03-29
 -->
 
 # Exercise History Specification
@@ -197,6 +197,7 @@ The Drift-backed implementation (`ExerciseHistoryRepositoryImpl`) rounds enums t
 - **Practice Sessions** (`docs/specifications/practice-sessions.md`): `PracticePageViewModel` intercepts the exercise-completed callback to call `saveEntry` (fire-and-forget via `unawaited`) before notifying the UI
 - **Drift Database** (ADR-0024): Database schema and DAO implementation follow established Drift patterns from user profiles feature
 - **Repository Pattern** (ADR-0004): Data access abstracted behind domain interface for testability and Clean Architecture compliance
+- **History UI** (`docs/specifications/practice-history-page.md`): Phase 2 History page built on top of this data layer; see that spec for UI requirements and acceptance criteria
 
 ## Implementation Phases
 
@@ -219,25 +220,29 @@ The Drift-backed implementation (`ExerciseHistoryRepositoryImpl`) rounds enums t
 - No analytics or aggregation queries beyond basic count
 - No accuracy or performance metrics captured
 
-### Phase 2 — History Viewing & Basic Analytics (Future)
+### Phase 2 — History Timeline (Current)
 
-**Goal**: Let users view their practice history and see simple statistics.
+**Goal**: Let users view their practice history in a simple, readable timeline.
 
 **Deliverables**:
 
-- History page showing recent completed exercises grouped by date
-- Basic stats: total exercises completed, most practiced keys, current streak
+- A dedicated "History" tab in the main bottom navigation (see `practice-history-page.md`)
+- Reverse-chronological list of completed exercises, one card per entry
+- General-purpose entry card displaying mode, exercise parameters, hand selection, and timestamp for each entry
+- Empty-state and loading-state handling
+
+**What's NOT included in this phase**: date grouping headers, aggregate statistics (total count, streaks, most-practiced keys), and filtering by mode/key/date range. These remain deferred to a later phase.
+
+### Phase 3 — History Analytics & Progress Tracking (Future)
+
+**Goal**: Add date grouping, aggregate statistics, and performance metrics.
+
+**Deliverables**:
+
+- Date-grouped headers in the history list
+- Aggregate stats: total exercises completed, most practiced keys, current streak
 - Filtering by practice mode, musical key, or date range
-
-### Phase 3 — Performance Metrics & Progress Tracking (Future)
-
-**Goal**: Add performance metrics (tempo, accuracy, duration) and visualize progress over time.
-
-**Deliverables**:
-
-- Capture tempo (BPM) and accuracy percentage in `configuration` field
-- Progress charts showing improvement in tempo and accuracy for specific exercises
-- Goal-setting and achievement tracking
+- Capture tempo (BPM) and accuracy percentage
 
 ## Testing Requirements
 
