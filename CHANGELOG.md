@@ -9,15 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Practice History Page**: New "History" tab in the bottom navigation bar displays completed exercises in reverse-chronological order. Each entry shows the practice mode, exercise parameters (key, scale type, chord type, etc.), hand selection, and completion timestamp. Includes loading, empty-state, and error-state handling.
+- **Last-Practiced Time on Profile Chooser**: Profile cards now display a relative "last practiced" time (e.g. "3 days ago") so you can see at a glance which profiles are active.
+- **Exercise History Recording**: Practice completions are now persisted to a local database. Each finished exercise is saved with the exercise configuration, profile ID, and timestamp, enabling the history page and future analytics.
+
 ### Changed
 
 ### Fixed
+
+- **Practice Config Snapshot**: Fixed a race condition in `PracticePageViewModel` where the exercise configuration could mutate across an async boundary before being saved, causing incorrect history entries to be recorded.
+- **Exercise History Index on Fresh Install**: The database `onCreate` handler now creates the composite index required by the exercise history table, fixing a missing-index bug that only affected new installs (not upgrades).
+- **Last-Practiced Date Stamping**: `UserProfile.lastPracticeDate` is now correctly updated when an exercise is completed.
 
 - **Dominant Cadence Seventh Chord Voice Leading**: Fixed voice leading for V7→Imaj7 progressions where chords were jumping octaves instead of resolving smoothly. Created new `VoiceLeadingUtils` domain service with weighted octave search algorithm that prioritizes common tone preservation (1000x penalty weight) while minimizing total voice movement. The algorithm searches multiple octave candidates (searchRange=2) to find optimal voice leading despite auto-bump logic in chord generation. Comprehensive property-based tests validate voice leading invariants across all 12 keys × 4 inversion pairs.
 - **Voice Leading Algorithm Bug**: Fixed `calculateOptimalOctaveForResolution` to prioritize number of preserved common tones over total movement distance. Previous implementation minimized total penalty score, allowing tied preserved common tone counts to be decided solely by non-common tone proximity, violating voice leading principles. Type-safe `MidiNote` refactoring helped reveal this algorithmic flaw. Added `maxCommonToneJump` parameter to validation logic to accept reasonable common tone movement when perfect preservation is geometrically impossible due to ascending-order voicing constraints.
 
 ### Improved
 
+- **Documentation Steward Agent**: Added a VS Code Copilot agent that interviews developers and produces feature specifications and ADRs following project conventions, reducing documentation friction.
+- **PR Preparation Agent**: Added a VS Code Copilot agent that runs all quality gates and generates a ready-to-paste PR description, streamlining the pre-merge review process.
 - **Type Safety for MIDI Notes**: Replaced `List<int>` with type-safe `MidiNote` value object throughout voice leading and chord generation code. Provides compile-time safety, explicit pitch class and octave semantics, and distance calculation utilities. The stronger typing revealed genuine bugs in voice leading algorithm that were previously hidden. Comprehensive test coverage maintained at 100% (1090/1090 tests passing).
 
 ## [0.5.0] - 2025-12-12

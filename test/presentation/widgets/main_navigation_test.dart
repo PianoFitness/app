@@ -241,7 +241,14 @@ void main() {
           find.byType(IndexedStack),
         );
         expect(indexedStack.index, equals(0));
-        expect(indexedStack.children.length, equals(4));
+        expect(indexedStack.children.length, equals(5));
+
+        // Navigate to History tab and verify IndexedStack index updates
+        await navigateToTab(tester, const Key("nav_tab_history"));
+        final historyStack = tester.widget<IndexedStack>(
+          find.byType(IndexedStack),
+        );
+        expect(historyStack.index, equals(4));
       });
     });
 

@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
 import "package:piano_fitness/presentation/features/midi_settings/midi_settings_page.dart";
 import "package:piano_fitness/presentation/features/notifications/notifications_page.dart";
+import "package:piano_fitness/presentation/features/history/history_page.dart";
 import "package:piano_fitness/presentation/features/play/play_page.dart";
 import "package:piano_fitness/presentation/features/practice/practice_hub_page.dart";
 import "package:piano_fitness/presentation/features/reference/reference_page.dart";
@@ -30,6 +31,7 @@ class _MainNavigationState extends State<MainNavigation> {
     const PracticeHubPage(),
     const ReferencePage(),
     const RepertoirePage(),
+    const HistoryPage(),
   ];
 
   /// Page titles for the app bar.
@@ -38,6 +40,7 @@ class _MainNavigationState extends State<MainNavigation> {
     "Practice",
     "Reference",
     "Repertoire",
+    "History",
   ];
 
   /// Page icons for the app bar.
@@ -46,6 +49,7 @@ class _MainNavigationState extends State<MainNavigation> {
     Icons.school,
     Icons.library_books,
     Icons.library_music,
+    Icons.history,
   ];
 
   /// Handles bottom navigation item taps.
@@ -138,6 +142,14 @@ class _MainNavigationState extends State<MainNavigation> {
               child: const Icon(Icons.library_music),
             ),
             label: "Repertoire",
+          ),
+          BottomNavigationBarItem(
+            icon: Semantics(
+              key: const Key("nav_tab_history"),
+              button: true,
+              child: const Icon(Icons.history),
+            ),
+            label: "History",
           ),
         ],
         currentIndex: _selectedIndex,
