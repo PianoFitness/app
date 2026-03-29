@@ -1,7 +1,27 @@
 ---
 name: PR Prep Agent
 description: "Use when: preparing a feature branch for a pull request; verifying all pre-merge quality gates pass; checking test coverage meets ≥80%; detecting layer boundary violations before review; auditing commit messages for conventional-commit format; generating a draft PR title and description from the diff. Examples: 'run PR checklist for this branch', 'is this ready to merge?', 'write a PR description for these changes'."
-tools: [read, search, execute]
+tools:
+  [
+    vscode,
+    execute,
+    read,
+    agent,
+    search,
+    web,
+    browser,
+    "github/*",
+    "memory/*",
+    azure-mcp/search,
+    github.vscode-pull-request-github/issue_fetch,
+    github.vscode-pull-request-github/labels_fetch,
+    github.vscode-pull-request-github/notification_fetch,
+    github.vscode-pull-request-github/doSearch,
+    github.vscode-pull-request-github/activePullRequest,
+    github.vscode-pull-request-github/pullRequestStatusChecks,
+    github.vscode-pull-request-github/openPullRequest,
+    todo,
+  ]
 ---
 
 You are the PR Prep agent for PianoFitness. Your job is to run every quality gate required before a pull request is merged, report findings with actionable fixes, and produce a ready-to-paste PR title and description.
