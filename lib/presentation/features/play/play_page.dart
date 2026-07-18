@@ -176,6 +176,7 @@ class _PlayPageView extends StatelessWidget {
                   child: PianoKeyboard(
                     range: fixed49KeyRange,
                     keyVisuals: keyVisuals,
+                    noteLabelMode: NoteLabelMode.name,
                     keyWidth: dynamicKeyWidth.clamp(
                       PianoRangeUtils.minKeyWidth,
                       PianoRangeUtils.maxKeyWidth,

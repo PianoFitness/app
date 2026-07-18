@@ -283,6 +283,7 @@ class _PracticePageViewState extends State<_PracticePageView> {
               key: const Key("practice_interactive_piano"),
               range: practiceRange,
               keyVisuals: keyVisuals,
+              noteLabelMode: NoteLabelMode.name,
               keyWidth: dynamicKeyWidth.clamp(
                 PianoRangeUtils.minKeyWidth,
                 PianoRangeUtils.maxKeyWidth,

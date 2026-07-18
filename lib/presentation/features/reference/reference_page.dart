@@ -168,6 +168,7 @@ class ReferencePage extends StatelessWidget {
                         key: const Key("reference_piano"),
                         range: fixed49KeyRange,
                         keyVisuals: keyVisuals,
+                        noteLabelMode: NoteLabelMode.name,
                         keyWidth: dynamicKeyWidth.clamp(
                           PianoRangeUtils.minKeyWidth,
                           PianoRangeUtils.maxKeyWidth,
