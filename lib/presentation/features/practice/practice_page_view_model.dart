@@ -302,6 +302,16 @@ class PracticePageViewModel extends ChangeNotifier {
         : _midiState.activeNotes.toList();
   }
 
+  /// Finger numbers for the current step's notes, aligned index-for-index
+  /// with [getDisplayHighlightedNotes]'s active-step notes. Returns `null`
+  /// when there's no active step (so the display fell back to raw MIDI
+  /// input notes) or the step has no fingering metadata.
+  List<int>? get currentStepFingers {
+    if (_highlightedNotes.isEmpty) return null;
+    final fingers = _practiceSession?.currentStep?.metadata?["fingers"];
+    return fingers is List ? fingers.cast<int>() : null;
+  }
+
   /// Notes for piano range calculation, used by the view to compute display range.
   List<MidiNote> get notesForRangeCalculation =>
       _practiceSession?.getNotesForRangeCalculation() ?? [];

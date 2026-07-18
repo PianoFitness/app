@@ -260,6 +260,7 @@ class _PracticePageViewState extends State<_PracticePageView> {
         animation: viewModel,
         builder: (context, child) {
           final highlightedNotes = viewModel.getDisplayHighlightedNotes();
+          final fingers = viewModel.currentStepFingers;
           final practiceRange = PianoRangeUtils.calculateFixed49KeyRange(
             viewModel.notesForRangeCalculation,
           );
@@ -269,8 +270,13 @@ class _PracticePageViewState extends State<_PracticePageView> {
           );
           final colorScheme = Theme.of(context).colorScheme;
           final keyVisuals = ValueNotifier<Map<int, PianoKeyVisual>>({
-            for (final note in highlightedNotes)
-              note: PianoKeyVisual(fill: colorScheme.primary),
+            for (var i = 0; i < highlightedNotes.length; i++)
+              highlightedNotes[i]: PianoKeyVisual(
+                fill: colorScheme.primary,
+                label: fingers != null && i < fingers.length
+                    ? fingers[i].toString()
+                    : null,
+              ),
           });
 
           return PianoAccessibilityUtils.createAccessiblePianoWrapper(
@@ -284,6 +290,7 @@ class _PracticePageViewState extends State<_PracticePageView> {
               range: practiceRange,
               keyVisuals: keyVisuals,
               noteLabelMode: NoteLabelMode.name,
+              showAnnotations: true,
               keyWidth: dynamicKeyWidth.clamp(
                 PianoRangeUtils.minKeyWidth,
                 PianoRangeUtils.maxKeyWidth,

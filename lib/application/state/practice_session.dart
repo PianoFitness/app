@@ -111,6 +111,16 @@ class PracticeSession {
   /// The index of the current step in the exercise.
   int get currentStepIndex => _currentStepIndex;
 
+  /// The step currently being practiced, or `null` if there is no active
+  /// exercise or the index is out of range.
+  PracticeStep? get currentStep {
+    final exercise = _currentExercise;
+    if (exercise == null || _currentStepIndex >= exercise.steps.length) {
+      return null;
+    }
+    return exercise.steps[_currentStepIndex];
+  }
+
   /// Whether a practice session is currently active.
   bool get practiceActive => _practiceActive;
 

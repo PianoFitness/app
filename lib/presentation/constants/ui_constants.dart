@@ -83,6 +83,10 @@ class ComponentDimensions {
 
   /// Black key height as a ratio of white key height (~0.67).
   static const double blackKeyHeightRatio = 0.67;
+
+  /// Height of the piano keyboard's annotation roof bar (finger numbers,
+  /// etc.), reserved above the keys rather than overlapping them.
+  static const double pianoAnnotationBarHeight = 20.0;
 }
 
 /// Standardized animation and transition durations.

@@ -28,6 +28,7 @@ class PianoKeyboard extends StatefulWidget {
     required this.keyVisuals,
     super.key,
     this.noteLabelMode = NoteLabelMode.none,
+    this.showAnnotations = false,
     this.enableGlissando = true,
     this.onKeyDown,
     this.onKeyUp,
@@ -47,6 +48,13 @@ class PianoKeyboard extends StatefulWidget {
   /// Widget-level static per-key label mode (independent of the per-key
   /// [PianoKeyVisual.label]).
   final NoteLabelMode noteLabelMode;
+
+  /// Whether to reserve a dark annotation bar above the keys (a "roof")
+  /// for rendering each key's [PianoKeyVisual.label] (e.g. a finger
+  /// number), anchored above that key's x-position instead of on top of
+  /// the key itself. When `false`, [PianoKeyVisual.label] is not
+  /// rendered anywhere.
+  final bool showAnnotations;
 
   /// Whether a single-finger drag across keys retriggers notes
   /// (glissando). When `false`, dragging off the originally-pressed key
@@ -163,11 +171,17 @@ class _PianoKeyboardState extends State<PianoKeyboard> {
         : requested;
   }
 
+  double get _annotationBarHeight =>
+      widget.showAnnotations ? ComponentDimensions.pianoAnnotationBarHeight : 0;
+
   Offset _toContentPosition(Offset localPosition) {
     final scrollOffset = _controller.scrollController.hasClients
         ? _controller.scrollController.offset
         : 0.0;
-    return Offset(localPosition.dx + scrollOffset, localPosition.dy);
+    return Offset(
+      localPosition.dx + scrollOffset,
+      localPosition.dy - _annotationBarHeight,
+    );
   }
 
   void _handlePointerDown(PointerDownEvent event, PianoKeyboardLayout layout) {
@@ -282,11 +296,12 @@ class _PianoKeyboardState extends State<PianoKeyboard> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
+        final annotationBarHeight = _annotationBarHeight;
         final expandedRange = expandToWhiteKeyBoundary(widget.range);
         final layout = PianoKeyboardLayout(
           range: expandedRange,
           whiteKeyWidth: whiteKeyWidth,
-          height: constraints.maxHeight,
+          height: constraints.maxHeight - annotationBarHeight,
         );
         _layout = layout;
 
@@ -307,13 +322,14 @@ class _PianoKeyboardState extends State<PianoKeyboard> {
                 layout: layout,
                 keyVisuals: widget.keyVisuals,
                 noteLabelMode: widget.noteLabelMode,
+                annotationBarHeight: annotationBarHeight,
                 whiteKeyColor: keyColors.whiteKey,
                 blackKeyColor: keyColors.blackKey,
                 borderColor: theme.colorScheme.outlineVariant,
                 whiteLabelColor: theme.colorScheme.onSurface,
                 blackLabelColor: Colors.white70,
-                labelBadgeColor: theme.colorScheme.secondary,
-                onLabelBadgeColor: theme.colorScheme.onSecondary,
+                annotationBarColor: keyColors.blackKey,
+                annotationTextColor: Colors.white70,
                 onKeyDown: widget.onKeyDown,
                 onKeyUp: widget.onKeyUp,
               ),
@@ -326,9 +342,11 @@ class _PianoKeyboardState extends State<PianoKeyboard> {
 }
 
 /// Renders every key's shape immediately followed by its overlay
-/// (`fill` -> `outline` -> `dot` -> static note/MIDI label -> the per-key
-/// `label`), white keys first and then black keys, all within a single
-/// canvas pass.
+/// (`fill` -> `outline` -> `dot` -> static note/MIDI label), white keys
+/// first and then black keys, all within a single canvas pass. When
+/// [PianoKeyboard.showAnnotations] is enabled, each key's
+/// [PianoKeyVisual.label] renders separately in a roof bar above the
+/// keys (see [_paintAnnotationBar]), not on the key itself.
 ///
 /// This single-pass ordering is load-bearing, not stylistic: black key
 /// rects deliberately overlap into the top of their neighboring white
@@ -345,13 +363,14 @@ class _PianoKeyboardPainter extends CustomPainter {
     required this.layout,
     required this.keyVisuals,
     required this.noteLabelMode,
+    required this.annotationBarHeight,
     required this.whiteKeyColor,
     required this.blackKeyColor,
     required this.borderColor,
     required this.whiteLabelColor,
     required this.blackLabelColor,
-    required this.labelBadgeColor,
-    required this.onLabelBadgeColor,
+    required this.annotationBarColor,
+    required this.annotationTextColor,
     this.onKeyDown,
     this.onKeyUp,
   }) : super(repaint: keyVisuals);
@@ -359,13 +378,17 @@ class _PianoKeyboardPainter extends CustomPainter {
   final PianoKeyboardLayout layout;
   final ValueListenable<Map<int, PianoKeyVisual>> keyVisuals;
   final NoteLabelMode noteLabelMode;
+
+  /// Height of the roof bar reserved above the keys for [PianoKeyVisual.label]
+  /// annotations. Zero when [PianoKeyboard.showAnnotations] is `false`.
+  final double annotationBarHeight;
   final Color whiteKeyColor;
   final Color blackKeyColor;
   final Color borderColor;
   final Color whiteLabelColor;
   final Color blackLabelColor;
-  final Color labelBadgeColor;
-  final Color onLabelBadgeColor;
+  final Color annotationBarColor;
+  final Color annotationTextColor;
   final void Function(int midiNote)? onKeyDown;
   final void Function(int midiNote)? onKeyUp;
 
@@ -381,6 +404,8 @@ class _PianoKeyboardPainter extends CustomPainter {
       ..strokeWidth = 1;
     final blackPaint = Paint()..color = blackKeyColor;
 
+    canvas.save();
+    canvas.translate(0, annotationBarHeight);
     for (final key in layout.whiteKeys) {
       canvas.drawRect(key.rect, whitePaint);
       canvas.drawRect(key.rect, borderPaint);
@@ -398,6 +423,32 @@ class _PianoKeyboardPainter extends CustomPainter {
         key,
         isBlack: true,
         visual: visuals[key.midiNote] ?? PianoKeyVisual.empty,
+      );
+    }
+    canvas.restore();
+
+    if (annotationBarHeight > 0) {
+      _paintAnnotationBar(canvas, visuals);
+    }
+  }
+
+  /// Draws the roof bar and each key's [PianoKeyVisual.label], anchored
+  /// above that key's x-position instead of on top of the key — this
+  /// keeps fingering annotations close to the keys without covering them.
+  void _paintAnnotationBar(Canvas canvas, Map<int, PianoKeyVisual> visuals) {
+    canvas.drawRect(
+      Rect.fromLTWH(0, 0, layout.totalWidth, annotationBarHeight),
+      Paint()..color = annotationBarColor,
+    );
+    for (final key in [...layout.whiteKeys, ...layout.blackKeys]) {
+      final label = (visuals[key.midiNote] ?? PianoKeyVisual.empty).label;
+      if (label == null || label.isEmpty) continue;
+      _drawCenteredText(
+        canvas,
+        label,
+        Rect.fromLTWH(key.rect.left, 0, key.rect.width, annotationBarHeight),
+        color: annotationTextColor,
+        fontSize: 11,
       );
     }
   }
@@ -445,25 +496,6 @@ class _PianoKeyboardPainter extends CustomPainter {
         fontSize: 10,
       );
     }
-
-    final label = visual.label;
-    if (label != null && label.isNotEmpty) {
-      final truncated = label.length > 3 ? "${label.substring(0, 2)}…" : label;
-      final badgeRect = Rect.fromLTWH(
-        rect.left + rect.width * 0.15,
-        rect.top + rect.height * 0.05,
-        rect.width * 0.7,
-        rect.height * 0.22,
-      );
-      canvas.drawOval(badgeRect, Paint()..color = labelBadgeColor);
-      _drawCenteredText(
-        canvas,
-        truncated,
-        badgeRect,
-        color: onLabelBadgeColor,
-        fontSize: 10,
-      );
-    }
   }
 
   void _drawCenteredText(
@@ -506,7 +538,7 @@ class _PianoKeyboardPainter extends CustomPainter {
       }
       result.add(
         CustomPainterSemantics(
-          rect: key.rect,
+          rect: key.rect.shift(Offset(0, annotationBarHeight)),
           properties: SemanticsProperties(
             label: descriptionParts.join(", "),
             textDirection: TextDirection.ltr,

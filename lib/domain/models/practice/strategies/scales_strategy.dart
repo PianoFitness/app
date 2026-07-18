@@ -1,6 +1,7 @@
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise.dart";
 import "package:piano_fitness/domain/models/practice/strategies/practice_strategy.dart";
+import "package:piano_fitness/domain/services/music_theory/fingering_hints.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;
 
@@ -38,6 +39,15 @@ class ScalesStrategy implements PracticeStrategy {
     final scale = music.ScaleDefinitions.getScale(key, scaleType);
     final sequence = scale.getHandSequence(startOctave, handSelection);
 
+    // Fingering hints only cover the C major scale for now.
+    final hasFingering = key == music.Key.c && scaleType == music.ScaleType.major;
+    final rightFingers = hasFingering
+        ? FingeringHints.cMajorScale(rightHand: true)
+        : null;
+    final leftFingers = hasFingering
+        ? FingeringHints.cMajorScale(rightHand: false)
+        : null;
+
     // Convert the sequence to PracticeSteps based on hand selection
     final steps = <PracticeStep>[];
 
@@ -62,6 +72,8 @@ class ScalesStrategy implements PracticeStrategy {
                 "hand": "both",
                 "degree": degree,
                 "displayName": "Degree $degree (Both Hands)",
+                if (leftFingers != null && rightFingers != null)
+                  "fingers": [leftFingers[i ~/ 2], rightFingers[i ~/ 2]],
               },
             ),
           );
@@ -69,6 +81,9 @@ class ScalesStrategy implements PracticeStrategy {
       }
     } else {
       // Single hand: each note is played sequentially
+      final fingers = handSelection == HandSelection.left
+          ? leftFingers
+          : rightFingers;
       for (var i = 0; i < sequence.length; i++) {
         final degree = i + 1;
         final handDisplay = handSelection == HandSelection.left
@@ -82,6 +97,7 @@ class ScalesStrategy implements PracticeStrategy {
               "hand": handSelection == HandSelection.left ? "left" : "right",
               "degree": degree,
               "displayName": "Degree $degree ($handDisplay Hand)",
+              if (fingers != null) "fingers": [fingers[i]],
             },
           ),
         );

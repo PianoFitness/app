@@ -3,6 +3,7 @@ import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/models/practice/exercise.dart";
 import "package:piano_fitness/domain/models/practice/strategies/practice_strategy.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
+import "package:piano_fitness/domain/services/music_theory/fingering_hints.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;
 
@@ -48,6 +49,9 @@ class ChordsByKeyStrategy implements PracticeStrategy {
         ? ChordBuilder.getSmoothKeySeventhChordProgression(key, scaleType)
         : ChordBuilder.getSmoothKeyTriadProgression(key, scaleType);
 
+    // Fingering hints only cover chords in C major for now.
+    final hasFingering = key == music.Key.c && scaleType == music.ScaleType.major;
+
     // Convert chord progression to PracticeSteps
     // Each chord is a simultaneous step
     final steps = <PracticeStep>[];
@@ -55,6 +59,12 @@ class ChordsByKeyStrategy implements PracticeStrategy {
     for (var i = 0; i < chordProgression.length; i++) {
       final chord = chordProgression[i];
       final chordNotes = chord.getMidiNotesForHand(startOctave, handSelection);
+      final fingers = hasFingering
+          ? FingeringHints.chordFingersForHand(
+              hand: handSelection,
+              totalNoteCount: chordNotes.values.length,
+            )
+          : null;
 
       steps.add(
         PracticeStep(
@@ -68,6 +78,7 @@ class ChordsByKeyStrategy implements PracticeStrategy {
             "position": i + 1,
             "displayName": chord.name,
             "hand": handSelection.name,
+            "fingers": ?fingers,
           },
         ),
       );
