@@ -4,7 +4,6 @@
 // channel selection, and state notifications.
 
 import "package:flutter_test/flutter_test.dart";
-import "package:piano/piano.dart";
 
 import "package:piano_fitness/application/state/midi_state.dart";
 
@@ -51,37 +50,6 @@ void main() {
       expect(midiState.activeNotes.contains(64), false);
       expect(midiState.activeNotes.contains(60), true);
       expect(midiState.activeNotes.contains(67), true);
-    });
-
-    test("should convert MIDI notes to NotePosition correctly", () {
-      midiState
-        ..noteOn(60, 127, 1) // C4
-        ..noteOn(61, 127, 1) // C#4
-        ..noteOn(62, 127, 1); // D4
-
-      final positions = midiState.highlightedNotePositions;
-      expect(positions.length, 3);
-
-      // Check for C4
-      final cNote = positions.firstWhere(
-        (pos) => pos.note == Note.C && pos.octave == 4,
-      );
-      expect(cNote.accidental, anyOf(null, Accidental.None));
-
-      // Check for C#4
-      final cSharpNote = positions.firstWhere(
-        (pos) =>
-            pos.note == Note.C &&
-            pos.octave == 4 &&
-            pos.accidental == Accidental.Sharp,
-      );
-      expect(cSharpNote.accidental, Accidental.Sharp);
-
-      // Check for D4
-      final dNote = positions.firstWhere(
-        (pos) => pos.note == Note.D && pos.octave == 4,
-      );
-      expect(dNote.accidental, anyOf(null, Accidental.None));
     });
 
     test("should handle channel selection", () {
@@ -218,7 +186,7 @@ void main() {
       midiState.setHighlightedNotes(testNotes);
 
       expect(midiState.activeNotes, equals(testNotes));
-      expect(midiState.highlightedNotePositions.length, equals(3));
+      expect(midiState.activeNotes.length, equals(3));
     });
 
     test(
@@ -290,37 +258,12 @@ void main() {
       expect(midiState.activeNotes, equals(notesWithInvalidValues));
     });
 
-    test("should convert highlighted notes to NotePosition correctly", () {
+    test("should expose highlighted notes as MIDI numbers", () {
       final testNotes = {60, 61, 62}; // C4, C#4, D4
 
       midiState.setHighlightedNotes(testNotes);
 
-      final positions = midiState.highlightedNotePositions;
-      expect(positions.length, equals(3));
-
-      // Check for C4 (should have exactly one)
-      final cNote = positions.where(
-        (pos) =>
-            pos.note == Note.C &&
-            pos.octave == 4 &&
-            pos.accidental != Accidental.Sharp,
-      );
-      expect(cNote.length, equals(1));
-
-      // Check for C#4
-      final cSharpNote = positions.where(
-        (pos) =>
-            pos.note == Note.C &&
-            pos.octave == 4 &&
-            pos.accidental == Accidental.Sharp,
-      );
-      expect(cSharpNote.length, equals(1));
-
-      // Check for D4
-      final dNote = positions.where(
-        (pos) => pos.note == Note.D && pos.octave == 4,
-      );
-      expect(dNote.length, equals(1));
+      expect(midiState.activeNotes, equals(testNotes));
     });
   });
 }

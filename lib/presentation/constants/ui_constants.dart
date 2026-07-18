@@ -77,6 +77,12 @@ class ComponentDimensions {
 
   /// Header/feature icon size: 80.0 logical pixels
   static const double iconSizeHeader = 80.0;
+
+  /// Black key width as a ratio of white key width (~0.6).
+  static const double blackKeyWidthRatio = 0.6;
+
+  /// Black key height as a ratio of white key height (~0.67).
+  static const double blackKeyHeightRatio = 0.67;
 }
 
 /// Standardized animation and transition durations.

@@ -1,7 +1,5 @@
 import "dart:async";
 import "package:flutter/foundation.dart";
-import "package:piano/piano.dart";
-import "package:piano_fitness/application/utils/piano_note_bridge.dart";
 import "package:piano_fitness/domain/constants/musical_constants.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
@@ -136,15 +134,6 @@ class ReferencePageViewModel extends ChangeNotifier {
     }
   }
 
-  /// Gets the highlighted note positions for the piano widget.
-  List<NotePosition> get highlightedNotePositions => _localHighlightedNotes
-      .map<NotePosition?>(
-        (note) => PianoNoteBridge.midiNumberToNotePosition(note.value),
-      )
-      .where((position) => position != null)
-      .cast<NotePosition>()
-      .toList();
-
   /// Gets the MIDI notes for the currently selected scale.
   Set<MidiNote> _getScaleMidiNotes() {
     final scale = scales.ScaleDefinitions.getScale(
@@ -228,22 +217,18 @@ class ReferencePageViewModel extends ChangeNotifier {
     _localHighlightedNotes = highlightedMidiNotes;
   }
 
-  /// Plays a note through MIDI output.
-  Future<void> playNote(MidiNote midiNote) async {
-    await VirtualPianoUtils.playVirtualNote(
-      midiNote.value,
-      _midiRepository,
-      _localMidiState,
-      (_) {}, // No specific callback needed for reference page
-    );
+  /// Handles a piano key press by sending a MIDI note-on.
+  Future<void> onKeyDown(int midiNote) async {
+    await VirtualPianoUtils.noteOn(midiNote, _midiRepository, _localMidiState);
   }
 
-  /// Converts a piano key tap to a MIDI note and plays it.
-  Future<void> playNoteFromPosition(NotePosition position) async {
-    final midiNote = MidiNote(
-      PianoNoteBridge.convertNotePositionToMidi(position),
+  /// Handles a piano key release by sending a MIDI note-off.
+  Future<void> onKeyUp(int midiNote) async {
+    await VirtualPianoUtils.noteOff(
+      midiNote,
+      _midiRepository,
+      _localMidiState,
     );
-    await playNote(midiNote);
   }
 
   @override

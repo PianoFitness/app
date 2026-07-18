@@ -1,6 +1,5 @@
 import "package:flutter/material.dart";
 import "package:flutter/semantics.dart";
-import "package:piano/piano.dart";
 import "package:piano_fitness/presentation/accessibility/config/accessibility_labels.dart";
 import "package:piano_fitness/presentation/accessibility/services/piano_semantics_service.dart";
 
@@ -45,7 +44,7 @@ class MusicalAnnouncementsService {
   /// The [newHighlightedNotes] are the newly highlighted notes.
   static void announceNotesChange(
     BuildContext context,
-    List<NotePosition> newHighlightedNotes,
+    List<int> newHighlightedNotes,
   ) {
     final announcement = PianoSemanticsService.getNotesChangeAnnouncement(
       newHighlightedNotes,

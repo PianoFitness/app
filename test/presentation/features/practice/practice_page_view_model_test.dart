@@ -1,10 +1,10 @@
 import "dart:typed_data";
 import "package:flutter_test/flutter_test.dart";
 import "package:mockito/mockito.dart";
-import "package:piano/piano.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/exercise_history_entry.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
@@ -34,7 +34,7 @@ void main() {
     late MockIExerciseHistoryRepository mockExerciseHistoryRepository;
     late MockIUserProfileRepository mockUserProfileRepository;
     var exerciseCompletedCalled = false;
-    var receivedHighlightedNotes = <NotePosition>[];
+    var receivedHighlightedNotes = <int>[];
 
     setUp(() {
       // Create mock dependencies
@@ -197,10 +197,7 @@ void main() {
 
     test("should calculate appropriate highlighted notes for display", () {
       // Test when ViewModel has highlighted notes
-      final testNotes = [
-        NotePosition(note: Note.C),
-        NotePosition(note: Note.E),
-      ];
+      final testNotes = [60, 64];
       receivedHighlightedNotes = testNotes;
       viewModel.practiceSession!.onHighlightedNotesChanged(testNotes);
 
@@ -212,33 +209,25 @@ void main() {
       viewModel.midiState.noteOn(60, 100, 1);
 
       final fallbackResult = viewModel.getDisplayHighlightedNotes();
-      expect(
-        fallbackResult,
-        equals(viewModel.midiState.highlightedNotePositions),
-      );
+      expect(fallbackResult, equals(viewModel.midiState.activeNotes.toList()));
     });
 
-    // TODO(refactor): replace List<int> with List<MidiNote> throughout the
-    // notesForRangeCalculation call chain (exercise.dart → practice_session.dart
-    // → practice_page_view_model.dart → practice_page.dart / PianoRangeUtils).
-    // https://github.com/PianoFitness/app/issues/55
     test("should expose notes for range calculation", () {
       // Default session: C major scale, both hands, starting at baseOctave (4).
       // Right hand plays C4–C5 (MIDI 60–72); left hand plays C3–C4 (MIDI 48–60).
       // getAllNotes() collects the 15 unique MIDI values across all paired steps.
-      const expectedNotes = [
+      final expectedNotes = [
         48, 50, 52, 53, 55, 57, 59, // C3–B3 (left hand)
         60, 62, 64, 65, 67, 69, 71, // C4–B4
         72, // C5 (right hand top)
-      ];
+      ].toMidiNotes();
       final notes = viewModel.notesForRangeCalculation;
       expect(notes, unorderedEquals(expectedNotes));
     });
 
-    test("should play virtual note from NotePosition", () async {
-      // C5 = MIDI 72 ((5+1)*12 + 0)
-      final position = NotePosition(note: Note.C, octave: 5);
-      await viewModel.playVirtualNoteFromPosition(position, mounted: false);
+    test("should play virtual note on key down", () async {
+      // C5 = MIDI 72
+      await viewModel.onKeyDown(72, mounted: false);
 
       // initialChannel=3 → selectedChannel=3 → displayed as Ch: 4; velocity=64.
       expect(
@@ -269,7 +258,7 @@ void main() {
       );
 
       // Should not crash when no practice session is initialized
-      await uninitializedViewModel.playVirtualNote(testNote, mounted: false);
+      await uninitializedViewModel.onKeyDown(testNote, mounted: false);
 
       uninitializedViewModel.dispose();
       uninitMidiState.dispose();
@@ -316,11 +305,7 @@ void main() {
         // Reset to ensure clean state
         receivedHighlightedNotes.clear();
 
-        final testNotes = [
-          NotePosition(note: Note.C),
-          NotePosition(note: Note.E),
-          NotePosition(note: Note.G),
-        ];
+        final testNotes = [60, 64, 67];
 
         // Ensure we start with empty state
         expect(receivedHighlightedNotes, isEmpty);
@@ -507,7 +492,7 @@ void main() {
           receivedHighlightedNotes.clear();
 
           viewModel.startPractice();
-          final initialHighlightedNotes = List<NotePosition>.from(
+          final initialHighlightedNotes = List<int>.from(
             receivedHighlightedNotes,
           );
           expect(initialHighlightedNotes.isNotEmpty, isTrue);
@@ -528,7 +513,7 @@ void main() {
           viewModel.setIncludeInversions(false);
           viewModel.startPractice();
 
-          final rootOnlyNotes = List<NotePosition>.from(
+          final rootOnlyNotes = List<int>.from(
             receivedHighlightedNotes,
           );
           expect(rootOnlyNotes.isNotEmpty, isTrue);

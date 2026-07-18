@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:piano/piano.dart";
+import "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard.dart";
 import "package:piano_fitness/presentation/features/reference/reference_page.dart";
 import "../../../shared/test_helpers/widget_test_helper.dart";
 import "../../../shared/midi_mocks.dart";
@@ -191,8 +191,8 @@ void main() {
       await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
-      // Check that InteractivePiano is present
-      expect(find.byType(InteractivePiano), findsOneWidget);
+      // Check that PianoKeyboard is present
+      expect(find.byType(PianoKeyboard), findsOneWidget);
     });
 
     testWidgets("should update piano when scale selection changes", (
@@ -206,7 +206,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify piano is present and functional
-      expect(find.byType(InteractivePiano), findsOneWidget);
+      expect(find.byType(PianoKeyboard), findsOneWidget);
 
       // Verify the Minor scale is selected in the UI
       final minorChip = find.byWidgetPredicate(
@@ -233,7 +233,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify piano is present and functional
-      expect(find.byType(InteractivePiano), findsOneWidget);
+      expect(find.byType(PianoKeyboard), findsOneWidget);
 
       // Verify the Minor chord type is selected in the UI
       final minorChip = find.byWidgetPredicate(
@@ -251,13 +251,14 @@ void main() {
         await tester.pumpWidget(createTestWidget(const ReferencePage()));
         await tester.pumpAndSettle();
 
-        // Find the InteractivePiano widget
-        final pianoFinder = find.byType(InteractivePiano);
+        // Find the PianoKeyboard widget
+        final pianoFinder = find.byType(PianoKeyboard);
         expect(pianoFinder, findsOneWidget);
 
         // Verify piano is interactive and properly configured
-        final piano = tester.widget<InteractivePiano>(pianoFinder);
-        expect(piano.onNotePositionTapped, isNotNull);
+        final piano = tester.widget<PianoKeyboard>(pianoFinder);
+        expect(piano.onKeyDown, isNotNull);
+        expect(piano.onKeyUp, isNotNull);
 
         // Verify initial UI state shows scales mode (Major scale selected)
         final majorScaleChip = find.byWidgetPredicate(

@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import "package:piano/piano.dart";
 import "package:provider/provider.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
@@ -10,6 +9,7 @@ import "package:piano_fitness/presentation/accessibility/config/accessibility_la
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
 import "package:piano_fitness/presentation/utils/piano_accessibility_utils.dart";
+import "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard.dart";
 
 /// The main page of the Piano Fitness application.
 ///
@@ -160,27 +160,35 @@ class _PlayPageView extends StatelessWidget {
                 final dynamicKeyWidth =
                     PianoRangeUtils.calculateScreenBasedKeyWidth(screenWidth);
 
+                final highlightedMidiNotes = viewModel.midiState.activeNotes
+                    .toList();
+                final keyVisuals = ValueNotifier<Map<int, PianoKeyVisual>>({
+                  for (final note in highlightedMidiNotes)
+                    note: PianoKeyVisual(fill: colorScheme.primary),
+                });
+
                 return PianoAccessibilityUtils.createAccessiblePianoWrapper(
-                  highlightedNotes:
-                      viewModel.midiState.highlightedNotePositions,
+                  highlightedMidiNotes: highlightedMidiNotes,
                   mode: PianoMode.play,
                   semanticLabel: AccessibilityLabels.piano.keyboardLabel(
                     PianoMode.play,
                   ),
-                  child: InteractivePiano(
-                    highlightedNotes:
-                        viewModel.midiState.highlightedNotePositions,
+                  child: PianoKeyboard(
+                    range: fixed49KeyRange,
+                    keyVisuals: keyVisuals,
                     keyWidth: dynamicKeyWidth.clamp(
                       PianoRangeUtils.minKeyWidth,
                       PianoRangeUtils.maxKeyWidth,
                     ),
-                    noteRange: fixed49KeyRange,
-                    onNotePositionTapped: (position) {
-                      viewModel
-                          .playVirtualNoteFromPosition(position)
-                          .catchError((Object e) {
-                            debugPrint("Error playing note: $e");
-                          });
+                    onKeyDown: (midiNote) {
+                      viewModel.onKeyDown(midiNote).catchError((Object e) {
+                        debugPrint("Error playing note: $e");
+                      });
+                    },
+                    onKeyUp: (midiNote) {
+                      viewModel.onKeyUp(midiNote).catchError((Object e) {
+                        debugPrint("Error releasing note: $e");
+                      });
                     },
                   ),
                 );

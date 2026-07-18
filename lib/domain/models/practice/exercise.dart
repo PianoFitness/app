@@ -1,5 +1,6 @@
 import "package:collection/collection.dart";
 import "package:meta/meta.dart";
+import "package:piano_fitness/domain/models/music/midi_note.dart";
 
 /// The type of input expected for a practice step.
 ///
@@ -149,12 +150,12 @@ class PracticeExercise {
   ///
   /// This is useful for calculating the piano keyboard range needed
   /// to display the exercise.
-  Set<int> getAllNotes() {
+  Set<MidiNote> getAllNotes() {
     final allNotes = <int>{};
     for (final step in steps) {
       allNotes.addAll(step.notes);
     }
-    return allNotes;
+    return allNotes.toList().toMidiNotes().toSet();
   }
 
   /// Converts this exercise to a JSON map for serialization.

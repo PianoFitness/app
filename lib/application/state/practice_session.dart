@@ -1,8 +1,8 @@
 import "package:flutter/foundation.dart";
-import "package:piano/piano.dart";
 import "package:piano_fitness/domain/constants/musical_constants.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/models/practice/exercise.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
@@ -10,7 +10,6 @@ import "package:piano_fitness/domain/models/practice/strategies/practice_strateg
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/domain/services/music_theory/circle_of_fifths.dart";
-import "package:piano_fitness/application/utils/piano_note_bridge.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
 
@@ -36,9 +35,9 @@ class PracticeSession {
 
   /// Callback fired when the highlighted notes on the piano should change.
   ///
-  /// Receives a list of [NotePosition] objects representing the notes
-  /// that should be highlighted on the piano keyboard.
-  final void Function(List<NotePosition>) onHighlightedNotesChanged;
+  /// Receives the MIDI note numbers that should be highlighted on the
+  /// piano keyboard.
+  final void Function(List<int>) onHighlightedNotesChanged;
 
   // Unified configuration for practice exercises
   ExerciseConfiguration _config = const ExerciseConfiguration(
@@ -120,7 +119,7 @@ class PracticeSession {
   /// This method accounts for hand selection and returns all notes that
   /// should be considered when calculating the piano keyboard range.
   /// This is the single source of truth for range calculation.
-  List<int> getNotesForRangeCalculation() {
+  List<MidiNote> getNotesForRangeCalculation() {
     if (_currentExercise == null) {
       return [];
     }
@@ -418,18 +417,9 @@ class PracticeSession {
     }
 
     final currentStep = _currentExercise!.steps[_currentStepIndex];
-    final highlightedPositions = <NotePosition>[];
-
-    for (final midiNote in currentStep.notes) {
-      final noteInfo = NoteUtils.midiNumberToNote(midiNote);
-      final notePosition = PianoNoteBridge.noteToNotePosition(
-        noteInfo.note,
-        noteInfo.octave,
-      );
-      highlightedPositions.add(notePosition);
-    }
-
-    onHighlightedNotesChanged(highlightedPositions);
+    // Defensive copy: some strategies reuse/mutate an internal notes buffer
+    // across steps, so callers must not receive a live reference to it.
+    onHighlightedNotesChanged(List<int>.from(currentStep.notes));
   }
 
   /// Handles MIDI note press events during practice sessions.

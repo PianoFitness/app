@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import "package:piano/piano.dart";
 import "package:provider/provider.dart";
 import "package:piano_fitness/presentation/constants/practice_constants.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
@@ -17,6 +16,7 @@ import "package:piano_fitness/presentation/widgets/practice_progress_display.dar
 import "package:piano_fitness/presentation/widgets/practice_settings_panel.dart";
 import "package:piano_fitness/presentation/utils/piano_accessibility_utils.dart";
 import "package:piano_fitness/presentation/theme/semantic_colors.dart";
+import "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard.dart";
 
 /// A comprehensive piano practice page with guided exercises and real-time feedback.
 ///
@@ -267,23 +267,29 @@ class _PracticePageViewState extends State<_PracticePageView> {
           final dynamicKeyWidth = PianoRangeUtils.calculateScreenBasedKeyWidth(
             screenWidth,
           );
+          final colorScheme = Theme.of(context).colorScheme;
+          final keyVisuals = ValueNotifier<Map<int, PianoKeyVisual>>({
+            for (final note in highlightedNotes)
+              note: PianoKeyVisual(fill: colorScheme.primary),
+          });
 
           return PianoAccessibilityUtils.createAccessiblePianoWrapper(
-            highlightedNotes: highlightedNotes,
+            highlightedMidiNotes: highlightedNotes,
             mode: PianoMode.practice,
             semanticLabel: AccessibilityLabels.piano.keyboardLabel(
               PianoMode.practice,
             ),
-            child: InteractivePiano(
+            child: PianoKeyboard(
               key: const Key("practice_interactive_piano"),
-              highlightedNotes: highlightedNotes,
+              range: practiceRange,
+              keyVisuals: keyVisuals,
               keyWidth: dynamicKeyWidth.clamp(
                 PianoRangeUtils.minKeyWidth,
                 PianoRangeUtils.maxKeyWidth,
               ),
-              noteRange: practiceRange,
-              onNotePositionTapped: (position) => viewModel
-                  .playVirtualNoteFromPosition(position, mounted: mounted),
+              onKeyDown: (midiNote) =>
+                  viewModel.onKeyDown(midiNote, mounted: mounted),
+              onKeyUp: viewModel.onKeyUp,
             ),
           );
         },

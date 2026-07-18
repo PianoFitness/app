@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:piano/piano.dart";
 import "package:piano_fitness/presentation/features/play/play_page.dart";
+import "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard.dart";
 import "../../../shared/test_helpers/widget_test_helper.dart";
 import "../../../shared/midi_mocks.dart";
 
@@ -50,14 +50,13 @@ void main() {
     ) async {
       await tester.pumpWidget(createTestWidget(const PlayPage()));
 
-      // Find the InteractivePiano widget
-      final pianoFinder = find.byType(InteractivePiano);
+      // Find the PianoKeyboard widget
+      final pianoFinder = find.byType(PianoKeyboard);
       expect(pianoFinder, findsOneWidget);
 
       // Verify the piano uses the 49-key range from ViewModel
-      final piano = tester.widget<InteractivePiano>(pianoFinder);
-      expect(piano.noteRange, isNotNull);
-      expect(piano.noteRange, isA<NoteRange>());
+      final piano = tester.widget<PianoKeyboard>(pianoFinder);
+      expect(piano.range, isNotNull);
     });
 
     testWidgets("should handle virtual note playing through ViewModel", (
@@ -66,16 +65,14 @@ void main() {
       await tester.pumpWidget(createTestWidget(const PlayPage()));
       await tester.pump();
 
-      // Find the InteractivePiano and verify callback is set
-      final pianoFinder = find.byType(InteractivePiano);
+      // Find the PianoKeyboard and verify callbacks are set
+      final pianoFinder = find.byType(PianoKeyboard);
       expect(pianoFinder, findsOneWidget);
 
-      final piano = tester.widget<InteractivePiano>(pianoFinder);
-      expect(piano.onNotePositionTapped, isNotNull);
-
-      // Test note conversion through ViewModel by simulating a tap
-      // (We can't easily simulate the actual tap, but we can verify the setup)
-      expect(piano.noteRange, isNotNull);
+      final piano = tester.widget<PianoKeyboard>(pianoFinder);
+      expect(piano.onKeyDown, isNotNull);
+      expect(piano.onKeyUp, isNotNull);
+      expect(piano.range, isNotNull);
     });
 
     testWidgets("should integrate with MidiState through ViewModel", (
@@ -83,17 +80,17 @@ void main() {
     ) async {
       // For this test, we skip MidiState interaction testing since it's now
       // internal to the ViewModel. We just verify the piano widget is set up
-      // with highlightedNotes callback.
+      // with a keyVisuals listenable.
       await tester.pumpWidget(createTestWidget(const PlayPage()));
       await tester.pump();
 
       // Verify piano keyboard is present and configured
-      final pianoFinder = find.byType(InteractivePiano);
+      final pianoFinder = find.byType(PianoKeyboard);
       expect(pianoFinder, findsOneWidget);
 
-      final piano = tester.widget<InteractivePiano>(pianoFinder);
-      // Verify the piano has highlight notes (integration verified via ViewModel)
-      expect(piano.highlightedNotes, isNotNull);
+      final piano = tester.widget<PianoKeyboard>(pianoFinder);
+      // Verify the piano has a keyVisuals listenable (integration verified via ViewModel)
+      expect(piano.keyVisuals, isNotNull);
     });
 
     // MIDI settings navigation is now handled in the main navigation app bar, so this test is removed.
@@ -137,11 +134,12 @@ void main() {
     testWidgets("should handle dynamic key width calculation", (tester) async {
       await tester.pumpWidget(createTestWidget(const PlayPage()));
 
-      // Find the InteractivePiano and verify key width is calculated
-      final pianoFinder = find.byType(InteractivePiano);
+      // Find the PianoKeyboard and verify key width is calculated
+      final pianoFinder = find.byType(PianoKeyboard);
       expect(pianoFinder, findsOneWidget);
 
-      final piano = tester.widget<InteractivePiano>(pianoFinder);
+      final piano = tester.widget<PianoKeyboard>(pianoFinder);
+      expect(piano.keyWidth, isNotNull);
       expect(piano.keyWidth, greaterThan(0));
       // Verify it's clamped to reasonable bounds (20-60 as per piano_range_utils)
       expect(piano.keyWidth, greaterThanOrEqualTo(20));

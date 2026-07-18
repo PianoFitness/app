@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:piano/piano.dart";
+import "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard.dart";
 import "package:piano_fitness/presentation/widgets/main_navigation.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "../../../shared/test_helpers/widget_test_helper.dart";
@@ -137,6 +137,12 @@ void main() {
 
       // The MIDI state should still be clean (no interference from reference page)
       expect(midiState.activeNotes.isEmpty, isTrue);
+
+      // The scale/key taps above use warnIfMissed: false because their
+      // targets can sit outside the test viewport, which occasionally
+      // routes the tap to the piano's own local MidiState instead and
+      // starts its 1s activity timer; let it settle before teardown.
+      await tester.pump(const Duration(seconds: 2));
     });
 
     testWidgets("should handle rapid mode switching", (tester) async {
@@ -193,7 +199,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Should still be functional - verify UI is working
-      expect(find.byType(InteractivePiano), findsOneWidget);
+      expect(find.byType(PianoKeyboard), findsOneWidget);
       expect(find.text("Scale Type"), findsOneWidget);
 
       // Clean up any pending timers
@@ -249,7 +255,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // Should have functional UI (no longer testing shared MIDI state)
-        expect(find.byType(InteractivePiano), findsOneWidget);
+        expect(find.byType(PianoKeyboard), findsOneWidget);
       }
 
       // Wait for any pending async operations (e.g., MIDI activity timers)
@@ -333,7 +339,7 @@ void main() {
       expect(stopwatch.elapsedMilliseconds, lessThan(1000));
 
       // Should have functional UI (no longer testing specific MIDI state)
-      expect(find.byType(InteractivePiano), findsOneWidget);
+      expect(find.byType(PianoKeyboard), findsOneWidget);
 
       // Clean up any pending timers
       await tester.pumpAndSettle(const Duration(seconds: 2));

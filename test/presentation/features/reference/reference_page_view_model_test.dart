@@ -1,5 +1,4 @@
 import "package:flutter_test/flutter_test.dart";
-import "package:piano/piano.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/presentation/features/reference/reference_page_view_model.dart";
@@ -287,7 +286,7 @@ void main() {
       test("should handle virtual note playing", () async {
         final testNote = MidiNote(60);
 
-        await viewModel.playNote(testNote);
+        await viewModel.onKeyDown(testNote.value);
 
         expect(
           viewModel.localMidiState.lastNote.contains(
@@ -297,10 +296,10 @@ void main() {
         );
       });
 
-      test("should play note from NotePosition", () async {
-        // C5 = MIDI 72 ((5+1)*12 + 0)
-        final position = NotePosition(note: Note.C, octave: 5);
-        await viewModel.playNoteFromPosition(position);
+      test("should handle key up", () async {
+        // C5 = MIDI 72
+        await viewModel.onKeyDown(72);
+        await viewModel.onKeyUp(72);
 
         expect(
           viewModel.localMidiState.lastNote.contains("Virtual Note ON: 72"),
@@ -318,7 +317,7 @@ void main() {
         );
 
         await expectLater(
-          () async => viewModelWithLocalState.playNote(MidiNote(60)),
+          () async => viewModelWithLocalState.onKeyDown(60),
           returnsNormally,
         );
 
@@ -334,7 +333,7 @@ void main() {
 
     group("MIDI State Integration", () {
       test("should use local MIDI state correctly", () async {
-        await viewModel.playNote(MidiNote(60));
+        await viewModel.onKeyDown(60);
 
         expect(
           viewModel.localMidiState.lastNote.contains("Virtual Note ON: 60"),
@@ -344,25 +343,15 @@ void main() {
     });
 
     group("Highlighted Note Positions", () {
-      test("should return NotePositions for current scale highlights", () {
+      test("should return MIDI notes for current scale highlights", () {
         viewModel.setSelectedKey(scales.Key.c);
         viewModel.setSelectedScaleType(scales.ScaleType.major);
 
-        final positions = viewModel.highlightedNotePositions;
+        final highlighted = viewModel.localHighlightedNotes;
 
         // C major at baseOctave (4): 7 scale degrees (no octave duplicate).
-        // MIDI 60→C4, 62→D4, 64→E4, 65→F4, 67→G4, 69→A4, 71→B4.
-        // Order mirrors insertion into the LinkedHashSet in _getScaleMidiNotes().
-        final expectedPositions = [
-          NotePosition(note: Note.C),
-          NotePosition(note: Note.D),
-          NotePosition(note: Note.E),
-          NotePosition(note: Note.F),
-          NotePosition(note: Note.G),
-          NotePosition(note: Note.A),
-          NotePosition(note: Note.B),
-        ];
-        expect(positions, equals(expectedPositions));
+        final expectedNotes = {60, 62, 64, 65, 67, 69, 71}.map(MidiNote.new);
+        expect(highlighted, equals(expectedNotes.toSet()));
       });
     });
 
