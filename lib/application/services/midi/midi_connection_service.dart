@@ -39,7 +39,7 @@ class MidiConnectionService {
   Future<void> connect() async {
     if (_midiDataSubscription != null) return; // Already connected
 
-    final midiDataStream = _midiCommand.onMidiDataReceived;
+    final midiDataStream = _midiCommand.onMidiPacketReceived;
     if (midiDataStream != null) {
       _midiDataSubscription = midiDataStream.listen(
         (packet) {

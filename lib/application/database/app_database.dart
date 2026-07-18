@@ -54,7 +54,7 @@ class AppDatabase extends _$AppDatabase {
         await m.createAll();
         // Index for efficiently querying a profile's history by date —
         // must be created on fresh installs as well as upgrades.
-        await m.issueCustomQuery(
+        await customStatement(
           "CREATE INDEX IF NOT EXISTS idx_exercise_history_profile_date "
           "ON exercise_history_table (profile_id, completed_at DESC)",
         );
@@ -68,7 +68,7 @@ class AppDatabase extends _$AppDatabase {
           // Create the exercise_history_table for version 3
           await m.createTable(schema.exerciseHistoryTable);
           // Index for efficiently querying a profile's history by date
-          await m.issueCustomQuery(
+          await customStatement(
             "CREATE INDEX IF NOT EXISTS idx_exercise_history_profile_date "
             "ON exercise_history_table (profile_id, completed_at DESC)",
           );

@@ -76,6 +76,12 @@ class _FakeMidiCommand_4 extends _i1.SmartFake implements _i6.MidiCommand {
     : super(parent, parentInvocation);
 }
 
+class _FakeMidiCapabilities_5 extends _i1.SmartFake
+    implements _i6.MidiCapabilities {
+  _FakeMidiCapabilities_5(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [IMidiRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -243,9 +249,9 @@ class MockIMidiDeviceDiscoveryService extends _i1.Mock
           as _i8.Future<List<_i7.MidiDevice>>);
 
   @override
-  _i8.Future<void> startBluetoothCentral() =>
+  _i8.Future<void> startBluetooth() =>
       (super.noSuchMethod(
-            Invocation.method(#startBluetoothCentral, []),
+            Invocation.method(#startBluetooth, []),
             returnValue: _i8.Future<void>.value(),
             returnValueForMissingStub: _i8.Future<void>.value(),
           )
@@ -839,6 +845,25 @@ class MockMidiCommand extends _i1.Mock implements _i6.MidiCommand {
   }
 
   @override
+  Set<_i6.MidiTransport> get enabledTransports =>
+      (super.noSuchMethod(
+            Invocation.getter(#enabledTransports),
+            returnValue: <_i6.MidiTransport>{},
+          )
+          as Set<_i6.MidiTransport>);
+
+  @override
+  _i6.MidiCapabilities get capabilities =>
+      (super.noSuchMethod(
+            Invocation.getter(#capabilities),
+            returnValue: _FakeMidiCapabilities_5(
+              this,
+              Invocation.getter(#capabilities),
+            ),
+          )
+          as _i6.MidiCapabilities);
+
+  @override
   _i8.Future<List<_i6.MidiDevice>?> get devices =>
       (super.noSuchMethod(
             Invocation.getter(#devices),
@@ -879,9 +904,43 @@ class MockMidiCommand extends _i1.Mock implements _i6.MidiCommand {
           as _i8.Future<bool?>);
 
   @override
-  _i8.Future<void> startBluetoothCentral() =>
+  set logHandler(void Function(String)? value) => super.noSuchMethod(
+    Invocation.setter(#logHandler, value),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void configureTransportPolicy(_i6.MidiTransportPolicy? policy) =>
+      super.noSuchMethod(
+        Invocation.method(#configureTransportPolicy, [policy]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void configureBleTransport(_i6.MidiBleTransport? transport) =>
+      super.noSuchMethod(
+        Invocation.method(#configureBleTransport, [transport]),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  bool isTransportEnabled(_i6.MidiTransport? transport) =>
       (super.noSuchMethod(
-            Invocation.method(#startBluetoothCentral, []),
+            Invocation.method(#isTransportEnabled, [transport]),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  void dispose() => super.noSuchMethod(
+    Invocation.method(#dispose, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i8.Future<void> startBluetooth() =>
+      (super.noSuchMethod(
+            Invocation.method(#startBluetooth, []),
             returnValue: _i8.Future<void>.value(),
             returnValueForMissingStub: _i8.Future<void>.value(),
           )
@@ -912,9 +971,16 @@ class MockMidiCommand extends _i1.Mock implements _i6.MidiCommand {
   );
 
   @override
-  _i8.Future<void> connectToDevice(_i6.MidiDevice? device) =>
+  _i8.Future<void> connectToDevice(
+    _i6.MidiDevice? device, {
+    Duration? awaitConnectionTimeout = const Duration(seconds: 30),
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#connectToDevice, [device]),
+            Invocation.method(
+              #connectToDevice,
+              [device],
+              {#awaitConnectionTimeout: awaitConnectionTimeout},
+            ),
             returnValue: _i8.Future<void>.value(),
             returnValueForMissingStub: _i8.Future<void>.value(),
           )

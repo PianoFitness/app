@@ -112,7 +112,7 @@ class MidiRepositoryImpl implements IMidiRepository {
                 (device) => MidiDevice(
                   id: device.id,
                   name: device.name,
-                  type: device.type,
+                  type: device.type.name,
                   connected: device.connected,
                   inputPorts: device.inputPorts
                       .map((port) => MidiPort(id: port.id))

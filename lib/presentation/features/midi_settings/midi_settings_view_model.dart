@@ -186,7 +186,7 @@ class MidiSettingsViewModel extends ChangeNotifier {
       _log.info("Starting Bluetooth central");
 
       try {
-        await _discoveryService.startBluetoothCentral();
+        await _discoveryService.startBluetooth();
       } on Exception catch (err) {
         showSnackBar("Bluetooth error: $err");
         rethrow;
