@@ -38,15 +38,20 @@ class ScalesStrategy implements PracticeStrategy {
   PracticeExercise initializeExercise() {
     final scale = music.ScaleDefinitions.getScale(key, scaleType);
     final sequence = scale.getHandSequence(startOctave, handSelection);
+    final scaleNotes = scale.getNotes();
 
-    // Fingering hints only cover the C major scale for now.
-    final hasFingering = key == music.Key.c && scaleType == music.ScaleType.major;
-    final rightFingers = hasFingering
-        ? FingeringHints.cMajorScale(rightHand: true)
-        : null;
-    final leftFingers = hasFingering
-        ? FingeringHints.cMajorScale(rightHand: false)
-        : null;
+    final rightFingers = FingeringHints.scale(
+      key: key,
+      scaleType: scaleType,
+      notes: scaleNotes,
+      rightHand: true,
+    );
+    final leftFingers = FingeringHints.scale(
+      key: key,
+      scaleType: scaleType,
+      notes: scaleNotes,
+      rightHand: false,
+    );
 
     // Convert the sequence to PracticeSteps based on hand selection
     final steps = <PracticeStep>[];
@@ -72,8 +77,7 @@ class ScalesStrategy implements PracticeStrategy {
                 "hand": "both",
                 "degree": degree,
                 "displayName": "Degree $degree (Both Hands)",
-                if (leftFingers != null && rightFingers != null)
-                  "fingers": [leftFingers[i ~/ 2], rightFingers[i ~/ 2]],
+                "fingers": [leftFingers[i ~/ 2], rightFingers[i ~/ 2]],
               },
             ),
           );
@@ -97,7 +101,7 @@ class ScalesStrategy implements PracticeStrategy {
               "hand": handSelection == HandSelection.left ? "left" : "right",
               "degree": degree,
               "displayName": "Degree $degree ($handDisplay Hand)",
-              if (fingers != null) "fingers": [fingers[i]],
+              "fingers": [fingers[i]],
             },
           ),
         );

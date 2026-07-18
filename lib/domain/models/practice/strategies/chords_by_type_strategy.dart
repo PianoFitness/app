@@ -4,7 +4,6 @@ import "package:piano_fitness/domain/models/practice/exercise.dart";
 import "package:piano_fitness/domain/models/practice/strategies/practice_strategy.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/domain/services/music_theory/fingering_hints.dart";
-import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 
 /// Strategy for initializing chord-by-type practice sequences.
 ///
@@ -51,13 +50,10 @@ class ChordsByTypeStrategy implements PracticeStrategy {
     for (var i = 0; i < chordProgression.length; i++) {
       final chord = chordProgression[i];
       final chordNotes = chord.getMidiNotesForHand(startOctave, handSelection);
-      // Fingering hints only cover chords rooted on C for now.
-      final fingers = chord.rootNote == MusicalNote.c
-          ? FingeringHints.chordFingersForHand(
-              hand: handSelection,
-              totalNoteCount: chordNotes.values.length,
-            )
-          : null;
+      final fingers = FingeringHints.chordFingersForHand(
+        hand: handSelection,
+        totalNoteCount: chordNotes.values.length,
+      );
 
       steps.add(
         PracticeStep(

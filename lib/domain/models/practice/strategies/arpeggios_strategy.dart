@@ -47,17 +47,18 @@ class ArpeggiosStrategy implements PracticeStrategy {
     );
     final sequence = arpeggio.getHandSequence(startOctave, handSelection);
 
-    // Fingering hints only cover the one-octave C major arpeggio for now.
-    final hasFingering =
-        rootNote == MusicalNote.c &&
-        arpeggioType == ArpeggioType.major &&
-        arpeggioOctaves == ArpeggioOctaves.one;
-    final rightFingers = hasFingering
-        ? FingeringHints.majorArpeggioOneOctave(rightHand: true)
-        : null;
-    final leftFingers = hasFingering
-        ? FingeringHints.majorArpeggioOneOctave(rightHand: false)
-        : null;
+    final rightFingers = FingeringHints.arpeggio(
+      rootNote: rootNote,
+      arpeggioType: arpeggioType,
+      octaves: arpeggioOctaves,
+      rightHand: true,
+    );
+    final leftFingers = FingeringHints.arpeggio(
+      rootNote: rootNote,
+      arpeggioType: arpeggioType,
+      octaves: arpeggioOctaves,
+      rightHand: false,
+    );
 
     // Convert the sequence to PracticeSteps based on hand selection
     final steps = <PracticeStep>[];
@@ -83,8 +84,7 @@ class ArpeggiosStrategy implements PracticeStrategy {
               "hand": "both",
               "position": position,
               "displayName": "Note $position (Both Hands)",
-              if (leftFingers != null && rightFingers != null)
-                "fingers": [leftFingers[i ~/ 2], rightFingers[i ~/ 2]],
+              "fingers": [leftFingers[i ~/ 2], rightFingers[i ~/ 2]],
             },
           ),
         );
@@ -107,7 +107,7 @@ class ArpeggiosStrategy implements PracticeStrategy {
               "hand": handSelection == HandSelection.left ? "left" : "right",
               "position": position,
               "displayName": "Note $position ($handDisplay Hand)",
-              if (fingers != null) "fingers": [fingers[i]],
+              "fingers": [fingers[i]],
             },
           ),
         );
