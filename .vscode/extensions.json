@@ -1,6 +1,8 @@
 {
     "recommendations": [
         "yzhang.markdown-all-in-one",
-        "davidanson.vscode-markdownlint"
+        "davidanson.vscode-markdownlint",
+        "dart-code.dart-code",
+        "dart-code.flutter"
     ]
 }
