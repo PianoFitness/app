@@ -303,16 +303,13 @@ class _PianoKeyboardState extends State<PianoKeyboard> {
             physics: const NeverScrollableScrollPhysics(),
             child: CustomPaint(
               size: Size(layout.totalWidth, constraints.maxHeight),
-              painter: _PianoKeyboardBasePainter(
-                layout: layout,
-                whiteKeyColor: keyColors.whiteKey,
-                blackKeyColor: keyColors.blackKey,
-                borderColor: theme.colorScheme.outlineVariant,
-              ),
-              foregroundPainter: _PianoKeyboardOverlayPainter(
+              painter: _PianoKeyboardPainter(
                 layout: layout,
                 keyVisuals: widget.keyVisuals,
                 noteLabelMode: widget.noteLabelMode,
+                whiteKeyColor: keyColors.whiteKey,
+                blackKeyColor: keyColors.blackKey,
+                borderColor: theme.colorScheme.outlineVariant,
                 whiteLabelColor: theme.colorScheme.onSurface,
                 blackLabelColor: Colors.white70,
                 labelBadgeColor: theme.colorScheme.secondary,
@@ -328,59 +325,29 @@ class _PianoKeyboardState extends State<PianoKeyboard> {
   }
 }
 
-class _PianoKeyboardBasePainter extends CustomPainter {
-  const _PianoKeyboardBasePainter({
-    required this.layout,
-    required this.whiteKeyColor,
-    required this.blackKeyColor,
-    required this.borderColor,
-  });
-
-  final PianoKeyboardLayout layout;
-  final Color whiteKeyColor;
-  final Color blackKeyColor;
-  final Color borderColor;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final whitePaint = Paint()..color = whiteKeyColor;
-    final borderPaint = Paint()
-      ..color = borderColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-    for (final key in layout.whiteKeys) {
-      canvas.drawRect(key.rect, whitePaint);
-      canvas.drawRect(key.rect, borderPaint);
-    }
-
-    final blackPaint = Paint()..color = blackKeyColor;
-    for (final key in layout.blackKeys) {
-      canvas.drawRect(key.rect, blackPaint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _PianoKeyboardBasePainter oldDelegate) {
-    return oldDelegate.layout.range != layout.range ||
-        oldDelegate.layout.whiteKeyWidth != layout.whiteKeyWidth ||
-        oldDelegate.layout.height != layout.height ||
-        oldDelegate.whiteKeyColor != whiteKeyColor ||
-        oldDelegate.blackKeyColor != blackKeyColor;
-  }
-}
-
-/// Renders `fill` -> `outline` -> `dot` -> static note/MIDI label -> the
-/// per-key `label` for every key, in that order, so text always stays
-/// legible over any indicator color. Folding the static label into this
-/// dynamic-repaint layer (rather than the cached base layer) is a
-/// deliberate simplicity/z-order tradeoff: correct layering over the
-/// widget's own perf-purity, per the component spec's priorities for
-/// this pass.
-class _PianoKeyboardOverlayPainter extends CustomPainter {
-  _PianoKeyboardOverlayPainter({
+/// Renders every key's shape immediately followed by its overlay
+/// (`fill` -> `outline` -> `dot` -> static note/MIDI label -> the per-key
+/// `label`), white keys first and then black keys, all within a single
+/// canvas pass.
+///
+/// This single-pass ordering is load-bearing, not stylistic: black key
+/// rects deliberately overlap into the top of their neighboring white
+/// key rects (see [PianoKeyboardLayout]), so a highlighted white key's
+/// overlay must be painted *before* any black key is painted, or its
+/// fill would sit on top of the black key next to it. Splitting shapes
+/// and overlays into two separately-composited `CustomPaint` layers
+/// (a `painter` + `foregroundPainter`) breaks this: the whole overlay
+/// layer stacks above the whole shape layer, so a white key's overlay
+/// would cover an adjacent black key drawn underneath even though the
+/// overlay's own internal white-then-black order was correct.
+class _PianoKeyboardPainter extends CustomPainter {
+  _PianoKeyboardPainter({
     required this.layout,
     required this.keyVisuals,
     required this.noteLabelMode,
+    required this.whiteKeyColor,
+    required this.blackKeyColor,
+    required this.borderColor,
     required this.whiteLabelColor,
     required this.blackLabelColor,
     required this.labelBadgeColor,
@@ -392,6 +359,9 @@ class _PianoKeyboardOverlayPainter extends CustomPainter {
   final PianoKeyboardLayout layout;
   final ValueListenable<Map<int, PianoKeyVisual>> keyVisuals;
   final NoteLabelMode noteLabelMode;
+  final Color whiteKeyColor;
+  final Color blackKeyColor;
+  final Color borderColor;
   final Color whiteLabelColor;
   final Color blackLabelColor;
   final Color labelBadgeColor;
@@ -404,8 +374,17 @@ class _PianoKeyboardOverlayPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final visuals = keyVisuals.value;
+    final whitePaint = Paint()..color = whiteKeyColor;
+    final borderPaint = Paint()
+      ..color = borderColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+    final blackPaint = Paint()..color = blackKeyColor;
+
     for (final key in layout.whiteKeys) {
-      _paintKey(
+      canvas.drawRect(key.rect, whitePaint);
+      canvas.drawRect(key.rect, borderPaint);
+      _paintOverlay(
         canvas,
         key,
         isBlack: false,
@@ -413,7 +392,8 @@ class _PianoKeyboardOverlayPainter extends CustomPainter {
       );
     }
     for (final key in layout.blackKeys) {
-      _paintKey(
+      canvas.drawRect(key.rect, blackPaint);
+      _paintOverlay(
         canvas,
         key,
         isBlack: true,
@@ -422,7 +402,7 @@ class _PianoKeyboardOverlayPainter extends CustomPainter {
     }
   }
 
-  void _paintKey(
+  void _paintOverlay(
     Canvas canvas,
     PianoKeyRect key, {
     required bool isBlack,
@@ -507,7 +487,7 @@ class _PianoKeyboardOverlayPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _PianoKeyboardOverlayPainter oldDelegate) => true;
+  bool shouldRepaint(covariant _PianoKeyboardPainter oldDelegate) => true;
 
   @override
   SemanticsBuilderCallback get semanticsBuilder => _buildSemantics;
