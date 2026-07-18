@@ -1325,10 +1325,7 @@ final class $$UserProfileTableTableReferences
   _exerciseHistoryTableRefsTable(_$AppDatabase db) =>
       MultiTypedResultKey.fromTable(
         db.exerciseHistoryTable,
-        aliasName: $_aliasNameGenerator(
-          db.userProfileTable.id,
-          db.exerciseHistoryTable.profileId,
-        ),
+        aliasName: 'user_profile_table__id__exercise_history_table__profile_id',
       );
 
   $$ExerciseHistoryTableTableProcessedTableManager
@@ -1650,10 +1647,7 @@ final class $$ExerciseHistoryTableTableReferences
 
   static $UserProfileTableTable _profileIdTable(_$AppDatabase db) =>
       db.userProfileTable.createAlias(
-        $_aliasNameGenerator(
-          db.exerciseHistoryTable.profileId,
-          db.userProfileTable.id,
-        ),
+        'exercise_history_table__profile_id__user_profile_table__id',
       );
 
   $$UserProfileTableTableProcessedTableManager get profileId {

@@ -479,12 +479,17 @@ class _AutoProgressKeyToggle extends StatelessWidget {
     return Column(
       children: [
         const SizedBox(height: Spacing.sm),
-        SwitchListTile(
-          title: const Text("Auto-progress through keys"),
-          subtitle: const Text("Follow circle of fifths after each exercise"),
-          value: autoProgressKeys,
-          onChanged: onAutoProgressKeysChanged,
-          contentPadding: const EdgeInsets.symmetric(horizontal: Spacing.sm),
+        Material(
+          color: Colors.transparent,
+          child: SwitchListTile(
+            title: const Text("Auto-progress through keys"),
+            subtitle: const Text(
+              "Follow circle of fifths after each exercise",
+            ),
+            value: autoProgressKeys,
+            onChanged: onAutoProgressKeysChanged,
+            contentPadding: const EdgeInsets.symmetric(horizontal: Spacing.sm),
+          ),
         ),
       ],
     );
@@ -543,18 +548,21 @@ class _ChordsByKeySettings extends StatelessWidget {
         const SizedBox(height: Spacing.sm),
         Semantics(
           label: "Include seventh chords in chord-by-key exercises",
-          child: CheckboxListTile(
-            title: const Text("Include Seventh Chords"),
-            subtitle: const Text("Add 7th note to triads"),
-            value: configuration.includeSeventhChords,
-            onChanged: (value) {
-              if (value != null) {
-                onConfigurationChanged(
-                  configuration.copyWith(includeSeventhChords: value),
-                );
-              }
-            },
-            controlAffinity: ListTileControlAffinity.leading,
+          child: Material(
+            color: Colors.transparent,
+            child: CheckboxListTile(
+              title: const Text("Include Seventh Chords"),
+              subtitle: const Text("Add 7th note to triads"),
+              value: configuration.includeSeventhChords,
+              onChanged: (value) {
+                if (value != null) {
+                  onConfigurationChanged(
+                    configuration.copyWith(includeSeventhChords: value),
+                  );
+                }
+              },
+              controlAffinity: ListTileControlAffinity.leading,
+            ),
           ),
         ),
       ],
@@ -747,18 +755,23 @@ class _DominantCadenceSettings extends StatelessWidget {
         const SizedBox(height: Spacing.sm),
         Semantics(
           label: "Include dominant seventh chord (V7→Imaj7) instead of triads",
-          child: CheckboxListTile(
-            title: const Text("Include 7th Chords (V7→Imaj7)"),
-            subtitle: const Text("Dominant 7th resolves to major 7th tonic"),
-            value: configuration.includeSeventhChords,
-            onChanged: (value) {
-              if (value != null) {
-                onConfigurationChanged(
-                  configuration.copyWith(includeSeventhChords: value),
-                );
-              }
-            },
-            controlAffinity: ListTileControlAffinity.leading,
+          child: Material(
+            color: Colors.transparent,
+            child: CheckboxListTile(
+              title: const Text("Include 7th Chords (V7→Imaj7)"),
+              subtitle: const Text(
+                "Dominant 7th resolves to major 7th tonic",
+              ),
+              value: configuration.includeSeventhChords,
+              onChanged: (value) {
+                if (value != null) {
+                  onConfigurationChanged(
+                    configuration.copyWith(includeSeventhChords: value),
+                  );
+                }
+              },
+              controlAffinity: ListTileControlAffinity.leading,
+            ),
           ),
         ),
       ],
@@ -783,18 +796,21 @@ class _ChordsByTypeSettings extends StatelessWidget {
         const SizedBox(height: Spacing.sm),
         Semantics(
           label: "Include 1st and 2nd inversions in chord exercises",
-          child: CheckboxListTile(
-            title: const Text("Include Inversions"),
-            subtitle: const Text("Add 1st and 2nd inversions"),
-            value: configuration.includeInversions,
-            onChanged: (value) {
-              if (value != null) {
-                onConfigurationChanged(
-                  configuration.copyWith(includeInversions: value),
-                );
-              }
-            },
-            controlAffinity: ListTileControlAffinity.leading,
+          child: Material(
+            color: Colors.transparent,
+            child: CheckboxListTile(
+              title: const Text("Include Inversions"),
+              subtitle: const Text("Add 1st and 2nd inversions"),
+              value: configuration.includeInversions,
+              onChanged: (value) {
+                if (value != null) {
+                  onConfigurationChanged(
+                    configuration.copyWith(includeInversions: value),
+                  );
+                }
+              },
+              controlAffinity: ListTileControlAffinity.leading,
+            ),
           ),
         ),
       ],

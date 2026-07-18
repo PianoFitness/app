@@ -30,7 +30,7 @@ abstract class IMidiDeviceDiscoveryService {
   Future<List<MidiDevice>> getDevices();
 
   /// Initializes the Bluetooth central role on this device.
-  Future<void> startBluetoothCentral();
+  Future<void> startBluetooth();
 
   /// Waits until Bluetooth is fully initialized.
   Future<void> waitUntilBluetoothIsInitialized();

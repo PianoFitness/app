@@ -4,8 +4,7 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_windows
-  device_manager
-  sqlite3_flutter_libs
+  flutter_midi_command_windows
   universal_ble
   url_launcher_windows
 )

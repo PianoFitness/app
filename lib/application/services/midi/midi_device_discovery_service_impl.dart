@@ -37,7 +37,7 @@ class MidiDeviceDiscoveryServiceImpl implements IMidiDeviceDiscoveryService {
   }
 
   @override
-  Future<void> startBluetoothCentral() => _midiCommand.startBluetoothCentral();
+  Future<void> startBluetooth() => _midiCommand.startBluetooth();
 
   @override
   Future<void> waitUntilBluetoothIsInitialized() =>
@@ -84,7 +84,7 @@ class MidiDeviceDiscoveryServiceImpl implements IMidiDeviceDiscoveryService {
   MidiDevice _toDomainDevice(midi_cmd.MidiDevice d) => MidiDevice(
     id: d.id,
     name: d.name,
-    type: d.type,
+    type: d.type.name,
     connected: d.connected,
     inputPorts: d.inputPorts.map((p) => MidiPort(id: p.id)).toList(),
     outputPorts: d.outputPorts.map((p) => MidiPort(id: p.id)).toList(),

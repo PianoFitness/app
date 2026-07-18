@@ -7,18 +7,15 @@
 #include "generated_plugin_registrant.h"
 
 #include <audioplayers_windows/audioplayers_windows_plugin.h>
-#include <device_manager/device_manager_plugin.h>
-#include <sqlite3_flutter_libs/sqlite3_flutter_libs_plugin.h>
+#include <flutter_midi_command_windows/flutter_midi_command_windows_plugin.h>
 #include <universal_ble/universal_ble_plugin_c_api.h>
 #include <url_launcher_windows/url_launcher_windows.h>
 
 void RegisterPlugins(flutter::PluginRegistry* registry) {
   AudioplayersWindowsPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("AudioplayersWindowsPlugin"));
-  DeviceManagerPluginRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("DeviceManagerPlugin"));
-  Sqlite3FlutterLibsPluginRegisterWithRegistrar(
-      registry->GetRegistrarForPlugin("Sqlite3FlutterLibsPlugin"));
+  FlutterMidiCommandWindowsPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("FlutterMidiCommandWindowsPlugin"));
   UniversalBlePluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("UniversalBlePluginCApi"));
   UrlLauncherWindowsRegisterWithRegistrar(
