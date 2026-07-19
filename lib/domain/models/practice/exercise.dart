@@ -1,120 +1,132 @@
 import "package:collection/collection.dart";
 import "package:meta/meta.dart";
 import "package:piano_fitness/domain/models/music/midi_note.dart";
+import "package:piano_fitness/domain/models/practice/practice_note.dart";
 
-/// The type of input expected for a practice step.
+export "package:piano_fitness/domain/models/practice/practice_note.dart";
+
+/// One onset moment in a practice exercise.
 ///
-/// Determines how notes should be played and validated during practice.
-enum StepType {
-  /// All notes in the step must be played simultaneously (e.g., chords).
-  simultaneous,
-
-  /// Notes in the step are played one at a time in sequence (e.g., single-hand scales).
-  sequential,
-
-  /// Notes form pairs that should be played together (e.g., both-hands scales/arpeggios).
-  /// Each pair of notes should be played simultaneously, then the next pair, etc.
-  paired,
-}
-
-/// A single step in a practice exercise.
-///
-/// Represents one or more notes to be played, along with metadata
-/// about how they should be played and what they represent.
+/// Every [notes] value is intended to begin together. Sequential material is
+/// represented by multiple ordered [PracticeStep] values.
 @immutable
 class PracticeStep {
-  /// Creates a practice step.
-  ///
-  /// The [notes] list contains MIDI note numbers (0-127) that should be
-  /// played in this step. How they are played depends on [type]:
-  /// - [StepType.simultaneous]: All notes played together (chord)
-  /// - [StepType.sequential]: Each note played one after another
-  /// - [StepType.paired]: Notes are paired (e.g., [left1, right1, left2, right2])
-  const PracticeStep({required this.notes, required this.type, this.metadata});
+  /// Creates a practice step containing one or more complete note targets.
+  PracticeStep({
+    required List<PracticeNote> notes,
+    Map<String, dynamic>? metadata,
+  }) : notes = List.unmodifiable(_validateNotes(notes)),
+       metadata = metadata == null
+           ? null
+           : Map.unmodifiable(Map<String, dynamic>.from(metadata));
 
-  /// Creates a practice step from a JSON map.
+  /// Creates a practice step from JSON.
   factory PracticeStep.fromJson(Map<String, dynamic> json) {
     return PracticeStep(
-      notes: (json["notes"] as List<dynamic>).cast<int>(),
-      type: StepType.values.byName(json["type"] as String),
+      notes: (json["notes"] as List<dynamic>)
+          .map((note) => PracticeNote.fromJson(note as Map<String, dynamic>))
+          .toList(),
       metadata: json["metadata"] as Map<String, dynamic>?,
     );
   }
 
-  /// The MIDI note numbers to be played in this step.
-  final List<int> notes;
-
-  /// How the notes should be played (simultaneously, sequentially, or in pairs).
-  final StepType type;
-
-  /// Optional metadata about this step.
+  /// Complete note targets intended to begin together.
   ///
-  /// Can include information like:
-  /// - `chordName`: Name of the chord (e.g., "C Major")
-  /// - `scaleDegree`: Scale degree number (e.g., "1", "2", "3")
-  /// - `inversion`: Chord inversion (e.g., "root", "first", "second")
-  /// - `description`: Human-readable description
+  /// List order is deterministic for display and serialization but has no
+  /// performance meaning within the step.
+  final List<PracticeNote> notes;
+
+  /// Optional information about this onset moment as a whole.
   final Map<String, dynamic>? metadata;
 
-  /// Converts this step to a JSON map for serialization.
+  /// The exact MIDI pitch set expected for this step.
+  Set<int> get expectedMidiNotes =>
+      Set.unmodifiable(notes.map((note) => note.pitch.value));
+
+  /// MIDI pitches in deterministic note order.
+  List<int> get midiNotes =>
+      List.unmodifiable(notes.map((note) => note.pitch.value));
+
+  /// Converts this step to JSON.
   Map<String, dynamic> toJson() {
     return {
-      "notes": notes,
-      "type": type.name,
+      "notes": notes.map((note) => note.toJson()).toList(),
       if (metadata != null) "metadata": metadata,
     };
   }
 
   /// Creates a copy of this step with optional field replacements.
   PracticeStep copyWith({
-    List<int>? notes,
-    StepType? type,
+    List<PracticeNote>? notes,
     Map<String, dynamic>? metadata,
   }) {
     return PracticeStep(
       notes: notes ?? this.notes,
-      type: type ?? this.type,
       metadata: metadata ?? this.metadata,
     );
+  }
+
+  static List<PracticeNote> _validateNotes(List<PracticeNote> notes) {
+    if (notes.isEmpty) {
+      throw ArgumentError.value(notes, "notes", "must not be empty");
+    }
+
+    final pitches = <int>{};
+    final assignedFingers = <(PracticeHand, int)>{};
+    for (final note in notes) {
+      if (!pitches.add(note.pitch.value)) {
+        throw ArgumentError.value(
+          note.pitch.value,
+          "notes",
+          "must not contain duplicate MIDI pitches",
+        );
+      }
+      final fingerNumber = note.fingerNumber;
+      if (fingerNumber != null &&
+          !assignedFingers.add((note.hand, fingerNumber))) {
+        throw ArgumentError.value(
+          fingerNumber,
+          "notes",
+          "a hand cannot assign one finger to multiple notes in a step",
+        );
+      }
+    }
+    return notes;
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-
     return other is PracticeStep &&
-        const ListEquality<int>().equals(other.notes, notes) &&
-        other.type == type &&
-        const MapEquality<String, dynamic>().equals(other.metadata, metadata);
+        const ListEquality<PracticeNote>().equals(other.notes, notes) &&
+        const DeepCollectionEquality().equals(other.metadata, metadata);
   }
 
   @override
   int get hashCode => Object.hash(
-    const ListEquality<int>().hash(notes),
-    type,
-    const MapEquality<String, dynamic>().hash(metadata),
+    const ListEquality<PracticeNote>().hash(notes),
+    const DeepCollectionEquality().hash(metadata),
   );
 
   @override
   String toString() {
-    return "PracticeStep(notes: $notes, type: $type${metadata != null ? ", metadata: $metadata" : ""})";
+    return "PracticeStep(notes: $notes${metadata != null ? ", metadata: $metadata" : ""})";
   }
 }
 
-/// A complete practice exercise consisting of multiple steps.
-///
-/// This is the unified representation for all practice exercise types
-/// (scales, arpeggios, chords, chord progressions). Each exercise is
-/// a sequence of steps to be completed in order.
+/// A complete practice exercise consisting of ordered onset steps.
 @immutable
 class PracticeExercise {
   /// Creates a practice exercise.
-  ///
-  /// The [steps] list defines the sequence of notes to practice.
-  /// Optional [metadata] can store information about the exercise as a whole.
-  const PracticeExercise({required this.steps, this.metadata});
+  PracticeExercise({
+    required List<PracticeStep> steps,
+    Map<String, dynamic>? metadata,
+  }) : steps = List.unmodifiable(steps),
+       metadata = metadata == null
+           ? null
+           : Map.unmodifiable(Map<String, dynamic>.from(metadata));
 
-  /// Creates a practice exercise from a JSON map.
+  /// Creates a practice exercise from JSON.
   factory PracticeExercise.fromJson(Map<String, dynamic> json) {
     return PracticeExercise(
       steps: (json["steps"] as List<dynamic>)
@@ -124,17 +136,10 @@ class PracticeExercise {
     );
   }
 
-  /// The steps that make up this exercise, in order.
+  /// The exercise's onset steps in performance order.
   final List<PracticeStep> steps;
 
-  /// Optional metadata about the exercise as a whole.
-  ///
-  /// Can include information like:
-  /// - `exerciseType`: Type of exercise (e.g., "scale", "arpeggio", "chord progression")
-  /// - `key`: Musical key (e.g., "C", "D♭", "F#")
-  /// - `mode`: Scale mode or chord quality (e.g., "major", "minor", "dorian")
-  /// - `difficulty`: Difficulty level
-  /// - `description`: Human-readable description
+  /// Optional information about the exercise as a whole.
   final Map<String, dynamic>? metadata;
 
   /// Returns true if this exercise has no steps.
@@ -147,18 +152,13 @@ class PracticeExercise {
   int get length => steps.length;
 
   /// Returns all unique MIDI notes used in this exercise.
-  ///
-  /// This is useful for calculating the piano keyboard range needed
-  /// to display the exercise.
   Set<MidiNote> getAllNotes() {
-    final allNotes = <int>{};
-    for (final step in steps) {
-      allNotes.addAll(step.notes);
-    }
-    return allNotes.toList().toMidiNotes().toSet();
+    return Set.unmodifiable(
+      steps.expand((step) => step.notes).map((note) => note.pitch),
+    );
   }
 
-  /// Converts this exercise to a JSON map for serialization.
+  /// Converts this exercise to JSON.
   Map<String, dynamic> toJson() {
     return {
       "steps": steps.map((step) => step.toJson()).toList(),
@@ -180,16 +180,15 @@ class PracticeExercise {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-
     return other is PracticeExercise &&
         const ListEquality<PracticeStep>().equals(other.steps, steps) &&
-        const MapEquality<String, dynamic>().equals(other.metadata, metadata);
+        const DeepCollectionEquality().equals(other.metadata, metadata);
   }
 
   @override
   int get hashCode => Object.hash(
     const ListEquality<PracticeStep>().hash(steps),
-    const MapEquality<String, dynamic>().hash(metadata),
+    const DeepCollectionEquality().hash(metadata),
   );
 
   @override

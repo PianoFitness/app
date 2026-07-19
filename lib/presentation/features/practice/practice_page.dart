@@ -274,7 +274,7 @@ class _PracticePageViewState extends State<_PracticePageView> {
               highlightedNotes[i]: PianoKeyVisual(
                 fill: colorScheme.primary,
                 label: fingers != null && i < fingers.length
-                    ? fingers[i].toString()
+                    ? fingers[i]?.toString()
                     : null,
               ),
           });

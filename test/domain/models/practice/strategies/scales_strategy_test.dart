@@ -113,12 +113,12 @@ void main() {
 
       for (var i = 0; i < exercise.steps.length; i++) {
         expect(
-          exercise.steps[i].notes,
+          exercise.steps[i].midiNotes,
           equals([expectedNotes[i]]),
           reason: "Step $i should contain MIDI note ${expectedNotes[i]}",
         );
-        expect(exercise.steps[i].type, equals(StepType.sequential));
-        expect(exercise.steps[i].metadata?["hand"], equals("right"));
+        expect(exercise.steps[i].notes.single.hand, PracticeHand.right);
+        expect(exercise.steps[i].notes.single.fingerNumber, isNotNull);
       }
     });
 
@@ -159,12 +159,12 @@ void main() {
 
         for (var i = 0; i < exercise.steps.length; i++) {
           expect(
-            exercise.steps[i].notes,
+            exercise.steps[i].midiNotes,
             equals([expectedNotes[i]]),
             reason: "Step $i should contain MIDI note ${expectedNotes[i]}",
           );
-          expect(exercise.steps[i].type, equals(StepType.sequential));
-          expect(exercise.steps[i].metadata?["hand"], equals("left"));
+          expect(exercise.steps[i].notes.single.hand, PracticeHand.left);
+          expect(exercise.steps[i].notes.single.fingerNumber, isNotNull);
         }
       },
     );
@@ -205,12 +205,18 @@ void main() {
 
         for (var i = 0; i < exercise.steps.length; i++) {
           expect(
-            exercise.steps[i].notes,
+            exercise.steps[i].midiNotes,
             equals(expectedPairs[i]),
             reason: "Step $i should contain paired notes ${expectedPairs[i]}",
           );
-          expect(exercise.steps[i].type, equals(StepType.paired));
-          expect(exercise.steps[i].metadata?["hand"], equals("both"));
+          expect(exercise.steps[i].notes.map((note) => note.hand), [
+            PracticeHand.left,
+            PracticeHand.right,
+          ]);
+          expect(
+            exercise.steps[i].notes.map((note) => note.fingerNumber),
+            everyElement(isNotNull),
+          );
         }
       },
     );
@@ -249,7 +255,7 @@ void main() {
 
       for (var i = 0; i < exercise.steps.length; i++) {
         expect(
-          exercise.steps[i].notes,
+          exercise.steps[i].midiNotes,
           equals([expectedNotes[i]]),
           reason: "Step $i should contain MIDI note ${expectedNotes[i]}",
         );
@@ -292,7 +298,7 @@ void main() {
 
         for (var i = 0; i < exercise.steps.length; i++) {
           expect(
-            exercise.steps[i].notes,
+            exercise.steps[i].midiNotes,
             equals([expectedNotes[i]]),
             reason: "Step $i should contain MIDI note ${expectedNotes[i]}",
           );

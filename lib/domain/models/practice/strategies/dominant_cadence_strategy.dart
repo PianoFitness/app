@@ -117,8 +117,7 @@ class DominantCadenceStrategy implements PracticeStrategy {
 
       steps.add(
         PracticeStep(
-          notes: vNotes.values,
-          type: StepType.simultaneous,
+          notes: vNotes.toPracticeNotes(handSelection: handSelection),
           metadata: {
             "chordName": vChord.name,
             "rootNote": vChord.rootNote.name,
@@ -126,7 +125,6 @@ class DominantCadenceStrategy implements PracticeStrategy {
             "inversion": vChord.inversion.name,
             "position": pairIndex * 2 + 1,
             "displayName": vChord.name,
-            "hand": handSelection.name,
             "stepRole": "dominant",
             "pairIndex": pairIndex,
           },
@@ -141,8 +139,7 @@ class DominantCadenceStrategy implements PracticeStrategy {
 
       steps.add(
         PracticeStep(
-          notes: iNotes.values,
-          type: StepType.simultaneous,
+          notes: iNotes.toPracticeNotes(handSelection: handSelection),
           metadata: {
             "chordName": iChord.name,
             "rootNote": iChord.rootNote.name,
@@ -150,7 +147,6 @@ class DominantCadenceStrategy implements PracticeStrategy {
             "inversion": iChord.inversion.name,
             "position": pairIndex * 2 + 2,
             "displayName": _iTargetDisplayName(pair.iInv, includeSeventhChords),
-            "hand": handSelection.name,
             "stepRole": "tonic",
             "pairIndex": pairIndex,
           },

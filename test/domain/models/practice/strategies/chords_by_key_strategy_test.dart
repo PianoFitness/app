@@ -1,5 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/practice/exercise.dart";
 import "package:piano_fitness/domain/models/practice/strategies/chords_by_key_strategy.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;
@@ -87,7 +88,11 @@ void main() {
       // Left hand plays one octave lower: C3, E3, G3
       final firstStep = exercise.steps.first;
       expect(firstStep.notes.length, 3);
-      expect(firstStep.notes, containsAll([48, 52, 55])); // C3, E3, G3
+      expect(firstStep.midiNotes, [48, 52, 55]); // C3, E3, G3
+      expect(
+        firstStep.notes.map((note) => note.hand),
+        everyElement(PracticeHand.left),
+      );
     });
 
     test("should handle right hand selection correctly", () {
@@ -107,7 +112,11 @@ void main() {
       // Verify first chord (C major) has full triad (3 notes) in right hand octave
       final firstStep = exercise.steps.first;
       expect(firstStep.notes.length, 3);
-      expect(firstStep.notes, containsAll([60, 64, 67])); // C4, E4, G4
+      expect(firstStep.midiNotes, [60, 64, 67]); // C4, E4, G4
+      expect(
+        firstStep.notes.map((note) => note.hand),
+        everyElement(PracticeHand.right),
+      );
     });
 
     test("should handle both hands selection correctly", () {
@@ -129,7 +138,25 @@ void main() {
       expect(firstStep.notes.length, 6);
       // Left hand one octave lower: [48, 52, 55] = [C3, E3, G3]
       // Right hand at specified octave: [60, 64, 67] = [C4, E4, G4]
-      expect(firstStep.notes, containsAll([48, 52, 55, 60, 64, 67]));
+      expect(firstStep.midiNotes, [48, 52, 55, 60, 64, 67]);
+      expect(firstStep.notes.take(3).map((note) => note.hand), [
+        PracticeHand.left,
+        PracticeHand.left,
+        PracticeHand.left,
+      ]);
+      expect(firstStep.notes.skip(3).map((note) => note.hand), [
+        PracticeHand.right,
+        PracticeHand.right,
+        PracticeHand.right,
+      ]);
+      expect(firstStep.notes.map((note) => note.fingerNumber), [
+        5,
+        3,
+        1,
+        1,
+        3,
+        5,
+      ]);
     });
   });
 }

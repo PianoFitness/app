@@ -1,5 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/practice/exercise.dart";
 import "package:piano_fitness/domain/models/practice/strategies/arpeggios_strategy.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
@@ -22,6 +23,15 @@ void main() {
       expect(exercise.metadata?["rootNote"], "c");
       expect(exercise.metadata?["arpeggioType"], "major");
       expect(exercise.metadata?["handSelection"], "both");
+      expect(exercise.steps.first.midiNotes, [48, 60]);
+      expect(exercise.steps.first.notes.map((note) => note.hand), [
+        PracticeHand.left,
+        PracticeHand.right,
+      ]);
+      expect(exercise.steps.first.notes.map((note) => note.fingerNumber), [
+        5,
+        1,
+      ]);
     });
 
     test("should initialize D minor arpeggio sequence for left hand", () {
@@ -40,6 +50,10 @@ void main() {
       expect(exercise.metadata?["rootNote"], "d");
       expect(exercise.metadata?["arpeggioType"], "minor");
       expect(exercise.metadata?["handSelection"], "left");
+      expect(
+        exercise.steps.expand((step) => step.notes).map((note) => note.hand),
+        everyElement(PracticeHand.left),
+      );
     });
 
     test("should initialize two-octave arpeggio sequence", () {
