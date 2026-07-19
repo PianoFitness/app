@@ -1,8 +1,12 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/models/practice/exercise.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/presentation/widgets/practice_progress_display.dart";
+
+PracticeNote _note(int midiNote) =>
+    PracticeNote(pitch: MidiNote(midiNote), hand: PracticeHand.right);
 
 void main() {
   group("PracticeProgressDisplay Theme Tests", () {
@@ -11,43 +15,35 @@ void main() {
       final testExercise = PracticeExercise(
         steps: [
           PracticeStep(
-            notes: [60],
-            type: StepType.sequential,
+            notes: [_note(60)],
             metadata: {"displayName": "Degree 1 (Right Hand)"},
           ),
           PracticeStep(
-            notes: [62],
-            type: StepType.sequential,
+            notes: [_note(62)],
             metadata: {"displayName": "Degree 2 (Right Hand)"},
           ),
           PracticeStep(
-            notes: [64],
-            type: StepType.sequential,
+            notes: [_note(64)],
             metadata: {"displayName": "Degree 3 (Right Hand)"},
           ),
           PracticeStep(
-            notes: [65],
-            type: StepType.sequential,
+            notes: [_note(65)],
             metadata: {"displayName": "Degree 4 (Right Hand)"},
           ),
           PracticeStep(
-            notes: [67],
-            type: StepType.sequential,
+            notes: [_note(67)],
             metadata: {"displayName": "Degree 5 (Right Hand)"},
           ),
           PracticeStep(
-            notes: [69],
-            type: StepType.sequential,
+            notes: [_note(69)],
             metadata: {"displayName": "Degree 6 (Right Hand)"},
           ),
           PracticeStep(
-            notes: [71],
-            type: StepType.sequential,
+            notes: [_note(71)],
             metadata: {"displayName": "Degree 7 (Right Hand)"},
           ),
           PracticeStep(
-            notes: [72],
-            type: StepType.sequential,
+            notes: [_note(72)],
             metadata: {"displayName": "Degree 8 (Right Hand)"},
           ),
         ],
@@ -89,13 +85,11 @@ void main() {
       final testExercise = PracticeExercise(
         steps: [
           PracticeStep(
-            notes: [60, 64, 67],
-            type: StepType.simultaneous,
+            notes: [_note(60), _note(64), _note(67)],
             metadata: {"displayName": "I: C Major"},
           ),
           PracticeStep(
-            notes: [67, 71, 74],
-            type: StepType.simultaneous,
+            notes: [_note(67), _note(71), _note(74)],
             metadata: {"displayName": "V: G Major"},
           ),
         ],

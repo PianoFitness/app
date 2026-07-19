@@ -6,6 +6,7 @@
 import "package:flutter_test/flutter_test.dart";
 
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
+import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/application/state/practice_session.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/circle_of_fifths.dart";
@@ -401,6 +402,55 @@ void main() {
 
         // Highlights should be different (different key)
         expect(highlightsAfter, isNot(equals(highlightsBefore)));
+      });
+    });
+
+    group("Unified step evaluation", () {
+      test("unexpected held pitch blocks a singleton step", () {
+        practiceSession.setPracticeMode(PracticeMode.scales);
+        practiceSession.setSelectedHandSelection(HandSelection.right);
+        final expectedNote = practiceSession.currentStep!.midiNotes.single;
+
+        practiceSession.handleNotePressed(1);
+        practiceSession.handleNotePressed(expectedNote);
+
+        expect(practiceSession.currentStepIndex, 0);
+
+        practiceSession.handleNoteReleased(1);
+
+        expect(practiceSession.currentStepIndex, 1);
+      });
+
+      test("hands-together step advances on exact pitch-set equality", () {
+        practiceSession.setPracticeMode(PracticeMode.scales);
+        final expectedNotes = practiceSession.currentStep!.midiNotes;
+        expect(expectedNotes, hasLength(2));
+
+        practiceSession.handleNotePressed(1);
+        practiceSession.handleNotePressed(expectedNotes.first);
+        expect(practiceSession.currentStepIndex, 0);
+
+        practiceSession.handleNotePressed(expectedNotes.last);
+        expect(practiceSession.currentStepIndex, 0);
+
+        practiceSession.handleNoteReleased(1);
+        expect(practiceSession.currentStepIndex, 1);
+      });
+
+      test("blocked chord uses the same exact pitch-set rule", () {
+        practiceSession.setPracticeMode(PracticeMode.chordsByKey);
+        final expectedNotes = practiceSession.currentStep!.midiNotes;
+        expect(expectedNotes.length, greaterThan(2));
+
+        practiceSession.handleNotePressed(1);
+        for (final note in expectedNotes) {
+          practiceSession.handleNotePressed(note);
+        }
+
+        expect(practiceSession.currentStepIndex, 0);
+
+        practiceSession.handleNoteReleased(1);
+        expect(practiceSession.currentStepIndex, 1);
       });
     });
   });

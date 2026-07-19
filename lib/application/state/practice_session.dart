@@ -427,19 +427,15 @@ class PracticeSession {
     }
 
     final currentStep = _currentExercise!.steps[_currentStepIndex];
-    // Defensive copy: some strategies reuse/mutate an internal notes buffer
-    // across steps, so callers must not receive a live reference to it.
-    onHighlightedNotesChanged(List<int>.from(currentStep.notes));
+    onHighlightedNotesChanged(List<int>.from(currentStep.midiNotes));
   }
 
   /// Handles MIDI note press events during practice sessions.
   ///
   /// Automatically starts the practice session on the first note if not already active.
   /// Processes incoming MIDI note data and advances the exercise if the
-  /// correct note is played. Behavior varies by step type:
-  /// - Sequential: Expects one note at a time
-  /// - Paired: Expects both notes to be held simultaneously
-  /// - Simultaneous: Expects all chord notes to be held together
+  /// correct set of notes is held. Every [PracticeStep] is one simultaneous
+  /// onset moment, whether it contains a singleton note or a larger sonority.
   ///
   /// The [midiNote] parameter should be the MIDI note number (0-127).
   void handleNotePressed(int midiNote) {
@@ -453,38 +449,10 @@ class PracticeSession {
       return;
     }
 
-    final currentStep = _currentExercise!.steps[_currentStepIndex];
-
-    switch (currentStep.type) {
-      case StepType.sequential:
-        // Expect one note at a time
-        if (currentStep.notes.length == 1 && midiNote == currentStep.notes[0]) {
-          _advanceToNextStep();
-        }
-        break;
-
-      case StepType.paired:
-        // Expect both notes of the pair to be held simultaneously
-        if (currentStep.notes.contains(midiNote)) {
-          _currentlyHeldNotes.add(midiNote);
-
-          // Check if all notes in the pair are now held
-          if (currentStep.notes.every(
-            (note) => _currentlyHeldNotes.contains(note),
-          )) {
-            _currentlyHeldNotes.clear();
-            _advanceToNextStep();
-          }
-        }
-        break;
-
-      case StepType.simultaneous:
-        // Track all held notes (including wrong ones) so set equality
-        // in _checkChordCompletion enforces "no extras"
-        _currentlyHeldNotes.add(midiNote);
-        _checkChordCompletion();
-        break;
-    }
+    // Track expected and unexpected notes so exact set equality enforces
+    // "no extras" for every step size.
+    _currentlyHeldNotes.add(midiNote);
+    _checkStepCompletion();
   }
 
   /// Advances to the next step in the exercise.
@@ -507,20 +475,20 @@ class PracticeSession {
   void handleNoteReleased(int midiNote) {
     if (_practiceActive) {
       _currentlyHeldNotes.remove(midiNote);
+      _checkStepCompletion();
     }
   }
 
-  void _checkChordCompletion() {
+  void _checkStepCompletion() {
     if (_currentExercise == null ||
         _currentStepIndex >= _currentExercise!.steps.length) {
       return;
     }
 
     final currentStep = _currentExercise!.steps[_currentStepIndex];
-    final expectedNotes = currentStep.notes.toSet();
 
     // Require exactly the expected notes to be held (no extras)
-    if (setEquals(_currentlyHeldNotes, expectedNotes)) {
+    if (setEquals(_currentlyHeldNotes, currentStep.expectedMidiNotes)) {
       _currentlyHeldNotes.clear();
       _advanceToNextStep();
     }

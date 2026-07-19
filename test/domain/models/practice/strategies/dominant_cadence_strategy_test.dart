@@ -2,7 +2,6 @@ import "dart:math" show min;
 
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
-import "package:piano_fitness/domain/models/practice/exercise.dart";
 import "package:piano_fitness/domain/models/practice/strategies/dominant_cadence_strategy.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;
@@ -87,10 +86,11 @@ void main() {
         expect(exercise.steps.length, equals(6));
       });
 
-      test("all steps are simultaneous type", () {
+      test("all steps contain one simultaneous chord onset", () {
         final exercise = strategy.initializeExercise();
         for (final step in exercise.steps) {
-          expect(step.type, equals(StepType.simultaneous));
+          expect(step.notes, hasLength(3));
+          expect(step.expectedMidiNotes, hasLength(3));
         }
       });
 
@@ -148,8 +148,8 @@ void main() {
       // Voice leading: B4→C5 (+1 leading tone), D5→E5 (+2 step), G5→G5 (hold)
       test("pair 1 MIDI notes are correct for C major right hand", () {
         final exercise = strategy.initializeExercise();
-        expect(exercise.steps[0].notes, equals([71, 74, 79])); // V 1st inv
-        expect(exercise.steps[1].notes, equals([72, 76, 79])); // I Root
+        expect(exercise.steps[0].midiNotes, equals([71, 74, 79]));
+        expect(exercise.steps[1].midiNotes, equals([72, 76, 79]));
       });
 
       test("generates different MIDI sequences for different keys", () {
@@ -214,8 +214,8 @@ void main() {
           final exercise = s.initializeExercise();
           for (var i = 0; i < exercise.steps.length; i += 2) {
             _checkVoiceLeading(
-              exercise.steps[i].notes,
-              exercise.steps[i + 1].notes,
+              exercise.steps[i].midiNotes,
+              exercise.steps[i + 1].midiNotes,
               reason: "Key ${key.displayName} pair ${i ~/ 2 + 1}",
             );
           }
@@ -244,10 +244,11 @@ void main() {
         expect(exercise.steps.length, equals(8));
       });
 
-      test("all steps are simultaneous type", () {
+      test("all steps contain one simultaneous seventh-chord onset", () {
         final exercise = strategy.initializeExercise();
         for (final step in exercise.steps) {
-          expect(step.type, equals(StepType.simultaneous));
+          expect(step.notes, hasLength(4));
+          expect(step.expectedMidiNotes, hasLength(4));
         }
       });
 
@@ -300,8 +301,8 @@ void main() {
       //         iOctaveOffset=0: keeping I at startOctave preserves common tones.
       test("pair 1 MIDI notes are correct for C major right hand", () {
         final exercise = strategy.initializeExercise();
-        expect(exercise.steps[0].notes, equals([67, 71, 74, 77]));
-        expect(exercise.steps[1].notes, equals([60, 64, 67, 71]));
+        expect(exercise.steps[0].midiNotes, equals([67, 71, 74, 77]));
+        expect(exercise.steps[1].midiNotes, equals([60, 64, 67, 71]));
       });
 
       // Pair 4: V7 3rd inv (G root=G4=67, 3rd inv bass=F above root) = F5(77), G5(79), B5(83), D6(86)
@@ -310,8 +311,8 @@ void main() {
       //         Note: Higher octave chosen by voice leading algorithm to minimize jumps
       test("pair 4 MIDI notes are correct for C major right hand", () {
         final exercise = strategy.initializeExercise();
-        expect(exercise.steps[6].notes, equals([77, 79, 83, 86]));
-        expect(exercise.steps[7].notes, equals([83, 84, 88, 91]));
+        expect(exercise.steps[6].midiNotes, equals([77, 79, 83, 86]));
+        expect(exercise.steps[7].midiNotes, equals([83, 84, 88, 91]));
       });
 
       test("initialises successfully for all 12 keys", () {
@@ -343,8 +344,8 @@ void main() {
 
           // Test all 4 pairs (8 steps total, pairs at indices 0-1, 2-3, 4-5, 6-7)
           for (var i = 0; i < exercise.steps.length; i += 2) {
-            final vNotes = exercise.steps[i].notes;
-            final iNotes = exercise.steps[i + 1].notes;
+            final vNotes = exercise.steps[i].midiNotes;
+            final iNotes = exercise.steps[i + 1].midiNotes;
 
             // For seventh chords with auto-bump logic, allow common tones to move
             // by up to an octave when necessary, and allow larger non-common movements

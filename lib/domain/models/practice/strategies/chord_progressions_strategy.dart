@@ -1,6 +1,5 @@
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
-import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/models/practice/exercise.dart";
 import "package:piano_fitness/domain/models/practice/strategies/practice_strategy.dart";
 import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
@@ -47,8 +46,7 @@ class ChordProgressionsStrategy implements PracticeStrategy {
 
       steps.add(
         PracticeStep(
-          notes: chordNotes.values,
-          type: StepType.simultaneous,
+          notes: chordNotes.toPracticeNotes(handSelection: handSelection),
           metadata: {
             "chordName": chord.name,
             "rootNote": chord.rootNote.name,
@@ -58,7 +56,6 @@ class ChordProgressionsStrategy implements PracticeStrategy {
             "romanNumeral": chordProgression.romanNumerals[i],
             "displayName":
                 "${chordProgression.romanNumerals[i]}: ${chord.name}",
-            "hand": handSelection.name,
           },
         ),
       );

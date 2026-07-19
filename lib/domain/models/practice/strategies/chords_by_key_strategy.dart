@@ -63,8 +63,10 @@ class ChordsByKeyStrategy implements PracticeStrategy {
 
       steps.add(
         PracticeStep(
-          notes: chordNotes.values,
-          type: StepType.simultaneous,
+          notes: chordNotes.toPracticeNotes(
+            handSelection: handSelection,
+            fingerNumbers: fingers,
+          ),
           metadata: {
             "chordName": chord.name,
             "rootNote": chord.rootNote.name,
@@ -72,8 +74,6 @@ class ChordsByKeyStrategy implements PracticeStrategy {
             "inversion": chord.inversion.name,
             "position": i + 1,
             "displayName": chord.name,
-            "hand": handSelection.name,
-            "fingers": ?fingers,
           },
         ),
       );

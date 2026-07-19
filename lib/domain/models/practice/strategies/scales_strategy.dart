@@ -1,4 +1,5 @@
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/models/practice/exercise.dart";
 import "package:piano_fitness/domain/models/practice/strategies/practice_strategy.dart";
 import "package:piano_fitness/domain/services/music_theory/fingering_hints.dart";
@@ -71,13 +72,21 @@ class ScalesStrategy implements PracticeStrategy {
           final degree = (i ~/ 2) + 1;
           steps.add(
             PracticeStep(
-              notes: [sequence[i], sequence[i + 1]],
-              type: StepType.paired,
+              notes: [
+                PracticeNote(
+                  pitch: MidiNote(sequence[i]),
+                  hand: PracticeHand.left,
+                  fingerNumber: leftFingers[i ~/ 2],
+                ),
+                PracticeNote(
+                  pitch: MidiNote(sequence[i + 1]),
+                  hand: PracticeHand.right,
+                  fingerNumber: rightFingers[i ~/ 2],
+                ),
+              ],
               metadata: {
-                "hand": "both",
                 "degree": degree,
                 "displayName": "Degree $degree (Both Hands)",
-                "fingers": [leftFingers[i ~/ 2], rightFingers[i ~/ 2]],
               },
             ),
           );
@@ -95,13 +104,18 @@ class ScalesStrategy implements PracticeStrategy {
             : "Right";
         steps.add(
           PracticeStep(
-            notes: [sequence[i]],
-            type: StepType.sequential,
+            notes: [
+              PracticeNote(
+                pitch: MidiNote(sequence[i]),
+                hand: handSelection == HandSelection.left
+                    ? PracticeHand.left
+                    : PracticeHand.right,
+                fingerNumber: fingers[i],
+              ),
+            ],
             metadata: {
-              "hand": handSelection == HandSelection.left ? "left" : "right",
               "degree": degree,
               "displayName": "Degree $degree ($handDisplay Hand)",
-              "fingers": [fingers[i]],
             },
           ),
         );
