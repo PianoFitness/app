@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import "package:piano/piano.dart";
 import "package:provider/provider.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
@@ -13,6 +12,7 @@ import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
 import "package:piano_fitness/domain/models/music/scale_types.dart" as scales;
 import "package:piano_fitness/domain/models/music/chord_type.dart";
 import "package:piano_fitness/presentation/utils/piano_accessibility_utils.dart";
+import "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard.dart";
 
 /// Reference page for viewing scales and chords on the piano.
 ///
@@ -151,22 +151,30 @@ class ReferencePage extends StatelessWidget {
                 return ListenableBuilder(
                   listenable: viewModel,
                   builder: (context, child) {
-                    final localHighlightedPositions =
-                        viewModel.highlightedNotePositions;
+                    final highlightedMidiNotes = viewModel.localHighlightedNotes
+                        .map((note) => note.value)
+                        .toList();
+                    final colorScheme = Theme.of(context).colorScheme;
+                    final keyVisuals = ValueNotifier<Map<int, PianoKeyVisual>>({
+                      for (final note in highlightedMidiNotes)
+                        note: PianoKeyVisual(fill: colorScheme.primary),
+                    });
 
                     return PianoAccessibilityUtils.createAccessiblePianoWrapper(
-                      highlightedNotes: localHighlightedPositions,
+                      highlightedMidiNotes: highlightedMidiNotes,
                       mode: PianoMode.reference,
                       semanticLabel: "Reference mode piano keyboard",
-                      child: InteractivePiano(
+                      child: PianoKeyboard(
                         key: const Key("reference_piano"),
-                        highlightedNotes: localHighlightedPositions,
+                        range: fixed49KeyRange,
+                        keyVisuals: keyVisuals,
+                        noteLabelMode: NoteLabelMode.name,
                         keyWidth: dynamicKeyWidth.clamp(
                           PianoRangeUtils.minKeyWidth,
                           PianoRangeUtils.maxKeyWidth,
                         ),
-                        noteRange: fixed49KeyRange,
-                        onNotePositionTapped: viewModel.playNoteFromPosition,
+                        onKeyDown: viewModel.onKeyDown,
+                        onKeyUp: viewModel.onKeyUp,
                       ),
                     );
                   },

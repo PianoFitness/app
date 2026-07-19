@@ -1,21 +1,21 @@
-import "package:piano/piano.dart";
-
 import "package:piano_fitness/domain/constants/musical_constants.dart";
-import "package:piano_fitness/application/utils/piano_note_bridge.dart";
+import "package:piano_fitness/domain/models/music/midi_note.dart";
+import "package:piano_fitness/presentation/widgets/piano_keyboard/midi_note_range.dart";
 
 /// Utility class for calculating optimal piano keyboard ranges
 /// based on highlighted notes during exercises.
 class PianoRangeUtils {
-  /// The default range used when no notes are highlighted
-  static final NoteRange defaultRange = NoteRange.forClefs([
-    Clef.Treble,
-    Clef.Bass,
-  ]);
+  /// The default range used when no notes are highlighted (C2-C6, matching
+  /// a standard grand-staff treble+bass clef span).
+  static const MidiNoteRange defaultRange = MidiNoteRange(
+    fromMidi: 36, // C2
+    toMidi: 84, // C6
+  );
 
   /// Standard 49-key range for consistent layout (C2 to C6)
-  static final NoteRange standard49KeyRange = NoteRange(
-    from: NotePosition(note: Note.C, octave: 2),
-    to: NotePosition(note: Note.C, octave: 6),
+  static const MidiNoteRange standard49KeyRange = MidiNoteRange(
+    fromMidi: 36, // C2
+    toMidi: 84, // C6
   );
 
   /// Minimum number of octaves to display
@@ -81,30 +81,21 @@ class PianoRangeUtils {
   /// This ensures all highlighted notes are visible without requiring horizontal scrolling,
   /// while maintaining a reasonable keyboard size.
   ///
-  /// [highlightedNotes] - List of note positions that should be visible
+  /// [highlightedMidiNotes] - MIDI note numbers that should be visible
   /// [fallbackRange] - Range to use if no notes are highlighted (defaults to treble+bass clefs)
   ///
-  /// Returns a NoteRange that encompasses all highlighted notes with appropriate padding.
-  static NoteRange calculateOptimalRange(
-    List<NotePosition> highlightedNotes, {
-    NoteRange? fallbackRange,
+  /// Returns a MidiNoteRange that encompasses all highlighted notes with appropriate padding.
+  static MidiNoteRange calculateOptimalRange(
+    List<int> highlightedMidiNotes, {
+    MidiNoteRange? fallbackRange,
   }) {
-    if (highlightedNotes.isEmpty) {
-      return fallbackRange ?? defaultRange;
-    }
-
-    // Convert note positions to MIDI numbers for easier calculation
-    final midiNotes = highlightedNotes
-        .map(PianoNoteBridge.convertNotePositionToMidi)
-        .toList();
-
-    if (midiNotes.isEmpty) {
+    if (highlightedMidiNotes.isEmpty) {
       return fallbackRange ?? defaultRange;
     }
 
     // Find the range of highlighted notes
-    final minMidi = midiNotes.reduce((a, b) => a < b ? a : b);
-    final maxMidi = midiNotes.reduce((a, b) => a > b ? a : b);
+    final minMidi = highlightedMidiNotes.reduce((a, b) => a < b ? a : b);
+    final maxMidi = highlightedMidiNotes.reduce((a, b) => a > b ? a : b);
 
     // Add buffer on both sides
     var startMidi = minMidi - bufferSemitones;
@@ -131,15 +122,7 @@ class PianoRangeUtils {
     startMidi = startMidi.clamp(min88KeyMidi, max88KeyMidi);
     endMidi = endMidi.clamp(min88KeyMidi, max88KeyMidi);
 
-    // Convert back to note positions using PianoNoteBridge
-    final startPosition = PianoNoteBridge.midiNumberToNotePosition(startMidi);
-    final endPosition = PianoNoteBridge.midiNumberToNotePosition(endMidi);
-
-    if (startPosition == null || endPosition == null) {
-      return fallbackRange ?? defaultRange;
-    }
-
-    return NoteRange(from: startPosition, to: endPosition);
+    return MidiNoteRange(fromMidi: startMidi, toMidi: endMidi);
   }
 
   /// Calculates an optimal range for a specific exercise sequence.
@@ -147,23 +130,12 @@ class PianoRangeUtils {
   /// [midiSequence] - List of MIDI note numbers in the exercise
   /// [fallbackRange] - Range to use if sequence is empty
   ///
-  /// Returns a NoteRange optimized for the exercise sequence.
-  static NoteRange calculateRangeForExercise(
+  /// Returns a MidiNoteRange optimized for the exercise sequence.
+  static MidiNoteRange calculateRangeForExercise(
     List<int> midiSequence, {
-    NoteRange? fallbackRange,
+    MidiNoteRange? fallbackRange,
   }) {
-    if (midiSequence.isEmpty) {
-      return fallbackRange ?? defaultRange;
-    }
-
-    // Convert MIDI numbers to note positions
-    final notePositions = midiSequence
-        .map(PianoNoteBridge.midiNumberToNotePosition)
-        .where((pos) => pos != null)
-        .cast<NotePosition>()
-        .toList();
-
-    return calculateOptimalRange(notePositions, fallbackRange: fallbackRange);
+    return calculateOptimalRange(midiSequence, fallbackRange: fallbackRange);
   }
 
   /// Calculates an optimal range for chord progressions with multiple inversions.
@@ -176,11 +148,11 @@ class PianoRangeUtils {
   /// [startOctave] - The octave to start the progression from
   /// [fallbackRange] - Range to use if progression is empty
   ///
-  /// Returns a NoteRange that encompasses the full chord progression range.
-  static NoteRange calculateRangeForChordProgression(
+  /// Returns a MidiNoteRange that encompasses the full chord progression range.
+  static MidiNoteRange calculateRangeForChordProgression(
     List<dynamic> chordProgression, // Using dynamic to avoid import issues
     int startOctave, {
-    NoteRange? fallbackRange,
+    MidiNoteRange? fallbackRange,
   }) {
     if (chordProgression.isEmpty) {
       return fallbackRange ?? defaultRange;
@@ -272,15 +244,7 @@ class PianoRangeUtils {
     startMidi = startMidi.clamp(min88KeyMidi, max88KeyMidi);
     endMidi = endMidi.clamp(min88KeyMidi, max88KeyMidi);
 
-    // Convert back to note positions using PianoNoteBridge
-    final startPosition = PianoNoteBridge.midiNumberToNotePosition(startMidi);
-    final endPosition = PianoNoteBridge.midiNumberToNotePosition(endMidi);
-
-    if (startPosition == null || endPosition == null) {
-      return fallbackRange ?? defaultRange;
-    }
-
-    return NoteRange(from: startPosition, to: endPosition);
+    return MidiNoteRange(fromMidi: startMidi, toMidi: endMidi);
   }
 
   /// Calculates a fixed 49-key range centered around practice exercise notes.
@@ -289,29 +253,32 @@ class PianoRangeUtils {
   /// centered on the exercise sequence to eliminate scrolling during practice.
   /// Falls back to C2-C6 range when no exercise is active.
   ///
-  /// [exerciseSequence] - List of MIDI notes in the current exercise
+  /// [exerciseSequence] - Notes in the current exercise
   /// [fallbackRange] - Range to use when sequence is empty (defaults to C2-C6)
   ///
-  /// Returns a NoteRange covering exactly 49 keys centered on the exercise.
-  static NoteRange calculateFixed49KeyRange(
-    List<int> exerciseSequence, {
-    NoteRange? fallbackRange,
+  /// Returns a MidiNoteRange covering exactly 49 keys centered on the exercise.
+  static MidiNoteRange calculateFixed49KeyRange(
+    List<MidiNote> exerciseSequence, {
+    MidiNoteRange? fallbackRange,
   }) {
-    // Default 49-key range (C2 to C6) when no exercise is active
-    final defaultFallback =
-        fallbackRange ??
-        NoteRange(
-          from: NotePosition(note: Note.C, octave: 2),
-          to: NotePosition(note: Note.C, octave: 6),
-        );
+    final defaultFallback = fallbackRange ?? standard49KeyRange;
 
     if (exerciseSequence.isEmpty) {
       return defaultFallback;
     }
 
+    final midiValues = exerciseSequence.values;
+
     // Find the min and max MIDI notes in the exercise sequence
-    final minNote = exerciseSequence.reduce((a, b) => a < b ? a : b);
-    final maxNote = exerciseSequence.reduce((a, b) => a > b ? a : b);
+    final minNote = midiValues.reduce((a, b) => a < b ? a : b);
+    final maxNote = midiValues.reduce((a, b) => a > b ? a : b);
+
+    // A fixed 49-key (4-octave) window can't contain a wider span; return
+    // the fallback rather than silently clipping some exercise notes out
+    // of view.
+    if (maxNote - minNote > fixed49KeySemitones) {
+      return defaultFallback;
+    }
 
     // Calculate the center point of the exercise range
     final centerNote = (minNote + maxNote) ~/ 2;
@@ -361,15 +328,7 @@ class PianoRangeUtils {
       startNote = endNote - fixed49KeySemitones;
     }
 
-    // Convert MIDI notes to NotePosition using PianoNoteBridge
-    final startPosition = PianoNoteBridge.midiNumberToNotePosition(startNote);
-    final endPosition = PianoNoteBridge.midiNumberToNotePosition(endNote);
-
-    if (startPosition == null || endPosition == null) {
-      return defaultFallback;
-    }
-
-    return NoteRange(from: startPosition, to: endPosition);
+    return MidiNoteRange(fromMidi: startNote, toMidi: endNote);
   }
 
   /// Calculates dynamic key width based on available screen width.
@@ -404,22 +363,12 @@ class PianoRangeUtils {
   /// [noteRange] - The range of notes to be displayed
   ///
   /// Returns the recommended key width in pixels.
-  static double calculateOptimalKeyWidth(NoteRange noteRange) {
-    // Calculate the range in semitones by accessing the range bounds
-    // Note: We'll use a simple estimation based on the note range span
-    // This is approximate but sufficient for key width calculation
+  static double calculateOptimalKeyWidth(MidiNoteRange noteRange) {
+    final rangeSemitones = noteRange.toMidi - noteRange.fromMidi;
 
-    // For now, use a simple heuristic based on common ranges
-    // TODO(implementation): Implement proper NoteRange property access when available
-
-    // Estimate based on typical chord progression ranges
-    // Most chord progressions span 3-5 octaves
-    const double estimatedChordProgressionRange =
-        4.0 * MusicalConstants.semitonesPerOctave; // 4 octaves in semitones
-
-    if (estimatedChordProgressionRange >= veryNarrowKeyThreshold) {
+    if (rangeSemitones >= veryNarrowKeyThreshold) {
       return veryNarrowKeyWidth;
-    } else if (estimatedChordProgressionRange >= narrowKeyThreshold) {
+    } else if (rangeSemitones >= narrowKeyThreshold) {
       return narrowKeyWidth;
     } else {
       return defaultKeyWidth;

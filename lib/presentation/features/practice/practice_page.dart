@@ -1,5 +1,4 @@
 import "package:flutter/material.dart";
-import "package:piano/piano.dart";
 import "package:provider/provider.dart";
 import "package:piano_fitness/presentation/constants/practice_constants.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
@@ -17,6 +16,7 @@ import "package:piano_fitness/presentation/widgets/practice_progress_display.dar
 import "package:piano_fitness/presentation/widgets/practice_settings_panel.dart";
 import "package:piano_fitness/presentation/utils/piano_accessibility_utils.dart";
 import "package:piano_fitness/presentation/theme/semantic_colors.dart";
+import "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard.dart";
 
 /// A comprehensive piano practice page with guided exercises and real-time feedback.
 ///
@@ -260,6 +260,7 @@ class _PracticePageViewState extends State<_PracticePageView> {
         animation: viewModel,
         builder: (context, child) {
           final highlightedNotes = viewModel.getDisplayHighlightedNotes();
+          final fingers = viewModel.currentStepFingers;
           final practiceRange = PianoRangeUtils.calculateFixed49KeyRange(
             viewModel.notesForRangeCalculation,
           );
@@ -267,23 +268,35 @@ class _PracticePageViewState extends State<_PracticePageView> {
           final dynamicKeyWidth = PianoRangeUtils.calculateScreenBasedKeyWidth(
             screenWidth,
           );
+          final colorScheme = Theme.of(context).colorScheme;
+          final keyVisuals = ValueNotifier<Map<int, PianoKeyVisual>>({
+            for (var i = 0; i < highlightedNotes.length; i++)
+              highlightedNotes[i]: PianoKeyVisual(
+                fill: colorScheme.primary,
+                label: fingers != null && i < fingers.length
+                    ? fingers[i].toString()
+                    : null,
+              ),
+          });
 
           return PianoAccessibilityUtils.createAccessiblePianoWrapper(
-            highlightedNotes: highlightedNotes,
+            highlightedMidiNotes: highlightedNotes,
             mode: PianoMode.practice,
             semanticLabel: AccessibilityLabels.piano.keyboardLabel(
               PianoMode.practice,
             ),
-            child: InteractivePiano(
+            child: PianoKeyboard(
               key: const Key("practice_interactive_piano"),
-              highlightedNotes: highlightedNotes,
+              range: practiceRange,
+              keyVisuals: keyVisuals,
+              noteLabelMode: NoteLabelMode.name,
+              showAnnotations: true,
               keyWidth: dynamicKeyWidth.clamp(
                 PianoRangeUtils.minKeyWidth,
                 PianoRangeUtils.maxKeyWidth,
               ),
-              noteRange: practiceRange,
-              onNotePositionTapped: (position) => viewModel
-                  .playVirtualNoteFromPosition(position, mounted: mounted),
+              onKeyDown: viewModel.onKeyDown,
+              onKeyUp: viewModel.onKeyUp,
             ),
           );
         },

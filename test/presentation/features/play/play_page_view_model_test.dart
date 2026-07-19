@@ -1,6 +1,6 @@
 import "dart:typed_data";
 import "package:flutter_test/flutter_test.dart";
-import "package:piano/piano.dart";
+import "package:mockito/mockito.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/presentation/features/play/play_page_view_model.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
@@ -48,12 +48,13 @@ void main() {
       expect(viewModel.midiState.selectedChannel, equals(5));
     });
 
-    test("should handle virtual note playing", () async {
+    test("should handle key down", () async {
       const testNote = 60;
 
-      // This test verifies the method doesn't throw
-      // In a real implementation, this would trigger MIDI output
-      await viewModel.playVirtualNote(testNote);
+      await viewModel.onKeyDown(testNote);
+
+      // initialChannel=5 → selectedChannel=5; default velocity=64.
+      verify(mockMidiRepository.sendNoteOn(testNote, 64, 5)).called(1);
 
       // Verify the last note message was set in local MIDI state
       expect(
@@ -62,15 +63,12 @@ void main() {
       );
     });
 
-    test("should play virtual note from NotePosition", () async {
-      // C5 = MIDI note 72 ((5+1)*12 + 0)
-      final position = NotePosition(note: Note.C, octave: 5);
-      await viewModel.playVirtualNoteFromPosition(position);
+    test("should handle key up", () async {
+      const testNote = 72;
+      await viewModel.onKeyUp(testNote);
 
-      expect(
-        viewModel.midiState.lastNote.contains("Virtual Note ON: 72"),
-        isTrue,
-      );
+      // initialChannel=5 → selectedChannel=5.
+      verify(mockMidiRepository.sendNoteOff(testNote, 5)).called(1);
     });
 
     test("should handle virtual note playing with local MIDI state", () async {
@@ -84,7 +82,7 @@ void main() {
       );
 
       // Should not crash and should work with local MIDI state
-      await expectLater(viewModelWithLocalState.playVirtualNote(60), completes);
+      await expectLater(viewModelWithLocalState.onKeyDown(60), completes);
 
       // Verify the note was processed in local state
       expect(

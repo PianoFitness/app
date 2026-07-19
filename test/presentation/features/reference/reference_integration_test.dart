@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:piano/piano.dart";
+import "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard.dart";
 import "package:piano_fitness/presentation/widgets/main_navigation.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "../../../shared/test_helpers/widget_test_helper.dart";
@@ -114,18 +114,26 @@ void main() {
       // Verify initial MIDI state is clean
       expect(midiState.activeNotes.isEmpty, isTrue);
 
-      // Select a specific scale
-      // Use warnIfMissed: false to suppress flaky hit-test warnings for UI elements
-      await tester.tap(
-        find.byKey(const Key("scales_key_a")),
-        warnIfMissed: false,
-      );
+      // Select a specific scale, scrolling each control into view first so
+      // the tap reliably lands on the intended chip rather than whatever
+      // happens to sit at that offset (e.g. the piano itself).
+      await tester.ensureVisible(find.byKey(const Key("scales_key_a")));
+      await tester.tap(find.byKey(const Key("scales_key_a")));
       await tester.pumpAndSettle();
-      await tester.tap(
-        find.byKey(const Key("scales_type_minor")),
-        warnIfMissed: false,
+      expect(
+        tester.widget<FilterChip>(find.byKey(const Key("scales_key_a"))).selected,
+        isTrue,
       );
+
+      await tester.ensureVisible(find.byKey(const Key("scales_type_minor")));
+      await tester.tap(find.byKey(const Key("scales_type_minor")));
       await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<FilterChip>(find.byKey(const Key("scales_type_minor")))
+            .selected,
+        isTrue,
+      );
 
       // The shared MIDI state should NOT be affected by reference page selections
       // (This prevents cross-page interference)
@@ -193,7 +201,7 @@ void main() {
       await tester.pumpAndSettle();
 
       // Should still be functional - verify UI is working
-      expect(find.byType(InteractivePiano), findsOneWidget);
+      expect(find.byType(PianoKeyboard), findsOneWidget);
       expect(find.text("Scale Type"), findsOneWidget);
 
       // Clean up any pending timers
@@ -249,7 +257,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // Should have functional UI (no longer testing shared MIDI state)
-        expect(find.byType(InteractivePiano), findsOneWidget);
+        expect(find.byType(PianoKeyboard), findsOneWidget);
       }
 
       // Wait for any pending async operations (e.g., MIDI activity timers)
@@ -333,7 +341,7 @@ void main() {
       expect(stopwatch.elapsedMilliseconds, lessThan(1000));
 
       // Should have functional UI (no longer testing specific MIDI state)
-      expect(find.byType(InteractivePiano), findsOneWidget);
+      expect(find.byType(PianoKeyboard), findsOneWidget);
 
       // Clean up any pending timers
       await tester.pumpAndSettle(const Duration(seconds: 2));

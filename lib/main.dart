@@ -27,6 +27,7 @@ import "package:piano_fitness/domain/repositories/settings_repository.dart";
 import "package:piano_fitness/domain/repositories/exercise_history_repository.dart";
 import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
 import "package:piano_fitness/presentation/constants/typography_constants.dart";
+import "package:piano_fitness/presentation/theme/piano_key_colors.dart";
 import "package:piano_fitness/presentation/theme/semantic_colors.dart";
 import "package:piano_fitness/presentation/widgets/profile_initializer.dart";
 
@@ -201,7 +202,10 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
         textTheme: _createTextTheme(),
-        extensions: const <ThemeExtension<dynamic>>[SemanticColors.light],
+        extensions: const <ThemeExtension<dynamic>>[
+          SemanticColors.light,
+          PianoKeyColors.light,
+        ],
       ),
       darkTheme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
@@ -210,7 +214,10 @@ class MyApp extends StatelessWidget {
         ),
         useMaterial3: true,
         textTheme: _createTextTheme(),
-        extensions: const <ThemeExtension<dynamic>>[SemanticColors.dark],
+        extensions: const <ThemeExtension<dynamic>>[
+          SemanticColors.dark,
+          PianoKeyColors.dark,
+        ],
       ),
       home: const ProfileInitializer(),
     );

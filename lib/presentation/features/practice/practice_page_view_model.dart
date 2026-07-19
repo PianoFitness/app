@@ -2,10 +2,10 @@ import "dart:async";
 
 import "package:flutter/foundation.dart";
 import "package:logging/logging.dart";
-import "package:piano/piano.dart";
 import "package:uuid/uuid.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/exercise_history_entry.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
@@ -20,7 +20,6 @@ import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/models/midi/midi_event.dart";
 import "package:piano_fitness/domain/models/music/arpeggio_type.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
-import "package:piano_fitness/application/utils/piano_note_bridge.dart";
 import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
 import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
 
@@ -57,7 +56,7 @@ class PracticePageViewModel extends ChangeNotifier {
   late final MidiSubscription _subscription;
 
   PracticeSession? _practiceSession;
-  List<NotePosition> _highlightedNotes = [];
+  List<int> _highlightedNotes = [];
 
   /// Global MIDI state shared across the app.
   MidiState get midiState => _midiState;
@@ -68,8 +67,8 @@ class PracticePageViewModel extends ChangeNotifier {
   /// Practice session instance for exercise management.
   PracticeSession? get practiceSession => _practiceSession;
 
-  /// Currently highlighted notes for piano display.
-  List<NotePosition> get highlightedNotes => _highlightedNotes;
+  /// Currently highlighted MIDI notes for piano display.
+  List<int> get highlightedNotes => _highlightedNotes;
 
   /// Current exercise configuration from the practice session.
   ///
@@ -80,7 +79,7 @@ class PracticePageViewModel extends ChangeNotifier {
   /// Initializes the practice session with required callbacks.
   void initializePracticeSession({
     required VoidCallback onExerciseCompleted,
-    required void Function(List<NotePosition>) onHighlightedNotesChanged,
+    required void Function(List<int> midiNotes) onHighlightedNotesChanged,
     PracticeMode initialMode = PracticeMode.scales,
     ChordProgression? initialChordProgression,
   }) {
@@ -92,7 +91,7 @@ class PracticePageViewModel extends ChangeNotifier {
         unawaited(_recordExerciseHistory(config));
         onExerciseCompleted();
       },
-      onHighlightedNotesChanged: (List<NotePosition> notes) {
+      onHighlightedNotesChanged: (List<int> notes) {
         _highlightedNotes = notes;
         onHighlightedNotesChanged(notes);
         notifyListeners();
@@ -279,39 +278,40 @@ class PracticePageViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Plays a virtual note through MIDI output and triggers practice session.
-  ///
-  /// The practice session handles its own auto-start logic when notes are pressed.
-  /// Validates that [note] is within the valid MIDI range (0-127) before forwarding.
-  Future<void> playVirtualNote(int note, {bool mounted = true}) async {
-    await VirtualPianoUtils.playVirtualNote(
-      note,
-      _midiRepository,
-      _midiState,
-      (note) => _practiceSession?.handleNotePressed(note),
-      mounted: mounted,
-    );
+  /// Handles a piano key press: triggers the practice session's own
+  /// auto-start/exercise-advance logic and sends a MIDI note-on.
+  Future<void> onKeyDown(int midiNote) async {
+    _practiceSession?.handleNotePressed(midiNote);
+    await VirtualPianoUtils.noteOn(midiNote, _midiRepository, _midiState);
+  }
+
+  /// Handles a piano key release: notifies the practice session and sends
+  /// a MIDI note-off.
+  Future<void> onKeyUp(int midiNote) async {
+    _practiceSession?.handleNoteReleased(midiNote);
+    await VirtualPianoUtils.noteOff(midiNote, _midiRepository, _midiState);
   }
 
   /// Calculates the appropriate highlighted notes for piano display.
-  List<NotePosition> getDisplayHighlightedNotes() {
+  List<int> getDisplayHighlightedNotes() {
     return _highlightedNotes.isNotEmpty
         ? _highlightedNotes
-        : _midiState.highlightedNotePositions;
+        : _midiState.activeNotes.toList();
   }
 
-  /// MIDI notes for piano range calculation, used by the view to compute display range.
-  List<int> get notesForRangeCalculation =>
+  /// Finger numbers for the current step's notes, aligned index-for-index
+  /// with [getDisplayHighlightedNotes]'s active-step notes. Returns `null`
+  /// when there's no active step (so the display fell back to raw MIDI
+  /// input notes) or the step has no fingering metadata.
+  List<int>? get currentStepFingers {
+    if (_highlightedNotes.isEmpty) return null;
+    final fingers = _practiceSession?.currentStep?.metadata?["fingers"];
+    return fingers is List ? fingers.cast<int>() : null;
+  }
+
+  /// Notes for piano range calculation, used by the view to compute display range.
+  List<MidiNote> get notesForRangeCalculation =>
       _practiceSession?.getNotesForRangeCalculation() ?? [];
-
-  /// Plays a virtual note from a NotePosition.
-  Future<void> playVirtualNoteFromPosition(
-    NotePosition position, {
-    bool mounted = true,
-  }) async {
-    final midiNote = PianoNoteBridge.convertNotePositionToMidi(position);
-    await playVirtualNote(midiNote, mounted: mounted);
-  }
 
   @override
   void dispose() {

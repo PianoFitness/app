@@ -1,7 +1,5 @@
 import "package:flutter/material.dart";
-import "package:piano/piano.dart";
 import "package:piano_fitness/presentation/accessibility/config/accessibility_labels.dart";
-import "package:piano_fitness/application/utils/piano_note_bridge.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 
 /// Service for generating piano-specific semantic descriptions and announcements.
@@ -12,14 +10,14 @@ class PianoSemanticsService {
   /// Creates a comprehensive semantic description for a piano keyboard.
   ///
   /// The [mode] determines the context-appropriate labeling.
-  /// The [highlightedNotes] are the currently highlighted/active notes.
+  /// The [highlightedMidiNotes] are the currently highlighted/active notes.
   /// Returns a complete description suitable for screen readers.
   static String getKeyboardDescription(
     PianoMode mode,
-    List<NotePosition> highlightedNotes,
+    List<int> highlightedMidiNotes,
   ) {
     final baseDescription = AccessibilityLabels.piano.keyboardLabel(mode);
-    final noteNames = highlightedNotes.map(_getNoteDisplayName).toList();
+    final noteNames = highlightedMidiNotes.map(_getNoteDisplayName).toList();
 
     if (noteNames.isEmpty) {
       return "$baseDescription. No notes highlighted.";
@@ -49,39 +47,35 @@ class PianoSemanticsService {
 
   /// Creates a semantic description for an individual piano key.
   ///
-  /// The [position] specifies the note position on the keyboard.
+  /// The [midiNote] specifies the note on the keyboard.
   /// The [isHighlighted] indicates if the key is currently highlighted.
   /// Returns a description suitable for individual key accessibility.
-  static String getKeyDescription(NotePosition position, bool isHighlighted) {
-    final noteName = _getNoteDisplayName(position);
+  static String getKeyDescription(int midiNote, bool isHighlighted) {
+    final noteName = _getNoteDisplayName(midiNote);
     return AccessibilityLabels.piano.keyDescription(noteName, isHighlighted);
   }
 
   /// Generates an announcement for highlighted notes changes.
   ///
   /// This is used for live region announcements when the highlighted notes change.
-  /// The [newHighlightedNotes] are the newly highlighted notes.
+  /// The [newHighlightedMidiNotes] are the newly highlighted notes.
   /// Returns a string suitable for announcing changes to screen readers.
-  static String getNotesChangeAnnouncement(
-    List<NotePosition> newHighlightedNotes,
-  ) {
-    final noteNames = newHighlightedNotes.map(_getNoteDisplayName).toList();
+  static String getNotesChangeAnnouncement(List<int> newHighlightedMidiNotes) {
+    final noteNames = newHighlightedMidiNotes.map(_getNoteDisplayName).toList();
 
     return AccessibilityLabels.piano.noteChange(noteNames);
   }
 
-  /// Converts a NotePosition to a human-readable display name.
+  /// Converts a MIDI note number to a human-readable display name.
   ///
-  /// This is an internal helper method that converts a NotePosition
+  /// This is an internal helper method that converts a MIDI note number
   /// to a string like "C4", "F#3", etc.
-  static String _getNoteDisplayName(NotePosition position) {
+  static String _getNoteDisplayName(int midiNote) {
     try {
-      final midiNumber = PianoNoteBridge.convertNotePositionToMidi(position);
-      final noteInfo = NoteUtils.midiNumberToNote(midiNumber);
-      return NoteUtils.noteDisplayName(noteInfo.note, noteInfo.octave);
+      return NoteUtils.midiNumberToNote(midiNote).displayName;
     } catch (e) {
-      // Fallback to basic note name if conversion fails
-      return "${position.note.name}${position.octave}";
+      // Fallback for out-of-range MIDI values.
+      return "note $midiNote";
     }
   }
 
@@ -90,17 +84,17 @@ class PianoSemanticsService {
   /// This is a convenience method that applies all appropriate semantic
   /// annotations for a piano keyboard in the given mode.
   ///
-  /// The [child] should be the InteractivePiano widget.
+  /// The [child] should be the PianoKeyboard widget.
   /// The [mode] determines the accessibility context.
-  /// The [highlightedNotes] are the currently highlighted notes.
+  /// The [highlightedMidiNotes] are the currently highlighted notes.
   static Widget createAccessibleWrapper({
     required Widget child,
     required PianoMode mode,
-    required List<NotePosition> highlightedNotes,
+    required List<int> highlightedMidiNotes,
   }) {
     final label = getKeyboardLabel(mode);
     final hint = getKeyboardHint(mode);
-    final description = getKeyboardDescription(mode, highlightedNotes);
+    final description = getKeyboardDescription(mode, highlightedMidiNotes);
 
     return Semantics(
       label: label,

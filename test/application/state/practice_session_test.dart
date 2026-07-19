@@ -4,7 +4,6 @@
 // following the circle of fifths when exercises are completed.
 
 import "package:flutter_test/flutter_test.dart";
-import "package:piano/piano.dart";
 
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/application/state/practice_session.dart";
@@ -17,7 +16,7 @@ import "package:piano_fitness/domain/services/music_theory/scales.dart"
 void main() {
   group("PracticeSession Auto Key Progression Tests", () {
     late PracticeSession practiceSession;
-    List<NotePosition> highlightedNotes = [];
+    List<int> highlightedNotes = [];
     int exerciseCompletionCount = 0;
 
     setUp(() {
@@ -389,7 +388,7 @@ void main() {
 
         // Start practice to get initial highlights
         practiceSession.startPractice();
-        final highlightsBefore = List<NotePosition>.from(highlightedNotes);
+        final highlightsBefore = List<int>.from(highlightedNotes);
         expect(highlightsBefore, isNotEmpty);
 
         // Complete and progress
@@ -397,7 +396,7 @@ void main() {
 
         // Start new practice after progression
         practiceSession.startPractice();
-        final highlightsAfter = List<NotePosition>.from(highlightedNotes);
+        final highlightsAfter = List<int>.from(highlightedNotes);
         expect(highlightsAfter, isNotEmpty);
 
         // Highlights should be different (different key)

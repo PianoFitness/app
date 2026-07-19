@@ -32,6 +32,14 @@ The Visual Feedback System provides real-time visual guidance and information du
 
 ### Key Visualization Class Structure
 
+> **Superseded:** the `KeyVisualization`/`KeyState` sketch below predates the
+> `PianoKeyboard` component. Per-key state is now modeled by `PianoKeyVisual`
+> (`fill`/`outline`/`dot`/`label`, independently composable, keyed by MIDI
+> note number) — see `docs/specifications/piano-keyboard-component.md`. The
+> caller/view-model resolves target/pressed/correct/incorrect into a single
+> `PianoKeyVisual` per note; the widget itself has no built-in notion of
+> `KeyState`.
+
 ```dart
 class KeyVisualization {
   Map<int, KeyState> keyStates; // MIDI note -> state

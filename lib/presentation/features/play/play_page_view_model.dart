@@ -1,9 +1,7 @@
 import "dart:async";
 import "package:flutter/foundation.dart";
-import "package:piano/piano.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
-import "package:piano_fitness/application/utils/piano_note_bridge.dart";
 import "package:piano_fitness/application/utils/virtual_piano_utils.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/models/midi/midi_event.dart";
@@ -61,26 +59,21 @@ class PlayPageViewModel extends ChangeNotifier {
     }
   }
 
-  /// Plays a virtual note through MIDI output.
-  Future<void> playVirtualNote(int note) async {
-    await VirtualPianoUtils.playVirtualNote(
-      note,
-      _midiRepository,
-      _midiState,
-      (_) {}, // No specific callback needed for play page
-    );
+  /// Handles a piano key press by sending a MIDI note-on.
+  Future<void> onKeyDown(int midiNote) async {
+    await VirtualPianoUtils.noteOn(midiNote, _midiRepository, _midiState);
   }
 
-  /// Converts a piano key tap to a MIDI note and plays it.
-  Future<void> playVirtualNoteFromPosition(NotePosition position) async {
-    final midiNote = PianoNoteBridge.convertNotePositionToMidi(position);
-    await playVirtualNote(midiNote);
+  /// Handles a piano key release by sending a MIDI note-off.
+  Future<void> onKeyUp(int midiNote) async {
+    await VirtualPianoUtils.noteOff(midiNote, _midiRepository, _midiState);
   }
 
   @override
   void dispose() {
     _midiState.removeListener(_forwardMidiStateChanges);
     _subscription.cancel();
+    unawaited(VirtualPianoUtils.dispose(_midiRepository));
     super.dispose();
   }
 }
