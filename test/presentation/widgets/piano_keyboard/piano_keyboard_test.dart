@@ -172,6 +172,101 @@ void main() {
     expect(events.length, 4);
   });
 
+  testWidgets(
+    "single pointer drifting while the other stays put is not mistaken "
+    "for a pan",
+    (tester) async {
+      final events = <String>[];
+      final keyVisuals = ValueNotifier<Map<int, PianoKeyVisual>>({});
+      await tester.pumpWidget(
+        buildKeyboard(
+          keyVisuals: keyVisuals,
+          onKeyDown: (m) => events.add("down:$m"),
+          onKeyUp: (m) => events.add("up:$m"),
+        ),
+      );
+
+      final gesture1 = await tester.startGesture(c4Offset);
+      await tester.pump();
+      final gesture2 = await tester.startGesture(d4Offset, pointer: 2);
+      await tester.pump();
+      expect(events, ["down:60", "down:62"]);
+
+      // Drift pointer1 well beyond the pan slop, but still inside C4 (x in
+      // [0, 100)); pointer2 never moves.
+      await gesture1.moveBy(const Offset(30, 0));
+      await tester.pump();
+
+      // A single drifting pointer must not be mistaken for a two-finger
+      // pan — that would have force-released both notes early.
+      expect(events, ["down:60", "down:62"]);
+
+      await gesture1.up();
+      await gesture2.up();
+      await tester.pump();
+      expect(events, containsAll(["up:60", "up:62"]));
+      expect(events.length, 4);
+    },
+  );
+
+  testWidgets(
+    "two pointers drifting together start a pan, release both notes, and "
+    "reset panning state for a later gesture",
+    (tester) async {
+      final events = <String>[];
+      final keyVisuals = ValueNotifier<Map<int, PianoKeyVisual>>({});
+      final controller = PianoKeyboardController();
+      addTearDown(controller.dispose);
+      const wideRange = MidiNoteRange(fromMidi: 36, toMidi: 84);
+
+      await tester.pumpWidget(
+        buildKeyboard(
+          keyVisuals: keyVisuals,
+          range: wideRange,
+          controller: controller,
+          onKeyDown: (m) => events.add("down:$m"),
+          onKeyUp: (m) => events.add("up:$m"),
+        ),
+      );
+      await tester.pump();
+      expect(controller.scrollController.offset, 0);
+
+      final gesture1 = await tester.startGesture(c4Offset);
+      await tester.pump();
+      final gesture2 = await tester.startGesture(d4Offset, pointer: 2);
+      await tester.pump();
+      expect(events, ["down:36", "down:38"]);
+
+      // Both pointers drift together, well beyond the pan slop.
+      await gesture1.moveBy(const Offset(-40, 0));
+      await tester.pump();
+      await gesture2.moveBy(const Offset(-40, 0));
+      await tester.pump();
+
+      // Coherent two-finger drift releases both held notes and pans the
+      // scroll view instead of retriggering/glissando-ing either key.
+      expect(events, ["down:36", "down:38", "up:36", "up:38"]);
+      expect(controller.scrollController.offset, greaterThan(0));
+
+      await gesture1.up();
+      await gesture2.up();
+      await tester.pump();
+      // No further events on release: both were already force-released
+      // when panning started.
+      expect(events, ["down:36", "down:38", "up:36", "up:38"]);
+
+      // Panning state must reset once every pointer is up: a later,
+      // independent tap behaves like a normal key press.
+      events.clear();
+      final gesture3 = await tester.startGesture(c4Offset);
+      await tester.pump();
+      expect(events, ["down:36"]);
+      await gesture3.up();
+      await tester.pump();
+      expect(events, ["down:36", "up:36"]);
+    },
+  );
+
   testWidgets("a PointerCancelEvent still emits onKeyUp (no stuck notes)", (
     tester,
   ) async {

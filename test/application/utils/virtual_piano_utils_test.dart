@@ -128,7 +128,9 @@ void main() {
         ).thenThrow(Exception("MIDI sendData failed"));
 
         await expectLater(VirtualPianoUtils.dispose(mockRepository), completes);
-        verify(mockRepository.sendData(any)).called(greaterThan(0));
+        // Each channel is wrapped in its own try/catch, so a failure on one
+        // channel must not stop the sweep over the remaining 15.
+        verify(mockRepository.sendData(any)).called(16);
       });
     });
 

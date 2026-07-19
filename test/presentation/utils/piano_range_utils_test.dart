@@ -223,6 +223,20 @@ void main() {
       expect(result, isNotNull);
     });
 
+    test(
+      "should fall back rather than clip when the exercise span exceeds "
+      "49 keys",
+      () {
+        // Span of 60 semitones (5 octaves) can't fit in a fixed 48-semitone
+        // (49-key) window, so every note can't be guaranteed visible.
+        final oversizedExercise = [30, 90].toMidiNotes();
+        final result = PianoRangeUtils.calculateFixed49KeyRange(
+          oversizedExercise,
+        );
+        expect(result, equals(PianoRangeUtils.standard49KeyRange));
+      },
+    );
+
     test("should clamp to piano range boundaries", () {
       // Exercise with extreme notes beyond piano range
       final extremeExercise = [21, 108].toMidiNotes(); // A0 and C8 (88-key limits)
@@ -351,11 +365,10 @@ void main() {
       expect(mediumWidth, greaterThan(0));
       expect(largeWidth, greaterThan(0));
 
-      // For now, with our simplified implementation, they should all be the same
-      // This test verifies the method works and returns reasonable values
-      expect(smallWidth, equals(PianoRangeUtils.narrowKeyWidth));
+      // Width narrows as the range widens, derived from the actual span.
+      expect(smallWidth, equals(PianoRangeUtils.defaultKeyWidth));
       expect(mediumWidth, equals(PianoRangeUtils.narrowKeyWidth));
-      expect(largeWidth, equals(PianoRangeUtils.narrowKeyWidth));
+      expect(largeWidth, equals(PianoRangeUtils.veryNarrowKeyWidth));
     });
   });
 }

@@ -36,6 +36,14 @@ void main() {
       expect(updated.label, "1");
     });
 
+    test("copyWith clears a field when explicitly passed null", () {
+      const visual = PianoKeyVisual(fill: Colors.red, label: "1");
+      final cleared = visual.copyWith(label: null);
+
+      expect(cleared.fill, Colors.red);
+      expect(cleared.label, isNull);
+    });
+
     test("has value equality", () {
       const a = PianoKeyVisual(fill: Colors.red, label: "1");
       const b = PianoKeyVisual(fill: Colors.red, label: "1");

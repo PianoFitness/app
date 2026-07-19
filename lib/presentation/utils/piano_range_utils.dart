@@ -273,6 +273,13 @@ class PianoRangeUtils {
     final minNote = midiValues.reduce((a, b) => a < b ? a : b);
     final maxNote = midiValues.reduce((a, b) => a > b ? a : b);
 
+    // A fixed 49-key (4-octave) window can't contain a wider span; return
+    // the fallback rather than silently clipping some exercise notes out
+    // of view.
+    if (maxNote - minNote > fixed49KeySemitones) {
+      return defaultFallback;
+    }
+
     // Calculate the center point of the exercise range
     final centerNote = (minNote + maxNote) ~/ 2;
 
@@ -357,21 +364,11 @@ class PianoRangeUtils {
   ///
   /// Returns the recommended key width in pixels.
   static double calculateOptimalKeyWidth(MidiNoteRange noteRange) {
-    // Calculate the range in semitones by accessing the range bounds
-    // Note: We'll use a simple estimation based on the note range span
-    // This is approximate but sufficient for key width calculation
+    final rangeSemitones = noteRange.toMidi - noteRange.fromMidi;
 
-    // For now, use a simple heuristic based on common ranges
-    // TODO(implementation): Implement proper NoteRange property access when available
-
-    // Estimate based on typical chord progression ranges
-    // Most chord progressions span 3-5 octaves
-    const double estimatedChordProgressionRange =
-        4.0 * MusicalConstants.semitonesPerOctave; // 4 octaves in semitones
-
-    if (estimatedChordProgressionRange >= veryNarrowKeyThreshold) {
+    if (rangeSemitones >= veryNarrowKeyThreshold) {
       return veryNarrowKeyWidth;
-    } else if (estimatedChordProgressionRange >= narrowKeyThreshold) {
+    } else if (rangeSemitones >= narrowKeyThreshold) {
       return narrowKeyWidth;
     } else {
       return defaultKeyWidth;

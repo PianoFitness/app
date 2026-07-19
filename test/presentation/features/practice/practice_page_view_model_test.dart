@@ -227,7 +227,7 @@ void main() {
 
     test("should play virtual note on key down", () async {
       // C5 = MIDI 72
-      await viewModel.onKeyDown(72, mounted: false);
+      await viewModel.onKeyDown(72);
 
       // initialChannel=3 → selectedChannel=3 → displayed as Ch: 4; velocity=64.
       expect(
@@ -258,7 +258,7 @@ void main() {
       );
 
       // Should not crash when no practice session is initialized
-      await uninitializedViewModel.onKeyDown(testNote, mounted: false);
+      await uninitializedViewModel.onKeyDown(testNote);
 
       uninitializedViewModel.dispose();
       uninitMidiState.dispose();

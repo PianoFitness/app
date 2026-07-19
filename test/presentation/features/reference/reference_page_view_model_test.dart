@@ -1,4 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:mockito/mockito.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/presentation/features/reference/reference_page_view_model.dart";
@@ -301,10 +302,7 @@ void main() {
         await viewModel.onKeyDown(72);
         await viewModel.onKeyUp(72);
 
-        expect(
-          viewModel.localMidiState.lastNote.contains("Virtual Note ON: 72"),
-          isTrue,
-        );
+        verify(mockMidiRepository.sendNoteOff(72, 0)).called(1);
       });
 
       test("should handle note playing with local MIDI state", () async {

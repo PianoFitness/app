@@ -278,20 +278,17 @@ class PracticePageViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Handles a piano key press: sends a MIDI note-on and triggers the
-  /// practice session's own auto-start/exercise-advance logic.
-  ///
-  /// The [mounted] flag prevents state updates after the calling widget
-  /// has been disposed.
-  Future<void> onKeyDown(int midiNote, {bool mounted = true}) async {
+  /// Handles a piano key press: triggers the practice session's own
+  /// auto-start/exercise-advance logic and sends a MIDI note-on.
+  Future<void> onKeyDown(int midiNote) async {
+    _practiceSession?.handleNotePressed(midiNote);
     await VirtualPianoUtils.noteOn(midiNote, _midiRepository, _midiState);
-    if (mounted) {
-      _practiceSession?.handleNotePressed(midiNote);
-    }
   }
 
-  /// Handles a piano key release by sending a MIDI note-off.
+  /// Handles a piano key release: notifies the practice session and sends
+  /// a MIDI note-off.
   Future<void> onKeyUp(int midiNote) async {
+    _practiceSession?.handleNoteReleased(midiNote);
     await VirtualPianoUtils.noteOff(midiNote, _midiRepository, _midiState);
   }
 

@@ -51,9 +51,10 @@ void main() {
     test("should handle key down", () async {
       const testNote = 60;
 
-      // This test verifies the method doesn't throw
-      // In a real implementation, this would trigger MIDI output
       await viewModel.onKeyDown(testNote);
+
+      // initialChannel=5 → selectedChannel=5; default velocity=64.
+      verify(mockMidiRepository.sendNoteOn(testNote, 64, 5)).called(1);
 
       // Verify the last note message was set in local MIDI state
       expect(

@@ -1,7 +1,10 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:mockito/mockito.dart";
 import "package:piano_fitness/presentation/features/play/play_page.dart";
+import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
 import "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard.dart";
+import "../../../shared/test_helpers/mock_repositories.mocks.dart";
 import "../../../shared/test_helpers/widget_test_helper.dart";
 import "../../../shared/midi_mocks.dart";
 
@@ -54,25 +57,38 @@ void main() {
       final pianoFinder = find.byType(PianoKeyboard);
       expect(pianoFinder, findsOneWidget);
 
-      // Verify the piano uses the 49-key range from ViewModel
+      // Verify the piano uses the fixed 49-key (C2-C6) range from ViewModel
       final piano = tester.widget<PianoKeyboard>(pianoFinder);
-      expect(piano.range, isNotNull);
+      expect(piano.range, equals(PianoRangeUtils.standard49KeyRange));
     });
 
     testWidgets("should handle virtual note playing through ViewModel", (
       tester,
     ) async {
-      await tester.pumpWidget(createTestWidget(const PlayPage()));
+      final mockMidiRepository = MockIMidiRepository();
+      await tester.pumpWidget(
+        createTestWidgetWithMocks(
+          child: const PlayPage(),
+          midiRepository: mockMidiRepository,
+        ),
+      );
       await tester.pump();
 
-      // Find the PianoKeyboard and verify callbacks are set
       final pianoFinder = find.byType(PianoKeyboard);
       expect(pianoFinder, findsOneWidget);
 
       final piano = tester.widget<PianoKeyboard>(pianoFinder);
       expect(piano.onKeyDown, isNotNull);
       expect(piano.onKeyUp, isNotNull);
-      expect(piano.range, isNotNull);
+
+      // Triggering the callbacks should actually reach the MIDI repository.
+      piano.onKeyDown!(60);
+      await tester.pump();
+      verify(mockMidiRepository.sendNoteOn(60, 64, 0)).called(1);
+
+      piano.onKeyUp!(60);
+      await tester.pump();
+      verify(mockMidiRepository.sendNoteOff(60, 0)).called(1);
     });
 
     testWidgets("should integrate with MidiState through ViewModel", (

@@ -87,9 +87,7 @@ class PianoAccessibilityUtils {
       label: label,
       hint: AccessibilityLabels.piano.keyboardHint(mode),
       container: true,
-      child: ExcludeSemantics(
-        child: Semantics(liveRegion: true, value: description, child: child),
-      ),
+      child: Semantics(liveRegion: true, value: description, child: child),
     );
   }
 

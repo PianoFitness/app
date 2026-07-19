@@ -73,6 +73,7 @@ class PlayPageViewModel extends ChangeNotifier {
   void dispose() {
     _midiState.removeListener(_forwardMidiStateChanges);
     _subscription.cancel();
+    unawaited(VirtualPianoUtils.dispose(_midiRepository));
     super.dispose();
   }
 }

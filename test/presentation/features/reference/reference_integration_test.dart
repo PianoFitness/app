@@ -114,18 +114,26 @@ void main() {
       // Verify initial MIDI state is clean
       expect(midiState.activeNotes.isEmpty, isTrue);
 
-      // Select a specific scale
-      // Use warnIfMissed: false to suppress flaky hit-test warnings for UI elements
-      await tester.tap(
-        find.byKey(const Key("scales_key_a")),
-        warnIfMissed: false,
-      );
+      // Select a specific scale, scrolling each control into view first so
+      // the tap reliably lands on the intended chip rather than whatever
+      // happens to sit at that offset (e.g. the piano itself).
+      await tester.ensureVisible(find.byKey(const Key("scales_key_a")));
+      await tester.tap(find.byKey(const Key("scales_key_a")));
       await tester.pumpAndSettle();
-      await tester.tap(
-        find.byKey(const Key("scales_type_minor")),
-        warnIfMissed: false,
+      expect(
+        tester.widget<FilterChip>(find.byKey(const Key("scales_key_a"))).selected,
+        isTrue,
       );
+
+      await tester.ensureVisible(find.byKey(const Key("scales_type_minor")));
+      await tester.tap(find.byKey(const Key("scales_type_minor")));
       await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<FilterChip>(find.byKey(const Key("scales_type_minor")))
+            .selected,
+        isTrue,
+      );
 
       // The shared MIDI state should NOT be affected by reference page selections
       // (This prevents cross-page interference)
@@ -137,12 +145,6 @@ void main() {
 
       // The MIDI state should still be clean (no interference from reference page)
       expect(midiState.activeNotes.isEmpty, isTrue);
-
-      // The scale/key taps above use warnIfMissed: false because their
-      // targets can sit outside the test viewport, which occasionally
-      // routes the tap to the piano's own local MidiState instead and
-      // starts its 1s activity timer; let it settle before teardown.
-      await tester.pump(const Duration(seconds: 2));
     });
 
     testWidgets("should handle rapid mode switching", (tester) async {

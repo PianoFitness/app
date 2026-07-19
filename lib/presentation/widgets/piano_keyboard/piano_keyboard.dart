@@ -89,6 +89,7 @@ class _PianoKeyboardState extends State<PianoKeyboard> {
 
   final Map<int, int?> _pointerKeys = {};
   final Map<int, Offset> _pointerDownPositions = {};
+  final Map<int, Offset> _pointerCurrentPositions = {};
   final Set<int> _slidOffPointers = {};
   bool _isPanning = false;
 
@@ -109,6 +110,16 @@ class _PianoKeyboardState extends State<PianoKeyboard> {
 
   @override
   void dispose() {
+    for (final midi in _pointerKeys.values) {
+      if (midi != null) {
+        widget.onKeyUp?.call(midi);
+      }
+    }
+    _pointerKeys.clear();
+    _pointerDownPositions.clear();
+    _pointerCurrentPositions.clear();
+    _slidOffPointers.clear();
+    _isPanning = false;
     _detachController();
     super.dispose();
   }
@@ -186,23 +197,39 @@ class _PianoKeyboardState extends State<PianoKeyboard> {
 
   void _handlePointerDown(PointerDownEvent event, PianoKeyboardLayout layout) {
     _pointerDownPositions[event.pointer] = event.localPosition;
+    _pointerCurrentPositions[event.pointer] = event.localPosition;
+    if (_isPanning) {
+      // Don't record a key for pointers that arrive mid-pan: there was no
+      // matching onKeyDown, so release must not emit a stray onKeyUp.
+      _pointerKeys[event.pointer] = null;
+      return;
+    }
     final midi = layout.hitTest(_toContentPosition(event.localPosition));
     _pointerKeys[event.pointer] = midi;
-    if (midi != null && !_isPanning) {
+    if (midi != null) {
       widget.onKeyDown?.call(midi);
     }
   }
 
   void _handlePointerMove(PointerMoveEvent event, PianoKeyboardLayout layout) {
     if (!_pointerKeys.containsKey(event.pointer)) return;
+    _pointerCurrentPositions[event.pointer] = event.localPosition;
 
     // Multiple concurrent pointers that drift together read as a
     // two-finger pan rather than independent glissandos; a small slop
     // avoids misreading stationary-chord jitter as the start of a pan.
+    // Requiring every active pointer (not just the one that just moved)
+    // to have drifted keeps an independent single-finger glissando from
+    // being misread as the start of a pan.
     if (!_isPanning && _pointerKeys.length >= 2) {
-      final downPosition = _pointerDownPositions[event.pointer];
-      if (downPosition != null &&
-          (event.localPosition - downPosition).distance > _panSlop) {
+      final allPointersDrifted = _pointerKeys.keys.every((pointer) {
+        final down = _pointerDownPositions[pointer];
+        final current = _pointerCurrentPositions[pointer];
+        return down != null &&
+            current != null &&
+            (current - down).distance > _panSlop;
+      });
+      if (allPointersDrifted) {
         _startPanning();
       }
     }
@@ -264,6 +291,7 @@ class _PianoKeyboardState extends State<PianoKeyboard> {
   void _releasePointer(int pointer) {
     final midi = _pointerKeys.remove(pointer);
     _pointerDownPositions.remove(pointer);
+    _pointerCurrentPositions.remove(pointer);
     _slidOffPointers.remove(pointer);
     if (midi != null) {
       widget.onKeyUp?.call(midi);

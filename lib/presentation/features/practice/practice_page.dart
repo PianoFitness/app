@@ -295,8 +295,7 @@ class _PracticePageViewState extends State<_PracticePageView> {
                 PianoRangeUtils.minKeyWidth,
                 PianoRangeUtils.maxKeyWidth,
               ),
-              onKeyDown: (midiNote) =>
-                  viewModel.onKeyDown(midiNote, mounted: mounted),
+              onKeyDown: viewModel.onKeyDown,
               onKeyUp: viewModel.onKeyUp,
             ),
           );

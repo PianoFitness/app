@@ -28,18 +28,24 @@ class PianoKeyVisual {
   /// with an ellipsis when rendered.
   final String? label;
 
-  /// Returns a copy with the given fields replaced.
+  /// Sentinel distinguishing an omitted [copyWith] argument from an
+  /// explicit `null` (which clears that field).
+  static const _unset = Object();
+
+  /// Returns a copy with the given fields replaced. Passing `null`
+  /// explicitly clears a field; omitting an argument keeps its current
+  /// value.
   PianoKeyVisual copyWith({
-    Color? fill,
-    Color? outline,
-    Color? dot,
-    String? label,
+    Object? fill = _unset,
+    Object? outline = _unset,
+    Object? dot = _unset,
+    Object? label = _unset,
   }) {
     return PianoKeyVisual(
-      fill: fill ?? this.fill,
-      outline: outline ?? this.outline,
-      dot: dot ?? this.dot,
-      label: label ?? this.label,
+      fill: identical(fill, _unset) ? this.fill : fill as Color?,
+      outline: identical(outline, _unset) ? this.outline : outline as Color?,
+      dot: identical(dot, _unset) ? this.dot : dot as Color?,
+      label: identical(label, _unset) ? this.label : label as String?,
     );
   }
 

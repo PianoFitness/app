@@ -236,6 +236,7 @@ class ReferencePageViewModel extends ChangeNotifier {
     // Clear reference display when disposing
     deactivateReferenceDisplay();
     _subscription.cancel();
+    unawaited(VirtualPianoUtils.dispose(_midiRepository));
     super.dispose();
   }
 }
