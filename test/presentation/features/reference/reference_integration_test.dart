@@ -6,81 +6,10 @@ import "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard
 import "package:piano_fitness/presentation/features/reference/reference_page_view_model.dart";
 import "package:piano_fitness/presentation/widgets/main_navigation.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
+import "../../../shared/test_helpers/dropdown_test_helpers.dart";
+import "../../../shared/test_helpers/pump_helpers.dart";
 import "../../../shared/test_helpers/widget_test_helper.dart";
 import "../../../shared/midi_mocks.dart";
-
-/// Pumps [widget] at a portrait phone size.
-///
-/// The default flutter_test viewport (800x600) is landscape-shaped, but
-/// these tests assert on the portrait bottom-nav-bar layout, so they need
-/// an explicit portrait size rather than the test default.
-Future<void> pumpPortrait(WidgetTester tester, Widget widget) async {
-  tester.view.physicalSize = const Size(390, 844);
-  tester.view.devicePixelRatio = 1.0;
-  addTearDown(tester.view.resetPhysicalSize);
-  addTearDown(tester.view.resetDevicePixelRatio);
-  await tester.pumpWidget(widget);
-  await tester.pumpAndSettle();
-}
-
-/// Selects [mode] via the reference page's mode dropdown.
-///
-/// The dropdowns in the reference page's configuration row are addressed
-/// by their generic runtime type (each type appears at most once), and
-/// exercised by calling `onChanged` directly rather than opening the
-/// dropdown menu overlay and tapping option text, matching this project's
-/// convention of avoiding brittle `find.text()`-based interactions.
-Future<void> selectReferenceMode(
-  WidgetTester tester,
-  ReferenceMode mode,
-) async {
-  final dropdown = tester.widget<DropdownButtonFormField<ReferenceMode>>(
-    find.byType(DropdownButtonFormField<ReferenceMode>),
-  );
-  dropdown.onChanged!(mode);
-  await tester.pumpAndSettle();
-}
-
-Future<void> selectReferenceKey(WidgetTester tester, scales.Key key) async {
-  final dropdown = tester.widget<DropdownButtonFormField<scales.Key>>(
-    find.byType(DropdownButtonFormField<scales.Key>),
-  );
-  dropdown.onChanged!(key);
-  await tester.pumpAndSettle();
-}
-
-Future<void> selectReferenceScaleType(
-  WidgetTester tester,
-  scales.ScaleType type,
-) async {
-  final dropdown = tester.widget<DropdownButtonFormField<scales.ScaleType>>(
-    find.byType(DropdownButtonFormField<scales.ScaleType>),
-  );
-  dropdown.onChanged!(type);
-  await tester.pumpAndSettle();
-}
-
-Future<void> selectReferenceChordType(
-  WidgetTester tester,
-  ChordType type,
-) async {
-  final dropdown = tester.widget<DropdownButtonFormField<ChordType>>(
-    find.byType(DropdownButtonFormField<ChordType>),
-  );
-  dropdown.onChanged!(type);
-  await tester.pumpAndSettle();
-}
-
-Future<void> selectReferenceChordInversion(
-  WidgetTester tester,
-  ChordInversion inversion,
-) async {
-  final dropdown = tester.widget<DropdownButtonFormField<ChordInversion>>(
-    find.byType(DropdownButtonFormField<ChordInversion>),
-  );
-  dropdown.onChanged!(inversion);
-  await tester.pumpAndSettle();
-}
 
 void main() {
   setUpAll(MidiMocks.setUp);
@@ -155,8 +84,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Change to chords mode and select F#
-      await selectReferenceMode(tester, ReferenceMode.chordTypes);
-      await selectReferenceKey(tester, scales.Key.fSharp);
+      await selectDropdownValue(tester, ReferenceMode.chordTypes);
+      await selectDropdownValue(tester, scales.Key.fSharp);
 
       // Switch to another tab and back
       await tester.tap(find.byKey(const Key("nav_tab_practice")));
@@ -191,13 +120,13 @@ void main() {
       expect(midiState.activeNotes.isEmpty, isTrue);
 
       // Select a specific scale
-      await selectReferenceKey(tester, scales.Key.a);
+      await selectDropdownValue(tester, scales.Key.a);
       final keyDropdown = tester.widget<DropdownButtonFormField<scales.Key>>(
         find.byType(DropdownButtonFormField<scales.Key>),
       );
       expect(keyDropdown.initialValue, scales.Key.a);
 
-      await selectReferenceScaleType(tester, scales.ScaleType.minor);
+      await selectDropdownValue(tester, scales.ScaleType.minor);
       final scaleTypeDropdown = tester
           .widget<DropdownButtonFormField<scales.ScaleType>>(
             find.byType(DropdownButtonFormField<scales.ScaleType>),
@@ -225,8 +154,8 @@ void main() {
 
       // Rapidly switch between modes
       for (int i = 0; i < 5; i++) {
-        await selectReferenceMode(tester, ReferenceMode.chordTypes);
-        await selectReferenceMode(tester, ReferenceMode.scales);
+        await selectDropdownValue(tester, ReferenceMode.chordTypes);
+        await selectDropdownValue(tester, ReferenceMode.scales);
       }
 
       await tester.pumpAndSettle();
@@ -252,7 +181,7 @@ void main() {
         scales.Key.e,
         scales.Key.f,
       ]) {
-        await selectReferenceKey(tester, key);
+        await selectDropdownValue(tester, key);
       }
 
       // Rapidly change scale types
@@ -260,7 +189,7 @@ void main() {
         scales.ScaleType.major,
         scales.ScaleType.minor,
       ]) {
-        await selectReferenceScaleType(tester, scaleType);
+        await selectDropdownValue(tester, scaleType);
       }
 
       await tester.pumpAndSettle();
@@ -286,12 +215,12 @@ void main() {
       await tester.pumpAndSettle();
 
       // Switch to chords mode
-      await selectReferenceMode(tester, ReferenceMode.chordTypes);
+      await selectDropdownValue(tester, ReferenceMode.chordTypes);
 
       // Test a key combination
-      await selectReferenceKey(tester, scales.Key.c);
-      await selectReferenceChordType(tester, ChordType.major);
-      await selectReferenceChordInversion(tester, ChordInversion.root);
+      await selectDropdownValue(tester, scales.Key.c);
+      await selectDropdownValue(tester, ChordType.major);
+      await selectDropdownValue(tester, ChordInversion.root);
 
       // Should have functional UI (no longer testing shared MIDI state)
       expect(find.byType(PianoKeyboard), findsOneWidget);
@@ -357,8 +286,8 @@ void main() {
 
       final stopwatch = Stopwatch()..start();
 
-      await selectReferenceKey(tester, scales.Key.fSharp);
-      await selectReferenceScaleType(tester, scales.ScaleType.lydian);
+      await selectDropdownValue(tester, scales.Key.fSharp);
+      await selectDropdownValue(tester, scales.ScaleType.lydian);
       await tester.pumpAndSettle();
 
       stopwatch.stop();
@@ -382,11 +311,11 @@ void main() {
       await tester.pumpAndSettle();
 
       // Switch to chords mode
-      await selectReferenceMode(tester, ReferenceMode.chordTypes);
+      await selectDropdownValue(tester, ReferenceMode.chordTypes);
 
       final stopwatch = Stopwatch()..start();
 
-      await selectReferenceChordInversion(tester, ChordInversion.first);
+      await selectDropdownValue(tester, ChordInversion.first);
       await tester.pumpAndSettle();
 
       stopwatch.stop();

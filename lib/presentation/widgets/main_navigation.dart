@@ -54,7 +54,7 @@ class _MainNavigationState extends State<MainNavigation> {
   ];
 
   /// Stable keys for each tab's icon, shared between the bottom nav bar
-  /// (portrait) and navigation rail (landscape) so tests can find a tab
+  /// (portrait) and navigation drawer (landscape) so tests can find a tab
   /// regardless of which layout is active.
   static const List<Key> _tabKeys = [
     Key("nav_tab_free_play"),

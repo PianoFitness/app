@@ -1,20 +1,16 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/presentation/widgets/main_navigation.dart";
+import "../../shared/test_helpers/pump_helpers.dart";
 import "../../shared/test_helpers/widget_test_helper.dart";
 
 /// Pumps [MainNavigation] at a portrait phone size.
 ///
-/// The default flutter_test viewport (800x600) is landscape-shaped, but
-/// most of these tests assert on the portrait bottom-nav-bar layout, so
-/// they need an explicit portrait size rather than the test default.
+/// Most of these tests assert on the portrait bottom-nav-bar layout, so
+/// they need an explicit portrait size rather than the test default; see
+/// [pumpPortrait] for why.
 Future<void> pumpPortraitMainNavigation(WidgetTester tester) async {
-  tester.view.physicalSize = const Size(390, 844);
-  tester.view.devicePixelRatio = 1.0;
-  addTearDown(tester.view.resetPhysicalSize);
-  addTearDown(tester.view.resetDevicePixelRatio);
-  await tester.pumpWidget(createTestWidget(const MainNavigation()));
-  await tester.pumpAndSettle();
+  await pumpPortrait(tester, createTestWidget(const MainNavigation()));
 }
 
 /// Helper function to navigate to a specific tab by key.

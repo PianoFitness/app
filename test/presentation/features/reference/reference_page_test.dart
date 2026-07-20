@@ -6,6 +6,7 @@ import "package:piano_fitness/domain/models/music/scale_types.dart" as scales;
 import "package:piano_fitness/presentation/features/reference/reference_page.dart";
 import "package:piano_fitness/presentation/features/reference/reference_page_view_model.dart";
 import "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard.dart";
+import "../../../shared/test_helpers/dropdown_test_helpers.dart";
 import "../../../shared/test_helpers/mock_repositories.mocks.dart";
 import "../../../shared/test_helpers/widget_test_helper.dart";
 import "../../../shared/midi_mocks.dart";
@@ -16,57 +17,6 @@ void main() {
   tearDownAll(MidiMocks.tearDown);
 
   group("ReferencePage Widget Tests", () {
-    // The configuration row uses DropdownButtonFormField, one per generic
-    // type, so each is uniquely addressable by its runtime type rather than
-    // by label/value text (which changes as selections change).
-    Future<void> selectMode(WidgetTester tester, ReferenceMode mode) async {
-      final dropdown = tester.widget<DropdownButtonFormField<ReferenceMode>>(
-        find.byType(DropdownButtonFormField<ReferenceMode>),
-      );
-      dropdown.onChanged!(mode);
-      await tester.pumpAndSettle();
-    }
-
-    Future<void> selectKey(WidgetTester tester, scales.Key key) async {
-      final dropdown = tester.widget<DropdownButtonFormField<scales.Key>>(
-        find.byType(DropdownButtonFormField<scales.Key>),
-      );
-      dropdown.onChanged!(key);
-      await tester.pumpAndSettle();
-    }
-
-    Future<void> selectScaleType(
-      WidgetTester tester,
-      scales.ScaleType type,
-    ) async {
-      final dropdown = tester
-          .widget<DropdownButtonFormField<scales.ScaleType>>(
-            find.byType(DropdownButtonFormField<scales.ScaleType>),
-          );
-      dropdown.onChanged!(type);
-      await tester.pumpAndSettle();
-    }
-
-    Future<void> selectChordType(WidgetTester tester, ChordType type) async {
-      final dropdown = tester.widget<DropdownButtonFormField<ChordType>>(
-        find.byType(DropdownButtonFormField<ChordType>),
-      );
-      dropdown.onChanged!(type);
-      await tester.pumpAndSettle();
-    }
-
-    Future<void> selectChordInversion(
-      WidgetTester tester,
-      ChordInversion inversion,
-    ) async {
-      final dropdown = tester
-          .widget<DropdownButtonFormField<ChordInversion>>(
-            find.byType(DropdownButtonFormField<ChordInversion>),
-          );
-      dropdown.onChanged!(inversion);
-      await tester.pumpAndSettle();
-    }
-
     testWidgets("should display reference page with initial content", (
       tester,
     ) async {
@@ -108,7 +58,7 @@ void main() {
       );
       expect(find.byType(DropdownButtonFormField<ChordType>), findsNothing);
 
-      await selectMode(tester, ReferenceMode.chordTypes);
+      await selectDropdownValue(tester, ReferenceMode.chordTypes);
 
       expect(
         find.byType(DropdownButtonFormField<scales.ScaleType>),
@@ -120,7 +70,7 @@ void main() {
         findsOneWidget,
       );
 
-      await selectMode(tester, ReferenceMode.scales);
+      await selectDropdownValue(tester, ReferenceMode.scales);
 
       expect(
         find.byType(DropdownButtonFormField<scales.ScaleType>),
@@ -133,7 +83,7 @@ void main() {
       await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
-      await selectKey(tester, scales.Key.fSharp);
+      await selectDropdownValue(tester, scales.Key.fSharp);
 
       final keyDropdown = tester.widget<DropdownButtonFormField<scales.Key>>(
         find.byType(DropdownButtonFormField<scales.Key>),
@@ -147,7 +97,7 @@ void main() {
       await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
-      await selectScaleType(tester, scales.ScaleType.minor);
+      await selectDropdownValue(tester, scales.ScaleType.minor);
 
       final typeDropdown = tester
           .widget<DropdownButtonFormField<scales.ScaleType>>(
@@ -162,8 +112,8 @@ void main() {
       await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
-      await selectMode(tester, ReferenceMode.chordTypes);
-      await selectChordType(tester, ChordType.minor);
+      await selectDropdownValue(tester, ReferenceMode.chordTypes);
+      await selectDropdownValue(tester, ChordType.minor);
 
       final typeDropdown = tester.widget<DropdownButtonFormField<ChordType>>(
         find.byType(DropdownButtonFormField<ChordType>),
@@ -177,8 +127,8 @@ void main() {
       await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
-      await selectMode(tester, ReferenceMode.chordTypes);
-      await selectChordInversion(tester, ChordInversion.first);
+      await selectDropdownValue(tester, ReferenceMode.chordTypes);
+      await selectDropdownValue(tester, ChordInversion.first);
 
       final inversionDropdown = tester
           .widget<DropdownButtonFormField<ChordInversion>>(
@@ -200,7 +150,7 @@ void main() {
       await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
-      await selectScaleType(tester, scales.ScaleType.minor);
+      await selectDropdownValue(tester, scales.ScaleType.minor);
 
       expect(find.byType(PianoKeyboard), findsOneWidget);
 
@@ -217,8 +167,8 @@ void main() {
       await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
-      await selectMode(tester, ReferenceMode.chordTypes);
-      await selectChordType(tester, ChordType.minor);
+      await selectDropdownValue(tester, ReferenceMode.chordTypes);
+      await selectDropdownValue(tester, ChordType.minor);
 
       expect(find.byType(PianoKeyboard), findsOneWidget);
 
