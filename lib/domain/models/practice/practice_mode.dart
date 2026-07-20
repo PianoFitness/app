@@ -5,6 +5,9 @@
 /// - [chordsByKey]: Practice individual chord triads and inversions
 /// - [chordsByType]: Practice specific chord types (major, minor, diminished, augmented)
 /// - [arpeggios]: Practice broken chord patterns across octaves
+/// - [blockChords]: Practice a single root's chord tones as blocked
+///   (simultaneous) steps across octaves — the blocked counterpart to
+///   [arpeggios]' broken texture
 /// - [chordProgressions]: Practice chord progressions using roman numeral notation
 enum PracticeMode {
   /// Practice scales in various keys and modes
@@ -18,6 +21,9 @@ enum PracticeMode {
 
   /// Practice arpeggio patterns across multiple octaves
   arpeggios,
+
+  /// Practice a single root's chord tones as blocked chords across octaves
+  blockChords,
 
   /// Practice chord progressions using roman numeral notation
   chordProgressions,

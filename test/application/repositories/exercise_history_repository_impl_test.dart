@@ -3,6 +3,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/application/database/app_database.dart";
 import "package:piano_fitness/application/repositories/exercise_history_repository_impl.dart";
 import "package:piano_fitness/application/repositories/user_profile_repository_impl.dart";
+import "package:piano_fitness/domain/models/music/chord_tone_pattern.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/exercise_history_entry.dart";
@@ -241,6 +242,62 @@ void main() {
       expect(restored.arpeggioOctaves, equals(ArpeggioOctaves.two));
     });
 
+    test(
+      "should round-trip a rolling arpeggio with left-hand root and 3/4 octaves",
+      () async {
+        final config = ExerciseConfiguration(
+          practiceMode: PracticeMode.arpeggios,
+          handSelection: HandSelection.right,
+          musicalNote: MusicalNote.e,
+          arpeggioType: ArpeggioType.minor7,
+          arpeggioOctaves: ArpeggioOctaves.four,
+          pattern: ChordTonePattern.rolling,
+          includeLeftHandRoot: true,
+        );
+        await repository.saveEntry(
+          makeEntry(
+            id: "arpeggios-rolling",
+            profileId: testProfileId,
+            config: config,
+          ),
+        );
+
+        final results = await repository.getEntriesForProfile(testProfileId);
+        final restored = results.first;
+
+        expect(restored.arpeggioOctaves, equals(ArpeggioOctaves.four));
+        expect(restored.pattern, equals(ChordTonePattern.rolling));
+        expect(restored.includeLeftHandRoot, isTrue);
+      },
+    );
+
+    test("should round-trip blockChords configuration", () async {
+      final config = ExerciseConfiguration(
+        practiceMode: PracticeMode.blockChords,
+        handSelection: HandSelection.both,
+        musicalNote: MusicalNote.f,
+        arpeggioType: ArpeggioType.dominant7,
+        arpeggioOctaves: ArpeggioOctaves.three,
+        pattern: ChordTonePattern.rolling,
+      );
+      await repository.saveEntry(
+        makeEntry(
+          id: "block-chords",
+          profileId: testProfileId,
+          config: config,
+        ),
+      );
+
+      final results = await repository.getEntriesForProfile(testProfileId);
+      final restored = results.first;
+
+      expect(restored.practiceMode, equals(PracticeMode.blockChords));
+      expect(restored.musicalNote, equals(MusicalNote.f));
+      expect(restored.arpeggioType, equals(ArpeggioType.dominant7));
+      expect(restored.arpeggioOctaves, equals(ArpeggioOctaves.three));
+      expect(restored.pattern, equals(ChordTonePattern.rolling));
+    });
+
     test("should preserve nullable fields as null when not set", () async {
       final config = ExerciseConfiguration(
         practiceMode: PracticeMode.chordsByType,
@@ -261,6 +318,10 @@ void main() {
       // arpeggioOctaves defaults to ArpeggioOctaves.one in ExerciseConfiguration,
       // so the DB always stores "one" (not null) and the mapper returns ArpeggioOctaves.one.
       expect(restored.arpeggioOctaves, equals(ArpeggioOctaves.one));
+      // pattern defaults to ChordTonePattern.straight in ExerciseConfiguration,
+      // so the DB always stores "straight" (not null).
+      expect(restored.pattern, equals(ChordTonePattern.straight));
+      expect(restored.includeLeftHandRoot, isFalse);
       expect(restored.chordProgressionId, isNull);
     });
 

@@ -1,3 +1,4 @@
+import "package:piano_fitness/domain/models/music/chord_tone_pattern.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/models/practice/exercise.dart";
@@ -5,23 +6,29 @@ import "package:piano_fitness/domain/models/practice/strategies/practice_strateg
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/fingering_hints.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
+import "package:piano_fitness/domain/services/music_theory/tone_pattern.dart";
 
 /// Strategy for initializing arpeggio practice sequences.
 ///
 /// Generates arpeggio sequences based on the root note, arpeggio type,
-/// octave range, and hand selection.
+/// octave range, hand selection, and chord-tone pattern.
 class ArpeggiosStrategy implements PracticeStrategy {
   /// Creates an arpeggios strategy.
   ///
   /// Requires [rootNote] for the starting pitch, [arpeggioType] for the
   /// chord quality, [arpeggioOctaves] for the range, [handSelection] for
-  /// which hand(s) to practice, and [startOctave] for the base octave.
+  /// which hand(s) to practice, [startOctave] for the base octave,
+  /// [pattern] for the chord-tone pattern, and [includeLeftHandRoot] for
+  /// whether the left hand taps the chord root once per rolling group
+  /// (right-hand, rolling patterns only — a no-op otherwise).
   const ArpeggiosStrategy({
     required this.rootNote,
     required this.arpeggioType,
     required this.arpeggioOctaves,
     required this.handSelection,
     required this.startOctave,
+    required this.pattern,
+    required this.includeLeftHandRoot,
   });
 
   /// The root note for the arpeggio.
@@ -39,8 +46,22 @@ class ArpeggiosStrategy implements PracticeStrategy {
   /// The starting octave for the arpeggio.
   final int startOctave;
 
+  /// Whether the arpeggio ascends in root position ([ChordTonePattern.straight])
+  /// or continuously rotates through chord-tone inversions
+  /// ([ChordTonePattern.rolling]).
+  final ChordTonePattern pattern;
+
+  /// Whether the left hand taps the chord root once per rolling group.
+  /// Only applies when [handSelection] is [HandSelection.right] and
+  /// [pattern] is [ChordTonePattern.rolling]; a no-op otherwise.
+  final bool includeLeftHandRoot;
+
   @override
   PracticeExercise initializeExercise() {
+    if (pattern == ChordTonePattern.rolling) {
+      return _initializeRollingExercise();
+    }
+
     final arpeggio = ArpeggioDefinitions.getArpeggio(
       rootNote,
       arpeggioType,
@@ -136,6 +157,102 @@ class ArpeggiosStrategy implements PracticeStrategy {
         "arpeggioType": arpeggioType.name,
         "octaves": arpeggioOctaves.name,
         "handSelection": handSelection.name,
+        "pattern": pattern.name,
+      },
+    );
+  }
+
+  /// Builds a rolling-pattern arpeggio exercise via the shared
+  /// [TonePattern] engine: overlapping chord-tone-degree groups that
+  /// continuously rotate through inversions as they climb, flattened to
+  /// singleton (broken) steps.
+  PracticeExercise _initializeRollingExercise() {
+    if ((handSelection == HandSelection.both || includeLeftHandRoot) &&
+        startOctave < 1) {
+      throw ArgumentError(
+        "startOctave must be >= 1 for both hands or left-hand root taps "
+        "(left hand plays at startOctave - 1), got: $startOctave",
+      );
+    }
+
+    final coreIntervals = ArpeggioDefinitions.coreIntervals(arpeggioType);
+    final n = coreIntervals.length;
+
+    var tokens = TonePattern.rollingBroken(
+      n: n,
+      octaves: arpeggioOctaves.count,
+    );
+    final tapsLeftHandRoot =
+        handSelection == HandSelection.right && includeLeftHandRoot;
+    if (tapsLeftHandRoot) {
+      tokens = TonePattern.withLeftHandRootTap(tokens, n);
+    }
+    if (handSelection == HandSelection.both) {
+      tokens = TonePattern.bothHands(tokens);
+    }
+    final ascendingStepCount = tokens.length;
+    tokens = TonePattern.mirrored(tokens);
+
+    final defaultHand = handSelection == HandSelection.left
+        ? PracticeHand.left
+        : PracticeHand.right;
+    final rightRootMidi = NoteUtils.noteToMidiNumber(rootNote, startOctave);
+    final leftRootMidi = NoteUtils.noteToMidiNumber(
+      rootNote,
+      startOctave - 1,
+    );
+    int rootMidiForHand(PracticeHand hand) =>
+        hand == PracticeHand.left ? leftRootMidi : rightRootMidi;
+
+    // Mirror the *finger list* itself (not re-derive it from step position),
+    // matching FingeringHints.arpeggio's convention: descending notes
+    // retrace the same fingers used ascending, in reverse.
+    List<int?> mirroredFingers(List<int>? shape) {
+      if (shape == null) {
+        return List<int?>.filled(tokens.length, null);
+      }
+      final ascending = List<int?>.generate(
+        ascendingStepCount,
+        (i) => shape[i % shape.length],
+      );
+      return [...ascending, ...ascending.reversed.skip(1)];
+    }
+
+    final rightFingerByStep = mirroredFingers(
+      FingeringHints.chordVoicing(rightHand: true, noteCount: n),
+    );
+    final leftFingerByStep = mirroredFingers(
+      FingeringHints.chordVoicing(rightHand: false, noteCount: n),
+    );
+
+    int? fingerFor(PracticeHand hand, int stepIndex, int positionInHand) {
+      if (tapsLeftHandRoot && hand == PracticeHand.left) {
+        return 5;
+      }
+      return hand == PracticeHand.right
+          ? rightFingerByStep[stepIndex]
+          : leftFingerByStep[stepIndex];
+    }
+
+    final steps = TonePattern.toPracticeSteps(
+      tokens: tokens,
+      coreIntervals: coreIntervals,
+      rootMidiForHand: rootMidiForHand,
+      defaultHand: defaultHand,
+      fingerFor: fingerFor,
+      metadataFor: (i) => {"position": i + 1, "displayName": "Note ${i + 1}"},
+    );
+
+    return PracticeExercise(
+      steps: steps,
+      metadata: {
+        "exerciseType": "arpeggio",
+        "rootNote": rootNote.name,
+        "arpeggioType": arpeggioType.name,
+        "octaves": arpeggioOctaves.name,
+        "handSelection": handSelection.name,
+        "pattern": pattern.name,
+        if (includeLeftHandRoot) "includeLeftHandRoot": includeLeftHandRoot,
       },
     );
   }

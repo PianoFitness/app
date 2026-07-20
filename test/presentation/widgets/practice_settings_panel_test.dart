@@ -1,11 +1,16 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/domain/models/music/arpeggio_type.dart";
+import "package:piano_fitness/domain/models/music/chord_tone_pattern.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
+import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;
 import "package:piano_fitness/presentation/widgets/practice_settings_panel.dart";
+
+import "../../shared/test_helpers/dropdown_test_helpers.dart";
 
 /// Tests for PracticeSettingsPanel widget, specifically hand selection functionality.
 ///
@@ -241,6 +246,214 @@ void main() {
           segmentedButtonFinder,
         );
         expect(segmentedButton.selected, equals({HandSelection.left}));
+      });
+    });
+
+    group("Arpeggios / Block Chords settings", () {
+      Widget createArpeggioTestWidget({
+        required ExerciseConfiguration configuration,
+        required void Function(ExerciseConfiguration) onConfigurationChanged,
+      }) {
+        return MaterialApp(
+          home: Scaffold(
+            body: PracticeSettingsPanel(
+              configuration: configuration,
+              onConfigurationChanged: onConfigurationChanged,
+              practiceActive: false,
+              onResetPractice: () {},
+              autoProgressKeys: false,
+              onAutoProgressKeysChanged: (_) {},
+            ),
+          ),
+        );
+      }
+
+      const arpeggioConfig = ExerciseConfiguration(
+        practiceMode: PracticeMode.arpeggios,
+        handSelection: HandSelection.right,
+        musicalNote: MusicalNote.c,
+        arpeggioType: ArpeggioType.major,
+      );
+
+      testWidgets("octave dropdown offers three and four octave options", (
+        tester,
+      ) async {
+        await tester.pumpWidget(
+          createArpeggioTestWidget(
+            configuration: arpeggioConfig,
+            onConfigurationChanged: (_) {},
+          ),
+        );
+
+        final dropdown = tester.widget<DropdownButton<ArpeggioOctaves>>(
+          find.byType(DropdownButton<ArpeggioOctaves>),
+        );
+        final values = dropdown.items!
+            .map((DropdownMenuItem<ArpeggioOctaves> item) => item.value)
+            .toList();
+        expect(
+          values,
+          containsAll([ArpeggioOctaves.three, ArpeggioOctaves.four]),
+        );
+      });
+
+      testWidgets("selecting three octaves updates the configuration", (
+        tester,
+      ) async {
+        ExerciseConfiguration? captured;
+        await tester.pumpWidget(
+          createArpeggioTestWidget(
+            configuration: arpeggioConfig,
+            onConfigurationChanged: (c) => captured = c,
+          ),
+        );
+
+        await selectDropdownValue<ArpeggioOctaves>(
+          tester,
+          ArpeggioOctaves.three,
+        );
+
+        expect(captured?.arpeggioOctaves, equals(ArpeggioOctaves.three));
+      });
+
+      testWidgets(
+        "Block Chords mode renders the same settings widget as Arpeggios",
+        (tester) async {
+          const blockChordsConfig = ExerciseConfiguration(
+            practiceMode: PracticeMode.blockChords,
+            handSelection: HandSelection.right,
+            musicalNote: MusicalNote.c,
+            arpeggioType: ArpeggioType.major,
+          );
+
+          await tester.pumpWidget(
+            createArpeggioTestWidget(
+              configuration: blockChordsConfig,
+              onConfigurationChanged: (_) {},
+            ),
+          );
+
+          expect(
+            find.byType(DropdownButtonFormField<ArpeggioType>),
+            findsOneWidget,
+          );
+          expect(
+            find.byType(DropdownButtonFormField<ArpeggioOctaves>),
+            findsOneWidget,
+          );
+          expect(
+            find.byType(DropdownButtonFormField<ChordTonePattern>),
+            findsOneWidget,
+          );
+        },
+      );
+
+      testWidgets("left-hand root checkbox is hidden for the straight pattern", (
+        tester,
+      ) async {
+        await tester.pumpWidget(
+          createArpeggioTestWidget(
+            configuration: arpeggioConfig, // pattern defaults to straight
+            onConfigurationChanged: (_) {},
+          ),
+        );
+
+        expect(find.byType(CheckboxListTile), findsNothing);
+      });
+
+      testWidgets(
+        "left-hand root checkbox is hidden for rolling + both hands",
+        (tester) async {
+          final config = arpeggioConfig.copyWith(
+            handSelection: HandSelection.both,
+            pattern: ChordTonePattern.rolling,
+          );
+
+          await tester.pumpWidget(
+            createArpeggioTestWidget(
+              configuration: config,
+              onConfigurationChanged: (_) {},
+            ),
+          );
+
+          expect(find.byType(CheckboxListTile), findsNothing);
+        },
+      );
+
+      testWidgets(
+        "left-hand root checkbox is shown for rolling + right hand only",
+        (tester) async {
+          final config = arpeggioConfig.copyWith(
+            pattern: ChordTonePattern.rolling,
+          );
+
+          await tester.pumpWidget(
+            createArpeggioTestWidget(
+              configuration: config,
+              onConfigurationChanged: (_) {},
+            ),
+          );
+
+          expect(find.byType(CheckboxListTile), findsOneWidget);
+        },
+      );
+
+      testWidgets("toggling the left-hand root checkbox updates the configuration", (
+        tester,
+      ) async {
+        ExerciseConfiguration? captured;
+        final config = arpeggioConfig.copyWith(
+          pattern: ChordTonePattern.rolling,
+        );
+
+        await tester.pumpWidget(
+          createArpeggioTestWidget(
+            configuration: config,
+            onConfigurationChanged: (c) => captured = c,
+          ),
+        );
+
+        final checkbox = tester.widget<CheckboxListTile>(
+          find.byType(CheckboxListTile),
+        );
+        checkbox.onChanged!(true);
+        await tester.pumpAndSettle();
+
+        expect(captured?.includeLeftHandRoot, isTrue);
+      });
+    });
+
+    group("Practice mode dropdown", () {
+      testWidgets("offers Block Chords as a selectable mode", (tester) async {
+        final configuration = ExerciseConfiguration(
+          practiceMode: PracticeMode.scales,
+          handSelection: HandSelection.both,
+          key: music.Key.c,
+          scaleType: music.ScaleType.major,
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: PracticeSettingsPanel(
+                configuration: configuration,
+                onConfigurationChanged: (_) {},
+                practiceActive: false,
+                onResetPractice: () {},
+                autoProgressKeys: false,
+                onAutoProgressKeysChanged: (_) {},
+              ),
+            ),
+          ),
+        );
+
+        final dropdown = tester.widget<DropdownButton<PracticeMode>>(
+          find.byType(DropdownButton<PracticeMode>),
+        );
+        final values = dropdown.items!
+            .map((DropdownMenuItem<PracticeMode> item) => item.value)
+            .toList();
+        expect(values, contains(PracticeMode.blockChords));
       });
     });
   });

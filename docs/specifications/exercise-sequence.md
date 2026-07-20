@@ -381,6 +381,60 @@ snapshots are a separate future history enhancement.
   hands-independent, single-tone, multi-tone, mixed-texture, and bounded
   permutation exercises without transport changes.
 
+## Future: Custom Tone-Pattern Authoring
+
+`lib/domain/services/music_theory/tone_pattern.dart` implements a Phase 5
+generator: a chord-tone-degree pattern engine shared by the Arpeggios
+(broken texture) and Block Chords (blocked texture) strategies. A pattern is
+a list of tokens; each token is a bare 1-based chord-tone degree (a
+singleton onset) or a parenthesized group of degrees (a blocked onset).
+Degrees wrap across octaves via `(degree - 1) % n` / `(degree - 1) ~/ n`
+(`n` = the chord's tone count) — the same numbering convention as the
+Nashville number system, extended past the chord size to reach higher
+octaves. `TonePattern.parse` also accepts this as a compact string, e.g.
+`"1,2,3,2,3,4"` or `"1,(2,3),4,2,(3,4),5"`, with:
+
+- per-degree hand suffixes `L`/`R` (e.g. `"(1L,1),2,3"`) for hand-tagged
+  patterns like a sparse left-hand root tap merged into a right-hand run;
+- ABC-notation-style apostrophe octave marks (e.g. `"1,2,3,1'"`), so every
+  bare digit stays in the readable `1..n` range instead of growing without
+  bound as the pattern climbs octaves.
+
+Only two generated presets (`ChordTonePattern.straight`, `.rolling`) are
+currently wired into `ExerciseConfiguration` and the settings UI. `parse` is
+fully implemented and tested but has no caller yet — no `custom` pattern
+value exists on `ChordTonePattern`, and no `customPattern` string field
+exists on `ExerciseConfiguration`.
+
+A future custom-pattern mode is a small, additive change, since everything
+downstream of token generation (mirroring, the left-hand-root-tap and
+both-hands transforms, hand resolution, fingering, `toPracticeSteps`)
+already operates on `List<PatternToken>` regardless of where the tokens came
+from:
+
+- add `ChordTonePattern.custom`;
+- add `String? customPattern` to `ExerciseConfiguration`, required when
+  `pattern == custom`;
+- in `ArpeggiosStrategy`/`BlockChordsStrategy`, branch to
+  `TonePattern.parse(customPattern!, n: n)` instead of the canonical
+  generator when `pattern == custom`;
+- add a settings-panel text field for entering the pattern string, with
+  parse-error surfacing.
+
+This would let a user (or another contributor) author "impressionistic"
+practice patterns that don't fit the straight/rolling presets — e.g. mixed
+broken-and-blocked motives like `"1,(2,3),4,2,(3,4),5"` — without any
+further engine changes.
+
+A separate, unrelated idea raised alongside this: exporting a resolved
+pattern to ABC notation (or MusicXML) for sharing/printing via existing
+notation tooling. That's a plain **export** format, not an authoring format
+— ABC is pitch/key-absolute and has no natural slot for finger numbers,
+whereas this DSL is deliberately degree-relative (transposable to any root
+for free) and hand/finger-aware. If pursued, it belongs as a one-way
+resolved-pattern-to-ABC converter, layered on top of `toPracticeSteps`'
+output, not a change to the DSL itself.
+
 ## Future Semantics
 
 Duration, release, pedal, velocity, tempo, meter, accepted alternatives,

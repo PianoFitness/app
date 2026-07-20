@@ -353,6 +353,61 @@ void main() {
       expect(find.text("A Minor Arpeggio (1 oct)"), findsOneWidget);
     });
 
+    testWidgets("renders three and four octave arpeggios correctly", (
+      tester,
+    ) async {
+      final three = ExerciseHistoryEntry.fromConfiguration(
+        id: "a3",
+        profileId: "p1",
+        completedAt: DateTime(2026),
+        config: const ExerciseConfiguration(
+          practiceMode: PracticeMode.arpeggios,
+          handSelection: HandSelection.both,
+          musicalNote: MusicalNote.c,
+          arpeggioType: ArpeggioType.major,
+          arpeggioOctaves: ArpeggioOctaves.three,
+        ),
+      );
+      await tester.pumpWidget(wrap(three));
+      await tester.pump();
+      expect(find.text("C Major Arpeggio (3 oct)"), findsOneWidget);
+
+      final four = ExerciseHistoryEntry.fromConfiguration(
+        id: "a4",
+        profileId: "p1",
+        completedAt: DateTime(2026),
+        config: const ExerciseConfiguration(
+          practiceMode: PracticeMode.arpeggios,
+          handSelection: HandSelection.both,
+          musicalNote: MusicalNote.c,
+          arpeggioType: ArpeggioType.major,
+          arpeggioOctaves: ArpeggioOctaves.four,
+        ),
+      );
+      await tester.pumpWidget(wrap(four));
+      await tester.pump();
+      expect(find.text("C Major Arpeggio (4 oct)"), findsOneWidget);
+    });
+
+    testWidgets("renders blockChords entry", (tester) async {
+      final e = ExerciseHistoryEntry.fromConfiguration(
+        id: "bc1",
+        profileId: "p1",
+        completedAt: DateTime(2026),
+        config: const ExerciseConfiguration(
+          practiceMode: PracticeMode.blockChords,
+          handSelection: HandSelection.both,
+          musicalNote: MusicalNote.g,
+          arpeggioType: ArpeggioType.minor,
+          arpeggioOctaves: ArpeggioOctaves.two,
+        ),
+      );
+      await tester.pumpWidget(wrap(e));
+      await tester.pump();
+      expect(find.text("G Minor Block Chords (2 oct)"), findsOneWidget);
+      expect(find.text("Block Chords"), findsOneWidget);
+    });
+
     testWidgets("renders dominantCadence entry", (tester) async {
       await tester.pumpWidget(wrap(_makeDominantCadenceEntry()));
       await tester.pump();

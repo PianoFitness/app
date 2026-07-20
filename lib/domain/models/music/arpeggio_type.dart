@@ -35,4 +35,21 @@ enum ArpeggioOctaves {
 
   /// Two octave arpeggio - more challenging, greater range
   two,
+
+  /// Three octave arpeggio - advanced, wide range
+  three,
+
+  /// Four octave arpeggio - advanced, full keyboard range
+  four,
+}
+
+/// Provides the numeric octave count for each [ArpeggioOctaves] value.
+extension ArpeggioOctavesX on ArpeggioOctaves {
+  /// The number of octaves this value represents.
+  int get count => switch (this) {
+    ArpeggioOctaves.one => 1,
+    ArpeggioOctaves.two => 2,
+    ArpeggioOctaves.three => 3,
+    ArpeggioOctaves.four => 4,
+  };
 }

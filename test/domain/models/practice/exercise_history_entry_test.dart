@@ -1,4 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/domain/models/music/chord_tone_pattern.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/exercise_history_entry.dart";
@@ -125,6 +126,8 @@ void main() {
           musicalNote: MusicalNote.g,
           arpeggioType: ArpeggioType.minor,
           arpeggioOctaves: ArpeggioOctaves.two,
+          pattern: ChordTonePattern.rolling,
+          includeLeftHandRoot: true,
         );
 
         final entry = ExerciseHistoryEntry.fromConfiguration(
@@ -139,8 +142,36 @@ void main() {
         expect(entry.musicalNote, equals(MusicalNote.g));
         expect(entry.arpeggioType, equals(ArpeggioType.minor));
         expect(entry.arpeggioOctaves, equals(ArpeggioOctaves.two));
+        expect(entry.pattern, equals(ChordTonePattern.rolling));
+        expect(entry.includeLeftHandRoot, isTrue);
         expect(entry.musicalKey, isNull);
         expect(entry.chordType, isNull);
+      });
+    });
+
+    group("BlockChords mode", () {
+      test("should copy blockChords configuration fields correctly", () {
+        final config = ExerciseConfiguration(
+          practiceMode: PracticeMode.blockChords,
+          handSelection: HandSelection.both,
+          musicalNote: MusicalNote.f,
+          arpeggioType: ArpeggioType.major,
+          arpeggioOctaves: ArpeggioOctaves.four,
+        );
+
+        final entry = ExerciseHistoryEntry.fromConfiguration(
+          id: testId,
+          profileId: testProfileId,
+          completedAt: testCompletedAt,
+          config: config,
+        );
+
+        expect(entry.practiceMode, equals(PracticeMode.blockChords));
+        expect(entry.musicalNote, equals(MusicalNote.f));
+        expect(entry.arpeggioType, equals(ArpeggioType.major));
+        expect(entry.arpeggioOctaves, equals(ArpeggioOctaves.four));
+        expect(entry.pattern, equals(ChordTonePattern.straight));
+        expect(entry.includeLeftHandRoot, isFalse);
       });
     });
 
@@ -183,6 +214,8 @@ void main() {
 
         expect(entry.includeInversions, isFalse);
         expect(entry.includeSeventhChords, isFalse);
+        expect(entry.pattern, equals(ChordTonePattern.straight));
+        expect(entry.includeLeftHandRoot, isFalse);
       });
     });
   });

@@ -45,6 +45,7 @@ void main() {
       expect(find.text("Chords by Key"), findsOneWidget);
       expect(find.text("Chords by Type"), findsOneWidget);
       expect(find.text("Arpeggios"), findsOneWidget);
+      expect(find.text("Block Chords"), findsOneWidget);
       expect(find.text("Chord Progressions"), findsOneWidget);
 
       // Check that quick start section is present
@@ -74,6 +75,19 @@ void main() {
 
       // Verify the card exists and is tappable
       expect(scalesCard, findsOneWidget);
+    });
+
+    testWidgets("should display a tappable Block Chords card", (tester) async {
+      await tester.pumpWidget(createTestWidget());
+      await tester.pumpAndSettle();
+
+      const blockChordsKey = Key("practice_mode_block_chords");
+      final blockChordsCard = find.byKey(blockChordsKey);
+      expect(blockChordsCard, findsOneWidget);
+
+      await tester.tap(blockChordsCard, warnIfMissed: false);
+
+      expect(blockChordsCard, findsOneWidget);
     });
 
     testWidgets("should handle quick start navigation", (tester) async {

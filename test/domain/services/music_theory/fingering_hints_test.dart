@@ -132,6 +132,19 @@ void main() {
       }
     }
 
+    test("C major triad, three octaves, repeats the shape per octave", () {
+      // Core shape [1,2,3,5] repeated once per octave, final note capped.
+      expect(
+        FingeringHints.arpeggio(
+          rootNote: MusicalNote.c,
+          arpeggioType: ArpeggioType.major,
+          octaves: ArpeggioOctaves.three,
+          rightHand: true,
+        ),
+        [1, 2, 3, 1, 2, 3, 1, 2, 3, 5, 3, 2, 1, 3, 2, 1, 3, 2, 1],
+      );
+    });
+
     test("C major triad, one octave, matches the textbook fingering", () {
       expect(
         FingeringHints.arpeggio(

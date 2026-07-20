@@ -83,26 +83,18 @@ class Arpeggio {
   List<int> getFullArpeggioSequence(int startOctave) {
     final baseNotes = getMidiNotes(startOctave);
 
-    if (octaves == ArpeggioOctaves.one) {
-      // One octave: up and down
-      final descendingNotes = baseNotes.reversed.skip(1).toList();
-      return [...baseNotes, ...descendingNotes];
-    } else {
-      // Two octaves: up two octaves, then down
-      final secondOctaveNotes = <int>[];
-
-      // Add the second octave (skip the first note to avoid duplication)
-      // Each note should be in the next octave relative to its position in the first octave
+    // Each additional octave repeats the base pattern's chord tones (all
+    // but the first, which would duplicate the previous octave's top note)
+    // shifted up by that many octaves.
+    final ascendingNotes = <int>[...baseNotes];
+    for (var extraOctave = 1; extraOctave < octaves.count; extraOctave++) {
       for (var i = 1; i < baseNotes.length; i++) {
-        final originalMidi = baseNotes[i];
-        // Add 12 semitones to get the same note one octave higher
-        secondOctaveNotes.add(originalMidi + 12);
+        ascendingNotes.add(baseNotes[i] + 12 * extraOctave);
       }
-
-      final allAscendingNotes = [...baseNotes, ...secondOctaveNotes];
-      final descendingNotes = allAscendingNotes.reversed.skip(1).toList();
-      return [...allAscendingNotes, ...descendingNotes];
     }
+
+    final descendingNotes = ascendingNotes.reversed.skip(1).toList();
+    return [...ascendingNotes, ...descendingNotes];
   }
 
   /// Returns an arpeggio sequence adapted for the specified hand selection.
@@ -172,6 +164,18 @@ class ArpeggioDefinitions {
     ArpeggioType.major7: [0, 4, 7, 11, 12],
   };
 
+  /// Returns the chord-tone intervals for [type], excluding the trailing
+  /// octave duplicate of the root (semitone 12) that [_arpeggioIntervals]
+  /// always ends with. Triads return 3 values, seventh chords return 4.
+  ///
+  /// Shared by `ArpeggiosStrategy` and `BlockChordsStrategy`, both of which
+  /// build chord-tone-degree patterns from the same underlying chord
+  /// quality intervals.
+  static List<int> coreIntervals(ArpeggioType type) {
+    final intervals = _arpeggioIntervals[type]!;
+    return intervals.sublist(0, intervals.length - 1);
+  }
+
   static const Map<ArpeggioType, String> _arpeggioTypeNames = {
     ArpeggioType.major: "Major",
     ArpeggioType.minor: "Minor",
@@ -194,9 +198,8 @@ class ArpeggioDefinitions {
     final intervals = _arpeggioIntervals[type]!;
     final typeName = _arpeggioTypeNames[type]!;
     final rootName = NoteUtils.noteDisplayName(rootNote, 0).replaceAll("0", "");
-    final octaveName = octaves == ArpeggioOctaves.one
-        ? "1 Octave"
-        : "2 Octaves";
+    final octaveCount = octaves.count;
+    final octaveName = "$octaveCount Octave${octaveCount == 1 ? "" : "s"}";
 
     return Arpeggio(
       rootNote: rootNote,

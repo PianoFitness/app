@@ -114,6 +114,8 @@ class PracticeProgressDisplay extends StatelessWidget {
         return "Scale practice progress";
       case PracticeMode.arpeggios:
         return "Arpeggio practice progress";
+      case PracticeMode.blockChords:
+        return "Block chord practice progress";
       case PracticeMode.chordsByKey:
         return "Chord practice progress";
       case PracticeMode.chordsByType:

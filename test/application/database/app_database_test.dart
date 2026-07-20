@@ -28,9 +28,10 @@ void main() {
       expect(db, isA<AppDatabase>());
     });
 
-    test("schemaVersion is 3", () {
-      // Schema version 3 adds ExerciseHistoryTable
-      expect(db.schemaVersion, 3);
+    test("schemaVersion is 4", () {
+      // Schema version 4 adds the pattern/includeLeftHandRoot columns to
+      // ExerciseHistoryTable (arpeggios and blockChords modes).
+      expect(db.schemaVersion, 4);
     });
 
     test("opens and closes without error", () async {

@@ -190,6 +190,7 @@ class PracticeSession {
           }
           break;
         case PracticeMode.arpeggios:
+        case PracticeMode.blockChords:
           if (newConfig.musicalNote == null) {
             newConfig = newConfig.copyWith(
               musicalNote: Field.set(MusicalNote.c),
@@ -365,6 +366,18 @@ class PracticeSession {
           arpeggioOctaves: _config.arpeggioOctaves,
           handSelection: _config.handSelection,
           startOctave: defaultStartOctave,
+          pattern: _config.pattern,
+          includeLeftHandRoot: _config.includeLeftHandRoot,
+        );
+      case PracticeMode.blockChords:
+        return BlockChordsStrategy(
+          rootNote: _config.musicalNote!,
+          arpeggioType: _config.arpeggioType!,
+          arpeggioOctaves: _config.arpeggioOctaves,
+          handSelection: _config.handSelection,
+          startOctave: defaultStartOctave,
+          pattern: _config.pattern,
+          includeLeftHandRoot: _config.includeLeftHandRoot,
         );
       case PracticeMode.chordsByKey:
         return ChordsByKeyStrategy(

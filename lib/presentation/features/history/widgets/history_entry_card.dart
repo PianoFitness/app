@@ -85,6 +85,8 @@ class HistoryEntryCard extends StatelessWidget {
         return "Chords by Type";
       case PracticeMode.arpeggios:
         return "Arpeggios";
+      case PracticeMode.blockChords:
+        return "Block Chords";
       case PracticeMode.chordProgressions:
         return "Chord Progressions";
       case PracticeMode.dominantCadence:
@@ -127,8 +129,18 @@ class HistoryEntryCard extends StatelessWidget {
         final type = e.arpeggioType != null
             ? _arpeggioTypeName(e.arpeggioType!)
             : "?";
-        final octaves = e.arpeggioOctaves == ArpeggioOctaves.two ? "2" : "1";
+        final octaves = e.arpeggioOctaves?.count ?? 1;
         return "$note $type Arpeggio ($octaves oct)";
+
+      case PracticeMode.blockChords:
+        final note = e.musicalNote != null
+            ? _musicalNoteName(e.musicalNote!)
+            : "?";
+        final type = e.arpeggioType != null
+            ? _arpeggioTypeName(e.arpeggioType!)
+            : "?";
+        final octaves = e.arpeggioOctaves?.count ?? 1;
+        return "$note $type Block Chords ($octaves oct)";
 
       case PracticeMode.chordProgressions:
         final key = e.musicalKey?.displayName ?? "?";

@@ -504,6 +504,31 @@ class $ExerciseHistoryTableTable extends ExerciseHistoryTable
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _patternMeta = const VerificationMeta(
+    'pattern',
+  );
+  @override
+  late final GeneratedColumn<String> pattern = GeneratedColumn<String>(
+    'pattern',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _includeLeftHandRootMeta =
+      const VerificationMeta('includeLeftHandRoot');
+  @override
+  late final GeneratedColumn<bool> includeLeftHandRoot = GeneratedColumn<bool>(
+    'include_left_hand_root',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("include_left_hand_root" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _chordProgressionIdMeta =
       const VerificationMeta('chordProgressionId');
   @override
@@ -530,6 +555,8 @@ class $ExerciseHistoryTableTable extends ExerciseHistoryTable
     musicalNote,
     arpeggioType,
     arpeggioOctaves,
+    pattern,
+    includeLeftHandRoot,
     chordProgressionId,
   ];
   @override
@@ -653,6 +680,21 @@ class $ExerciseHistoryTableTable extends ExerciseHistoryTable
         ),
       );
     }
+    if (data.containsKey('pattern')) {
+      context.handle(
+        _patternMeta,
+        pattern.isAcceptableOrUnknown(data['pattern']!, _patternMeta),
+      );
+    }
+    if (data.containsKey('include_left_hand_root')) {
+      context.handle(
+        _includeLeftHandRootMeta,
+        includeLeftHandRoot.isAcceptableOrUnknown(
+          data['include_left_hand_root']!,
+          _includeLeftHandRootMeta,
+        ),
+      );
+    }
     if (data.containsKey('chord_progression_id')) {
       context.handle(
         _chordProgressionIdMeta,
@@ -726,6 +768,14 @@ class $ExerciseHistoryTableTable extends ExerciseHistoryTable
         DriftSqlType.string,
         data['${effectivePrefix}arpeggio_octaves'],
       ),
+      pattern: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pattern'],
+      ),
+      includeLeftHandRoot: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}include_left_hand_root'],
+      )!,
       chordProgressionId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}chord_progression_id'],
@@ -783,6 +833,14 @@ class ExerciseHistoryTableData extends DataClass
   /// Arpeggio octave count name (e.g. "one", "two"). Null for non-arpeggio modes.
   final String? arpeggioOctaves;
 
+  /// Chord-tone pattern name (e.g. "straight", "rolling"). Null for modes
+  /// without a pattern (arpeggios and blockChords only).
+  final String? pattern;
+
+  /// Whether the left hand tapped the chord root (arpeggios and
+  /// blockChords modes).
+  final bool includeLeftHandRoot;
+
   /// Chord progression identifier (chordProgressions mode). Null otherwise.
   final String? chordProgressionId;
   const ExerciseHistoryTableData({
@@ -799,6 +857,8 @@ class ExerciseHistoryTableData extends DataClass
     this.musicalNote,
     this.arpeggioType,
     this.arpeggioOctaves,
+    this.pattern,
+    required this.includeLeftHandRoot,
     this.chordProgressionId,
   });
   @override
@@ -829,6 +889,10 @@ class ExerciseHistoryTableData extends DataClass
     if (!nullToAbsent || arpeggioOctaves != null) {
       map['arpeggio_octaves'] = Variable<String>(arpeggioOctaves);
     }
+    if (!nullToAbsent || pattern != null) {
+      map['pattern'] = Variable<String>(pattern);
+    }
+    map['include_left_hand_root'] = Variable<bool>(includeLeftHandRoot);
     if (!nullToAbsent || chordProgressionId != null) {
       map['chord_progression_id'] = Variable<String>(chordProgressionId);
     }
@@ -862,6 +926,10 @@ class ExerciseHistoryTableData extends DataClass
       arpeggioOctaves: arpeggioOctaves == null && nullToAbsent
           ? const Value.absent()
           : Value(arpeggioOctaves),
+      pattern: pattern == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pattern),
+      includeLeftHandRoot: Value(includeLeftHandRoot),
       chordProgressionId: chordProgressionId == null && nullToAbsent
           ? const Value.absent()
           : Value(chordProgressionId),
@@ -889,6 +957,10 @@ class ExerciseHistoryTableData extends DataClass
       musicalNote: serializer.fromJson<String?>(json['musicalNote']),
       arpeggioType: serializer.fromJson<String?>(json['arpeggioType']),
       arpeggioOctaves: serializer.fromJson<String?>(json['arpeggioOctaves']),
+      pattern: serializer.fromJson<String?>(json['pattern']),
+      includeLeftHandRoot: serializer.fromJson<bool>(
+        json['includeLeftHandRoot'],
+      ),
       chordProgressionId: serializer.fromJson<String?>(
         json['chordProgressionId'],
       ),
@@ -911,6 +983,8 @@ class ExerciseHistoryTableData extends DataClass
       'musicalNote': serializer.toJson<String?>(musicalNote),
       'arpeggioType': serializer.toJson<String?>(arpeggioType),
       'arpeggioOctaves': serializer.toJson<String?>(arpeggioOctaves),
+      'pattern': serializer.toJson<String?>(pattern),
+      'includeLeftHandRoot': serializer.toJson<bool>(includeLeftHandRoot),
       'chordProgressionId': serializer.toJson<String?>(chordProgressionId),
     };
   }
@@ -929,6 +1003,8 @@ class ExerciseHistoryTableData extends DataClass
     Value<String?> musicalNote = const Value.absent(),
     Value<String?> arpeggioType = const Value.absent(),
     Value<String?> arpeggioOctaves = const Value.absent(),
+    Value<String?> pattern = const Value.absent(),
+    bool? includeLeftHandRoot,
     Value<String?> chordProgressionId = const Value.absent(),
   }) => ExerciseHistoryTableData(
     id: id ?? this.id,
@@ -946,6 +1022,8 @@ class ExerciseHistoryTableData extends DataClass
     arpeggioOctaves: arpeggioOctaves.present
         ? arpeggioOctaves.value
         : this.arpeggioOctaves,
+    pattern: pattern.present ? pattern.value : this.pattern,
+    includeLeftHandRoot: includeLeftHandRoot ?? this.includeLeftHandRoot,
     chordProgressionId: chordProgressionId.present
         ? chordProgressionId.value
         : this.chordProgressionId,
@@ -985,6 +1063,10 @@ class ExerciseHistoryTableData extends DataClass
       arpeggioOctaves: data.arpeggioOctaves.present
           ? data.arpeggioOctaves.value
           : this.arpeggioOctaves,
+      pattern: data.pattern.present ? data.pattern.value : this.pattern,
+      includeLeftHandRoot: data.includeLeftHandRoot.present
+          ? data.includeLeftHandRoot.value
+          : this.includeLeftHandRoot,
       chordProgressionId: data.chordProgressionId.present
           ? data.chordProgressionId.value
           : this.chordProgressionId,
@@ -1007,6 +1089,8 @@ class ExerciseHistoryTableData extends DataClass
           ..write('musicalNote: $musicalNote, ')
           ..write('arpeggioType: $arpeggioType, ')
           ..write('arpeggioOctaves: $arpeggioOctaves, ')
+          ..write('pattern: $pattern, ')
+          ..write('includeLeftHandRoot: $includeLeftHandRoot, ')
           ..write('chordProgressionId: $chordProgressionId')
           ..write(')'))
         .toString();
@@ -1027,6 +1111,8 @@ class ExerciseHistoryTableData extends DataClass
     musicalNote,
     arpeggioType,
     arpeggioOctaves,
+    pattern,
+    includeLeftHandRoot,
     chordProgressionId,
   );
   @override
@@ -1046,6 +1132,8 @@ class ExerciseHistoryTableData extends DataClass
           other.musicalNote == this.musicalNote &&
           other.arpeggioType == this.arpeggioType &&
           other.arpeggioOctaves == this.arpeggioOctaves &&
+          other.pattern == this.pattern &&
+          other.includeLeftHandRoot == this.includeLeftHandRoot &&
           other.chordProgressionId == this.chordProgressionId);
 }
 
@@ -1064,6 +1152,8 @@ class ExerciseHistoryTableCompanion
   final Value<String?> musicalNote;
   final Value<String?> arpeggioType;
   final Value<String?> arpeggioOctaves;
+  final Value<String?> pattern;
+  final Value<bool> includeLeftHandRoot;
   final Value<String?> chordProgressionId;
   final Value<int> rowid;
   const ExerciseHistoryTableCompanion({
@@ -1080,6 +1170,8 @@ class ExerciseHistoryTableCompanion
     this.musicalNote = const Value.absent(),
     this.arpeggioType = const Value.absent(),
     this.arpeggioOctaves = const Value.absent(),
+    this.pattern = const Value.absent(),
+    this.includeLeftHandRoot = const Value.absent(),
     this.chordProgressionId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -1097,6 +1189,8 @@ class ExerciseHistoryTableCompanion
     this.musicalNote = const Value.absent(),
     this.arpeggioType = const Value.absent(),
     this.arpeggioOctaves = const Value.absent(),
+    this.pattern = const Value.absent(),
+    this.includeLeftHandRoot = const Value.absent(),
     this.chordProgressionId = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -1118,6 +1212,8 @@ class ExerciseHistoryTableCompanion
     Expression<String>? musicalNote,
     Expression<String>? arpeggioType,
     Expression<String>? arpeggioOctaves,
+    Expression<String>? pattern,
+    Expression<bool>? includeLeftHandRoot,
     Expression<String>? chordProgressionId,
     Expression<int>? rowid,
   }) {
@@ -1136,6 +1232,9 @@ class ExerciseHistoryTableCompanion
       if (musicalNote != null) 'musical_note': musicalNote,
       if (arpeggioType != null) 'arpeggio_type': arpeggioType,
       if (arpeggioOctaves != null) 'arpeggio_octaves': arpeggioOctaves,
+      if (pattern != null) 'pattern': pattern,
+      if (includeLeftHandRoot != null)
+        'include_left_hand_root': includeLeftHandRoot,
       if (chordProgressionId != null)
         'chord_progression_id': chordProgressionId,
       if (rowid != null) 'rowid': rowid,
@@ -1156,6 +1255,8 @@ class ExerciseHistoryTableCompanion
     Value<String?>? musicalNote,
     Value<String?>? arpeggioType,
     Value<String?>? arpeggioOctaves,
+    Value<String?>? pattern,
+    Value<bool>? includeLeftHandRoot,
     Value<String?>? chordProgressionId,
     Value<int>? rowid,
   }) {
@@ -1173,6 +1274,8 @@ class ExerciseHistoryTableCompanion
       musicalNote: musicalNote ?? this.musicalNote,
       arpeggioType: arpeggioType ?? this.arpeggioType,
       arpeggioOctaves: arpeggioOctaves ?? this.arpeggioOctaves,
+      pattern: pattern ?? this.pattern,
+      includeLeftHandRoot: includeLeftHandRoot ?? this.includeLeftHandRoot,
       chordProgressionId: chordProgressionId ?? this.chordProgressionId,
       rowid: rowid ?? this.rowid,
     );
@@ -1222,6 +1325,12 @@ class ExerciseHistoryTableCompanion
     if (arpeggioOctaves.present) {
       map['arpeggio_octaves'] = Variable<String>(arpeggioOctaves.value);
     }
+    if (pattern.present) {
+      map['pattern'] = Variable<String>(pattern.value);
+    }
+    if (includeLeftHandRoot.present) {
+      map['include_left_hand_root'] = Variable<bool>(includeLeftHandRoot.value);
+    }
     if (chordProgressionId.present) {
       map['chord_progression_id'] = Variable<String>(chordProgressionId.value);
     }
@@ -1247,6 +1356,8 @@ class ExerciseHistoryTableCompanion
           ..write('musicalNote: $musicalNote, ')
           ..write('arpeggioType: $arpeggioType, ')
           ..write('arpeggioOctaves: $arpeggioOctaves, ')
+          ..write('pattern: $pattern, ')
+          ..write('includeLeftHandRoot: $includeLeftHandRoot, ')
           ..write('chordProgressionId: $chordProgressionId, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -1610,6 +1721,8 @@ typedef $$ExerciseHistoryTableTableCreateCompanionBuilder =
       Value<String?> musicalNote,
       Value<String?> arpeggioType,
       Value<String?> arpeggioOctaves,
+      Value<String?> pattern,
+      Value<bool> includeLeftHandRoot,
       Value<String?> chordProgressionId,
       Value<int> rowid,
     });
@@ -1628,6 +1741,8 @@ typedef $$ExerciseHistoryTableTableUpdateCompanionBuilder =
       Value<String?> musicalNote,
       Value<String?> arpeggioType,
       Value<String?> arpeggioOctaves,
+      Value<String?> pattern,
+      Value<bool> includeLeftHandRoot,
       Value<String?> chordProgressionId,
       Value<int> rowid,
     });
@@ -1734,6 +1849,16 @@ class $$ExerciseHistoryTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get pattern => $composableBuilder(
+    column: $table.pattern,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get includeLeftHandRoot => $composableBuilder(
+    column: $table.includeLeftHandRoot,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get chordProgressionId => $composableBuilder(
     column: $table.chordProgressionId,
     builder: (column) => ColumnFilters(column),
@@ -1832,6 +1957,16 @@ class $$ExerciseHistoryTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get pattern => $composableBuilder(
+    column: $table.pattern,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get includeLeftHandRoot => $composableBuilder(
+    column: $table.includeLeftHandRoot,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get chordProgressionId => $composableBuilder(
     column: $table.chordProgressionId,
     builder: (column) => ColumnOrderings(column),
@@ -1924,6 +2059,14 @@ class $$ExerciseHistoryTableTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get pattern =>
+      $composableBuilder(column: $table.pattern, builder: (column) => column);
+
+  GeneratedColumn<bool> get includeLeftHandRoot => $composableBuilder(
+    column: $table.includeLeftHandRoot,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get chordProgressionId => $composableBuilder(
     column: $table.chordProgressionId,
     builder: (column) => column,
@@ -2002,6 +2145,8 @@ class $$ExerciseHistoryTableTableTableManager
                 Value<String?> musicalNote = const Value.absent(),
                 Value<String?> arpeggioType = const Value.absent(),
                 Value<String?> arpeggioOctaves = const Value.absent(),
+                Value<String?> pattern = const Value.absent(),
+                Value<bool> includeLeftHandRoot = const Value.absent(),
                 Value<String?> chordProgressionId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExerciseHistoryTableCompanion(
@@ -2018,6 +2163,8 @@ class $$ExerciseHistoryTableTableTableManager
                 musicalNote: musicalNote,
                 arpeggioType: arpeggioType,
                 arpeggioOctaves: arpeggioOctaves,
+                pattern: pattern,
+                includeLeftHandRoot: includeLeftHandRoot,
                 chordProgressionId: chordProgressionId,
                 rowid: rowid,
               ),
@@ -2036,6 +2183,8 @@ class $$ExerciseHistoryTableTableTableManager
                 Value<String?> musicalNote = const Value.absent(),
                 Value<String?> arpeggioType = const Value.absent(),
                 Value<String?> arpeggioOctaves = const Value.absent(),
+                Value<String?> pattern = const Value.absent(),
+                Value<bool> includeLeftHandRoot = const Value.absent(),
                 Value<String?> chordProgressionId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExerciseHistoryTableCompanion.insert(
@@ -2052,6 +2201,8 @@ class $$ExerciseHistoryTableTableTableManager
                 musicalNote: musicalNote,
                 arpeggioType: arpeggioType,
                 arpeggioOctaves: arpeggioOctaves,
+                pattern: pattern,
+                includeLeftHandRoot: includeLeftHandRoot,
                 chordProgressionId: chordProgressionId,
                 rowid: rowid,
               ),

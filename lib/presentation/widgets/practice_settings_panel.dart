@@ -2,6 +2,7 @@ import "dart:math" as math;
 
 import "package:flutter/material.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
+import "package:piano_fitness/domain/models/music/chord_tone_pattern.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
@@ -118,6 +119,7 @@ class PracticeSettingsPanel extends StatelessWidget {
   Widget _buildSecondarySelector(BuildContext context) {
     switch (configuration.practiceMode) {
       case PracticeMode.arpeggios:
+      case PracticeMode.blockChords:
         return _buildRootNoteDropdown();
       case PracticeMode.chordsByType:
         return _buildChordTypeDropdown();
@@ -148,6 +150,8 @@ class PracticeSettingsPanel extends StatelessWidget {
         return "Chords by Type";
       case PracticeMode.arpeggios:
         return "Arpeggios";
+      case PracticeMode.blockChords:
+        return "Block Chords";
       case PracticeMode.chordProgressions:
         return "Chord Progressions";
       case PracticeMode.dominantCadence:
@@ -162,6 +166,7 @@ class PracticeSettingsPanel extends StatelessWidget {
   /// - Chords by Key (practice diatonic chords in different keys)
   /// - Chord Progressions (practice progressions in different keys)
   /// - Arpeggios (practice arpeggios starting from different root notes)
+  /// - Block Chords (practice block chords starting from different root notes)
   ///
   /// Modes that use chord types (chords by type) are excluded.
   bool _supportsKeyProgression() {
@@ -169,6 +174,7 @@ class PracticeSettingsPanel extends StatelessWidget {
         configuration.practiceMode == PracticeMode.chordsByKey ||
         configuration.practiceMode == PracticeMode.chordProgressions ||
         configuration.practiceMode == PracticeMode.arpeggios ||
+        configuration.practiceMode == PracticeMode.blockChords ||
         configuration.practiceMode == PracticeMode.dominantCadence;
   }
 
@@ -226,6 +232,19 @@ class PracticeSettingsPanel extends StatelessWidget {
         return "1 Octave";
       case ArpeggioOctaves.two:
         return "2 Octaves";
+      case ArpeggioOctaves.three:
+        return "3 Octaves";
+      case ArpeggioOctaves.four:
+        return "4 Octaves";
+    }
+  }
+
+  String _getChordTonePatternString(ChordTonePattern pattern) {
+    switch (pattern) {
+      case ChordTonePattern.straight:
+        return "Straight";
+      case ChordTonePattern.rolling:
+        return "Rolling";
     }
   }
 
@@ -375,12 +394,14 @@ class PracticeSettingsPanel extends StatelessWidget {
               onConfigurationChanged: onConfigurationChanged,
               getScaleTypeString: _getScaleTypeString,
             )
-          else if (configuration.practiceMode == PracticeMode.arpeggios)
+          else if (configuration.practiceMode == PracticeMode.arpeggios ||
+              configuration.practiceMode == PracticeMode.blockChords)
             _ArpeggiosSettings(
               configuration: configuration,
               onConfigurationChanged: onConfigurationChanged,
               getArpeggioTypeString: _getArpeggioTypeString,
               getArpeggioOctavesString: _getArpeggioOctavesString,
+              getChordTonePatternString: _getChordTonePatternString,
             )
           else if (configuration.practiceMode == PracticeMode.chordProgressions)
             _ChordProgressionsSettings(
@@ -616,15 +637,21 @@ class _ArpeggiosSettings extends StatelessWidget {
     required this.onConfigurationChanged,
     required this.getArpeggioTypeString,
     required this.getArpeggioOctavesString,
+    required this.getChordTonePatternString,
   });
 
   final ExerciseConfiguration configuration;
   final ValueChanged<ExerciseConfiguration> onConfigurationChanged;
   final String Function(ArpeggioType) getArpeggioTypeString;
   final String Function(ArpeggioOctaves) getArpeggioOctavesString;
+  final String Function(ChordTonePattern) getChordTonePatternString;
 
   @override
   Widget build(BuildContext context) {
+    final showLeftHandRootToggle =
+        configuration.handSelection == HandSelection.right &&
+        configuration.pattern == ChordTonePattern.rolling;
+
     return Column(
       children: [
         const SizedBox(height: Spacing.sm),
@@ -681,6 +708,52 @@ class _ArpeggiosSettings extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: Spacing.sm),
+        DropdownButtonFormField<ChordTonePattern>(
+          key: ValueKey("pattern_${configuration.pattern}"),
+          initialValue: configuration.pattern,
+          decoration: const InputDecoration(
+            labelText: "Pattern",
+            border: OutlineInputBorder(),
+          ),
+          items: ChordTonePattern.values.map((pattern) {
+            return DropdownMenuItem(
+              value: pattern,
+              child: Text(getChordTonePatternString(pattern)),
+            );
+          }).toList(),
+          onChanged: (value) {
+            if (value != null) {
+              onConfigurationChanged(configuration.copyWith(pattern: value));
+            }
+          },
+        ),
+        if (showLeftHandRootToggle) ...[
+          const SizedBox(height: Spacing.sm),
+          Semantics(
+            label:
+                "Left hand taps the chord root once per rolling group, "
+                "for hand-independence practice",
+            child: Material(
+              color: Colors.transparent,
+              child: CheckboxListTile(
+                title: const Text("Left Hand Taps Root"),
+                subtitle: const Text(
+                  "Left hand plays the root once per group",
+                ),
+                value: configuration.includeLeftHandRoot,
+                onChanged: (value) {
+                  if (value != null) {
+                    onConfigurationChanged(
+                      configuration.copyWith(includeLeftHandRoot: value),
+                    );
+                  }
+                },
+                controlAffinity: ListTileControlAffinity.leading,
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }
