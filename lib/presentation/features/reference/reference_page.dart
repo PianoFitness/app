@@ -3,14 +3,12 @@ import "package:provider/provider.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
-import "package:piano_fitness/presentation/features/reference/reference_constants.dart";
 import "package:piano_fitness/presentation/features/reference/reference_page_view_model.dart";
+import "package:piano_fitness/presentation/features/reference/widgets/reference_config_row.dart";
 import "package:piano_fitness/presentation/accessibility/config/accessibility_labels.dart";
-import "package:piano_fitness/domain/constants/musical_constants.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
+import "package:piano_fitness/presentation/utils/piano_key_utils.dart";
 import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
-import "package:piano_fitness/domain/models/music/scale_types.dart" as scales;
-import "package:piano_fitness/domain/models/music/chord_type.dart";
 import "package:piano_fitness/presentation/utils/piano_accessibility_utils.dart";
 import "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard.dart";
 
@@ -45,95 +43,29 @@ class ReferencePage extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context, ReferencePageViewModel viewModel) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       body: Column(
         children: [
-          Expanded(
-            flex: 4,
-            child: SafeArea(
-              bottom: false,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(Spacing.md),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Mode Selection
-                    Container(
-                      padding: const EdgeInsets.all(Spacing.md),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(
-                          AppBorderRadius.medium,
-                        ),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.primary
-                              .withValues(alpha: OpacityValues.borderMedium),
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            "Reference Mode",
-                            style: TextStyle(
-                              fontSize:
-                                  theme.textTheme.headlineMedium?.fontSize,
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onPrimaryContainer,
-                            ),
-                          ),
-                          const SizedBox(
-                            height: ReferenceUIConstants.headerSpacing,
-                          ),
-                          ListenableBuilder(
-                            listenable: viewModel,
-                            builder: (context, child) {
-                              return SegmentedButton<ReferenceMode>(
-                                key: const Key("reference_mode_selector"),
-                                segments: const [
-                                  ButtonSegment<ReferenceMode>(
-                                    value: ReferenceMode.scales,
-                                    label: Text(
-                                      "Scales",
-                                      key: Key("scales_mode_button"),
-                                    ),
-                                    icon: Icon(Icons.keyboard_arrow_up),
-                                  ),
-                                  ButtonSegment<ReferenceMode>(
-                                    value: ReferenceMode.chordTypes,
-                                    label: Text(
-                                      "Chord Types",
-                                      key: Key("chord_types_mode_button"),
-                                    ),
-                                    icon: Icon(Icons.piano),
-                                  ),
-                                ],
-                                selected: {viewModel.selectedMode},
-                                onSelectionChanged:
-                                    (Set<ReferenceMode> selection) {
-                                      viewModel.setSelectedMode(
-                                        selection.first,
-                                      );
-                                    },
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: Spacing.md),
-
-                    // Selection Controls
-                    ListenableBuilder(
-                      listenable: viewModel,
-                      builder: (context, child) {
-                        return _buildSelectionControls(context, viewModel);
-                      },
-                    ),
-                  ],
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: Spacing.sm,
+                vertical: Spacing.xs,
+              ),
+              child: ListenableBuilder(
+                listenable: viewModel,
+                builder: (context, child) => ReferenceConfigRow(
+                  selectedMode: viewModel.selectedMode,
+                  onModeChanged: viewModel.setSelectedMode,
+                  selectedKey: viewModel.selectedKey,
+                  onKeyChanged: viewModel.setSelectedKey,
+                  selectedScaleType: viewModel.selectedScaleType,
+                  onScaleTypeChanged: viewModel.setSelectedScaleType,
+                  selectedChordType: viewModel.selectedChordType,
+                  onChordTypeChanged: viewModel.setSelectedChordType,
+                  selectedChordInversion: viewModel.selectedChordInversion,
+                  onChordInversionChanged: viewModel.setSelectedChordInversion,
                 ),
               ),
             ),
@@ -143,10 +75,7 @@ class ReferencePage extends StatelessWidget {
           Expanded(
             child: Builder(
               builder: (context) {
-                final fixed49KeyRange = PianoRangeUtils.standard49KeyRange;
                 final screenWidth = MediaQuery.of(context).size.width;
-                final dynamicKeyWidth =
-                    PianoRangeUtils.calculateScreenBasedKeyWidth(screenWidth);
 
                 return ListenableBuilder(
                   listenable: viewModel,
@@ -154,6 +83,19 @@ class ReferencePage extends StatelessWidget {
                     final highlightedMidiNotes = viewModel.localHighlightedNotes
                         .map((note) => note.value)
                         .toList();
+                    final range = PianoRangeUtils.calculateReferenceRange(
+                      highlightedMidiNotes,
+                      fallbackRange: PianoRangeUtils.standard49KeyRange,
+                    );
+                    final whiteKeyCount = getWhiteKeysInRange(
+                      range.fromMidi,
+                      range.toMidi,
+                    ).length;
+                    final dynamicKeyWidth =
+                        PianoRangeUtils.calculateScreenBasedKeyWidth(
+                          screenWidth,
+                          keyCount: whiteKeyCount,
+                        );
                     final colorScheme = Theme.of(context).colorScheme;
                     final keyVisuals = ValueNotifier<Map<int, PianoKeyVisual>>({
                       for (final note in highlightedMidiNotes)
@@ -166,7 +108,7 @@ class ReferencePage extends StatelessWidget {
                       semanticLabel: "Reference mode piano keyboard",
                       child: PianoKeyboard(
                         key: const Key("reference_piano"),
-                        range: fixed49KeyRange,
+                        range: range,
                         keyVisuals: keyVisuals,
                         noteLabelMode: NoteLabelMode.name,
                         keyWidth: dynamicKeyWidth.clamp(
@@ -184,274 +126,6 @@ class ReferencePage extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildSelectionControls(
-    BuildContext context,
-    ReferencePageViewModel viewModel,
-  ) {
-    if (viewModel.selectedMode == ReferenceMode.scales) {
-      return _buildScaleControls(context, viewModel);
-    } else {
-      return _buildChordControls(context, viewModel);
-    }
-  }
-
-  Widget _buildScaleControls(
-    BuildContext context,
-    ReferencePageViewModel viewModel,
-  ) {
-    return Column(
-      children: [
-        // Key Selection
-        Container(
-          key: const Key("scales_key_selection"),
-          padding: const EdgeInsets.all(Spacing.md),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.secondaryContainer,
-            borderRadius: BorderRadius.circular(AppBorderRadius.medium),
-            border: Border.all(
-              color: Theme.of(context).colorScheme.secondary.withValues(
-                alpha: OpacityValues.borderMedium,
-              ),
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Key",
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onSecondaryContainer,
-                ),
-              ),
-              const SizedBox(height: Spacing.sm),
-              Wrap(
-                spacing: Spacing.sm,
-                runSpacing: Spacing.sm,
-                children: scales.Key.values.map((scales.Key key) {
-                  final isSelected = viewModel.selectedKey == key;
-                  return FilterChip(
-                    key: Key("scales_key_${key.name}"),
-                    label: Text(key.displayName),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) {
-                        viewModel.setSelectedKey(key);
-                      }
-                    },
-                    selectedColor: Theme.of(context).colorScheme.secondary
-                        .withValues(alpha: OpacityValues.backgroundMedium),
-                    checkmarkColor: Theme.of(context).colorScheme.secondary,
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: Spacing.md),
-
-        // Scale Type Selection
-        Container(
-          key: const Key("scales_type_selection"),
-          padding: const EdgeInsets.all(Spacing.md),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.secondaryContainer,
-            borderRadius: BorderRadius.circular(AppBorderRadius.medium),
-            border: Border.all(color: Theme.of(context).colorScheme.outline),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Scale Type",
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.secondary,
-                ),
-              ),
-              const SizedBox(height: Spacing.sm),
-              Wrap(
-                spacing: Spacing.sm,
-                runSpacing: Spacing.sm,
-                children: scales.ScaleType.values.map((scales.ScaleType type) {
-                  final isSelected = viewModel.selectedScaleType == type;
-                  return FilterChip(
-                    key: Key("scales_type_${type.name}"),
-                    label: Text(
-                      MusicalConstants.scaleTypeNames[type.name] ?? type.name,
-                    ),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) {
-                        viewModel.setSelectedScaleType(type);
-                      }
-                    },
-                    selectedColor: Theme.of(
-                      context,
-                    ).colorScheme.secondaryContainer,
-                    checkmarkColor: Theme.of(context).colorScheme.secondary,
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildChordControls(
-    BuildContext context,
-    ReferencePageViewModel viewModel,
-  ) {
-    return Column(
-      children: [
-        // Key Selection
-        Container(
-          key: const Key("chords_root_selection"),
-          padding: const EdgeInsets.all(Spacing.md),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.tertiaryContainer,
-            borderRadius: BorderRadius.circular(AppBorderRadius.medium),
-            border: Border.all(color: Theme.of(context).colorScheme.outline),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Root Note",
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.tertiary,
-                ),
-              ),
-              const SizedBox(height: Spacing.sm),
-              Wrap(
-                spacing: Spacing.sm,
-                runSpacing: Spacing.sm,
-                children: scales.Key.values.map((scales.Key key) {
-                  final isSelected = viewModel.selectedKey == key;
-                  return FilterChip(
-                    key: Key("chords_root_${key.name}"),
-                    label: Text(key.displayName),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) {
-                        viewModel.setSelectedKey(key);
-                      }
-                    },
-                    selectedColor: Theme.of(
-                      context,
-                    ).colorScheme.tertiaryContainer,
-                    checkmarkColor: Theme.of(context).colorScheme.tertiary,
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: Spacing.md),
-
-        // Chord Type Selection
-        Container(
-          key: const Key("chords_type_selection"),
-          padding: const EdgeInsets.all(Spacing.md),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.tertiaryContainer,
-            borderRadius: BorderRadius.circular(AppBorderRadius.medium),
-            border: Border.all(color: Theme.of(context).colorScheme.outline),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Chord Type",
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.tertiary,
-                ),
-              ),
-              const SizedBox(height: Spacing.sm),
-              Wrap(
-                spacing: Spacing.sm,
-                runSpacing: Spacing.sm,
-                children: ChordType.values.map((type) {
-                  final isSelected = viewModel.selectedChordType == type;
-                  return FilterChip(
-                    key: Key("chords_type_${type.name}"),
-                    label: Text(
-                      MusicalConstants.chordTypeNames[type.name] ?? type.name,
-                    ),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) {
-                        viewModel.setSelectedChordType(type);
-                      }
-                    },
-                    selectedColor: Theme.of(
-                      context,
-                    ).colorScheme.tertiaryContainer,
-                    checkmarkColor: Theme.of(context).colorScheme.tertiary,
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: Spacing.md),
-
-        // Chord Inversion Selection
-        Container(
-          key: const Key("chords_inversion_selection"),
-          padding: const EdgeInsets.all(Spacing.md),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.tertiaryContainer,
-            borderRadius: BorderRadius.circular(AppBorderRadius.medium),
-            border: Border.all(color: Theme.of(context).colorScheme.outline),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Inversion",
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.tertiary,
-                ),
-              ),
-              const SizedBox(height: Spacing.sm),
-              Wrap(
-                spacing: Spacing.sm,
-                runSpacing: Spacing.sm,
-                children: ChordInversion.values.map((inversion) {
-                  final isSelected =
-                      viewModel.selectedChordInversion == inversion;
-                  return FilterChip(
-                    key: Key("chords_inversion_${inversion.name}"),
-                    label: Text(
-                      MusicalConstants.chordInversionNames[inversion.name] ??
-                          inversion.name,
-                    ),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) {
-                        viewModel.setSelectedChordInversion(inversion);
-                      }
-                    },
-                    selectedColor: Theme.of(
-                      context,
-                    ).colorScheme.tertiaryContainer,
-                    checkmarkColor: Theme.of(context).colorScheme.tertiary,
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

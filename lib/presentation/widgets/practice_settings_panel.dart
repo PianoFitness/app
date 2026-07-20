@@ -244,7 +244,7 @@ class PracticeSettingsPanel extends StatelessWidget {
 
     return Container(
       key: panelKey,
-      padding: const EdgeInsets.all(Spacing.lg),
+      padding: const EdgeInsets.all(Spacing.sm),
       decoration: BoxDecoration(
         color: colorScheme.primaryContainer.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(AppBorderRadius.medium),
@@ -270,7 +270,7 @@ class PracticeSettingsPanel extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: Spacing.md),
+          const SizedBox(height: Spacing.sm),
           Row(
             children: [
               Expanded(
@@ -281,6 +281,7 @@ class PracticeSettingsPanel extends StatelessWidget {
                     labelText: "Practice Mode",
                     border: OutlineInputBorder(),
                   ),
+                  isExpanded: true,
                   items: PracticeMode.values.map((mode) {
                     return DropdownMenuItem(
                       value: mode,
@@ -397,7 +398,7 @@ class PracticeSettingsPanel extends StatelessWidget {
               configuration: configuration,
               onConfigurationChanged: onConfigurationChanged,
             ),
-          const SizedBox(height: Spacing.md),
+          const SizedBox(height: Spacing.sm),
           // Show practice status and reset button
           Column(
             children: [

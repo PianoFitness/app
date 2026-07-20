@@ -46,6 +46,11 @@ class PianoRangeUtils {
   static const int bufferSemitones =
       MusicalConstants.semitonesPerOctave; // One octave buffer
 
+  /// Padding (in semitones) added on each side of reference material
+  /// (a scale or chord) so the notes aren't flush against the keyboard
+  /// edges, while keeping the keyboard as tight as possible around them.
+  static const int referencePaddingSemitones = 2;
+
   /// Configuration for piano key width based on range size
   static const double defaultKeyWidth = 45;
 
@@ -121,6 +126,45 @@ class PianoRangeUtils {
     // Clamp to 88-key keyboard range (A0 to C8)
     startMidi = startMidi.clamp(min88KeyMidi, max88KeyMidi);
     endMidi = endMidi.clamp(min88KeyMidi, max88KeyMidi);
+
+    return MidiNoteRange(fromMidi: startMidi, toMidi: endMidi);
+  }
+
+  /// Calculates a tight note range around [highlightedMidiNotes] with only
+  /// a small padding on each side.
+  ///
+  /// Unlike [calculateOptimalRange] (which enforces a minimum/maximum
+  /// octave span for a stable practice window), this keeps the keyboard as
+  /// narrow as the reference material allows, so a single scale or chord
+  /// isn't lost in a mostly-empty keyboard. Intended for the reference page,
+  /// where the displayed notes ARE the content.
+  ///
+  /// [highlightedMidiNotes] - MIDI note numbers that should be visible
+  /// [fallbackRange] - Range to use if no notes are highlighted
+  /// [paddingSemitones] - Minimum padding on each side (defaults to
+  /// [referencePaddingSemitones])
+  ///
+  /// Returns a MidiNoteRange that snugly fits the highlighted notes.
+  static MidiNoteRange calculateReferenceRange(
+    List<int> highlightedMidiNotes, {
+    MidiNoteRange? fallbackRange,
+    int paddingSemitones = referencePaddingSemitones,
+  }) {
+    if (highlightedMidiNotes.isEmpty) {
+      return fallbackRange ?? defaultRange;
+    }
+
+    final minMidi = highlightedMidiNotes.reduce((a, b) => a < b ? a : b);
+    final maxMidi = highlightedMidiNotes.reduce((a, b) => a > b ? a : b);
+
+    final startMidi = (minMidi - paddingSemitones).clamp(
+      min88KeyMidi,
+      max88KeyMidi,
+    );
+    final endMidi = (maxMidi + paddingSemitones).clamp(
+      min88KeyMidi,
+      max88KeyMidi,
+    );
 
     return MidiNoteRange(fromMidi: startMidi, toMidi: endMidi);
   }

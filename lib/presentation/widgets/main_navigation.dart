@@ -8,6 +8,7 @@ import "package:piano_fitness/presentation/features/practice/practice_hub_page.d
 import "package:piano_fitness/presentation/features/reference/reference_page.dart";
 import "package:piano_fitness/presentation/features/repertoire/repertoire_page.dart";
 import "package:piano_fitness/presentation/features/user_profile/user_profile_page.dart";
+import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:provider/provider.dart";
 
 /// Main navigation wrapper that provides bottom navigation between core app sections.
@@ -52,6 +53,17 @@ class _MainNavigationState extends State<MainNavigation> {
     Icons.history,
   ];
 
+  /// Stable keys for each tab's icon, shared between the bottom nav bar
+  /// (portrait) and navigation drawer (landscape) so tests can find a tab
+  /// regardless of which layout is active.
+  static const List<Key> _tabKeys = [
+    Key("nav_tab_free_play"),
+    Key("nav_tab_practice"),
+    Key("nav_tab_reference"),
+    Key("nav_tab_repertoire"),
+    Key("nav_tab_history"),
+  ];
+
   /// Handles bottom navigation item taps.
   void _onItemTapped(int index) {
     setState(() {
@@ -59,14 +71,55 @@ class _MainNavigationState extends State<MainNavigation> {
     });
   }
 
+  Widget _buildNavIcon(int index) {
+    return Semantics(
+      key: _tabKeys[index],
+      button: true,
+      child: Icon(_pageIcons[index]),
+    );
+  }
+
+  /// Builds the landscape navigation drawer: closes itself after a
+  /// selection so it never occupies screen space while not in use.
+  Widget _buildDrawer(BuildContext context) {
+    return Drawer(
+      key: const Key("navigation_drawer"),
+      child: SafeArea(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            for (var i = 0; i < _pageTitles.length; i++)
+              ListTile(
+                key: _tabKeys[i],
+                leading: Icon(_pageIcons[i]),
+                title: Text(_pageTitles[i]),
+                selected: i == _selectedIndex,
+                onTap: () {
+                  _onItemTapped(i);
+                  Navigator.of(context).pop();
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    // Landscape phones have little spare height for chrome, so navigation
+    // moves into an auto-hiding drawer instead of a persistent bar/rail,
+    // letting the piano and settings use the full width.
+    final isLandscape = MediaQuery.orientationOf(context) == Orientation.landscape;
 
     return Scaffold(
+      key: const Key("main_navigation_scaffold"),
+      drawer: isLandscape ? _buildDrawer(context) : null,
       appBar: AppBar(
         backgroundColor: colorScheme.inversePrimary,
+        toolbarHeight: ComponentDimensions.minTouchTarget,
         title: Semantics(
           header: true,
           child: Row(
@@ -108,55 +161,22 @@ class _MainNavigationState extends State<MainNavigation> {
         ],
       ),
       body: IndexedStack(index: _selectedIndex, children: _pages),
-      bottomNavigationBar: BottomNavigationBar(
-        key: const Key("bottom_navigation_bar"),
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Semantics(
-              key: const Key("nav_tab_free_play"),
-              button: true,
-              child: const Icon(Icons.piano),
+      bottomNavigationBar: isLandscape
+          ? null
+          : NavigationBar(
+              key: const Key("bottom_navigation_bar"),
+              height: ComponentDimensions.minTouchTarget + Spacing.sm,
+              labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+              selectedIndex: _selectedIndex,
+              onDestinationSelected: _onItemTapped,
+              destinations: [
+                for (var i = 0; i < _pageTitles.length; i++)
+                  NavigationDestination(
+                    icon: _buildNavIcon(i),
+                    label: _pageTitles[i],
+                  ),
+              ],
             ),
-            label: "Free Play",
-          ),
-          BottomNavigationBarItem(
-            icon: Semantics(
-              key: const Key("nav_tab_practice"),
-              button: true,
-              child: const Icon(Icons.school),
-            ),
-            label: "Practice",
-          ),
-          BottomNavigationBarItem(
-            icon: Semantics(
-              key: const Key("nav_tab_reference"),
-              button: true,
-              child: const Icon(Icons.library_books),
-            ),
-            label: "Reference",
-          ),
-          BottomNavigationBarItem(
-            icon: Semantics(
-              key: const Key("nav_tab_repertoire"),
-              button: true,
-              child: const Icon(Icons.library_music),
-            ),
-            label: "Repertoire",
-          ),
-          BottomNavigationBarItem(
-            icon: Semantics(
-              key: const Key("nav_tab_history"),
-              button: true,
-              child: const Icon(Icons.history),
-            ),
-            label: "History",
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-        onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed,
-      ),
     );
   }
 

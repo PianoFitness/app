@@ -1,7 +1,17 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/presentation/widgets/main_navigation.dart";
+import "../../shared/test_helpers/pump_helpers.dart";
 import "../../shared/test_helpers/widget_test_helper.dart";
+
+/// Pumps [MainNavigation] at a portrait phone size.
+///
+/// Most of these tests assert on the portrait bottom-nav-bar layout, so
+/// they need an explicit portrait size rather than the test default; see
+/// [pumpPortrait] for why.
+Future<void> pumpPortraitMainNavigation(WidgetTester tester) async {
+  await pumpPortrait(tester, createTestWidget(const MainNavigation()));
+}
 
 /// Helper function to navigate to a specific tab by key.
 /// This avoids text-based finders and uses stable key-based navigation.
@@ -13,11 +23,33 @@ Future<void> navigateToTab(WidgetTester tester, Key tabKey) async {
   await tester.pumpAndSettle();
 }
 
-/// Helper function to verify the current tab is active by checking the bottom nav state
+/// Page titles in MainNavigation's tab order, mirrored here since the
+/// app's own list is private to the widget.
+const List<String> _pageTitlesForTest = [
+  "Free Play",
+  "Practice",
+  "Reference",
+  "Repertoire",
+  "History",
+];
+
+/// Helper function to verify the current tab is active.
+///
+/// MainNavigation shows a bottom [NavigationBar] in portrait, whose
+/// `selectedIndex` can be read directly. In landscape, navigation is a
+/// [Drawer] that closes itself after a selection, so there's no persistent
+/// widget state to read; the AppBar title (which always reflects the
+/// active page) is checked instead.
 void expectTabActive(WidgetTester tester, int expectedIndex) {
   final bottomNav = find.byKey(const Key("bottom_navigation_bar"));
-  final bottomNavWidget = tester.widget<BottomNavigationBar>(bottomNav);
-  expect(bottomNavWidget.currentIndex, equals(expectedIndex));
+  if (bottomNav.evaluate().isNotEmpty) {
+    expect(tester.widget<NavigationBar>(bottomNav).selectedIndex, equals(expectedIndex));
+    return;
+  }
+  expect(
+    find.widgetWithText(AppBar, _pageTitlesForTest[expectedIndex]),
+    findsOneWidget,
+  );
 }
 
 void main() {
@@ -25,8 +57,7 @@ void main() {
     testWidgets("should display main navigation with initial content", (
       tester,
     ) async {
-      await tester.pumpWidget(createTestWidget(const MainNavigation()));
-      await tester.pumpAndSettle();
+      await pumpPortraitMainNavigation(tester);
 
       // Verify app bar with initial page (Free Play) - text appears in both app bar and bottom nav
       expect(find.text("Free Play"), findsWidgets);
@@ -49,8 +80,7 @@ void main() {
     testWidgets("should navigate between bottom navigation pages", (
       tester,
     ) async {
-      await tester.pumpWidget(createTestWidget(const MainNavigation()));
-      await tester.pumpAndSettle();
+      await pumpPortraitMainNavigation(tester);
 
       // Navigate to Practice tab using stable key
       await navigateToTab(tester, const Key("nav_tab_practice"));
@@ -89,8 +119,7 @@ void main() {
       testWidgets("should display MIDI settings button with correct tooltip", (
         tester,
       ) async {
-        await tester.pumpWidget(createTestWidget(const MainNavigation()));
-        await tester.pumpAndSettle();
+        await pumpPortraitMainNavigation(tester);
 
         // Find MIDI settings button using stable key
         final settingsButton = find.byKey(const Key("midi_settings_button"));
@@ -109,8 +138,7 @@ void main() {
       testWidgets("should have interactive MIDI settings button", (
         tester,
       ) async {
-        await tester.pumpWidget(createTestWidget(const MainNavigation()));
-        await tester.pumpAndSettle();
+        await pumpPortraitMainNavigation(tester);
 
         // Verify MIDI settings button is interactive using stable key
         final settingsButton = find.byKey(const Key("midi_settings_button"));
@@ -124,8 +152,7 @@ void main() {
       testWidgets(
         "should display notification settings button with correct tooltip",
         (tester) async {
-          await tester.pumpWidget(createTestWidget(const MainNavigation()));
-          await tester.pumpAndSettle();
+          await pumpPortraitMainNavigation(tester);
 
           // Find notification settings button using stable key
           final notificationButton = find.byKey(
@@ -147,8 +174,7 @@ void main() {
       testWidgets("should have interactive notification settings button", (
         tester,
       ) async {
-        await tester.pumpWidget(createTestWidget(const MainNavigation()));
-        await tester.pumpAndSettle();
+        await pumpPortraitMainNavigation(tester);
 
         // Verify notification settings button is interactive using stable key
         final notificationButton = find.byKey(
@@ -164,8 +190,7 @@ void main() {
       testWidgets(
         "should maintain MIDI controls accessibility across all pages",
         (tester) async {
-          await tester.pumpWidget(createTestWidget(const MainNavigation()));
-          await tester.pumpAndSettle();
+          await pumpPortraitMainNavigation(tester);
 
           final tabKeys = [
             const Key("nav_tab_practice"),
@@ -204,8 +229,7 @@ void main() {
       testWidgets("should preserve bottom navigation state correctly", (
         tester,
       ) async {
-        await tester.pumpWidget(createTestWidget(const MainNavigation()));
-        await tester.pumpAndSettle();
+        await pumpPortraitMainNavigation(tester);
 
         // Navigate to Practice using stable helper
         await navigateToTab(tester, const Key("nav_tab_practice"));
@@ -223,8 +247,7 @@ void main() {
       testWidgets("should use IndexedStack to preserve page state", (
         tester,
       ) async {
-        await tester.pumpWidget(createTestWidget(const MainNavigation()));
-        await tester.pumpAndSettle();
+        await pumpPortraitMainNavigation(tester);
 
         // Verify IndexedStack is used for page management
         expect(find.byType(IndexedStack), findsOneWidget);
@@ -256,8 +279,7 @@ void main() {
       testWidgets("should have proper semantic headers for page titles", (
         tester,
       ) async {
-        await tester.pumpWidget(createTestWidget(const MainNavigation()));
-        await tester.pumpAndSettle();
+        await pumpPortraitMainNavigation(tester);
 
         // Find Semantics widgets with header property using predicate
         expect(
@@ -270,8 +292,7 @@ void main() {
       });
 
       testWidgets("should provide tooltips for action buttons", (tester) async {
-        await tester.pumpWidget(createTestWidget(const MainNavigation()));
-        await tester.pumpAndSettle();
+        await pumpPortraitMainNavigation(tester);
 
         // Test MIDI settings tooltip using stable key
         final settingsButton = find.byKey(const Key("midi_settings_button"));
@@ -292,5 +313,46 @@ void main() {
     // Note: Profile button tests removed due to FutureBuilder complexity in testing
     // The profile button functionality is indirectly tested through integration tests
     // and the profile button implementation is simple and stable
+
+    group("Landscape Layout", () {
+      testWidgets(
+        "should hide navigation behind a drawer instead of a bottom bar",
+        (tester) async {
+          // The default flutter_test viewport (800x600) is landscape-shaped.
+          await tester.pumpWidget(createTestWidget(const MainNavigation()));
+          await tester.pumpAndSettle();
+
+          // No persistent nav bar taking up space; content gets full width.
+          expect(find.byKey(const Key("bottom_navigation_bar")), findsNothing);
+          // The drawer exists (for the edge-swipe gesture) but starts closed.
+          final scaffoldState = tester.state<ScaffoldState>(
+            find.byKey(const Key("main_navigation_scaffold")),
+          );
+          expect(scaffoldState.isDrawerOpen, isFalse);
+        },
+      );
+
+      testWidgets("should navigate between pages via the drawer", (
+        tester,
+      ) async {
+        await tester.pumpWidget(createTestWidget(const MainNavigation()));
+        await tester.pumpAndSettle();
+
+        // Open the drawer via the AppBar's automatic menu button.
+        await tester.tap(find.byIcon(Icons.menu));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key("navigation_drawer")), findsOneWidget);
+
+        await navigateToTab(tester, const Key("nav_tab_practice"));
+
+        // Selecting a destination closes the drawer again.
+        final scaffoldState = tester.state<ScaffoldState>(
+          find.byKey(const Key("main_navigation_scaffold")),
+        );
+        expect(scaffoldState.isDrawerOpen, isFalse);
+        expectTabActive(tester, 1);
+        expect(find.byIcon(Icons.school), findsWidgets);
+      });
+    });
   });
 }
