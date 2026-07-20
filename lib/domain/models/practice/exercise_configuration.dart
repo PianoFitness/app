@@ -46,6 +46,7 @@ class ExerciseConfiguration {
   /// - chordsByKey: key, scaleType
   /// - chordsByType: chordType
   /// - arpeggios: musicalNote, arpeggioType
+  /// - blockChords: musicalNote, arpeggioType
   /// - chordProgressions: key, chordProgressionId
   ///
   /// See [validate] for complete validation rules.
@@ -128,12 +129,12 @@ class ExerciseConfiguration {
   /// Default: false.
   final bool includeSeventhChords;
 
-  /// The root note for arpeggios mode.
-  /// Required for: arpeggios.
+  /// The root note for arpeggios and blockChords modes.
+  /// Required for: arpeggios, blockChords.
   final MusicalNote? musicalNote;
 
-  /// The arpeggio type for arpeggios mode.
-  /// Required for: arpeggios.
+  /// The arpeggio/chord type for arpeggios and blockChords modes.
+  /// Required for: arpeggios, blockChords.
   final ArpeggioType? arpeggioType;
 
   /// Number of octaves for arpeggio patterns (arpeggios mode).
@@ -189,6 +190,7 @@ class ExerciseConfiguration {
   /// - chordsByKey: requires key, scaleType
   /// - chordsByType: requires chordType
   /// - arpeggios: requires musicalNote, arpeggioType
+  /// - blockChords: requires musicalNote, arpeggioType
   /// - chordProgressions: requires key, chordProgressionId
   /// - dominantCadence: requires key
   void validate() {
@@ -231,9 +233,7 @@ class ExerciseConfiguration {
           throw ArgumentError("musicalNote is required for blockChords mode");
         }
         if (arpeggioType == null) {
-          throw ArgumentError(
-            "arpeggioType is required for blockChords mode",
-          );
+          throw ArgumentError("arpeggioType is required for blockChords mode");
         }
         break;
 

@@ -62,11 +62,13 @@ class BlockChordsStrategy implements PracticeStrategy {
 
   @override
   PracticeExercise initializeExercise() {
-    if ((handSelection == HandSelection.both || includeLeftHandRoot) &&
+    if ((handSelection == HandSelection.both ||
+            handSelection == HandSelection.left ||
+            includeLeftHandRoot) &&
         startOctave < 1) {
       throw ArgumentError(
-        "startOctave must be >= 1 for both hands or left-hand root taps "
-        "(left hand plays at startOctave - 1), got: $startOctave",
+        "startOctave must be >= 1 for both hands, left hand, or left-hand "
+        "root taps (left hand plays at startOctave - 1), got: $startOctave",
       );
     }
 
@@ -92,10 +94,7 @@ class BlockChordsStrategy implements PracticeStrategy {
         ? PracticeHand.left
         : PracticeHand.right;
     final rightRootMidi = NoteUtils.noteToMidiNumber(rootNote, startOctave);
-    final leftRootMidi = NoteUtils.noteToMidiNumber(
-      rootNote,
-      startOctave - 1,
-    );
+    final leftRootMidi = NoteUtils.noteToMidiNumber(rootNote, startOctave - 1);
     int rootMidiForHand(PracticeHand hand) =>
         hand == PracticeHand.left ? leftRootMidi : rightRootMidi;
 

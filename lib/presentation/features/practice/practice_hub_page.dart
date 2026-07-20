@@ -226,6 +226,10 @@ class PracticeHubPage extends StatelessWidget {
                   _navigateToPractice(context, PracticeMode.blockChords),
             ),
           ),
+          const SizedBox(width: 8),
+          const Expanded(child: SizedBox.shrink()),
+          const SizedBox(width: 8),
+          const Expanded(child: SizedBox.shrink()),
         ],
       ),
     );

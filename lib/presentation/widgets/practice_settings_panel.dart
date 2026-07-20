@@ -505,9 +505,7 @@ class _AutoProgressKeyToggle extends StatelessWidget {
           color: Colors.transparent,
           child: SwitchListTile(
             title: const Text("Auto-progress through keys"),
-            subtitle: const Text(
-              "Follow circle of fifths after each exercise",
-            ),
+            subtitle: const Text("Follow circle of fifths after each exercise"),
             value: autoProgressKeys,
             onChanged: onAutoProgressKeysChanged,
             contentPadding: const EdgeInsets.symmetric(horizontal: Spacing.sm),
@@ -650,7 +648,8 @@ class _ArpeggiosSettings extends StatelessWidget {
   Widget build(BuildContext context) {
     final showLeftHandRootToggle =
         configuration.handSelection == HandSelection.right &&
-        configuration.pattern == ChordTonePattern.rolling;
+        (configuration.practiceMode == PracticeMode.blockChords ||
+            configuration.pattern == ChordTonePattern.rolling);
 
     return Column(
       children: [
@@ -738,9 +737,7 @@ class _ArpeggiosSettings extends StatelessWidget {
               color: Colors.transparent,
               child: CheckboxListTile(
                 title: const Text("Left Hand Taps Root"),
-                subtitle: const Text(
-                  "Left hand plays the root once per group",
-                ),
+                subtitle: const Text("Left hand plays the root once per group"),
                 value: configuration.includeLeftHandRoot,
                 onChanged: (value) {
                   if (value != null) {
@@ -833,9 +830,7 @@ class _DominantCadenceSettings extends StatelessWidget {
             color: Colors.transparent,
             child: CheckboxListTile(
               title: const Text("Include 7th Chords (V7→Imaj7)"),
-              subtitle: const Text(
-                "Dominant 7th resolves to major 7th tonic",
-              ),
+              subtitle: const Text("Dominant 7th resolves to major 7th tonic"),
               value: configuration.includeSeventhChords,
               onChanged: (value) {
                 if (value != null) {

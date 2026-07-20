@@ -528,14 +528,15 @@ class PracticeSession {
   /// an exercise is completed. It advances the selected key to the next position
   /// in the circle of fifths and regenerates the exercise with the new key.
   ///
-  /// For arpeggio mode, this also updates the root note to match the new key
-  /// using the keyToMusicalNote conversion utility.
+  /// For arpeggio and block chords modes, this also updates the root note to
+  /// match the new key using the keyToMusicalNote conversion utility.
   void _progressToNextKey() {
     final currentKey = _config.key!;
     final nextKey = CircleOfFifths.getNextKey(currentKey);
 
-    // For arpeggios, also update the root note to match the key
-    if (_config.practiceMode == PracticeMode.arpeggios) {
+    // For arpeggios and block chords, also update the root note to match the key
+    if (_config.practiceMode == PracticeMode.arpeggios ||
+        _config.practiceMode == PracticeMode.blockChords) {
       _config = _config.copyWith(
         key: Field.set(nextKey),
         musicalNote: Field.set(NoteUtils.keyToMusicalNote(nextKey)),
