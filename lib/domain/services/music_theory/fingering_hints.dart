@@ -15,17 +15,21 @@ import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 ///   the remaining notes are grouped into runs of 3 or 4 starting from
 ///   each thumb landing. This is a sound general method but, unlike the
 ///   major/minor tables, it isn't cross-checked against a published chart.
-/// - Arpeggios: all 12 roots, all 7 [ArpeggioType]s, one and two octaves.
-///   One-octave fingering is a uniform 1-2-3-5 (RH) / 5-3-2-1 (LH) shape
-///   for white-key roots, with documented per-key exceptions for the 5
+/// - Arpeggios: all 12 roots, all 7 [ArpeggioType]s, one through four
+///   octaves, for the "straight" (root-position) pattern only. One-octave
+///   fingering is a uniform 1-2-3-5 (RH) / 5-3-2-1 (LH) shape for
+///   white-key roots, with documented per-key exceptions for the 5
 ///   black-key roots (where the shape depends on which chord tones are
-///   also black). Two-octave fingering is derived by repeating the
+///   also black). Multi-octave fingering is derived by repeating the
 ///   one-octave shape's core (root-3rd-5th, or root-3rd-5th-7th) once per
 ///   additional octave.
 /// - Chords: triad/seventh-chord voicings by note count, applied
 ///   uniformly regardless of key or inversion (a common simplified
 ///   teaching convention for blocked chords, since the fingering only
-///   depends on the chord's shape, not its key).
+///   depends on the chord's shape, not its key). The "rolling" arpeggio
+///   and block-chord patterns (see `tone_pattern.dart`) reuse this same
+///   uniform-shape convention per chord-tone group, rather than a
+///   dedicated rolling-pattern fingering table.
 class FingeringHints {
   const FingeringHints._();
 
@@ -173,7 +177,7 @@ class FingeringHints {
         ? _seventhArpeggioShape(rootNote, arpeggioType)
         : _triadArpeggioShape(rootNote, arpeggioType);
     final oneOctave = rightHand ? shape.rh : shape.lh;
-    final ascending = octaves == ArpeggioOctaves.one ? oneOctave : _extendToTwoOctaves(oneOctave);
+    final ascending = _extendToOctaves(oneOctave, octaves.count);
     return _mirrored(ascending);
   }
 
@@ -300,13 +304,13 @@ class FingeringHints {
   }
 
   /// Extends a one-octave arpeggio shape (root-3rd-5th[-7th]-octave) to
-  /// two octaves by repeating the core chord-tone cell (everything but
-  /// the final octave note) once more before that final note, matching
-  /// how two-octave arpeggios are conventionally fingered: the same hand
-  /// shape lands on each new root.
-  static List<int> _extendToTwoOctaves(List<int> oneOctave) {
+  /// [octaveCount] octaves by repeating the core chord-tone cell
+  /// (everything but the final octave note) once per additional octave
+  /// before that final note, matching how multi-octave arpeggios are
+  /// conventionally fingered: the same hand shape lands on each new root.
+  static List<int> _extendToOctaves(List<int> oneOctave, int octaveCount) {
     final core = oneOctave.sublist(0, oneOctave.length - 1);
-    return [...core, ...core, oneOctave.last];
+    return [for (var i = 0; i < octaveCount; i++) ...core, oneOctave.last];
   }
 
   // ---------------------------------------------------------------------

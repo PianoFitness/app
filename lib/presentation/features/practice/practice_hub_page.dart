@@ -111,6 +111,8 @@ class PracticeHubPage extends StatelessWidget {
         _buildPracticeModesFirstRow(context),
         const SizedBox(height: 12),
         _buildPracticeModesSecondRow(context),
+        const SizedBox(height: 12),
+        _buildPracticeModesThirdRow(context),
       ],
     );
   }
@@ -202,6 +204,32 @@ class PracticeHubPage extends StatelessWidget {
                   _navigateToPractice(context, PracticeMode.dominantCadence),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  /// Builds the third row of practice mode cards.
+  Widget _buildPracticeModesThirdRow(BuildContext context) {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            child: _buildPracticeModeCard(
+              context,
+              title: "Block Chords",
+              icon: Icons.grid_on,
+              description: "Block chord patterns across multiple octaves",
+              color: Theme.of(context).colorScheme.primary,
+              onTap: () =>
+                  _navigateToPractice(context, PracticeMode.blockChords),
+            ),
+          ),
+          const SizedBox(width: 8),
+          const Expanded(child: SizedBox.shrink()),
+          const SizedBox(width: 8),
+          const Expanded(child: SizedBox.shrink()),
         ],
       ),
     );

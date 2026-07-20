@@ -62,6 +62,15 @@ class ExerciseHistoryTable extends Table {
   /// Arpeggio octave count name (e.g. "one", "two"). Null for non-arpeggio modes.
   TextColumn get arpeggioOctaves => text().nullable()();
 
+  /// Chord-tone pattern name (e.g. "straight", "rolling"). Null for modes
+  /// without a pattern (arpeggios and blockChords only).
+  TextColumn get pattern => text().nullable()();
+
+  /// Whether the left hand tapped the chord root (arpeggios and
+  /// blockChords modes).
+  BoolColumn get includeLeftHandRoot =>
+      boolean().withDefault(const Constant(false))();
+
   /// Chord progression identifier (chordProgressions mode). Null otherwise.
   TextColumn get chordProgressionId => text().nullable()();
 

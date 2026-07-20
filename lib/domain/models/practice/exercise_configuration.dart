@@ -1,4 +1,5 @@
 import "package:meta/meta.dart";
+import "package:piano_fitness/domain/models/music/chord_tone_pattern.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
@@ -45,6 +46,7 @@ class ExerciseConfiguration {
   /// - chordsByKey: key, scaleType
   /// - chordsByType: chordType
   /// - arpeggios: musicalNote, arpeggioType
+  /// - blockChords: musicalNote, arpeggioType
   /// - chordProgressions: key, chordProgressionId
   ///
   /// See [validate] for complete validation rules.
@@ -59,6 +61,8 @@ class ExerciseConfiguration {
     this.musicalNote,
     this.arpeggioType,
     this.arpeggioOctaves = ArpeggioOctaves.one,
+    this.pattern = ChordTonePattern.straight,
+    this.includeLeftHandRoot = false,
     this.chordProgressionId,
   });
 
@@ -91,6 +95,10 @@ class ExerciseConfiguration {
       arpeggioOctaves: json["arpeggioOctaves"] != null
           ? ArpeggioOctaves.values.byName(json["arpeggioOctaves"] as String)
           : ArpeggioOctaves.one,
+      pattern: json["pattern"] != null
+          ? ChordTonePattern.values.byName(json["pattern"] as String)
+          : ChordTonePattern.straight,
+      includeLeftHandRoot: json["includeLeftHandRoot"] as bool? ?? false,
       chordProgressionId: json["chordProgressionId"] as String?,
     );
   }
@@ -121,17 +129,27 @@ class ExerciseConfiguration {
   /// Default: false.
   final bool includeSeventhChords;
 
-  /// The root note for arpeggios mode.
-  /// Required for: arpeggios.
+  /// The root note for arpeggios and blockChords modes.
+  /// Required for: arpeggios, blockChords.
   final MusicalNote? musicalNote;
 
-  /// The arpeggio type for arpeggios mode.
-  /// Required for: arpeggios.
+  /// The arpeggio/chord type for arpeggios and blockChords modes.
+  /// Required for: arpeggios, blockChords.
   final ArpeggioType? arpeggioType;
 
   /// Number of octaves for arpeggio patterns (arpeggios mode).
   /// Default: ArpeggioOctaves.one.
   final ArpeggioOctaves arpeggioOctaves;
+
+  /// The chord-tone pattern (arpeggios and blockChords modes): root
+  /// position each octave, or continuously rotating through inversions.
+  /// Default: ChordTonePattern.straight.
+  final ChordTonePattern pattern;
+
+  /// Whether the left hand taps the chord root for hand-independence
+  /// practice (arpeggios and blockChords modes, right hand only — a no-op
+  /// otherwise). Default: false.
+  final bool includeLeftHandRoot;
 
   /// The chord progression identifier (chordProgressions mode).
   /// Maps to ChordProgression.name (e.g., "I - V", "I - ♭VII").
@@ -157,6 +175,8 @@ class ExerciseConfiguration {
       if (arpeggioType != null) "arpeggioType": arpeggioType!.name,
       if (arpeggioOctaves != ArpeggioOctaves.one)
         "arpeggioOctaves": arpeggioOctaves.name,
+      if (pattern != ChordTonePattern.straight) "pattern": pattern.name,
+      if (includeLeftHandRoot) "includeLeftHandRoot": includeLeftHandRoot,
       if (chordProgressionId != null) "chordProgressionId": chordProgressionId,
     };
   }
@@ -170,6 +190,7 @@ class ExerciseConfiguration {
   /// - chordsByKey: requires key, scaleType
   /// - chordsByType: requires chordType
   /// - arpeggios: requires musicalNote, arpeggioType
+  /// - blockChords: requires musicalNote, arpeggioType
   /// - chordProgressions: requires key, chordProgressionId
   /// - dominantCadence: requires key
   void validate() {
@@ -204,6 +225,15 @@ class ExerciseConfiguration {
         }
         if (arpeggioType == null) {
           throw ArgumentError("arpeggioType is required for arpeggios mode");
+        }
+        break;
+
+      case PracticeMode.blockChords:
+        if (musicalNote == null) {
+          throw ArgumentError("musicalNote is required for blockChords mode");
+        }
+        if (arpeggioType == null) {
+          throw ArgumentError("arpeggioType is required for blockChords mode");
         }
         break;
 
@@ -250,6 +280,8 @@ class ExerciseConfiguration {
     Field<MusicalNote>? musicalNote,
     Field<ArpeggioType>? arpeggioType,
     ArpeggioOctaves? arpeggioOctaves,
+    ChordTonePattern? pattern,
+    bool? includeLeftHandRoot,
     Field<String>? chordProgressionId,
   }) {
     return ExerciseConfiguration(
@@ -271,6 +303,8 @@ class ExerciseConfiguration {
           ? arpeggioType.value
           : this.arpeggioType,
       arpeggioOctaves: arpeggioOctaves ?? this.arpeggioOctaves,
+      pattern: pattern ?? this.pattern,
+      includeLeftHandRoot: includeLeftHandRoot ?? this.includeLeftHandRoot,
       chordProgressionId: chordProgressionId != null && chordProgressionId.isSet
           ? chordProgressionId.value
           : this.chordProgressionId,
@@ -292,6 +326,8 @@ class ExerciseConfiguration {
           musicalNote == other.musicalNote &&
           arpeggioType == other.arpeggioType &&
           arpeggioOctaves == other.arpeggioOctaves &&
+          pattern == other.pattern &&
+          includeLeftHandRoot == other.includeLeftHandRoot &&
           chordProgressionId == other.chordProgressionId;
 
   @override
@@ -306,6 +342,8 @@ class ExerciseConfiguration {
     musicalNote,
     arpeggioType,
     arpeggioOctaves,
+    pattern,
+    includeLeftHandRoot,
     chordProgressionId,
   );
 }

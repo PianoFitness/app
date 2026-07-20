@@ -5,6 +5,7 @@
 library;
 
 export "arpeggios_strategy.dart";
+export "block_chords_strategy.dart";
 export "chord_progressions_strategy.dart";
 export "chords_by_key_strategy.dart";
 export "chords_by_type_strategy.dart";

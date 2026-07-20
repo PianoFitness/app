@@ -1,4 +1,5 @@
 import "package:meta/meta.dart";
+import "package:piano_fitness/domain/models/music/chord_tone_pattern.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
@@ -32,6 +33,8 @@ class ExerciseHistoryEntry {
     this.musicalNote,
     this.arpeggioType,
     this.arpeggioOctaves,
+    this.pattern,
+    required this.includeLeftHandRoot,
     this.chordProgressionId,
   });
 
@@ -61,6 +64,8 @@ class ExerciseHistoryEntry {
       musicalNote: config.musicalNote,
       arpeggioType: config.arpeggioType,
       arpeggioOctaves: config.arpeggioOctaves,
+      pattern: config.pattern,
+      includeLeftHandRoot: config.includeLeftHandRoot,
       chordProgressionId: config.chordProgressionId,
     );
   }
@@ -111,6 +116,13 @@ class ExerciseHistoryEntry {
 
   /// The number of octaves for the arpeggio (arpeggios mode).
   final ArpeggioOctaves? arpeggioOctaves;
+
+  /// The chord-tone pattern used (arpeggios and blockChords modes).
+  final ChordTonePattern? pattern;
+
+  /// Whether the left hand tapped the chord root (arpeggios and
+  /// blockChords modes).
+  final bool includeLeftHandRoot;
 
   /// The chord progression identifier (chordProgressions mode).
   final String? chordProgressionId;

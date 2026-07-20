@@ -4,11 +4,12 @@ import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 void main() {
   group("PracticeMode", () {
     test("should have all expected values", () {
-      expect(PracticeMode.values.length, equals(6));
+      expect(PracticeMode.values.length, equals(7));
       expect(PracticeMode.values, contains(PracticeMode.scales));
       expect(PracticeMode.values, contains(PracticeMode.chordsByKey));
       expect(PracticeMode.values, contains(PracticeMode.chordsByType));
       expect(PracticeMode.values, contains(PracticeMode.arpeggios));
+      expect(PracticeMode.values, contains(PracticeMode.blockChords));
       expect(PracticeMode.values, contains(PracticeMode.chordProgressions));
       expect(PracticeMode.values, contains(PracticeMode.dominantCadence));
     });
@@ -19,6 +20,7 @@ void main() {
       expect(PracticeMode.chordsByKey.name, equals("chordsByKey"));
       expect(PracticeMode.chordsByType.name, equals("chordsByType"));
       expect(PracticeMode.arpeggios.name, equals("arpeggios"));
+      expect(PracticeMode.blockChords.name, equals("blockChords"));
       expect(PracticeMode.chordProgressions.name, equals("chordProgressions"));
       expect(PracticeMode.dominantCadence.name, equals("dominantCadence"));
 
@@ -35,6 +37,10 @@ void main() {
       expect(
         PracticeMode.arpeggios.toString(),
         equals("PracticeMode.arpeggios"),
+      );
+      expect(
+        PracticeMode.blockChords.toString(),
+        equals("PracticeMode.blockChords"),
       );
       expect(
         PracticeMode.chordProgressions.toString(),
@@ -68,6 +74,8 @@ void main() {
             return "Chord Types";
           case PracticeMode.arpeggios:
             return "Arpeggios";
+          case PracticeMode.blockChords:
+            return "Block Chords";
           case PracticeMode.chordProgressions:
             return "Chord Progressions";
           case PracticeMode.dominantCadence:
@@ -79,6 +87,10 @@ void main() {
       expect(getModeString(PracticeMode.chordsByKey), equals("Chords by Key"));
       expect(getModeString(PracticeMode.chordsByType), equals("Chord Types"));
       expect(getModeString(PracticeMode.arpeggios), equals("Arpeggios"));
+      expect(
+        getModeString(PracticeMode.blockChords),
+        equals("Block Chords"),
+      );
       expect(
         getModeString(PracticeMode.chordProgressions),
         equals("Chord Progressions"),
@@ -95,6 +107,7 @@ void main() {
       expect(PracticeMode.chordsByKey.toJson(), equals("chordsByKey"));
       expect(PracticeMode.chordsByType.toJson(), equals("chordsByType"));
       expect(PracticeMode.arpeggios.toJson(), equals("arpeggios"));
+      expect(PracticeMode.blockChords.toJson(), equals("blockChords"));
       expect(
         PracticeMode.chordProgressions.toJson(),
         equals("chordProgressions"),
@@ -114,6 +127,10 @@ void main() {
       expect(
         PracticeModeJson.fromJson("arpeggios"),
         equals(PracticeMode.arpeggios),
+      );
+      expect(
+        PracticeModeJson.fromJson("blockChords"),
+        equals(PracticeMode.blockChords),
       );
       expect(
         PracticeModeJson.fromJson("chordProgressions"),

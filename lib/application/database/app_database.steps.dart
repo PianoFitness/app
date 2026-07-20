@@ -254,9 +254,113 @@ i1.GeneratedColumn<String> _column_16(String aliasedName) =>
       type: i1.DriftSqlType.string,
       $customConstraints: 'NULL',
     );
+
+final class Schema4 extends i0.VersionedSchema {
+  Schema4({required super.database}) : super(version: 4);
+  @override
+  late final List<i1.DatabaseSchemaEntity> entities = [
+    userProfileTable,
+    exerciseHistoryTable,
+  ];
+  late final Shape0 userProfileTable = Shape0(
+    source: i0.VersionedTable(
+      entityName: 'user_profile_table',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [_column_0, _column_1, _column_2, _column_3],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape2 exerciseHistoryTable = Shape2(
+    source: i0.VersionedTable(
+      entityName: 'exercise_history_table',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_7,
+        _column_8,
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_12,
+        _column_13,
+        _column_14,
+        _column_15,
+        _column_17,
+        _column_18,
+        _column_16,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+}
+
+class Shape2 extends i0.VersionedTable {
+  Shape2({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<String> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get profileId =>
+      columnsByName['profile_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get completedAt =>
+      columnsByName['completed_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get practiceMode =>
+      columnsByName['practice_mode']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get handSelection =>
+      columnsByName['hand_selection']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get musicalKey =>
+      columnsByName['musical_key']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get scaleType =>
+      columnsByName['scale_type']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get chordType =>
+      columnsByName['chord_type']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get includeInversions =>
+      columnsByName['include_inversions']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get includeSeventhChords =>
+      columnsByName['include_seventh_chords']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get musicalNote =>
+      columnsByName['musical_note']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get arpeggioType =>
+      columnsByName['arpeggio_type']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get arpeggioOctaves =>
+      columnsByName['arpeggio_octaves']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get pattern =>
+      columnsByName['pattern']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get includeLeftHandRoot =>
+      columnsByName['include_left_hand_root']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get chordProgressionId =>
+      columnsByName['chord_progression_id']! as i1.GeneratedColumn<String>;
+}
+
+i1.GeneratedColumn<String> _column_17(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'pattern',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NULL',
+    );
+i1.GeneratedColumn<int> _column_18(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'include_left_hand_root',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.int,
+      $customConstraints:
+          'NOT NULL DEFAULT 0 CHECK (include_left_hand_root IN (0, 1))',
+      defaultValue: const i1.CustomExpression('0'),
+    );
 i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
+  required Future<void> Function(i1.Migrator m, Schema4 schema) from3To4,
 }) {
   return (currentVersion, database) async {
     switch (currentVersion) {
@@ -270,6 +374,11 @@ i0.MigrationStepWithVersion migrationSteps({
         final migrator = i1.Migrator(database, schema);
         await from2To3(migrator, schema);
         return 3;
+      case 3:
+        final schema = Schema4(database: database);
+        final migrator = i1.Migrator(database, schema);
+        await from3To4(migrator, schema);
+        return 4;
       default:
         throw ArgumentError.value('Unknown migration from $currentVersion');
     }
@@ -279,6 +388,11 @@ i0.MigrationStepWithVersion migrationSteps({
 i1.OnUpgrade stepByStep({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
+  required Future<void> Function(i1.Migrator m, Schema4 schema) from3To4,
 }) => i0.VersionedSchema.stepByStepHelper(
-  step: migrationSteps(from1To2: from1To2, from2To3: from2To3),
+  step: migrationSteps(
+    from1To2: from1To2,
+    from2To3: from2To3,
+    from3To4: from3To4,
+  ),
 );

@@ -1,6 +1,7 @@
 import "package:drift/drift.dart";
 import "package:logging/logging.dart";
 
+import "../../domain/models/music/chord_tone_pattern.dart";
 import "../../domain/models/music/hand_selection.dart";
 import "../../domain/models/music/scale_types.dart" as music;
 import "../../domain/models/practice/exercise_configuration.dart";
@@ -41,6 +42,8 @@ class ExerciseHistoryRepositoryImpl implements IExerciseHistoryRepository {
         musicalNote: Value(entry.musicalNote?.name),
         arpeggioType: Value(entry.arpeggioType?.name),
         arpeggioOctaves: Value(entry.arpeggioOctaves?.name),
+        pattern: Value(entry.pattern?.name),
+        includeLeftHandRoot: Value(entry.includeLeftHandRoot),
         chordProgressionId: Value(entry.chordProgressionId),
       );
 
@@ -102,6 +105,14 @@ class ExerciseHistoryRepositoryImpl implements IExerciseHistoryRepository {
       arpeggioOctaves: row.arpeggioOctaves != null
           ? ArpeggioOctaves.values.byName(row.arpeggioOctaves!)
           : ArpeggioOctaves.one,
+      // pattern is non-nullable in ExerciseConfiguration (defaults to
+      // ChordTonePattern.straight), so null is never written to this column
+      // through the normal save path. The fallback is kept for defensive
+      // correctness.
+      pattern: row.pattern != null
+          ? ChordTonePattern.values.byName(row.pattern!)
+          : ChordTonePattern.straight,
+      includeLeftHandRoot: row.includeLeftHandRoot,
       chordProgressionId: row.chordProgressionId,
     );
 

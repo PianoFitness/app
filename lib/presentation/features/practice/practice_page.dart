@@ -11,6 +11,7 @@ import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/presentation/accessibility/config/accessibility_labels.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
+import "package:piano_fitness/presentation/utils/piano_key_utils.dart";
 import "package:piano_fitness/presentation/utils/piano_range_utils.dart";
 import "package:piano_fitness/presentation/widgets/practice_progress_display.dart";
 import "package:piano_fitness/presentation/widgets/practice_settings_panel.dart";
@@ -267,8 +268,13 @@ class _PracticePageViewState extends State<_PracticePageView> {
             viewModel.notesForRangeCalculation,
           );
           final screenWidth = MediaQuery.of(context).size.width;
+          final whiteKeyCount = getWhiteKeysInRange(
+            practiceRange.fromMidi,
+            practiceRange.toMidi,
+          ).length;
           final dynamicKeyWidth = PianoRangeUtils.calculateScreenBasedKeyWidth(
             screenWidth,
+            keyCount: whiteKeyCount,
           );
           final colorScheme = Theme.of(context).colorScheme;
           final keyVisuals = ValueNotifier<Map<int, PianoKeyVisual>>({

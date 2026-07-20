@@ -21,6 +21,22 @@ void main() {
         expect(arpeggio.intervals, equals([0, 4, 7, 12]));
       });
 
+      test("should name three and four octave arpeggios correctly", () {
+        final three = ArpeggioDefinitions.getArpeggio(
+          MusicalNote.c,
+          ArpeggioType.major,
+          ArpeggioOctaves.three,
+        );
+        final four = ArpeggioDefinitions.getArpeggio(
+          MusicalNote.c,
+          ArpeggioType.major,
+          ArpeggioOctaves.four,
+        );
+
+        expect(three.name, equals("C Major (3 Octaves)"));
+        expect(four.name, equals("C Major (4 Octaves)"));
+      });
+
       test("should create C Minor arpeggio correctly", () {
         final arpeggio = ArpeggioDefinitions.getArpeggio(
           MusicalNote.c,
@@ -313,6 +329,55 @@ void main() {
         },
       );
 
+      test("should generate correct C Major three octave sequence", () {
+        final arpeggio = ArpeggioDefinitions.getArpeggio(
+          MusicalNote.c,
+          ArpeggioType.major,
+          ArpeggioOctaves.three,
+        );
+
+        final sequence = arpeggio.getFullArpeggioSequence(3);
+
+        // Ascending: C3, E3, G3, C4, E4, G4, C5, E5, G5, C6 (10 notes)
+        // Descending mirrors back down, excluding the duplicated top C6.
+        const expectedAscending = [48, 52, 55, 60, 64, 67, 72, 76, 79, 84];
+        final expectedSequence = [
+          ...expectedAscending,
+          ...expectedAscending.reversed.skip(1),
+        ];
+
+        expect(sequence, equals(expectedSequence));
+        expect(sequence.first, equals(48)); // Starts at C3
+        expect(sequence.last, equals(48)); // Ends at C3
+        expect(sequence, contains(84)); // Reaches C6 (3 octaves up)
+      });
+
+      test("should generate correct C Major four octave sequence", () {
+        final arpeggio = ArpeggioDefinitions.getArpeggio(
+          MusicalNote.c,
+          ArpeggioType.major,
+          ArpeggioOctaves.four,
+        );
+
+        final sequence = arpeggio.getFullArpeggioSequence(3);
+
+        const expectedAscending = [
+          48, 52, 55, 60, 64, 67, 72, 76, 79, 84, 88, 91, 96, //
+        ];
+        final expectedSequence = [
+          ...expectedAscending,
+          ...expectedAscending.reversed.skip(1),
+        ];
+
+        expect(sequence, equals(expectedSequence));
+        expect(sequence, contains(96)); // Reaches C7 (4 octaves up)
+
+        // No jump should exceed an octave.
+        for (var i = 1; i < sequence.length; i++) {
+          expect((sequence[i] - sequence[i - 1]).abs(), lessThanOrEqualTo(12));
+        }
+      });
+
       test("should generate correct G Major two octave sequence", () {
         final arpeggio = ArpeggioDefinitions.getArpeggio(
           MusicalNote.g,
@@ -479,11 +544,11 @@ void main() {
           expect(arpeggio.octaves, equals(octaves));
 
           final sequence = arpeggio.getFullArpeggioSequence(4);
-          if (octaves == ArpeggioOctaves.one) {
-            expect(sequence.length, equals(7)); // 4 up + 3 down
-          } else {
-            expect(sequence.length, greaterThan(7)); // 2 octaves worth
-          }
+          // n=3 chord tones, octaves.count octaves: (3*octaves + 1) up,
+          // mirrored minus the duplicated top note going back down.
+          final ascendingLength = 3 * octaves.count + 1;
+          final expectedLength = ascendingLength + (ascendingLength - 1);
+          expect(sequence.length, equals(expectedLength));
         }
       });
 
@@ -900,6 +965,35 @@ void main() {
           // Verify paired notes with one octave offset
           expectPairedOctaveOffset(bothHandsSequence);
         }
+      });
+    });
+
+    group("ArpeggioOctaves.count", () {
+      test("should return the correct octave count for each value", () {
+        expect(ArpeggioOctaves.one.count, equals(1));
+        expect(ArpeggioOctaves.two.count, equals(2));
+        expect(ArpeggioOctaves.three.count, equals(3));
+        expect(ArpeggioOctaves.four.count, equals(4));
+      });
+    });
+
+    group("ArpeggioDefinitions.coreIntervals", () {
+      test("should drop the trailing octave duplicate for triads", () {
+        expect(
+          ArpeggioDefinitions.coreIntervals(ArpeggioType.major),
+          equals([0, 4, 7]),
+        );
+        expect(
+          ArpeggioDefinitions.coreIntervals(ArpeggioType.minor),
+          equals([0, 3, 7]),
+        );
+      });
+
+      test("should drop the trailing octave duplicate for seventh chords", () {
+        expect(
+          ArpeggioDefinitions.coreIntervals(ArpeggioType.dominant7),
+          equals([0, 4, 7, 10]),
+        );
       });
     });
 

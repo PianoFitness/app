@@ -45,7 +45,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -71,6 +71,18 @@ class AppDatabase extends _$AppDatabase {
           await customStatement(
             "CREATE INDEX IF NOT EXISTS idx_exercise_history_profile_date "
             "ON exercise_history_table (profile_id, completed_at DESC)",
+          );
+        },
+        from3To4: (m, schema) async {
+          // Add the chord-tone pattern and left-hand-root-tap columns for
+          // version 4 (arpeggios and blockChords modes).
+          await m.addColumn(
+            schema.exerciseHistoryTable,
+            schema.exerciseHistoryTable.pattern,
+          );
+          await m.addColumn(
+            schema.exerciseHistoryTable,
+            schema.exerciseHistoryTable.includeLeftHandRoot,
           );
         },
       ),

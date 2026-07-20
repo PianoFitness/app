@@ -1,4 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/domain/models/music/chord_tone_pattern.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
@@ -78,6 +79,26 @@ void main() {
           expect(config.musicalNote, equals(MusicalNote.c));
           expect(config.arpeggioType, equals(ArpeggioType.major));
           expect(config.arpeggioOctaves, equals(ArpeggioOctaves.one));
+          expect(config.pattern, equals(ChordTonePattern.straight));
+          expect(config.includeLeftHandRoot, equals(false));
+        },
+      );
+
+      test(
+        "should create blockChords configuration with minimal required fields",
+        () {
+          final config = ExerciseConfiguration(
+            practiceMode: PracticeMode.blockChords,
+            handSelection: HandSelection.right,
+            musicalNote: MusicalNote.d,
+            arpeggioType: ArpeggioType.minor,
+          );
+
+          expect(config.practiceMode, equals(PracticeMode.blockChords));
+          expect(config.musicalNote, equals(MusicalNote.d));
+          expect(config.arpeggioType, equals(ArpeggioType.minor));
+          expect(config.pattern, equals(ChordTonePattern.straight));
+          expect(config.includeLeftHandRoot, equals(false));
         },
       );
 
@@ -121,6 +142,20 @@ void main() {
         );
 
         expect(config.arpeggioOctaves, equals(ArpeggioOctaves.two));
+      });
+
+      test("should respect non-default pattern and left-hand root", () {
+        final config = ExerciseConfiguration(
+          practiceMode: PracticeMode.arpeggios,
+          handSelection: HandSelection.right,
+          musicalNote: MusicalNote.c,
+          arpeggioType: ArpeggioType.major,
+          pattern: ChordTonePattern.rolling,
+          includeLeftHandRoot: true,
+        );
+
+        expect(config.pattern, equals(ChordTonePattern.rolling));
+        expect(config.includeLeftHandRoot, equals(true));
       });
     });
 
@@ -303,6 +338,55 @@ void main() {
         );
       });
 
+      test("blockChords mode: should pass validation with required fields", () {
+        final config = ExerciseConfiguration(
+          practiceMode: PracticeMode.blockChords,
+          handSelection: HandSelection.both,
+          musicalNote: MusicalNote.g,
+          arpeggioType: ArpeggioType.minor,
+        );
+
+        expect(() => config.validate(), returnsNormally);
+      });
+
+      test("blockChords mode: should fail validation without musicalNote", () {
+        final config = ExerciseConfiguration(
+          practiceMode: PracticeMode.blockChords,
+          handSelection: HandSelection.both,
+          arpeggioType: ArpeggioType.minor,
+        );
+
+        expect(
+          () => config.validate(),
+          throwsA(
+            isA<ArgumentError>().having(
+              (e) => e.message,
+              "message",
+              contains("musicalNote is required for blockChords mode"),
+            ),
+          ),
+        );
+      });
+
+      test("blockChords mode: should fail validation without arpeggioType", () {
+        final config = ExerciseConfiguration(
+          practiceMode: PracticeMode.blockChords,
+          handSelection: HandSelection.both,
+          musicalNote: MusicalNote.g,
+        );
+
+        expect(
+          () => config.validate(),
+          throwsA(
+            isA<ArgumentError>().having(
+              (e) => e.message,
+              "message",
+              contains("arpeggioType is required for blockChords mode"),
+            ),
+          ),
+        );
+      });
+
       test(
         "chordProgressions mode: should pass validation with required fields",
         () {
@@ -434,6 +518,65 @@ void main() {
       });
 
       test(
+        "should serialize and deserialize a rolling arpeggio with left-hand root",
+        () {
+          final original = ExerciseConfiguration(
+            practiceMode: PracticeMode.arpeggios,
+            handSelection: HandSelection.right,
+            musicalNote: MusicalNote.g,
+            arpeggioType: ArpeggioType.minor,
+            arpeggioOctaves: ArpeggioOctaves.three,
+            pattern: ChordTonePattern.rolling,
+            includeLeftHandRoot: true,
+          );
+
+          final json = original.toJson();
+          final deserialized = ExerciseConfiguration.fromJson(json);
+
+          expect(deserialized, equals(original));
+          expect(json["pattern"], equals("rolling"));
+          expect(json["includeLeftHandRoot"], equals(true));
+          expect(json["arpeggioOctaves"], equals("three"));
+        },
+      );
+
+      test("should serialize and deserialize a blockChords configuration", () {
+        final original = ExerciseConfiguration(
+          practiceMode: PracticeMode.blockChords,
+          handSelection: HandSelection.both,
+          musicalNote: MusicalNote.c,
+          arpeggioType: ArpeggioType.major,
+          arpeggioOctaves: ArpeggioOctaves.four,
+          pattern: ChordTonePattern.rolling,
+        );
+
+        final json = original.toJson();
+        final deserialized = ExerciseConfiguration.fromJson(json);
+
+        expect(deserialized, equals(original));
+        expect(json["practiceMode"], equals("blockChords"));
+        expect(json["arpeggioOctaves"], equals("four"));
+      });
+
+      test(
+        "should deserialize old JSON missing pattern/includeLeftHandRoot keys",
+        () {
+          // Simulates data persisted before these fields existed.
+          final json = {
+            "practiceMode": "arpeggios",
+            "handSelection": "right",
+            "musicalNote": "c",
+            "arpeggioType": "major",
+          };
+
+          final config = ExerciseConfiguration.fromJson(json);
+
+          expect(config.pattern, equals(ChordTonePattern.straight));
+          expect(config.includeLeftHandRoot, equals(false));
+        },
+      );
+
+      test(
         "should serialize and deserialize chordProgressions configuration",
         () {
           final original = ExerciseConfiguration(
@@ -466,6 +609,8 @@ void main() {
         expect(json.containsKey("includeInversions"), equals(false));
         expect(json.containsKey("includeSeventhChords"), equals(false));
         expect(json.containsKey("arpeggioOctaves"), equals(false));
+        expect(json.containsKey("pattern"), equals(false));
+        expect(json.containsKey("includeLeftHandRoot"), equals(false));
       });
 
       test("should omit null fields in JSON", () {
@@ -613,6 +758,25 @@ void main() {
 
         expect(updated.practiceMode, equals(PracticeMode.chordsByType));
         expect(updated.handSelection, equals(HandSelection.left));
+      });
+
+      test("should update pattern and includeLeftHandRoot directly", () {
+        final original = ExerciseConfiguration(
+          practiceMode: PracticeMode.arpeggios,
+          handSelection: HandSelection.right,
+          musicalNote: MusicalNote.c,
+          arpeggioType: ArpeggioType.major,
+        );
+
+        final updated = original.copyWith(
+          pattern: ChordTonePattern.rolling,
+          includeLeftHandRoot: true,
+        );
+
+        expect(updated.pattern, equals(ChordTonePattern.rolling));
+        expect(updated.includeLeftHandRoot, equals(true));
+        // Unrelated fields untouched.
+        expect(updated.musicalNote, equals(MusicalNote.c));
       });
 
       test("should preserve nullable fields when Field is unset", () {
