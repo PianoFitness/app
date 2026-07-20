@@ -51,18 +51,17 @@ class _PlayPageView extends StatelessWidget {
       body: Column(
         children: [
           Expanded(
-            flex: 4,
+            flex: 3,
             child: SafeArea(
               bottom: false,
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(Spacing.md),
+                padding: const EdgeInsets.all(Spacing.sm),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: Spacing.lg),
                     // Educational Content Area
                     Container(
-                      padding: const EdgeInsets.all(Spacing.lg),
+                      padding: const EdgeInsets.all(Spacing.md),
                       decoration: BoxDecoration(
                         color: colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(
@@ -149,6 +148,7 @@ class _PlayPageView extends StatelessWidget {
             ),
           ),
           Expanded(
+            flex: 4,
             child: AnimatedBuilder(
               animation: viewModel,
               builder: (context, child) {

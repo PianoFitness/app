@@ -174,6 +174,8 @@ class _PracticePageViewState extends State<_PracticePageView> {
   AppBar _buildAppBar(BuildContext context) {
     return AppBar(
       title: const Text("Practice Session"),
+      titleSpacing: 0,
+      toolbarHeight: ComponentDimensions.minTouchTarget,
       backgroundColor: Theme.of(context).colorScheme.inversePrimary,
       leading: IconButton(
         key: const Key("practice_back_button"),
@@ -188,18 +190,17 @@ class _PracticePageViewState extends State<_PracticePageView> {
   Widget _buildContentArea(BuildContext context) {
     final viewModel = context.watch<PracticePageViewModel>();
 
-    return Expanded(
-      flex: 4,
+    return Flexible(
+      flex: 7,
       child: SafeArea(
         bottom: false,
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(Spacing.md),
+          padding: const EdgeInsets.all(Spacing.sm),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: Spacing.lg),
               _buildSettingsPanel(viewModel),
-              const SizedBox(height: Spacing.md),
+              const SizedBox(height: Spacing.sm),
               _buildProgressDisplay(viewModel),
             ],
           ),
@@ -256,6 +257,7 @@ class _PracticePageViewState extends State<_PracticePageView> {
     final viewModel = context.watch<PracticePageViewModel>();
 
     return Expanded(
+      flex: 6,
       child: AnimatedBuilder(
         animation: viewModel,
         builder: (context, child) {

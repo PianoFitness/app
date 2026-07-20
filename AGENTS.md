@@ -74,6 +74,25 @@ flutter test test/application/database/app_database_migration_test.dart  # Test 
 
 ---
 
+## Live App Iteration (Dart MCP)
+
+When a `dart` MCP server is connected, prefer it over manual `flutter run` signal-sending or simulator UI automation for iterating on a running app:
+
+```text
+mcp__dart__dtd { command: "listDtdUris" }              # find the running app's DTD instance
+mcp__dart__dtd { command: "connect", uri: "<ws uri>" } # connect; returns the app's VM service URI
+mcp__dart__hot_reload { appUri: "<vm service ws uri>", clearRuntimeErrors: true }
+mcp__dart__hot_restart { appUri: "<vm service ws uri>" }        # use when state (not just code) needs resetting, e.g. after changing a field's initial value
+mcp__dart__get_runtime_errors { appUri: "<vm service ws uri>" } # catches overflow/exceptions without eyeballing a screenshot
+mcp__dart__widget_inspector { command: "get_widget_tree" }      # inspect the live widget tree
+```
+
+- `get_runtime_errors` is the reliable way to catch `RenderFlex overflowed` and similar layout errors — check it after every hot reload/restart when iterating on layout, don't rely on screenshots alone.
+- Hot reload preserves state (won't pick up changed field initializers like `int _selectedIndex = 0`); hot restart resets state.
+- A `flutter run -d <device>` launched from a plain shell (e.g. via Bash) still registers its own DTD instance discoverable via `listDtdUris` — match it by workspace root / recency, then connect.
+
+---
+
 ## Architecture
 
 See [`ARCHITECTURE.md`](ARCHITECTURE.md) for the full architecture reference: layer contracts, MVVM pattern, key patterns (repository interfaces, value objects, bridge/adapter), and enforcement mechanisms.

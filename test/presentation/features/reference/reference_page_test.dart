@@ -1,8 +1,11 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:mockito/mockito.dart";
-import "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard.dart";
+import "package:piano_fitness/domain/models/music/chord_type.dart";
+import "package:piano_fitness/domain/models/music/scale_types.dart" as scales;
 import "package:piano_fitness/presentation/features/reference/reference_page.dart";
+import "package:piano_fitness/presentation/features/reference/reference_page_view_model.dart";
+import "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard.dart";
 import "../../../shared/test_helpers/mock_repositories.mocks.dart";
 import "../../../shared/test_helpers/widget_test_helper.dart";
 import "../../../shared/midi_mocks.dart";
@@ -13,14 +16,54 @@ void main() {
   tearDownAll(MidiMocks.tearDown);
 
   group("ReferencePage Widget Tests", () {
-    // Helper functions to reduce duplication
-    Future<void> switchToChordsMode(WidgetTester tester) async {
-      await tester.tap(find.byKey(const Key("chord_types_mode_button")));
+    // The configuration row uses DropdownButtonFormField, one per generic
+    // type, so each is uniquely addressable by its runtime type rather than
+    // by label/value text (which changes as selections change).
+    Future<void> selectMode(WidgetTester tester, ReferenceMode mode) async {
+      final dropdown = tester.widget<DropdownButtonFormField<ReferenceMode>>(
+        find.byType(DropdownButtonFormField<ReferenceMode>),
+      );
+      dropdown.onChanged!(mode);
       await tester.pumpAndSettle();
     }
 
-    Future<void> switchToScalesMode(WidgetTester tester) async {
-      await tester.tap(find.byKey(const Key("scales_mode_button")));
+    Future<void> selectKey(WidgetTester tester, scales.Key key) async {
+      final dropdown = tester.widget<DropdownButtonFormField<scales.Key>>(
+        find.byType(DropdownButtonFormField<scales.Key>),
+      );
+      dropdown.onChanged!(key);
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> selectScaleType(
+      WidgetTester tester,
+      scales.ScaleType type,
+    ) async {
+      final dropdown = tester
+          .widget<DropdownButtonFormField<scales.ScaleType>>(
+            find.byType(DropdownButtonFormField<scales.ScaleType>),
+          );
+      dropdown.onChanged!(type);
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> selectChordType(WidgetTester tester, ChordType type) async {
+      final dropdown = tester.widget<DropdownButtonFormField<ChordType>>(
+        find.byType(DropdownButtonFormField<ChordType>),
+      );
+      dropdown.onChanged!(type);
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> selectChordInversion(
+      WidgetTester tester,
+      ChordInversion inversion,
+    ) async {
+      final dropdown = tester
+          .widget<DropdownButtonFormField<ChordInversion>>(
+            find.byType(DropdownButtonFormField<ChordInversion>),
+          );
+      dropdown.onChanged!(inversion);
       await tester.pumpAndSettle();
     }
 
@@ -30,111 +73,72 @@ void main() {
       await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
-      // Check that mode selection is present
-      expect(find.text("Reference Mode"), findsOneWidget);
-      expect(find.text("Scales"), findsOneWidget);
-      expect(find.text("Chord Types"), findsOneWidget);
+      // Initially in scales mode: mode, key, and scale type dropdowns.
+      expect(
+        find.byType(DropdownButtonFormField<ReferenceMode>),
+        findsOneWidget,
+      );
+      expect(find.byType(DropdownButtonFormField<scales.Key>), findsOneWidget);
+      expect(
+        find.byType(DropdownButtonFormField<scales.ScaleType>),
+        findsOneWidget,
+      );
+      expect(find.byType(DropdownButtonFormField<ChordType>), findsNothing);
+      expect(
+        find.byType(DropdownButtonFormField<ChordInversion>),
+        findsNothing,
+      );
 
-      // Initially should show scales mode
-      expect(find.text("Key"), findsOneWidget);
-      expect(find.text("Scale Type"), findsOneWidget);
+      final modeDropdown = tester
+          .widget<DropdownButtonFormField<ReferenceMode>>(
+            find.byType(DropdownButtonFormField<ReferenceMode>),
+          );
+      expect(modeDropdown.initialValue, ReferenceMode.scales);
     });
 
-    testWidgets("should switch between scales and chords mode", (tester) async {
-      await tester.pumpWidget(createTestWidget(const ReferencePage()));
-      await tester.pumpAndSettle();
-
-      // Initially in scales mode
-      expect(find.text("Scale Type"), findsOneWidget);
-      expect(find.text("Chord Type"), findsNothing);
-
-      // Switch to Chord Types mode
-      await switchToChordsMode(tester);
-
-      // Should now show chords mode
-      expect(find.text("Root Note"), findsOneWidget);
-      expect(find.text("Chord Type"), findsOneWidget);
-      expect(find.text("Inversion"), findsOneWidget);
-      expect(find.text("Scale Type"), findsNothing);
-
-      // Switch back to scales mode
-      await switchToScalesMode(tester);
-
-      // Should show scales mode again
-      expect(find.text("Scale Type"), findsOneWidget);
-      expect(find.text("Chord Type"), findsNothing);
-    });
-
-    testWidgets("should display all scale types in scales mode", (
+    testWidgets("should switch between scales and chords mode", (
       tester,
     ) async {
       await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
-      // Check that all scale types are displayed
-      expect(find.text("Major"), findsOneWidget);
-      expect(find.text("Minor"), findsOneWidget);
-      expect(find.text("Dorian"), findsOneWidget);
-      expect(find.text("Phrygian"), findsOneWidget);
-      expect(find.text("Lydian"), findsOneWidget);
-      expect(find.text("Mixolydian"), findsOneWidget);
-      expect(find.text("Aeolian"), findsOneWidget);
-      expect(find.text("Locrian"), findsOneWidget);
-    });
+      expect(
+        find.byType(DropdownButtonFormField<scales.ScaleType>),
+        findsOneWidget,
+      );
+      expect(find.byType(DropdownButtonFormField<ChordType>), findsNothing);
 
-    testWidgets("should display all chord types in chords mode", (
-      tester,
-    ) async {
-      await tester.pumpWidget(createTestWidget(const ReferencePage()));
-      await tester.pumpAndSettle();
+      await selectMode(tester, ReferenceMode.chordTypes);
 
-      // Switch to chords mode
-      await switchToChordsMode(tester);
+      expect(
+        find.byType(DropdownButtonFormField<scales.ScaleType>),
+        findsNothing,
+      );
+      expect(find.byType(DropdownButtonFormField<ChordType>), findsOneWidget);
+      expect(
+        find.byType(DropdownButtonFormField<ChordInversion>),
+        findsOneWidget,
+      );
 
-      // Check that all chord types are displayed
-      expect(find.text("Major"), findsOneWidget);
-      expect(find.text("Minor"), findsOneWidget);
-      expect(find.text("Diminished"), findsOneWidget);
-      expect(find.text("Augmented"), findsOneWidget);
+      await selectMode(tester, ReferenceMode.scales);
 
-      // Check that all inversions are displayed
-      expect(find.text("Root Position"), findsOneWidget);
-      expect(find.text("1st Inversion"), findsOneWidget);
-      expect(find.text("2nd Inversion"), findsOneWidget);
-    });
-
-    testWidgets("should display all keys", (tester) async {
-      await tester.pumpWidget(createTestWidget(const ReferencePage()));
-      await tester.pumpAndSettle();
-
-      // Check that all keys are displayed
-      expect(find.text("C"), findsOneWidget);
-      expect(find.text("D♭"), findsOneWidget);
-      expect(find.text("D"), findsOneWidget);
-      expect(find.text("E♭"), findsOneWidget);
-      expect(find.text("E"), findsOneWidget);
-      expect(find.text("F"), findsOneWidget);
-      expect(find.text("G♭"), findsOneWidget);
-      expect(find.text("G"), findsOneWidget);
-      expect(find.text("A♭"), findsOneWidget);
-      expect(find.text("A"), findsOneWidget);
-      expect(find.text("B♭"), findsOneWidget);
-      expect(find.text("B"), findsOneWidget);
+      expect(
+        find.byType(DropdownButtonFormField<scales.ScaleType>),
+        findsOneWidget,
+      );
+      expect(find.byType(DropdownButtonFormField<ChordType>), findsNothing);
     });
 
     testWidgets("should allow selection of different keys", (tester) async {
       await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
-      // Tap F# (G♭) via key-based selector; UI displays the flat name
-      await tester.tap(find.byKey(const Key("scales_key_fSharp")));
-      await tester.pumpAndSettle();
+      await selectKey(tester, scales.Key.fSharp);
 
-      // The selection should be updated (the chip should be selected)
-      final gFlatChip = tester.widget<FilterChip>(
-        find.widgetWithText(FilterChip, "G♭"),
+      final keyDropdown = tester.widget<DropdownButtonFormField<scales.Key>>(
+        find.byType(DropdownButtonFormField<scales.Key>),
       );
-      expect(gFlatChip.selected, isTrue);
+      expect(keyDropdown.initialValue, scales.Key.fSharp);
     });
 
     testWidgets("should allow selection of different scale types", (
@@ -143,15 +147,13 @@ void main() {
       await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
-      // Tap on Minor scale type using key-based selection
-      await tester.tap(find.byKey(const Key("scales_type_minor")));
-      await tester.pumpAndSettle();
+      await selectScaleType(tester, scales.ScaleType.minor);
 
-      // The selection should be updated
-      final minorChip = tester.widget<FilterChip>(
-        find.widgetWithText(FilterChip, "Minor"),
-      );
-      expect(minorChip.selected, isTrue);
+      final typeDropdown = tester
+          .widget<DropdownButtonFormField<scales.ScaleType>>(
+            find.byType(DropdownButtonFormField<scales.ScaleType>),
+          );
+      expect(typeDropdown.initialValue, scales.ScaleType.minor);
     });
 
     testWidgets("should allow selection of different chord types", (
@@ -160,18 +162,13 @@ void main() {
       await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
-      // Switch to chords mode
-      await switchToChordsMode(tester);
+      await selectMode(tester, ReferenceMode.chordTypes);
+      await selectChordType(tester, ChordType.minor);
 
-      // Tap on Minor chord type using key-based selection
-      await tester.tap(find.byKey(const Key("chords_type_minor")));
-      await tester.pumpAndSettle();
-
-      // The selection should be updated
-      final minorChip = tester.widget<FilterChip>(
-        find.widgetWithText(FilterChip, "Minor"),
+      final typeDropdown = tester.widget<DropdownButtonFormField<ChordType>>(
+        find.byType(DropdownButtonFormField<ChordType>),
       );
-      expect(minorChip.selected, isTrue);
+      expect(typeDropdown.initialValue, ChordType.minor);
     });
 
     testWidgets("should allow selection of different chord inversions", (
@@ -180,20 +177,20 @@ void main() {
       await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
-      // Switch to chords mode
-      await switchToChordsMode(tester);
+      await selectMode(tester, ReferenceMode.chordTypes);
+      await selectChordInversion(tester, ChordInversion.first);
 
-      // Verify chord inversion options by key (more stable than text)
-      expect(find.byKey(const Key("chords_inversion_root")), findsOneWidget);
-      expect(find.byKey(const Key("chords_inversion_first")), findsOneWidget);
-      expect(find.byKey(const Key("chords_inversion_second")), findsOneWidget);
+      final inversionDropdown = tester
+          .widget<DropdownButtonFormField<ChordInversion>>(
+            find.byType(DropdownButtonFormField<ChordInversion>),
+          );
+      expect(inversionDropdown.initialValue, ChordInversion.first);
     });
 
     testWidgets("should display interactive piano", (tester) async {
       await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
-      // Check that PianoKeyboard is present
       expect(find.byType(PianoKeyboard), findsOneWidget);
     });
 
@@ -203,22 +200,15 @@ void main() {
       await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
-      // Change to a different scale (Minor) using key-based selection
-      await tester.tap(find.byKey(const Key("scales_type_minor")));
-      await tester.pumpAndSettle();
+      await selectScaleType(tester, scales.ScaleType.minor);
 
-      // Verify piano is present and functional
       expect(find.byType(PianoKeyboard), findsOneWidget);
 
-      // Verify the Minor scale is selected in the UI
-      final minorChip = find.byWidgetPredicate(
-        (widget) =>
-            widget is FilterChip &&
-            widget.label is Text &&
-            (widget.label as Text).data == "Minor" &&
-            widget.selected == true,
-      );
-      expect(minorChip, findsOneWidget);
+      final typeDropdown = tester
+          .widget<DropdownButtonFormField<scales.ScaleType>>(
+            find.byType(DropdownButtonFormField<scales.ScaleType>),
+          );
+      expect(typeDropdown.initialValue, scales.ScaleType.minor);
     });
 
     testWidgets("should update piano when chord selection changes", (
@@ -227,26 +217,34 @@ void main() {
       await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
-      // Switch to chords mode
-      await switchToChordsMode(tester);
+      await selectMode(tester, ReferenceMode.chordTypes);
+      await selectChordType(tester, ChordType.minor);
 
-      // Change to a different chord type using key-based selection
-      await tester.tap(find.byKey(const Key("chords_type_minor")));
-      await tester.pumpAndSettle();
-
-      // Verify piano is present and functional
       expect(find.byType(PianoKeyboard), findsOneWidget);
 
-      // Verify the Minor chord type is selected in the UI
-      final minorChip = find.byWidgetPredicate(
-        (widget) =>
-            widget is FilterChip &&
-            widget.label is Text &&
-            (widget.label as Text).data == "Minor" &&
-            widget.selected == true,
+      final typeDropdown = tester.widget<DropdownButtonFormField<ChordType>>(
+        find.byType(DropdownButtonFormField<ChordType>),
       );
-      expect(minorChip, findsOneWidget);
+      expect(typeDropdown.initialValue, ChordType.minor);
     });
+
+    testWidgets(
+      "should tightly frame the piano range around the selected scale",
+      (tester) async {
+        await tester.pumpWidget(createTestWidget(const ReferencePage()));
+        await tester.pumpAndSettle();
+
+        // Default is a C major scale (MIDI 60-71, base octave 4), so the
+        // keyboard should hug that range rather than spanning a fixed
+        // multi-octave window centered elsewhere.
+        final piano = tester.widget<PianoKeyboard>(find.byType(PianoKeyboard));
+        expect(piano.range.fromMidi, lessThanOrEqualTo(60));
+        expect(piano.range.toMidi, greaterThanOrEqualTo(71));
+        // The range should stay close (within a handful of keys) rather
+        // than falling back to a wide, mostly-empty keyboard.
+        expect(piano.range.toMidi - piano.range.fromMidi, lessThan(24));
+      },
+    );
 
     group("Piano Interaction", () {
       testWidgets("should handle piano key taps", (tester) async {
@@ -259,16 +257,13 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        // Find the PianoKeyboard widget
         final pianoFinder = find.byType(PianoKeyboard);
         expect(pianoFinder, findsOneWidget);
 
-        // Verify piano is interactive and properly configured
         final piano = tester.widget<PianoKeyboard>(pianoFinder);
         expect(piano.onKeyDown, isNotNull);
         expect(piano.onKeyUp, isNotNull);
 
-        // Triggering the callbacks should actually reach the MIDI repository.
         piano.onKeyDown!(60);
         await tester.pump();
         verify(mockMidiRepository.sendNoteOn(60, 64, 0)).called(1);
@@ -276,16 +271,6 @@ void main() {
         piano.onKeyUp!(60);
         await tester.pump();
         verify(mockMidiRepository.sendNoteOff(60, 0)).called(1);
-
-        // Verify initial UI state shows scales mode (Major scale selected)
-        final majorScaleChip = find.byWidgetPredicate(
-          (widget) =>
-              widget is FilterChip &&
-              widget.label is Text &&
-              (widget.label as Text).data == "Major" &&
-              widget.selected == true,
-        );
-        expect(majorScaleChip, findsOneWidget);
       });
     });
 
@@ -293,12 +278,10 @@ void main() {
       testWidgets("should handle initialization with provider correctly", (
         tester,
       ) async {
-        // Test with proper provider setup (now required for DI architecture)
         await tester.pumpWidget(createTestWidget(const ReferencePage()));
 
-        // Should render properly with provider support
         await tester.pumpAndSettle();
-        expect(find.text("Reference Mode"), findsOneWidget);
+        expect(find.byType(PianoKeyboard), findsOneWidget);
       });
     });
   });

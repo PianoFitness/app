@@ -104,6 +104,81 @@ void main() {
     });
   });
 
+  group("Reference Range Tests", () {
+    test("should return fallback range when no notes highlighted", () {
+      const fallbackRange = MidiNoteRange(fromMidi: 48, toMidi: 72);
+      final result = PianoRangeUtils.calculateReferenceRange(
+        [],
+        fallbackRange: fallbackRange,
+      );
+      expect(result, equals(fallbackRange));
+    });
+
+    test("should return the default range when no fallback is provided", () {
+      final result = PianoRangeUtils.calculateReferenceRange([]);
+      expect(result, equals(PianoRangeUtils.defaultRange));
+    });
+
+    test("should hug a C major scale with only a couple of keys of padding", () {
+      // C major scale degrees, C4-B4 (MIDI 60-71)
+      final cMajorScale = [60, 62, 64, 65, 67, 69, 71];
+      final result = PianoRangeUtils.calculateReferenceRange(cMajorScale);
+
+      expect(
+        result.fromMidi,
+        equals(60 - PianoRangeUtils.referencePaddingSemitones),
+      );
+      expect(
+        result.toMidi,
+        equals(71 + PianoRangeUtils.referencePaddingSemitones),
+      );
+      // Should be far tighter than the one-octave-buffer, min-2-octave
+      // window that calculateOptimalRange would produce for the same notes.
+      expect(
+        result.toMidi - result.fromMidi,
+        lessThan(
+          PianoRangeUtils.calculateOptimalRange(cMajorScale).toMidi -
+              PianoRangeUtils.calculateOptimalRange(cMajorScale).fromMidi,
+        ),
+      );
+    });
+
+    test("should hug a single triad tightly", () {
+      const cMajorTriad = [60, 64, 67]; // C4, E4, G4
+      final result = PianoRangeUtils.calculateReferenceRange(cMajorTriad);
+
+      expect(
+        result.fromMidi,
+        equals(60 - PianoRangeUtils.referencePaddingSemitones),
+      );
+      expect(
+        result.toMidi,
+        equals(67 + PianoRangeUtils.referencePaddingSemitones),
+      );
+    });
+
+    test("should respect a custom padding amount", () {
+      const notes = [60, 71];
+      final result = PianoRangeUtils.calculateReferenceRange(
+        notes,
+        paddingSemitones: 1,
+      );
+
+      expect(result.fromMidi, equals(59));
+      expect(result.toMidi, equals(72));
+    });
+
+    test("should clamp to the 88-key range at the extremes", () {
+      final result = PianoRangeUtils.calculateReferenceRange([
+        PianoRangeUtils.min88KeyMidi,
+        PianoRangeUtils.max88KeyMidi,
+      ]);
+
+      expect(result.fromMidi, equals(PianoRangeUtils.min88KeyMidi));
+      expect(result.toMidi, equals(PianoRangeUtils.max88KeyMidi));
+    });
+  });
+
   group("Chord Progression Range Tests", () {
     test(
       "should calculate range for chord progression with all inversions",
