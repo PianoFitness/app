@@ -12,7 +12,6 @@ class FakeMidiCommand implements midi_cmd.MidiCommand {
     lastSentData = data;
   }
 
-
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -106,18 +105,21 @@ void main() {
       expect(() => repo.sendNoteOff(60, 20), throwsRangeError);
     });
 
-    test("sendControlChange, sendProgramChange, sendPitchBend validate inputs", () async {
-      await repo.sendControlChange(1, 64, 0);
-      expect(fakeCommand.lastSentData, isNotNull);
+    test(
+      "sendControlChange, sendProgramChange, sendPitchBend validate inputs",
+      () async {
+        await repo.sendControlChange(1, 64, 0);
+        expect(fakeCommand.lastSentData, isNotNull);
 
-      await repo.sendProgramChange(5, 0);
-      expect(fakeCommand.lastSentData, isNotNull);
+        await repo.sendProgramChange(5, 0);
+        expect(fakeCommand.lastSentData, isNotNull);
 
-      await repo.sendPitchBend(0.5, 0);
-      expect(fakeCommand.lastSentData, isNotNull);
+        await repo.sendPitchBend(0.5, 0);
+        expect(fakeCommand.lastSentData, isNotNull);
 
-      expect(() => repo.sendControlChange(1, 64, 17), throwsRangeError);
-    });
+        expect(() => repo.sendControlChange(1, 64, 17), throwsRangeError);
+      },
+    );
 
     test("connectedDevice returns null stub", () {
       expect(repo.connectedDevice, isNull);

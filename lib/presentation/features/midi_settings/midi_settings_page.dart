@@ -8,7 +8,6 @@ import "package:piano_fitness/presentation/theme/semantic_colors.dart";
 import "package:piano_fitness/presentation/features/midi_settings/widgets/midi_device_list_tile.dart";
 import "package:provider/provider.dart";
 
-
 /// The MIDI settings and device management page.
 ///
 /// This page provides controls for discovering, connecting to, and configuring
@@ -250,7 +249,6 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
   }
 
   Widget _buildDevicesList(
-
     BuildContext context,
     MidiSettingsViewModel viewModel,
   ) {
@@ -279,7 +277,6 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
       ],
     );
   }
-
 
   Widget _buildMidiActivity(
     BuildContext context,

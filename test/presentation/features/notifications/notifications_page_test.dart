@@ -32,7 +32,9 @@ class FakeSettingsRepository implements ISettingsRepository {
   Future<NotificationSettingsData> loadNotificationSettings() async => settings;
 
   @override
-  Future<void> saveNotificationSettings(NotificationSettingsData newSettings) async {
+  Future<void> saveNotificationSettings(
+    NotificationSettingsData newSettings,
+  ) async {
     settings = newSettings;
   }
 
@@ -68,7 +70,6 @@ void main() {
       expect(find.text("Notification Settings"), findsOneWidget);
       expect(find.text("Practice Timer Completion"), findsOneWidget);
       expect(find.text("Daily Practice Reminder"), findsOneWidget);
-
 
       final switches = find.byType(Switch);
       expect(switches, findsWidgets);

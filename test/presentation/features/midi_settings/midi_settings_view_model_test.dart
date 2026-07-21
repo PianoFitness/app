@@ -62,14 +62,18 @@ void main() {
       await Future<void>.value();
 
       expect(viewModel.selectedChannel, equals(5));
-      expect(() => MidiSettingsViewModel(discoveryService: fakeService, initialChannel: 20), throwsRangeError);
+      expect(
+        () => MidiSettingsViewModel(
+          discoveryService: fakeService,
+          initialChannel: 20,
+        ),
+        throwsRangeError,
+      );
       viewModel.dispose();
     });
 
     test("channel increment and decrement stay in bounds", () async {
-      final viewModel = MidiSettingsViewModel(
-        discoveryService: fakeService,
-      );
+      final viewModel = MidiSettingsViewModel(discoveryService: fakeService);
       await Future<void>.value();
 
       viewModel.decrementChannel();
@@ -86,9 +90,7 @@ void main() {
     });
 
     test("getDeviceIconForType returns correct icons", () async {
-      final viewModel = MidiSettingsViewModel(
-        discoveryService: fakeService,
-      );
+      final viewModel = MidiSettingsViewModel(discoveryService: fakeService);
       await Future<void>.value();
 
       expect(viewModel.getDeviceIconForType("native"), isNotNull);

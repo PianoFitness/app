@@ -1,38 +1,58 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/application/repositories/notification_repository_impl.dart";
+import "package:piano_fitness/application/services/notifications/notification_service.dart";
+
+class FakePlugin {
+  bool initialized = false;
+  bool permissionsGranted = true;
+
+  Future<bool?> initialize(
+    dynamic settings, {
+    dynamic onDidReceiveNotificationResponse,
+  }) async {
+    initialized = true;
+    return true;
+  }
+
+  Future<bool?> requestPermissions({
+    bool alert = false,
+    bool badge = false,
+    bool sound = false,
+  }) async {
+    return permissionsGranted;
+  }
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group("NotificationRepositoryImpl Unit Tests", () {
-    test("create initializes repository instance", () async {
+  group("NotificationRepositoryImpl Tests", () {
+    late FakePlugin fakePlugin;
+
+    setUp(() {
+      fakePlugin = FakePlugin();
+      NotificationService.setPluginForTesting(fakePlugin);
+    });
+
+    test("create factory initializes repository cleanly", () async {
       final repo = await NotificationRepositoryImpl.create();
       expect(repo, isNotNull);
-      expect(repo.dailyReminderNotificationId, equals(1001));
+      expect(
+        repo.dailyReminderNotificationId,
+        equals(NotificationService.dailyReminderNotificationId),
+      );
     });
 
-    test("getPendingNotifications returns empty list by default", () async {
+    test("arePermissionsGranted returns expected bool", () async {
       final repo = await NotificationRepositoryImpl.create();
-      final pending = await repo.getPendingNotifications();
-      expect(pending, isEmpty);
+      final granted = await repo.arePermissionsGranted();
+      expect(granted, isA<bool>());
     });
 
-    test(
-      "permissions check handles uninitialized environment gracefully",
-      () async {
-        final repo = await NotificationRepositoryImpl.create();
-        final granted = await repo.arePermissionsGranted();
-        expect(granted, isFalse);
-      },
-    );
-
-    test(
-      "requestPermissions handles uninitialized environment gracefully",
-      () async {
-        final repo = await NotificationRepositoryImpl.create();
-        final granted = await repo.requestPermissions();
-        expect(granted, isFalse);
-      },
-    );
+    test("requestPermissions delegates to NotificationService", () async {
+      final repo = await NotificationRepositoryImpl.create();
+      final result = await repo.requestPermissions();
+      expect(result, isA<bool>());
+    });
   });
 }

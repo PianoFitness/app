@@ -73,7 +73,6 @@ class MidiEvent {
         return "Pitch Bend: ${pitchBendValue.toStringAsFixed(2)} (Ch: $channel)";
       case MidiEventType.other:
         return "MIDI: Status 0x${status.toRadixString(16).toUpperCase().padLeft(2, '0')} Data1: 0x${data1.toRadixString(16).toUpperCase().padLeft(2, '0')} Data2: 0x${data2.toRadixString(16).toUpperCase().padLeft(2, '0')}";
-
     }
   }
 
@@ -87,4 +86,3 @@ class MidiEvent {
     return ((rawPitch / 0x3FFF) * 2.0) - 1;
   }
 }
-

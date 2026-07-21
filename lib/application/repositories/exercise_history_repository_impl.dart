@@ -136,4 +136,3 @@ class ExerciseHistoryRepositoryImpl implements IExerciseHistoryRepository {
     return _tryByName(values, name) ?? fallback;
   }
 }
-

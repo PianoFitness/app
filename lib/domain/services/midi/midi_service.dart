@@ -141,7 +141,6 @@ class MidiService {
     }
   }
 
-
   /// Gets the pitch bend value as a normalized float (-1.0 to 1.0)
   /// from raw MIDI pitch bend data
   static double getPitchBendValue(int data1, int data2) {

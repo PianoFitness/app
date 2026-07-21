@@ -27,7 +27,8 @@ class FakeMidiCommandDevice implements midi_cmd.MidiDevice {
 }
 
 class FakeMidiCommand implements midi_cmd.MidiCommand {
-  midi_cmd.BluetoothState currentBluetoothState = midi_cmd.BluetoothState.poweredOn;
+  midi_cmd.BluetoothState currentBluetoothState =
+      midi_cmd.BluetoothState.poweredOn;
   List<midi_cmd.MidiDevice>? mockDevices;
   midi_cmd.MidiDevice? lastConnectedDevice;
   midi_cmd.MidiDevice? lastDisconnectedDevice;
@@ -39,7 +40,10 @@ class FakeMidiCommand implements midi_cmd.MidiCommand {
   Future<List<midi_cmd.MidiDevice>?> get devices async => mockDevices;
 
   @override
-  Future<void> connectToDevice(midi_cmd.MidiDevice device, {Duration? awaitConnectionTimeout}) async {
+  Future<void> connectToDevice(
+    midi_cmd.MidiDevice device, {
+    Duration? awaitConnectionTimeout,
+  }) async {
     lastConnectedDevice = device;
   }
 
@@ -89,19 +93,30 @@ void main() {
       expect(service.bluetoothStatus, equals(BluetoothStatus.poweredOn));
     });
 
-    test("getDevices populates deviceCache and returns domain models", () async {
-      fakeCommand.mockDevices = [
-        FakeMidiCommandDevice("dev1", "Test Keyboard", midi_cmd.MidiDeviceType.values.first, true),
-      ];
+    test(
+      "getDevices populates deviceCache and returns domain models",
+      () async {
+        fakeCommand.mockDevices = [
+          FakeMidiCommandDevice(
+            "dev1",
+            "Test Keyboard",
+            midi_cmd.MidiDeviceType.values.first,
+            true,
+          ),
+        ];
 
-      final devices = await service.getDevices();
+        final devices = await service.getDevices();
 
-      expect(devices.length, equals(1));
-      expect(devices.first.id, equals("dev1"));
-      expect(devices.first.name, equals("Test Keyboard"));
-      expect(devices.first.type, equals(midi_cmd.MidiDeviceType.values.first.name));
-      expect(devices.first.connected, isTrue);
-    });
+        expect(devices.length, equals(1));
+        expect(devices.first.id, equals("dev1"));
+        expect(devices.first.name, equals("Test Keyboard"));
+        expect(
+          devices.first.type,
+          equals(midi_cmd.MidiDeviceType.values.first.name),
+        );
+        expect(devices.first.connected, isTrue);
+      },
+    );
 
     test("connectToDevice throws StateError if device not in cache", () async {
       final dev = MidiDevice(
@@ -131,7 +146,12 @@ void main() {
 
     test("connectToDevice and disconnectDevice succeed when cached", () async {
       fakeCommand.mockDevices = [
-        FakeMidiCommandDevice("dev1", "Test Keyboard", midi_cmd.MidiDeviceType.values.last, false),
+        FakeMidiCommandDevice(
+          "dev1",
+          "Test Keyboard",
+          midi_cmd.MidiDeviceType.values.last,
+          false,
+        ),
       ];
 
       final devices = await service.getDevices();

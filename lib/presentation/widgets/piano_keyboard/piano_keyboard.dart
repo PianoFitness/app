@@ -11,13 +11,11 @@ import "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard
 import "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard_geometry.dart";
 import "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard_painter.dart";
 
-
 export "package:piano_fitness/presentation/widgets/piano_keyboard/midi_note_range.dart";
 export "package:piano_fitness/presentation/widgets/piano_keyboard/note_label_mode.dart";
 export "package:piano_fitness/presentation/widgets/piano_keyboard/piano_key_visual.dart";
 export "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard_controller.dart";
 export "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard_painter.dart";
-
 
 /// A custom piano keyboard widget rendering an arbitrary [MidiNoteRange]
 /// with independently composable per-key visual indicators.
@@ -371,4 +369,3 @@ class _PianoKeyboardState extends State<PianoKeyboard> {
     );
   }
 }
-

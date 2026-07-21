@@ -1,8 +1,8 @@
 import "package:flutter/material.dart";
-import "package:piano_fitness/presentation/accessibility/services/musical_announcements_service.dart";
 import "package:piano_fitness/presentation/features/repertoire/repertoire_constants.dart";
 import "package:piano_fitness/presentation/features/repertoire/widgets/repertoire_timer_progress_ring.dart";
-
+import "package:piano_fitness/presentation/features/repertoire/widgets/timer/repertoire_timer_controls.dart";
+import "package:piano_fitness/presentation/features/repertoire/widgets/timer/repertoire_timer_status_badge.dart";
 
 /// Configuration object for timer state.
 class TimerState {
@@ -95,14 +95,11 @@ class RepertoireTimerDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Responsive sizing based on available space
         final availableHeight = constraints.maxHeight;
         final availableWidth = constraints.maxWidth;
+
         final isVeryConstrained =
             availableHeight <
                 RepertoireUIConstants.timerVeryConstrainedHeight ||
@@ -112,7 +109,6 @@ class RepertoireTimerDisplay extends StatelessWidget {
             RepertoireUIConstants.timerExtremelyConstrainedHeight;
         final isLandscape = availableWidth > availableHeight;
 
-        // Ultra-compact sizing for very constrained spaces
         final circleSize = isExtremelyConstrained
             ? 30.0
             : (isVeryConstrained
@@ -137,9 +133,7 @@ class RepertoireTimerDisplay extends StatelessWidget {
             : (isVeryConstrained
                   ? 8.0
                   : (isLandscape
-                        ? (isCompact
-                              ? 14.0
-                              : 20.0) // More generous spacing in landscape
+                        ? (isCompact ? 14.0 : 20.0)
                         : (isCompact ? 12.0 : 16.0)));
         final iconSize = isExtremelyConstrained
             ? 14.0
@@ -152,336 +146,65 @@ class RepertoireTimerDisplay extends StatelessWidget {
             : (isVeryConstrained
                   ? 2.0
                   : (isLandscape
-                        ? (isCompact ? 8.0 : 12.0) // More space in landscape
+                        ? (isCompact ? 8.0 : 12.0)
                         : (isCompact ? 6.0 : 10.0)));
 
-        // Create timer widget
         final timerWidget = RepertoireTimerProgressRing(
-
           state: state,
           circleSize: circleSize,
           timerFontSize: timerFontSize,
           isVeryConstrained: isVeryConstrained,
         );
 
+        final timerControls = RepertoireTimerControls(
+          actions: actions,
+          buttonSize: buttonSize,
+          buttonSpacing: buttonSpacing,
+          iconSize: iconSize,
+          isCompact: isCompact,
+          isVeryConstrained: isVeryConstrained,
+          isExtremelyConstrained: isExtremelyConstrained,
+          isLandscape: isLandscape,
+          selectedDurationMinutes: state.selectedDurationMinutes,
+        );
 
-        // Create action buttons
-        final actionButtons = [
-          // Enhanced Start/Resume Button
-          if (actions.canStart || actions.canResume)
-            Semantics(
-              button: true,
-              label: actions.canStart ? "Start timer" : "Resume timer",
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: [
-                      colorScheme.tertiary,
-                      colorScheme.tertiary.withValues(alpha: 0.8),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colorScheme.tertiary.withValues(
-                        alpha: isLandscape ? 0.2 : 0.3,
-                      ),
-                      blurRadius: isLandscape ? 6 : 8,
-                      offset: Offset(0, isLandscape ? 2 : 4),
-                    ),
-                  ],
-                ),
-                child: ElevatedButton(
-                  onPressed: actions.canStart
-                      ? () {
-                          actions.onStart();
-                          MusicalAnnouncementsService.announceTimerChange(
-                            context,
-                            "Timer started",
-                          );
-                        }
-                      : () {
-                          actions.onResume();
-                          MusicalAnnouncementsService.announceTimerChange(
-                            context,
-                            "Timer resumed",
-                          );
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: colorScheme.onTertiary,
-                    shadowColor: Colors.transparent,
-                    padding: EdgeInsets.all(
-                      isExtremelyConstrained
-                          ? 4
-                          : (isVeryConstrained ? 6 : (isCompact ? 10 : 12)),
-                    ),
-                    minimumSize: Size(buttonSize, buttonSize),
-                    shape: const CircleBorder(),
-                  ),
-                  child: Icon(Icons.play_arrow, size: iconSize),
-                ),
-              ),
-            ),
-
-          // Enhanced Pause Button
-          if (actions.canPause)
-            Semantics(
-              button: true,
-              label: "Pause timer",
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: LinearGradient(
-                    colors: [
-                      colorScheme.secondary,
-                      colorScheme.secondary.withValues(alpha: 0.8),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colorScheme.secondary.withValues(
-                        alpha: isLandscape ? 0.2 : 0.3,
-                      ),
-                      blurRadius: isLandscape ? 6 : 8,
-                      offset: Offset(0, isLandscape ? 2 : 4),
-                    ),
-                  ],
-                ),
-                child: ElevatedButton(
-                  onPressed: () {
-                    actions.onPause();
-                    MusicalAnnouncementsService.announceTimerChange(
-                      context,
-                      "Timer paused",
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: colorScheme.onSecondary,
-                    shadowColor: Colors.transparent,
-                    padding: EdgeInsets.all(
-                      isExtremelyConstrained
-                          ? 4
-                          : (isVeryConstrained ? 6 : (isCompact ? 10 : 12)),
-                    ),
-                    minimumSize: Size(buttonSize, buttonSize),
-                    shape: const CircleBorder(),
-                  ),
-                  child: Icon(Icons.pause, size: iconSize),
-                ),
-              ),
-            ),
-
-          // Enhanced Reset Button
-          if (actions.canReset)
-            Semantics(
-              button: true,
-              label: "Reset timer",
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: colorScheme.primary, width: 2),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colorScheme.primary.withValues(
-                        alpha: isLandscape ? 0.15 : 0.2,
-                      ),
-                      blurRadius: isLandscape ? 4 : 6,
-                      offset: Offset(0, isLandscape ? 1 : 2),
-                    ),
-                  ],
-                ),
-                child: OutlinedButton(
-                  onPressed: () {
-                    actions.onReset();
-                    MusicalAnnouncementsService.announceTimerChange(
-                      context,
-                      "Timer reset to ${state.selectedDurationMinutes} minutes",
-                    );
-                  },
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: colorScheme.primary,
-                    backgroundColor: colorScheme.surface,
-                    side: BorderSide.none,
-                    padding: EdgeInsets.all(
-                      isExtremelyConstrained
-                          ? 4
-                          : (isVeryConstrained ? 6 : (isCompact ? 10 : 12)),
-                    ),
-                    minimumSize: Size(buttonSize, buttonSize),
-                    shape: const CircleBorder(),
-                  ),
-                  child: Icon(Icons.refresh, size: iconSize),
-                ),
-              ),
-            ),
-        ];
-
-        // Decide layout: horizontal (timer + buttons in row) for landscape, vertical otherwise
         final useHorizontalLayout = isLandscape && !isVeryConstrained;
 
-        Widget content;
         if (useHorizontalLayout) {
-          // Horizontal layout: timer, button1, button2 with elegant spacing
-          content = Row(
+          return Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Timer widget
               timerWidget,
-
-              // Spacer between timer and buttons (more generous)
               SizedBox(width: isCompact ? 28.0 : 40.0),
-
-              // Action buttons with spacing between them
-              if (actionButtons.isNotEmpty)
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: actionButtons.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final button = entry.value;
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        right: index < actionButtons.length - 1
-                            ? (isCompact ? 12.0 : 16.0)
-                            : 0,
-                      ),
-                      child: button,
-                    );
-                  }).toList(),
-                ),
-            ],
-          );
-        } else {
-          // Vertical layout: original stacked layout
-          content = Column(
-            mainAxisAlignment: isVeryConstrained
-                ? MainAxisAlignment.start
-                : MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Timer widget
-              timerWidget,
-
-              // Status indicator (hide in extremely constrained spaces)
-              if (!isExtremelyConstrained) ...[
-                SizedBox(height: verticalSpacing1),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isVeryConstrained ? 8 : 12,
-                    vertical: isVeryConstrained ? 4 : 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _getStatusColor().withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: _getStatusColor().withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _getStatusIcon(),
-                        size: statusFontSize,
-                        color: _getStatusColor(),
-                      ),
-                      const SizedBox(width: 4),
-                      Semantics(
-                        label: _getTimerStatusDescription(),
-                        liveRegion: true,
-                        child: Text(
-                          _getTimerStatusText(),
-                          style: TextStyle(
-                            fontSize: statusFontSize,
-                            color: _getStatusColor(),
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: -0.1,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-
-              SizedBox(
-                height: isExtremelyConstrained
-                    ? verticalSpacing1
-                    : verticalSpacing2,
-              ),
-
-              // Action buttons in a row
-              if (actionButtons.isNotEmpty)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: actionButtons.asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final button = entry.value;
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        right: index < actionButtons.length - 1
-                            ? buttonSpacing
-                            : 0,
-                      ),
-                      child: button,
-                    );
-                  }).toList(),
-                ),
+              timerControls,
             ],
           );
         }
 
-        // Return content directly, relying on existing compact sizing logic
-        return content;
+        return Column(
+          mainAxisAlignment: isVeryConstrained
+              ? MainAxisAlignment.start
+              : MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            timerWidget,
+            if (!isExtremelyConstrained) ...[
+              SizedBox(height: verticalSpacing1),
+              RepertoireTimerStatusBadge(
+                state: state,
+                statusFontSize: statusFontSize,
+                isVeryConstrained: isVeryConstrained,
+              ),
+            ],
+            SizedBox(
+              height: isExtremelyConstrained
+                  ? verticalSpacing1
+                  : verticalSpacing2,
+            ),
+            timerControls,
+          ],
+        );
       },
     );
-  }
-
-  String _getTimerStatusText() {
-    if (state.isRunning && !state.isPaused) {
-      return "Timer Running";
-    } else if (state.isPaused) {
-      return "Timer Paused";
-    } else if (state.remainingSeconds == 0) {
-      return "Session Complete!";
-    } else {
-      return "Ready to Start";
-    }
-  }
-
-  String _getTimerStatusDescription() {
-    final status = _getTimerStatusText();
-    final time = state.formattedTime;
-    return "$status. $time remaining.";
-  }
-
-  Color _getStatusColor() {
-    if (state.isRunning && !state.isPaused) {
-      return RepertoireUIConstants.timerRunningColor;
-    } else if (state.isPaused) {
-      return RepertoireUIConstants.timerPausedColor;
-    } else if (state.remainingSeconds == 0) {
-      return RepertoireUIConstants.timerCompletedColor;
-    } else {
-      return RepertoireUIConstants.timerReadyColor;
-    }
-  }
-
-  IconData _getStatusIcon() {
-    if (state.isRunning && !state.isPaused) {
-      return Icons.play_circle_filled;
-    } else if (state.isPaused) {
-      return Icons.pause_circle_filled;
-    } else if (state.remainingSeconds == 0) {
-      return Icons.celebration;
-    } else {
-      return Icons.schedule;
-    }
   }
 }

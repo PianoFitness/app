@@ -18,8 +18,6 @@ void main() {
         connected: true,
         inputPorts: [MidiPort(id: 1)],
         outputPorts: [MidiPort(id: 1)],
-
-
       );
 
       await tester.pumpWidget(

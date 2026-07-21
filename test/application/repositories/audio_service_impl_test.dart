@@ -1,3 +1,4 @@
+import "package:flutter/services.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/application/repositories/audio_service_impl.dart";
 import "package:piano_fitness/domain/repositories/audio_service.dart";
@@ -5,13 +6,31 @@ import "package:piano_fitness/domain/repositories/audio_service.dart";
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group("AudioServiceImpl Unit Tests", () {
-    test("createPlayer creates an AudioPlayerHandle instance", () {
-      final service = AudioServiceImpl();
-      final player = service.createPlayer();
+  setUpAll(() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel("xyz.luan/audioplayers.global"),
+          (MethodCall methodCall) async => 1,
+        );
 
-      expect(player, isNotNull);
-      expect(player, isA<AudioPlayerHandle>());
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel("xyz.luan/audioplayers"),
+          (MethodCall methodCall) async => 1,
+        );
+  });
+
+  group("AudioServiceImpl Tests", () {
+    test("createPlayer returns valid AudioPlayerHandle", () {
+      final service = AudioServiceImpl();
+      final playerHandle = service.createPlayer();
+      expect(playerHandle, isA<AudioPlayerHandle>());
+    });
+
+    test("AudioPlayerHandle can be disposed without errors", () async {
+      final service = AudioServiceImpl();
+      final playerHandle = service.createPlayer();
+      await playerHandle.dispose();
     });
   });
 }

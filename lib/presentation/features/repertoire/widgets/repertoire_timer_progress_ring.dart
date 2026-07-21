@@ -34,10 +34,7 @@ class RepertoireTimerProgressRing extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         gradient: LinearGradient(
-          colors: [
-            colorScheme.surface,
-            colorScheme.surfaceContainerHighest,
-          ],
+          colors: [colorScheme.surface, colorScheme.surfaceContainerHighest],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -61,9 +58,7 @@ class RepertoireTimerProgressRing extends StatelessWidget {
                 strokeWidth: isVeryConstrained ? 4 : 6,
                 backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  state.isRunning
-                      ? colorScheme.tertiary
-                      : colorScheme.primary,
+                  state.isRunning ? colorScheme.tertiary : colorScheme.primary,
                 ),
               ),
               Container(
