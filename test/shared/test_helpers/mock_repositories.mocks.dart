@@ -13,7 +13,7 @@ import 'package:piano_fitness/application/models/notification_settings.dart'
 import 'package:piano_fitness/application/repositories/notification_manager_interface.dart'
     as _i17;
 import 'package:piano_fitness/application/services/midi/midi_connection_service.dart'
-    as _i18;
+    as _i19;
 import 'package:piano_fitness/domain/models/notification_settings_data.dart'
     as _i2;
 import 'package:piano_fitness/domain/models/practice/exercise_history_entry.dart'
@@ -23,6 +23,8 @@ import 'package:piano_fitness/domain/models/user_profile.dart' as _i3;
 import 'package:piano_fitness/domain/repositories/audio_service.dart' as _i5;
 import 'package:piano_fitness/domain/repositories/exercise_history_repository.dart'
     as _i15;
+import 'package:piano_fitness/domain/repositories/metronome_audio_service.dart'
+    as _i18;
 import 'package:piano_fitness/domain/repositories/midi_repository.dart' as _i7;
 import 'package:piano_fitness/domain/repositories/notification_repository.dart'
     as _i11;
@@ -755,11 +757,48 @@ class MockAudioPlayerHandle extends _i1.Mock implements _i5.AudioPlayerHandle {
           as _i8.Future<void>);
 }
 
+/// A class which mocks [IMetronomeAudioService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockIMetronomeAudioService extends _i1.Mock
+    implements _i18.IMetronomeAudioService {
+  MockIMetronomeAudioService() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i8.Future<void> initialize() =>
+      (super.noSuchMethod(
+            Invocation.method(#initialize, []),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> playClick({required double? volume}) =>
+      (super.noSuchMethod(
+            Invocation.method(#playClick, [], {#volume: volume}),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
+
+  @override
+  _i8.Future<void> dispose() =>
+      (super.noSuchMethod(
+            Invocation.method(#dispose, []),
+            returnValue: _i8.Future<void>.value(),
+            returnValueForMissingStub: _i8.Future<void>.value(),
+          )
+          as _i8.Future<void>);
+}
+
 /// A class which mocks [MidiConnectionService].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockMidiConnectionService extends _i1.Mock
-    implements _i18.MidiConnectionService {
+    implements _i19.MidiConnectionService {
   MockMidiConnectionService() {
     _i1.throwOnMissingStub(this);
   }

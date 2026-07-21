@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Metronome component is a precision timing tool essential for piano practice. It provides audible and visual beat references with high temporal accuracy, independent of Flutter's rendering cycle. The metronome must maintain consistent timing even under system load, making it suitable for professional music practice and exercise timing validation.
+The Metronome component is a precision timing tool essential for piano practice. It provides audible and visual beat references, scheduled ahead of time (see [Lookahead Scheduling](#lookahead-scheduling)) so brief UI activity on Flutter's rendering thread doesn't perceptibly disrupt timing. It targets the realistic accuracy bounds in [Precision Standards](#precision-standards) — good enough for practice tempo reference and exercise timing validation, not studio-grade sample accuracy.
 
 ## Requirements
 
@@ -25,12 +25,33 @@ See [Critical Timing Requirements](#critical-timing-requirements) below for the 
 
 ### Precision Standards
 
-- **Timing accuracy**: ±1 ms maximum deviation from the target interval.
-- **Jitter**: Less than 0.5 ms between beats.
-- **Long-term stability**: No measurable drift over 60+ minutes of continuous use.
-- **Load independence**: Timing must remain consistent regardless of UI complexity or system load.
-- **Audio latency**: Click-to-sound delay under 20 ms.
-- **Background operation**: Timing must be maintained when the app is backgrounded.
+These targets are the actual acceptance criteria for this component. They are
+set by what a `Timer`/`Stopwatch`-driven scheduler calling `audioplayers` can
+realistically achieve on mobile hardware — see
+[Architecture Design](#architecture-design) for why, and
+[Testing and Validation](#testing-and-validation) for how they're measured.
+
+- **Scheduling accuracy**: ≤10 ms average deviation, ≤25 ms worst-case
+  deviation, between a beat's intended time and the moment playback is
+  triggered, under normal UI load. This is an engineering target to validate
+  empirically on real devices, not a physical guarantee.
+- **Long-term drift**: Zero *cumulative* drift over 60+ minutes — beat times
+  are computed from an absolute start time (`startTime + n × interval`), never
+  by repeatedly adding an interval to the previous beat, so per-tick error
+  cannot accumulate over a session even though it doesn't shrink to zero.
+- **Load independence**: The scheduler uses a lookahead window (beats are
+  queued up to ~100 ms before they're due) so brief UI jank doesn't cause a
+  beat to be dropped or delayed beyond the deviation targets above; sustained
+  heavy load can still push individual beats past the worst-case figure.
+- **Audio latency**: Trigger-to-sound delay depends on `audioplayers`'
+  `PlayerMode` and the device; use `PlayerMode.lowLatency` (see
+  [Audio System](#audio-system)) and measure actual latency on target devices
+  during implementation rather than assuming a number here.
+- **Background operation**: Not attempted in this phase — see
+  [Platform Considerations](#platform-considerations). Audio playback and the
+  Dart event loop are both suspended or throttled when backgrounded on iOS/
+  Android without additional native work (foreground service / background
+  audio session), which is out of scope until there's a concrete need for it.
 
 ### Musical Timing Context
 
@@ -40,129 +61,134 @@ See [Critical Timing Requirements](#critical-timing-requirements) below for the 
 - **Exercise Validation**: Timing analysis requires precise reference
 - **Ensemble Coordination**: Group practice depends on stable timing
 
+> **Honesty check**: the &lt;1ms figure above describes studio hardware (dedicated
+> DSP chips, ASIO/CoreAudio callback-driven clocks), not a Flutter app calling a
+> general-purpose audio plugin from Dart. Mobile OSes are not real-time
+> operating systems, and `audioplayers` has no "play at sample N" API — every
+> layer between a Dart `Timer` firing and sound actually leaving the speaker
+> (Dart event loop → platform channel → OS audio pipeline) adds variable
+> latency that this app cannot fully eliminate. Section
+> [Critical Timing Requirements](#critical-timing-requirements) states the
+> realistic targets this implementation is actually held to; treat the &lt;1ms
+> and >3ms numbers above as context for *why* timing matters, not as this
+> component's acceptance criteria.
+
 ## Architecture Design
 
-### Isolation Strategy
+### Why Not an Isolate
 
-The metronome must run independently from Flutter's render loop to avoid timing corruption from UI updates, animations, or garbage collection.
+An earlier draft of this spec ran timing in a separate `Isolate`, on the
+theory that isolating the timer from the UI thread would eliminate jitter.
+That doesn't hold up: `audioplayers` is a platform-channel plugin, and
+platform channel calls have to originate from the main isolate, so every beat
+still has to cross back to the main isolate to actually trigger sound. That
+round trip (isolate → `SendPort` → event loop → platform channel) adds message
+latency without removing the one thing that actually causes audible jitter —
+the UI thread being busy when the click needs to fire. An isolate would only
+pay for itself if profiling showed the *scheduling decision* itself was being
+stalled by heavy main-isolate work; that hasn't been demonstrated, so this
+spec starts with the simpler single-isolate design and revisits an isolate
+only if real measurements justify it.
 
-```dart
-class PrecisionMetronome {
-  late ReliableIntervalTimer _timer;
-  late Isolate _metronomeIsolate;
-  late ReceivePort _receivePort;
-  late SendPort _sendPort;
-  
-  // Configuration
-  int _bpm = 120;
-  TimeSignature _timeSignature = TimeSignature.fourFour;
-  MetronomeSound _sound = MetronomeSound.click;
-  bool _isPlaying = false;
-  
-  // Precision timing
-  Duration get _interval => Duration(microseconds: (60000000 / _bpm).round());
-  
-  Future<void> initialize() async {
-    _receivePort = ReceivePort();
-    _metronomeIsolate = await Isolate.spawn(
-      _metronomeIsolateEntry,
-      _receivePort.sendPort,
-    );
-    
-    _sendPort = await _receivePort.first;
-    _setupTimer();
-  }
-  
-  void _setupTimer() {
-    _timer = ReliableIntervalTimer(
-      interval: _interval,
-      callback: _onBeat,
-    );
-  }
-}
-```
+### Lookahead Scheduling
 
-### Isolate Implementation
+Instead, this component uses the scheduling pattern proven out for Web Audio
+metronomes (Chris Wilson's "A Tale of Two Clocks"): decouple *when the
+scheduler runs* from *when a beat is due*. A cheap, imprecise `Timer.periodic`
+wakes up frequently just to ask "which beats are due soon?" — it does not need
+to be accurate itself. Any beat inside a short lookahead window gets its own
+one-shot `Timer` set to fire close to its exact due time, computed from an
+absolute clock (`Stopwatch`, not `DateTime.now()`, which can jump on NTP
+adjustments) so error never accumulates across a session.
 
 ```dart
-// Isolate entry point - runs on separate thread
-static void _metronomeIsolateEntry(SendPort mainSendPort) {
-  final isolateReceivePort = ReceivePort();
-  mainSendPort.send(isolateReceivePort.sendPort);
-  
-  ReliableIntervalTimer? timer;
-  
-  isolateReceivePort.listen((message) {
-    switch (message['command']) {
-      case 'start':
-        timer = ReliableIntervalTimer(
-          interval: Duration(microseconds: message['intervalMicros']),
-          callback: (elapsed) {
-            mainSendPort.send({
-              'type': 'beat',
-              'elapsed': elapsed,
-              'beatNumber': message['beatNumber'],
-            });
-          },
-        );
-        break;
-      case 'stop':
-        timer?.cancel();
-        timer = null;
-        break;
-      case 'updateTempo':
-        timer?.cancel();
-        timer = ReliableIntervalTimer(
-          interval: Duration(microseconds: message['intervalMicros']),
-          callback: (elapsed) {
-            mainSendPort.send({
-              'type': 'beat',
-              'elapsed': elapsed,
-              'beatNumber': message['beatNumber'],
-            });
-          },
-        );
-        break;
+class MetronomeScheduler {
+  MetronomeScheduler({required this.onBeat});
+
+  /// Called on the main isolate when a beat is due; expected to trigger
+  /// playback via AudioPool.start() (see Audio System) as quickly as
+  /// possible — this call IS the timing-critical path.
+  final void Function(int beatIndex) onBeat;
+
+  static const _tickInterval = Duration(milliseconds: 20);
+  static const _scheduleAheadTime = Duration(milliseconds: 100);
+
+  final Stopwatch _clock = Stopwatch();
+  Timer? _schedulerTimer;
+  Duration _beatInterval = TempoCalculator.bpmToInterval(120);
+  int _scheduledBeatIndex = 0;
+
+  // Anchor that _dueTime is computed relative to. Reset on start(); moved
+  // forward to the next unscheduled beat on every updateBpm() call so a
+  // tempo change only affects beats not yet queued, instead of retroactively
+  // recomputing the whole timeline (which would cause a stutter/jump — see
+  // the callout below updateBpm).
+  Duration _anchorTime = Duration.zero;
+  int _anchorBeatIndex = 0;
+
+  void start({required int bpm}) {
+    _beatInterval = TempoCalculator.bpmToInterval(bpm);
+    _clock
+      ..reset()
+      ..start();
+    _scheduledBeatIndex = 0;
+    _anchorBeatIndex = 0;
+    _anchorTime = Duration.zero;
+    _schedulerTimer = Timer.periodic(_tickInterval, (_) => _tick());
+  }
+
+  void stop() {
+    _schedulerTimer?.cancel();
+    _schedulerTimer = null;
+    _clock.stop();
+  }
+
+  /// Changes tempo without resetting phase — the next beat still lands on
+  /// schedule, only beats after it use the new interval.
+  void updateBpm(int bpm) {
+    _anchorTime = _dueTime(_scheduledBeatIndex);
+    _anchorBeatIndex = _scheduledBeatIndex;
+    _beatInterval = TempoCalculator.bpmToInterval(bpm);
+  }
+
+  void _tick() {
+    final now = _clock.elapsed;
+    while (_dueTime(_scheduledBeatIndex) < now + _scheduleAheadTime) {
+      final beatIndex = _scheduledBeatIndex;
+      final delay = _dueTime(beatIndex) - now;
+      Timer(delay.isNegative ? Duration.zero : delay, () => onBeat(beatIndex));
+      _scheduledBeatIndex++;
     }
-  });
+  }
+
+  Duration _dueTime(int beatIndex) =>
+      _anchorTime + _beatInterval * (beatIndex - _anchorBeatIndex);
 }
 ```
+
+Key properties of this design:
+
+- **No cumulative drift**: `_dueTime` is computed from `beatIndex × interval`,
+  not by repeatedly adding to the previous beat's time, so rounding error
+  can't accumulate.
+- **Jank tolerance**: the 100 ms lookahead window means a scheduler tick that
+  runs a few ms late (e.g. because of a dropped frame) still schedules
+  upcoming beats on time — only sustained blocking of the main isolate for
+  longer than the lookahead window causes an audible miss.
+- **Tempo changes don't reset phase**: `updateBpm` changes the interval used
+  for beats not yet scheduled, without restarting the clock, so tap-tempo and
+  tempo gradation don't cause a stutter.
+- **The remaining error is real, not a code bug**: the final `Timer(delay,
+  ...)` is still a Dart `Timer`, bounded by the event loop and OS scheduler —
+  this is why the target in
+  [Precision Standards](#precision-standards) is single-digit-to-low-tens of
+  milliseconds, not sub-millisecond.
 
 ## Timing Implementation
 
-### ReliableIntervalTimer Integration
-
-```dart
-class MetronomeTimer {
-  ReliableIntervalTimer? _timer;
-  final Function(int elapsedMilliseconds) onBeat;
-  Duration _interval;
-  
-  MetronomeTimer({
-    required this.onBeat,
-    required Duration interval,
-  }) : _interval = interval;
-  
-  void start() {
-    _timer = ReliableIntervalTimer(
-      interval: _interval,
-      callback: onBeat,
-    );
-  }
-  
-  void stop() {
-    _timer?.cancel();
-    _timer = null;
-  }
-  
-  void updateInterval(Duration newInterval) {
-    final wasPlaying = _timer != null;
-    stop();
-    _interval = newInterval;
-    if (wasPlaying) start();
-  }
-}
-```
+Beat-to-beat timing is `MetronomeScheduler`, defined above in
+[Lookahead Scheduling](#lookahead-scheduling). This section covers the
+supporting BPM/subdivision math it's built on.
 
 ### BPM Calculation and Conversion
 
@@ -252,31 +278,28 @@ enum BeatEmphasis {
 
 ### Beat Tracking and Accent Patterns
 
+`BeatTracker` is deliberately stateless: `MetronomeScheduler` already hands
+`onBeat` an absolute, 0-based beat index counted from the start of playback
+(see [Lookahead Scheduling](#lookahead-scheduling)), so beat/measure number
+and emphasis can always be derived directly from that index and the current
+time signature - there's no running counter to keep in sync with the
+scheduler's own count, and no `reset()` call needed when starting a new
+session.
+
 ```dart
 class BeatTracker {
-  TimeSignature _timeSignature;
-  int _currentBeat = 0;
-  int _currentMeasure = 0;
-  
-  BeatTracker(this._timeSignature);
-  
-  BeatInfo nextBeat() {
-    _currentBeat = (_currentBeat + 1) % _timeSignature.numerator;
-    if (_currentBeat == 0) {
-      _currentMeasure++;
-    }
-    
+  const BeatTracker._();
+
+  static BeatInfo beatAt(int beatIndex, TimeSignature timeSignature) {
+    final beatInMeasure = beatIndex % timeSignature.numerator;
+    final measureNumber = beatIndex ~/ timeSignature.numerator + 1;
+
     return BeatInfo(
-      beatNumber: _currentBeat + 1,
-      measureNumber: _currentMeasure + 1,
-      emphasis: _timeSignature.pattern[_currentBeat],
-      isDownbeat: _currentBeat == 0,
+      beatNumber: beatInMeasure + 1,
+      measureNumber: measureNumber,
+      emphasis: timeSignature.pattern[beatInMeasure],
+      isDownbeat: beatInMeasure == 0,
     );
-  }
-  
-  void reset() {
-    _currentBeat = 0;
-    _currentMeasure = 0;
   }
 }
 
@@ -297,35 +320,66 @@ class BeatInfo {
 
 ## Audio System
 
-### Sound Generation
+This app already depends on `audioplayers` (see `pubspec.yaml`), which ships
+`AudioPool` — a pool of pre-loaded players built specifically for "extremely
+quick firing, repetitive ... sounds" (its own doc comment), plus
+`PlayerMode.lowLatency` for lower trigger-to-sound latency than the default
+`MediaPlayer`-backed mode. That's a direct fit for a metronome click, and it
+means **no new audio dependency is needed** — the earlier draft's
+`just_audio`/`flutter_native_audio` choices are dropped.
+
+Only one sound asset currently exists —
+`assets/audio/218851__kellyconidi__highbell.mp3` (a bell). The "click, bell,
+wood block, digital beep" sound roster in
+[Functional Requirements](#functional-requirements) needs three more assets
+before it can ship; until they're sourced, implementation should start with
+the bell as the single default sound plus the silent/visual-only mode, not
+block on the full roster.
+
+The `MetronomeAudioEngine`/`MetronomeSound` design below is the target shape
+for that full roster. The current implementation is simpler, matching the
+single-sound phase it's actually in: `IMetronomeAudioService` wraps one
+`AudioPool` directly (`initialize()` / `playClick({volume})` / `dispose()`,
+no per-sound map), and mute is a plain `bool` on `MetronomeState` rather
+than a `MetronomeSound.silent` value. Reintroduce the map/enum shape here
+once a second sound asset actually exists, rather than building it ahead
+of need.
+
+### Sound Playback
 
 ```dart
 class MetronomeAudioEngine {
-  late AudioPlayer _audioPlayer;
-  final Map<MetronomeSound, String> _soundPaths = {
-    MetronomeSound.click: 'sounds/metronome_click.wav',
-    MetronomeSound.bell: 'sounds/metronome_bell.wav',
-    MetronomeSound.woodBlock: 'sounds/metronome_wood.wav',
-    MetronomeSound.digitalBeep: 'sounds/metronome_beep.wav',
-  };
-  
+  MetronomeAudioEngine(this._soundAssetPaths);
+
+  /// One AssetSource path per MetronomeSound (excluding `silent`).
+  final Map<MetronomeSound, String> _soundAssetPaths;
+  final Map<MetronomeSound, AudioPool> _pools = {};
+
   Future<void> initialize() async {
-    _audioPlayer = AudioPlayer();
-    await _preloadSounds();
-  }
-  
-  Future<void> _preloadSounds() async {
-    // Preload all sounds to minimize latency
-    for (final soundPath in _soundPaths.values) {
-      await _audioPlayer.setAsset(soundPath);
+    for (final entry in _soundAssetPaths.entries) {
+      _pools[entry.key] = await AudioPool.createFromAsset(
+        path: entry.value,
+        // A few pre-warmed players per sound lets closely-spaced beats
+        // (fast tempos, subdivisions) overlap without waiting on the
+        // previous click to finish.
+        minPlayers: 2,
+        maxPlayers: 4,
+        playerMode: PlayerMode.lowLatency,
+      );
     }
   }
-  
+
+  /// This IS the timing-critical call — invoke it directly from
+  /// MetronomeScheduler.onBeat, with no `await`ed work ahead of it.
   Future<void> playBeat(MetronomeSound sound, BeatEmphasis emphasis) async {
-    final soundPath = _soundPaths[sound]!;
-    await _audioPlayer.setAsset(soundPath);
-    await _audioPlayer.setVolume(emphasis.intensity);
-    await _audioPlayer.play();
+    if (sound == MetronomeSound.silent) return;
+    await _pools[sound]!.start(volume: emphasis.intensity);
+  }
+
+  Future<void> dispose() async {
+    for (final pool in _pools.values) {
+      await pool.dispose();
+    }
   }
 }
 
@@ -338,13 +392,22 @@ enum MetronomeSound {
 }
 ```
 
-### Low-Latency Audio Requirements
+### Low-Latency Audio Notes
 
-- **Audio Buffer Size**: Minimize to reduce latency (&lt;128 samples)
-- **Sample Rate**: Use 44.1kHz or 48kHz for quality
-- **Preloading**: Cache all sound files in memory
-- **Audio Thread**: Separate thread for audio processing
-- **Platform Audio**: Use native audio APIs for best performance
+- **`PlayerMode.lowLatency`**: reduces trigger-to-sound latency versus the
+  default mode, at the cost of losing duration/completion callbacks and a
+  short max clip length — both fine for a one-shot click, and why `dispose()`
+  must be called explicitly instead of relying on `onPlayerComplete`.
+  Actual latency is device- and platform-dependent; measure it on target
+  devices rather than assuming a figure (see
+  [Precision Standards](#precision-standards)).
+- **Preloading**: `AudioPool.createFromAsset` loads and pre-instantiates
+  players up front, avoiding first-hit decode/allocation latency on the first
+  beat.
+- **Pool size**: `minPlayers`/`maxPlayers` bound how many overlapping
+  instances of a sound can play at once — relevant at fast tempos or with
+  subdivisions where one click's tail may still be sounding when the next
+  fires.
 
 ## Visual Synchronization
 
@@ -443,7 +506,7 @@ class TimingValidator {
       maxDeviation: Duration(microseconds: maxDeviation),
       averageDeviation: Duration(microseconds: avgDeviation.round()),
       drift: Duration(microseconds: drift),
-      isAccurate: maxDeviation < 3000, // 3ms tolerance
+      isAccurate: maxDeviation < 25000, // 25ms worst-case tolerance, see Precision Standards
     );
   }
 }
@@ -472,33 +535,91 @@ class TimingAnalysis {
 }
 ```
 
+## Putting It Together
+
+`PrecisionMetronome` is the public facade that wires
+[`MetronomeScheduler`](#lookahead-scheduling) (when),
+[`BeatTracker`](#beat-tracking-and-accent-patterns) (which beat, what
+emphasis), and [`MetronomeAudioEngine`](#sound-playback) (what sound) into the
+API the rest of the app uses.
+
+```dart
+class PrecisionMetronome {
+  PrecisionMetronome({required MetronomeAudioEngine audioEngine})
+      : _audioEngine = audioEngine;
+
+  final MetronomeAudioEngine _audioEngine;
+  final _beatController = StreamController<BeatInfo>.broadcast();
+
+  late MetronomeScheduler _scheduler;
+  TimeSignature _timeSignature = TimeSignature.fourFour;
+  MetronomeSound _sound = MetronomeSound.bell;
+  int _bpm = 120;
+
+  Stream<BeatInfo> get beatStream => _beatController.stream;
+
+  void setBpm(int bpm) {
+    _bpm = bpm;
+    _scheduler.updateBpm(bpm);
+  }
+
+  void setTimeSignature(TimeSignature signature) {
+    _timeSignature = signature;
+  }
+
+  void setSound(MetronomeSound sound) => _sound = sound;
+
+  void start() {
+    _scheduler = MetronomeScheduler(onBeat: _onSchedulerBeat)
+      ..start(bpm: _bpm);
+  }
+
+  void stop() => _scheduler.stop();
+
+  void _onSchedulerBeat(int beatIndex) {
+    // Timing-critical: trigger playback before touching the stream/UI.
+    final beat = BeatTracker.beatAt(beatIndex, _timeSignature);
+    unawaited(_audioEngine.playBeat(_sound, beat.emphasis));
+    _beatController.add(beat);
+  }
+}
+```
+
 ## Exercise Integration
 
 ### Timing Reference for Practice
 
 ```dart
 class ExerciseMetronome extends PrecisionMetronome {
-  final Function(BeatInfo) onExerciseBeat;
-  final Function(TimingAnalysis) onTimingAnalysis;
-  
   ExerciseMetronome({
+    required super.audioEngine,
     required this.onExerciseBeat,
     required this.onTimingAnalysis,
   });
-  
+
+  final Function(BeatInfo) onExerciseBeat;
+  final Function(TimingAnalysis) onTimingAnalysis;
+
+  final TimingValidator _timingValidator = TimingValidator();
+  final Stopwatch _clock = Stopwatch();
+
   void startExercise(Exercise exercise) {
-    setBpm(exercise.targetTempo);
     setTimeSignature(exercise.timeSignature);
+    setBpm(exercise.targetTempo);
+    _clock
+      ..reset()
+      ..start();
     start();
-    
+
     // Provide timing reference to exercise system
     beatStream.listen((beat) {
       onExerciseBeat(beat);
-      
+      _timingValidator.recordBeat(_clock.elapsed);
+
       // Analyze timing for exercise validation
       if (beat.beatNumber == 1) {
-        final analysis = _timingValidator.analyze(_interval);
-        onTimingAnalysis(analysis);
+        final expectedInterval = TempoCalculator.bpmToInterval(exercise.targetTempo);
+        onTimingAnalysis(_timingValidator.analyze(expectedInterval));
       }
     });
   }
@@ -557,87 +678,110 @@ class MidiTimingEvent {
 
 ## Platform Considerations
 
-### iOS Implementation
+This spec deliberately stays within `audioplayers` + Dart's own `Timer`/
+`Stopwatch` (see [Architecture Design](#architecture-design)) rather than
+reaching for native audio APIs. The items below are **not part of this
+phase** — they're the escalation path if measured accuracy (per
+[Testing and Validation](#testing-and-validation)) doesn't meet the targets
+in [Precision Standards](#precision-standards) on real devices, or if
+background operation becomes a real requirement.
 
-- **Core Audio**: Use Audio Units for lowest latency
-- **CADisplayLink**: Precise timing synchronization
-- **Background Audio**: Maintain timing when backgrounded
-- **Audio Session**: Configure for low-latency playback
+### If Background Operation Is Needed
 
-### Android Implementation
+- **iOS**: requires a configured background audio session; the Dart event
+  loop itself is throttled when backgrounded, so timing would need to move
+  into native code (Audio Units / `AVAudioEngine`) rather than Dart.
+- **Android**: requires a foreground service to avoid the process being
+  suspended; same constraint on Dart-side timing while backgrounded.
 
-- **AAudio/OpenSL ES**: Low-latency audio APIs
-- **Choreographer**: Frame timing synchronization
-- **AudioTrack**: Direct audio buffer management
-- **Foreground Service**: Maintain timing in background
+### If Measured Accuracy Isn't Good Enough
 
-### Flutter/Dart Considerations
-
-- **Isolate Overhead**: Account for message passing latency
-- **Garbage Collection**: Minimize allocations in timing-critical code  
-- **Platform Channels**: Use for native audio integration
-- **Timer Precision**: Dart Timer is insufficient for precision timing
+- Move beat-triggered playback into a native platform-channel audio engine
+  (`AVAudioEngine` on iOS, `AAudio`/Oboe on Android) that supports scheduling
+  a buffer to play at a precise sample offset, instead of triggering
+  `audioplayers` from a Dart `Timer`. This is a significant native-code
+  investment and should only be taken on if real measurements show the
+  current approach isn't good enough for practice use — not preemptively.
+- Re-evaluate whether an `Isolate` for the scheduling loop actually helps
+  once there's profiling data showing the main isolate is the bottleneck
+  (see [Why Not an Isolate](#why-not-an-isolate)).
 
 ## Testing and Validation
 
 ### Precision Testing
 
+Uses `Stopwatch`, not `DateTime.now()`, for the reference clock — wall-clock
+time can jump (NTP sync, DST) and doesn't reflect elapsed monotonic time.
+
 ```dart
 class MetronomeTimingTest {
   static Future<void> testTimingAccuracy() async {
-    final metronome = PrecisionMetronome();
+    final clock = Stopwatch()..start();
+    final scheduler = MetronomeScheduler(onBeat: (beatIndex) {
+      // In production this triggers playback; for the test it just records
+      // when the beat actually fired relative to the shared clock.
+    });
     final validator = TimingValidator();
     final testDuration = Duration(minutes: 5);
-    
-    metronome.setBpm(120);
-    metronome.beatStream.listen((beat) {
-      validator.recordBeat(DateTime.now().duration);
-    });
-    
-    metronome.start();
+
+    scheduler.start(bpm: 120);
+    // Wrap onBeat (or hook a test seam) so every fired beat calls:
+    //   validator.recordBeat(clock.elapsed);
     await Future.delayed(testDuration);
-    metronome.stop();
-    
+    scheduler.stop();
+
     final analysis = validator.analyze(Duration(milliseconds: 500)); // 120 BPM
-    expect(analysis.isAccurate, true);
-    expect(analysis.maxDeviation.inMilliseconds, lessThan(3));
+    expect(analysis.isAccurate, true); // see Precision Standards for the threshold
+    expect(analysis.maxDeviation.inMilliseconds, lessThan(25));
   }
 }
 ```
 
+Run this on real target devices (not just an emulator/simulator, whose timing
+characteristics differ from real hardware) before treating the targets below
+as met.
+
 ### Performance Benchmarks
 
-- **Timing Accuracy**: &lt;1ms deviation under normal load
-- **Timing Consistency**: &lt;0.5ms jitter
+Targets from [Precision Standards](#precision-standards), restated as
+pass/fail benchmarks:
+
+- **Scheduling Accuracy**: ≤10ms average deviation, ≤25ms worst-case, under
+  normal UI load — measured empirically per [Precision Testing](#precision-testing).
 - **CPU Usage**: &lt;2% on modern devices
 - **Memory Usage**: &lt;10MB for metronome subsystem
-- **Battery Impact**: Minimal when using efficient audio APIs
+- **Battery Impact**: Minimal — no background wake locks or continuous
+  polling faster than the 20ms scheduler tick
 
 ## Dependencies
 
 ### Required Packages
 
+No new dependencies are required. The design in
+[Architecture Design](#architecture-design) and
+[Audio System](#audio-system) is built entirely on packages already in
+`pubspec.yaml`:
+
 ```yaml
 dependencies:
-  # Precise interval timing
-  reliable_interval_timer: ^1.0.0
-  
-  # Audio playback
-  just_audio: ^0.9.34
-  
-  # Platform-specific audio
-  flutter_native_audio: ^1.0.0
-  
-  # Background processing
-  workmanager: ^0.5.1
+  # Already present — AudioPool + PlayerMode.lowLatency cover click playback
+  audioplayers: ^6.0.0
 ```
 
-### Platform-Specific Dependencies
+`dart:async` (`Timer`) and `dart:core` (`Stopwatch`) cover scheduling; no
+isolate or third-party timer package is used (see
+[Why Not an Isolate](#why-not-an-isolate)).
 
-- **iOS**: Core Audio framework integration
-- **Android**: AAudio/OpenSL ES integration
-- **Web**: Web Audio API (with limitations)
-- **Desktop**: Platform-specific audio libraries
+### If Escalating to Native Audio
+
+Only relevant if [Platform Considerations](#platform-considerations)'
+escalation path is taken:
+
+- **iOS**: Core Audio / `AVAudioEngine` framework integration
+- **Android**: AAudio/Oboe integration
+- **Web**: Web Audio API (this app does not currently target web; the
+  lookahead-scheduler pattern this spec uses originates from the Web Audio
+  world and would carry over directly if web support is added)
 
 ## Future Enhancements
 
@@ -657,9 +801,14 @@ dependencies:
 
 ## Critical Success Factors
 
-1. **Timing Independence**: Must run independently of UI thread
-2. **Sub-millisecond Precision**: Professional-grade timing accuracy
-3. **Platform Integration**: Native audio API utilization
+1. **Jank-tolerant scheduling**: Lookahead window absorbs brief UI stalls
+   without dropping or delaying beats beyond the targets in
+   [Precision Standards](#precision-standards)
+2. **Realistic, measured accuracy**: ≤10ms average / ≤25ms worst-case
+   scheduling deviation, verified on real devices — not an unverified
+   sub-millisecond claim
+3. **No new dependencies**: Built on `audioplayers`, already in `pubspec.yaml`
 4. **Resource Efficiency**: Minimal CPU and battery impact
-5. **Reliability**: Consistent performance across extended use
+5. **Reliability**: No cumulative drift across extended use, by construction
+   (absolute beat-time computation, not incremental)
 6. **Exercise Integration**: Seamless timing validation for practice exercises

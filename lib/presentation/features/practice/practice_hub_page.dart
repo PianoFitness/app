@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:piano_fitness/presentation/theme/semantic_colors.dart";
+import "package:piano_fitness/presentation/features/metronome/metronome_page.dart";
 import "package:piano_fitness/presentation/features/practice/practice_page.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
@@ -40,6 +41,8 @@ class PracticeHubPage extends StatelessWidget {
               _buildWelcomeSection(context),
               const SizedBox(height: 24),
               _buildPracticeModesSection(context),
+              const SizedBox(height: 24),
+              _buildToolsSection(context),
               const SizedBox(height: 24),
               _buildQuickStartSection(context),
             ],
@@ -235,6 +238,32 @@ class PracticeHubPage extends StatelessWidget {
     );
   }
 
+  /// Builds the practice tools section (metronome, etc.).
+  Widget _buildToolsSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          "Tools",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 16),
+        _buildActionCard(
+          context,
+          title: "Metronome",
+          subtitle: "Keep a steady tempo while you practice",
+          icon: Icons.timer,
+          onTap: () => _navigateToMetronome(context),
+          keyPrefix: "tools",
+        ),
+      ],
+    );
+  }
+
   /// Builds the quick start section with preset exercises.
   Widget _buildQuickStartSection(BuildContext context) {
     return Column(
@@ -249,7 +278,7 @@ class PracticeHubPage extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        _buildQuickStartCard(
+        _buildActionCard(
           context,
           title: "Beginner Chord Progression",
           subtitle: "I - V in C Major",
@@ -260,7 +289,7 @@ class PracticeHubPage extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        _buildQuickStartCard(
+        _buildActionCard(
           context,
           title: "C Major Scale",
           subtitle: "All white keys",
@@ -322,13 +351,15 @@ class PracticeHubPage extends StatelessWidget {
     );
   }
 
-  /// Builds a quick start card widget.
-  Widget _buildQuickStartCard(
+  /// Builds a tappable action card, used by both the Quick Start and Tools
+  /// sections.
+  Widget _buildActionCard(
     BuildContext context, {
     required String title,
     required String subtitle,
     required IconData icon,
     required VoidCallback onTap,
+    String keyPrefix = "quick_start",
   }) {
     // Create a key based on the title for test reliability
     final keyName = _slugify(title);
@@ -336,7 +367,7 @@ class PracticeHubPage extends StatelessWidget {
     return Card(
       elevation: 1,
       child: ListTile(
-        key: Key("quick_start_$keyName"),
+        key: Key("${keyPrefix}_$keyName"),
         leading: Icon(
           icon,
           color: Theme.of(context).colorScheme.primary,
@@ -347,6 +378,13 @@ class PracticeHubPage extends StatelessWidget {
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
         onTap: onTap,
       ),
+    );
+  }
+
+  /// Navigates to the metronome tool.
+  void _navigateToMetronome(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (context) => const MetronomePage()),
     );
   }
 

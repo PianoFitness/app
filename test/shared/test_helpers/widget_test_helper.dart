@@ -1,15 +1,28 @@
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 import "package:mockito/mockito.dart";
+import "package:piano_fitness/application/state/metronome_state.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/repositories/exercise_history_repository.dart";
+import "package:piano_fitness/domain/repositories/metronome_audio_service.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/repositories/notification_repository.dart";
 import "package:piano_fitness/domain/repositories/settings_repository.dart";
 import "package:piano_fitness/domain/repositories/audio_service.dart";
 import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
 import "mock_repositories.mocks.dart";
+
+/// Stubs the [IMetronomeAudioService] methods MetronomeState calls
+/// unconditionally (initialize on creation, dispose on teardown) so tests
+/// don't hit MissingStubError just from having the provider in the tree.
+MockIMetronomeAudioService _createStubbedMetronomeAudioService() {
+  final mock = MockIMetronomeAudioService();
+  when(mock.initialize()).thenAnswer((_) async {});
+  when(mock.playClick(volume: anyNamed("volume"))).thenAnswer((_) async {});
+  when(mock.dispose()).thenAnswer((_) async {});
+  return mock;
+}
 
 /// Creates a widget wrapped with all required providers for testing.
 ///
@@ -53,6 +66,14 @@ Widget createTestWidget(Widget child) {
         value: mockExerciseHistoryRepository,
       ),
       ChangeNotifierProvider<MidiState>(create: (_) => MidiState()),
+      Provider<IMetronomeAudioService>.value(
+        value: _createStubbedMetronomeAudioService(),
+      ),
+      ChangeNotifierProvider<MetronomeState>(
+        create: (context) => MetronomeState(
+          audioService: context.read<IMetronomeAudioService>(),
+        ),
+      ),
     ],
     child: MaterialApp(home: child),
   );
@@ -81,6 +102,7 @@ Widget createTestWidgetWithMocks({
   IUserProfileRepository? userProfileRepository,
   IExerciseHistoryRepository? exerciseHistoryRepository,
   MidiState? midiState,
+  MetronomeState? metronomeState,
 }) {
   final mockMidiRepository = midiRepository ?? MockIMidiRepository();
   final mockNotificationRepository =
@@ -126,6 +148,19 @@ Widget createTestWidgetWithMocks({
         ChangeNotifierProvider<MidiState>.value(value: midiState)
       else
         ChangeNotifierProvider<MidiState>(create: (_) => MidiState()),
+      Provider<IMetronomeAudioService>.value(
+        value: _createStubbedMetronomeAudioService(),
+      ),
+      // Use .value() if custom MetronomeState provided, otherwise use
+      // create for auto-disposal
+      if (metronomeState != null)
+        ChangeNotifierProvider<MetronomeState>.value(value: metronomeState)
+      else
+        ChangeNotifierProvider<MetronomeState>(
+          create: (context) => MetronomeState(
+            audioService: context.read<IMetronomeAudioService>(),
+          ),
+        ),
     ],
     child: MaterialApp(home: child),
   );
