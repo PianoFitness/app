@@ -35,8 +35,8 @@ class MidiEvent {
     required this.data1,
     required this.data2,
     required this.type,
-    required this.displayMessage,
-  });
+    String? displayMessage,
+  }) : _displayMessage = displayMessage;
 
   /// The raw MIDI status byte including channel information.
   final int status;
@@ -53,8 +53,28 @@ class MidiEvent {
   /// The categorized type of this MIDI event.
   final MidiEventType type;
 
+  final String? _displayMessage;
+
   /// Human-readable description of this MIDI event for debugging/display.
-  final String displayMessage;
+  /// Computed lazily if not explicitly provided during construction.
+  String get displayMessage => _displayMessage ?? _buildDisplayMessage();
+
+  String _buildDisplayMessage() {
+    switch (type) {
+      case MidiEventType.noteOn:
+        return "Note ON: $data1 (Ch: $channel, Vel: $data2)";
+      case MidiEventType.noteOff:
+        return "Note OFF: $data1 (Ch: $channel)";
+      case MidiEventType.controlChange:
+        return "CC: Controller $data1 = $data2 (Ch: $channel)";
+      case MidiEventType.programChange:
+        return "Program Change: $data1 (Ch: $channel)";
+      case MidiEventType.pitchBend:
+        return "Pitch Bend: ${pitchBendValue.toStringAsFixed(2)} (Ch: $channel)";
+      case MidiEventType.other:
+        return "MIDI: Status 0x${status.toRadixString(16).toUpperCase().padLeft(2, '0')} Data1: 0x${data1.toRadixString(16).toUpperCase().padLeft(2, '0')} Data2: 0x${data2.toRadixString(16).toUpperCase().padLeft(2, '0')}";
+    }
+  }
 
   /// Normalized pitch bend value in the range -1.0 (min) to 1.0 (max).
   ///

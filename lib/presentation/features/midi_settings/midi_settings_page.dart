@@ -5,6 +5,7 @@ import "package:piano_fitness/presentation/features/device_controller/device_con
 import "package:piano_fitness/presentation/features/midi_settings/midi_settings_view_model.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:piano_fitness/presentation/theme/semantic_colors.dart";
+import "package:piano_fitness/presentation/features/midi_settings/widgets/midi_device_list_tile.dart";
 import "package:provider/provider.dart";
 
 /// The MIDI settings and device management page.
@@ -260,49 +261,11 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
         ),
         const SizedBox(height: Spacing.sm),
         ...(viewModel.devices.map(
-          (device) => Card(
-            margin: const EdgeInsets.symmetric(vertical: Spacing.xs),
-            child: ListTile(
-              leading: Builder(
-                builder: (context) {
-                  final semanticColors = context.semanticColors;
-                  return Icon(
-                    device.connected
-                        ? Icons.radio_button_on
-                        : Icons.radio_button_off,
-                    color: device.connected
-                        ? semanticColors.success
-                        : semanticColors.disabled,
-                  );
-                },
-              ),
-              title: Text(
-                device.name,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              subtitle: Text(
-                "Type: ${device.type}\n"
-                "Inputs: ${device.inputPorts.length} | Outputs: ${device.outputPorts.length}\n"
-                "ID: ${device.id}",
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(viewModel.getDeviceIconForType(device.type)),
-                  if (device.connected)
-                    IconButton(
-                      icon: const Icon(Icons.settings),
-                      onPressed: () => _openDeviceController(device, viewModel),
-                      tooltip: "Open device controller",
-                    ),
-                ],
-              ),
-              onTap: () => viewModel.connectToDevice(device, _showSnackBar),
-              onLongPress: device.connected
-                  ? () => _openDeviceController(device, viewModel)
-                  : null,
-              isThreeLine: true,
-            ),
+          (device) => MidiDeviceListTile(
+            device: device,
+            deviceIcon: viewModel.getDeviceIconForType(device.type),
+            onTap: () => viewModel.connectToDevice(device, _showSnackBar),
+            onOpenController: () => _openDeviceController(device, viewModel),
           ),
         )),
         const SizedBox(height: 8),

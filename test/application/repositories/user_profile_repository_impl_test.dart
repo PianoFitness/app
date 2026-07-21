@@ -3,6 +3,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/application/database/app_database.dart";
 import "package:piano_fitness/application/repositories/user_profile_repository_impl.dart";
 import "package:piano_fitness/domain/models/profile_sort_order.dart";
+import "package:piano_fitness/domain/models/user_profile.dart";
 import "package:shared_preferences/shared_preferences.dart";
 
 void main() {
@@ -10,13 +11,9 @@ void main() {
   late UserProfileRepositoryImpl repository;
 
   setUp(() async {
-    // Use in-memory database for tests
     database = AppDatabase(NativeDatabase.memory());
-
-    // Initialize SharedPreferences with test values
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
-
     repository = UserProfileRepositoryImpl(database: database, prefs: prefs);
   });
 
@@ -82,6 +79,16 @@ void main() {
 
       final retrieved = await repository.getProfile(original.id);
       expect(retrieved!.displayName, "Johnny");
+    });
+
+    test("updateProfile throws Exception if profile does not exist", () async {
+      final dummy = UserProfile(
+        id: "non-existent-id",
+        displayName: "Ghost",
+        createdAt: DateTime.now(),
+      );
+
+      expect(() => repository.updateProfile(dummy), throwsA(isA<Exception>()));
     });
 
     test("updateProfile updates lastPracticeDate", () async {
@@ -155,6 +162,16 @@ void main() {
       expect(sortOrder, ProfileSortOrder.lastActive);
     });
 
+    test("getSortOrder falls back to default on invalid string", () async {
+      SharedPreferences.setMockInitialValues({
+        "profile_sort_order": "invalid_order",
+      });
+      final prefs = await SharedPreferences.getInstance();
+      final repo = UserProfileRepositoryImpl(database: database, prefs: prefs);
+      final sortOrder = await repo.getSortOrder();
+      expect(sortOrder, ProfileSortOrder.lastActive);
+    });
+
     test("setSortOrder stores and retrieves alphabetical", () async {
       await repository.setSortOrder(ProfileSortOrder.alphabetical);
       final sortOrder = await repository.getSortOrder();
@@ -170,7 +187,6 @@ void main() {
     test("setSortOrder persists across repository instances", () async {
       await repository.setSortOrder(ProfileSortOrder.alphabetical);
 
-      // Create new repository instance with same prefs
       final prefs = await SharedPreferences.getInstance();
       final newRepository = UserProfileRepositoryImpl(
         database: database,

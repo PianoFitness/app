@@ -74,7 +74,7 @@ class CommitValidator {
       ..writeln()
       ..writeln("Rules:")
       ..writeln(
-        "   - First line: type(scope): description (max $maxDescriptionLength characters)",
+        "   - Description (excluding optional scope): max $maxDescriptionLength characters",
       )
       ..writeln("   - Additional lines: optional body and footer")
       ..writeln("   - Scope is optional: type: description")

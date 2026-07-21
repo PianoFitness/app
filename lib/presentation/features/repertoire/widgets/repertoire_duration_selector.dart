@@ -1,6 +1,6 @@
 import "package:flutter/material.dart";
-import "package:piano_fitness/presentation/accessibility/services/musical_announcements_service.dart";
 import "package:piano_fitness/presentation/features/repertoire/repertoire_constants.dart";
+import "package:piano_fitness/presentation/features/repertoire/widgets/duration/duration_chip_grid.dart";
 
 /// Reusable widget for selecting practice duration in repertoire practice.
 class RepertoireDurationSelector extends StatelessWidget {
@@ -36,23 +36,19 @@ class RepertoireDurationSelector extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Determine if we're in a very constrained space
         final isVeryConstrained =
             constraints.maxHeight <
             RepertoireUIConstants.durationVeryConstrainedHeight;
 
-        // Check if we're in a horizontal layout (landscape) where space is more constrained
         final isHorizontalLayout =
             constraints.maxWidth <
             RepertoireUIConstants.durationHorizontalLayoutWidth;
 
-        // Adaptive styling based on available space
         final padding = isVeryConstrained ? 8.0 : (isCompact ? 12.0 : 16.0);
         final headerSpacing = isVeryConstrained ? 6.0 : 12.0;
         final iconSize = isVeryConstrained ? 14.0 : (isCompact ? 16.0 : 18.0);
         final fontSize = isVeryConstrained ? 12.0 : (isCompact ? 13.0 : 14.0);
 
-        // Make buttons wider for better usability
         final buttonPadding = isVeryConstrained
             ? const EdgeInsets.symmetric(horizontal: 8, vertical: 4)
             : (isHorizontalLayout
@@ -72,7 +68,6 @@ class RepertoireDurationSelector extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header row
             Row(
               children: [
                 Icon(
@@ -95,111 +90,19 @@ class RepertoireDurationSelector extends StatelessWidget {
               ],
             ),
             SizedBox(height: headerSpacing),
-
-            // Duration buttons - scrollable if needed
             Flexible(
-              child: SingleChildScrollView(
-                child: Wrap(
-                  spacing: isVeryConstrained
-                      ? 4
-                      : (isHorizontalLayout ? 6 : 10),
-                  runSpacing: isVeryConstrained
-                      ? 4
-                      : (isHorizontalLayout ? 6 : 10),
-                  children: availableDurations.map((duration) {
-                    final isSelected = selectedDuration == duration;
-                    final isRecommended =
-                        duration ==
-                        RepertoireUIConstants.recommendedDurationMinutes;
-
-                    return Semantics(
-                      label:
-                          "$duration minutes${isRecommended ? ', recommended' : ''}",
-                      selected: isSelected,
-                      child: Material(
-                        elevation: isSelected ? 4 : 1,
-                        borderRadius: BorderRadius.circular(
-                          isVeryConstrained
-                              ? 14
-                              : (isHorizontalLayout ? 16 : 20),
-                        ),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(
-                            isVeryConstrained
-                                ? 14
-                                : (isHorizontalLayout ? 16 : 20),
-                          ),
-                          onTap: canInteract
-                              ? () {
-                                  onDurationChanged(duration);
-                                  MusicalAnnouncementsService.announceGeneral(
-                                    context,
-                                    "$duration minutes selected",
-                                  );
-                                }
-                              : null,
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: buttonPadding,
-                            decoration: BoxDecoration(
-                              gradient: isSelected
-                                  ? LinearGradient(
-                                      colors: [
-                                        colorScheme.primary,
-                                        colorScheme.secondary,
-                                      ],
-                                    )
-                                  : null,
-                              color: isSelected
-                                  ? null
-                                  : colorScheme.surfaceContainerHighest,
-                              borderRadius: BorderRadius.circular(
-                                isVeryConstrained
-                                    ? 14
-                                    : (isHorizontalLayout ? 16 : 20),
-                              ),
-                              border: isRecommended && !isSelected
-                                  ? Border.all(
-                                      color: colorScheme.tertiary,
-                                      width: isVeryConstrained ? 1 : 2,
-                                    )
-                                  : null,
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  "${duration}m",
-                                  style: TextStyle(
-                                    color: isSelected
-                                        ? colorScheme.onPrimary
-                                        : colorScheme.primary,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: buttonFontSize,
-                                  ),
-                                ),
-                                if (isRecommended && !isVeryConstrained) ...[
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    Icons.star,
-                                    size: starSize,
-                                    color: isSelected
-                                        ? colorScheme.onPrimary
-                                        : colorScheme.tertiary,
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
+              child: DurationChipGrid(
+                availableDurations: availableDurations,
+                selectedDuration: selectedDuration,
+                onDurationChanged: onDurationChanged,
+                canInteract: canInteract,
+                isVeryConstrained: isVeryConstrained,
+                isHorizontalLayout: isHorizontalLayout,
+                buttonPadding: buttonPadding,
+                buttonFontSize: buttonFontSize,
+                starSize: starSize,
               ),
             ),
-
-            // Recommendation text - always reserve space to prevent size jumping
             if (!isVeryConstrained)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
@@ -207,7 +110,7 @@ class RepertoireDurationSelector extends StatelessWidget {
                   selectedDuration ==
                           RepertoireUIConstants.recommendedDurationMinutes
                       ? "⭐ Recommended for focused practice"
-                      : "", // Empty text maintains space
+                      : "",
                   style: TextStyle(
                     fontSize: isCompact ? 11 : 12,
                     color: colorScheme.tertiary,

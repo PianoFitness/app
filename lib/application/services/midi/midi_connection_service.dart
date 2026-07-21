@@ -43,7 +43,14 @@ class MidiConnectionService {
     if (midiDataStream != null) {
       _midiDataSubscription = midiDataStream.listen(
         (packet) {
-          _log.fine("MIDI Connection Service received data: ${packet.data}");
+          // Do not log real-time timing clock (0xF8 / 248) or active sensing (0xFE / 254) messages to avoid spamming logs
+          final isRealtimeClockOrSense =
+              packet.data.isNotEmpty &&
+              (packet.data[0] == 0xF8 || packet.data[0] == 0xFE);
+
+          if (!isRealtimeClockOrSense) {
+            _log.fine("MIDI Connection Service received data: ${packet.data}");
+          }
 
           // Distribute MIDI data to all registered handlers
           for (final handler in _dataHandlers) {

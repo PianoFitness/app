@@ -76,16 +76,15 @@ class RepertoireInfoModal extends StatelessWidget {
           size: ComponentDimensions.iconSizeLarge,
         ),
         const SizedBox(width: Spacing.sm),
-        Text(
-          "About Repertoire Practice",
-          style: TextStyle(
-            fontSize: theme.textTheme.headlineLarge?.fontSize,
-            fontWeight: FontWeight.bold,
-            color: colorScheme.primary,
-            letterSpacing: RepertoireUIConstants.titleLetterSpacing,
+        Expanded(
+          child: Text(
+            "About Repertoire Practice",
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: colorScheme.primary,
+            ),
           ),
         ),
-        const Spacer(),
         Semantics(
           button: true,
           label: "Close information modal",

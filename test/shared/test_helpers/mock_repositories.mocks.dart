@@ -610,6 +610,21 @@ class MockIExerciseHistoryRepository extends _i1.Mock
             ),
           )
           as _i8.Future<List<_i16.ExerciseHistoryEntry>>);
+
+  @override
+  _i8.Stream<List<_i16.ExerciseHistoryEntry>> watchEntriesForProfile(
+    String? profileId, {
+    int? limit,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #watchEntriesForProfile,
+              [profileId],
+              {#limit: limit},
+            ),
+            returnValue: _i8.Stream<List<_i16.ExerciseHistoryEntry>>.empty(),
+          )
+          as _i8.Stream<List<_i16.ExerciseHistoryEntry>>);
 }
 
 /// A class which mocks [INotificationManager].

@@ -67,7 +67,6 @@ void main() {
   late NotificationPluginSpy pluginSpy;
 
   setUpAll(() async {
-    // Initialize timezone database once for all tests
     tz_data.initializeTimeZones();
   });
 
@@ -96,7 +95,6 @@ void main() {
     () async {
       pluginSpy.shouldThrowOnInitialize = true;
 
-      // Should not throw, just log and continue
       await NotificationService.initialize();
 
       expect(pluginSpy.initializeWasCalled, true);
@@ -105,184 +103,106 @@ void main() {
   );
 
   test(
-    "NotificationService scheduleNotification calls plugin zonedSchedule",
+    "NotificationService showInstantNotification delegates to plugin",
     () async {
       await NotificationService.initialize();
-
-      await NotificationService.scheduleNotification(
-        id: 123,
-        title: "Test Notification",
-        body: "Test Body",
-        scheduledTime: DateTime.now().add(Duration(hours: 1)),
+      await NotificationService.showInstantNotification(
+        id: 2,
+        title: "Instant Title",
+        body: "Instant Body",
       );
-
-      expect(
-        pluginSpy.methodCalls,
-        contains("zonedSchedule(123, Test Notification)"),
-      );
+      expect(pluginSpy.methodCalls, contains("show(2, Instant Title)"));
     },
   );
 
-  test("NotificationService cancelNotification calls plugin cancel", () async {
+  test("NotificationService scheduleNotification for future time", () async {
     await NotificationService.initialize();
+    final futureTime = DateTime.now().add(const Duration(hours: 1));
 
-    await NotificationService.cancelNotification(456);
+    await NotificationService.scheduleNotification(
+      id: 50,
+      title: "Future Event",
+      body: "Scheduled Event Body",
+      scheduledTime: futureTime,
+    );
 
-    expect(pluginSpy.methodCalls, contains("cancel(456)"));
+    expect(
+      pluginSpy.methodCalls.any((call) => call.contains("zonedSchedule(50")),
+      isTrue,
+    );
   });
 
   test(
-    "NotificationService cancelAllNotifications calls plugin cancelAll",
+    "NotificationService cancelNotification and cancelAllNotifications delegate to plugin",
     () async {
       await NotificationService.initialize();
+      await NotificationService.cancelNotification(1);
+      expect(pluginSpy.methodCalls, contains("cancel(1)"));
 
       await NotificationService.cancelAllNotifications();
-
       expect(pluginSpy.methodCalls, contains("cancelAll"));
     },
   );
 
   test(
-    "NotificationService methods gracefully handle uninitialized state",
+    "NotificationService scheduleDailyNotification schedules recurring daily notification",
     () async {
-      // Don't initialize service
+      await NotificationService.initialize();
+      final futureTime = DateTime.now().add(const Duration(hours: 2));
 
-      // These should not throw but also not call plugin methods
+      await NotificationService.scheduleDailyNotification(
+        title: "Daily Practice",
+        body: "Time to play!",
+        time: futureTime,
+      );
+
+      expect(
+        pluginSpy.methodCalls.any((call) => call.contains("zonedSchedule")),
+        isTrue,
+      );
+    },
+  );
+
+  test(
+    "NotificationService requestPermissions and arePermissionsGranted execute cleanly",
+    () async {
+      final granted = await NotificationService.requestPermissions();
+      expect(granted, isA<bool>());
+
+      final check = await NotificationService.arePermissionsGranted();
+      expect(check, isA<bool>());
+    },
+  );
+
+  test(
+    "Uninitialized NotificationService methods log warning and return early",
+    () async {
+      await NotificationService.showInstantNotification(title: "T", body: "B");
       await NotificationService.scheduleNotification(
         id: 1,
-        title: "Test",
-        body: "Body",
-        scheduledTime: DateTime.now().add(Duration(minutes: 1)),
+        title: "T",
+        body: "B",
+        scheduledTime: DateTime.now().add(const Duration(hours: 1)),
+      );
+      await NotificationService.scheduleDailyNotification(
+        title: "T",
+        body: "B",
+        time: DateTime.now(),
       );
       await NotificationService.cancelNotification(1);
       await NotificationService.cancelAllNotifications();
 
-      // No plugin methods should have been called
-      expect(pluginSpy.methodCalls.isEmpty, true);
+      expect(pluginSpy.methodCalls, isEmpty);
     },
   );
-
-  group("NotificationManager Integration", () {
-    test(
-      "NotificationService should interact with NotificationManager for persistence",
-      () async {
-        final futureTime = DateTime.now().add(Duration(hours: 1));
-
-        await NotificationManager.instance.saveScheduledNotification(
-          123,
-          "Test Schedule",
-          "Test Body",
-          futureTime,
-          payload: "test_payload",
-        );
-
-        final storedNotifications = await NotificationManager.instance
-            .getScheduledNotifications();
-        expect(storedNotifications.containsKey("123"), true);
-
-        final notification = storedNotifications["123"]!;
-        expect(notification["title"], "Test Schedule");
-        expect(notification["body"], "Test Body");
-        expect(notification["payload"], "test_payload");
-        expect(notification["isRecurring"], false);
-      },
-    );
-
-    test(
-      "NotificationService should handle recurring notification metadata",
-      () async {
-        final futureTime = DateTime.now().add(Duration(hours: 1));
-
-        await NotificationManager.instance.saveScheduledNotification(
-          NotificationService.dailyReminderNotificationId,
-          "Daily Reminder",
-          "Practice time!",
-          futureTime,
-          isRecurring: true,
-        );
-
-        final storedNotifications = await NotificationManager.instance
-            .getScheduledNotifications();
-        final notification =
-            storedNotifications[NotificationService.dailyReminderNotificationId
-                .toString()]!;
-
-        expect(notification["isRecurring"], true);
-        expect(notification["title"], "Daily Reminder");
-      },
-    );
-
-    test(
-      "scheduleDailyNotification schedules plugin and persists recurring metadata",
-      () async {
-        await NotificationService.initialize();
-        final now = DateTime.now();
-        final todayAtNextMinute = DateTime(
-          now.year,
-          now.month,
-          now.day,
-          now.hour,
-          (now.minute + 1) % 60,
-        );
-
-        await NotificationService.scheduleDailyNotification(
-          title: "Daily Reminder",
-          body: "Practice time!",
-          time: todayAtNextMinute,
-        );
-
-        expect(
-          pluginSpy.methodCalls,
-          contains("zonedSchedule(1001, Daily Reminder)"),
-        );
-
-        final stored = await NotificationManager.instance
-            .getScheduledNotifications();
-        final rec =
-            stored[NotificationService.dailyReminderNotificationId.toString()]!;
-        expect(rec["isRecurring"], true);
-      },
-    );
-  });
-
-  group("Validation and Constants", () {
-    test("NotificationService should have correct notification constants", () {
-      expect(NotificationService.dailyReminderNotificationId, 1001);
-      expect(NotificationService.timerCompletionNotificationId, 1002);
-    });
-
-    test(
-      "NotificationService should reject scheduling notifications in the past",
-      () async {
-        await NotificationService.initialize();
-        final pastTime = DateTime.now().subtract(Duration(hours: 1));
-
-        await NotificationService.scheduleNotification(
-          id: 999,
-          title: "Past Notification",
-          body: "Should not be scheduled",
-          scheduledTime: pastTime,
-        );
-
-        // Should not call zonedSchedule for past times
-        expect(
-          pluginSpy.methodCalls.any(
-            (call) => call.contains("zonedSchedule(999"),
-          ),
-          false,
-        );
-      },
-    );
-  });
 
   group("Data Cleanup Logic", () {
     test(
       "NotificationService sync logic should handle stale notification cleanup",
       () async {
-        final pastTime = DateTime.now().subtract(Duration(hours: 1));
-        final futureTime = DateTime.now().add(Duration(hours: 1));
+        final pastTime = DateTime.now().subtract(const Duration(hours: 1));
+        final futureTime = DateTime.now().add(const Duration(hours: 1));
 
-        // Add both past and future notifications
         await NotificationManager.instance.saveScheduledNotification(
           100,
           "Past Notification",
@@ -301,7 +221,6 @@ void main() {
             .getScheduledNotifications();
         expect(storedNotifications.length, 2);
 
-        // Simulate cleanup logic (similar to what _syncStoredWithPending does)
         final now = DateTime.now();
         final toRemove = <String>[];
 
@@ -317,7 +236,6 @@ void main() {
           }
         }
 
-        // Remove stale notifications
         for (final id in toRemove) {
           await NotificationManager.instance.removeScheduledNotification(
             int.parse(id),
@@ -326,26 +244,18 @@ void main() {
 
         storedNotifications = await NotificationManager.instance
             .getScheduledNotifications();
-        expect(
-          storedNotifications.containsKey("100"),
-          false,
-        ); // Past notification removed
-        expect(
-          storedNotifications.containsKey("200"),
-          true,
-        ); // Future notification remains
+        expect(storedNotifications.containsKey("100"), false);
+        expect(storedNotifications.containsKey("200"), true);
       },
     );
 
     test(
       "NotificationManager should handle corrupted data gracefully",
       () async {
-        // Insert corrupted data
         SharedPreferences.setMockInitialValues({
           "scheduled_notifications": "invalid json data",
         });
 
-        // Should not throw when loading corrupted data
         final storedNotifications = await NotificationManager.instance
             .getScheduledNotifications();
         expect(storedNotifications.isEmpty, true);

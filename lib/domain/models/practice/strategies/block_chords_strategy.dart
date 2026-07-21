@@ -62,15 +62,11 @@ class BlockChordsStrategy implements PracticeStrategy {
 
   @override
   PracticeExercise initializeExercise() {
-    if ((handSelection == HandSelection.both ||
-            handSelection == HandSelection.left ||
-            includeLeftHandRoot) &&
-        startOctave < 1) {
-      throw ArgumentError(
-        "startOctave must be >= 1 for both hands, left hand, or left-hand "
-        "root taps (left hand plays at startOctave - 1), got: $startOctave",
-      );
-    }
+    validateLeftHandStartOctave(
+      startOctave,
+      handSelection: handSelection,
+      includeLeftHandRoot: includeLeftHandRoot,
+    );
 
     final coreIntervals = ArpeggioDefinitions.coreIntervals(arpeggioType);
     final n = coreIntervals.length;

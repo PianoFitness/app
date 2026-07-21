@@ -17,7 +17,7 @@ library;
 ///
 /// [midiNote] The MIDI note number (0-127)
 /// Returns true if the note is a black key, false if it's a white key
-bool isBlackKey(int midiNote) => const {1, 3, 6, 8, 10}.contains(midiNote % 12);
+bool isBlackKey(int midiNote) => (0x54A & (1 << (midiNote % 12))) != 0;
 
 /// Determines if a MIDI note represents a white key on a piano.
 ///
@@ -34,10 +34,11 @@ bool isWhiteKey(int midiNote) => !isBlackKey(midiNote);
 /// Returns a list of MIDI note numbers that represent white keys
 List<int> getWhiteKeysInRange(int startNote, int endNote) {
   if (endNote < startNote) return [];
-  return List.generate(
-    endNote - startNote + 1,
-    (i) => startNote + i,
-  ).where(isWhiteKey).toList();
+  final keys = <int>[];
+  for (var note = startNote; note <= endNote; note++) {
+    if (isWhiteKey(note)) keys.add(note);
+  }
+  return keys;
 }
 
 /// Gets all black key MIDI notes within a given range.
@@ -47,8 +48,9 @@ List<int> getWhiteKeysInRange(int startNote, int endNote) {
 /// Returns a list of MIDI note numbers that represent black keys
 List<int> getBlackKeysInRange(int startNote, int endNote) {
   if (endNote < startNote) return [];
-  return List.generate(
-    endNote - startNote + 1,
-    (i) => startNote + i,
-  ).where(isBlackKey).toList();
+  final keys = <int>[];
+  for (var note = startNote; note <= endNote; note++) {
+    if (isBlackKey(note)) keys.add(note);
+  }
+  return keys;
 }

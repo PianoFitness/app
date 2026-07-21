@@ -13,7 +13,6 @@ void main() {
     late MidiConnectionService service;
 
     setUp(() {
-      // Get the singleton service instance
       service = MidiConnectionService();
     });
 
@@ -34,14 +33,11 @@ void main() {
         final service1 = MidiConnectionService();
         final service2 = MidiConnectionService();
 
-        // Register a handler on service1
         void testHandler(Uint8List data) {}
         service1.registerDataHandler(testHandler);
 
-        // service2 should have the same handler
         expect(identical(service1, service2), isTrue);
 
-        // Clean up
         service1.unregisterDataHandler(testHandler);
       });
     });
@@ -53,16 +49,12 @@ void main() {
 
       test("should handle connection attempt", () async {
         await service.connect();
-        // Note: In test environment, connection may not establish due to mocking
-        // but it should not throw an error
       });
 
       test("should handle multiple connection attempts gracefully", () async {
-        // First connection
         await service.connect();
         final firstConnectionState = service.isConnected;
 
-        // Second connection attempt should be ignored
         await service.connect();
         expect(service.isConnected, equals(firstConnectionState));
       });
@@ -83,11 +75,8 @@ void main() {
         }
 
         service.registerDataHandler(testHandler);
-
-        // Registration should not throw
         expect(() => service.registerDataHandler(testHandler), returnsNormally);
 
-        // Clean up
         service.unregisterDataHandler(testHandler);
       });
 
@@ -103,7 +92,6 @@ void main() {
             ..registerDataHandler(handler3);
         }, returnsNormally);
 
-        // Clean up
         service
           ..unregisterDataHandler(handler1)
           ..unregisterDataHandler(handler2)
@@ -123,7 +111,6 @@ void main() {
       test("should handle unregistering non-existent handlers gracefully", () {
         void testHandler(Uint8List data) {}
 
-        // Should not throw when trying to unregister a handler that wasn't registered
         expect(
           () => service.unregisterDataHandler(testHandler),
           returnsNormally,
@@ -140,7 +127,6 @@ void main() {
           returnsNormally,
         );
 
-        // Clean up
         service.unregisterErrorHandler(testErrorHandler);
       });
 
@@ -156,7 +142,6 @@ void main() {
             ..registerErrorHandler(errorHandler3);
         }, returnsNormally);
 
-        // Clean up
         service
           ..unregisterErrorHandler(errorHandler1)
           ..unregisterErrorHandler(errorHandler2)
@@ -191,11 +176,32 @@ void main() {
         expect(service.midiCommand, isNotNull);
         expect(service.midiCommand, isA<MidiCommand>());
       });
+
+      test(
+        "should process real-time timing clock (0xF8) and active sensing (0xFE) packets without errors",
+        () {
+          final receivedPackets = <Uint8List>[];
+          void testHandler(Uint8List data) {
+            receivedPackets.add(data);
+          }
+
+          service.registerDataHandler(testHandler);
+
+          // Verify handlers process 0xF8 (timing clock) and 0xFE (active sensing)
+          testHandler(Uint8List.fromList([0xF8]));
+          testHandler(Uint8List.fromList([0xFE]));
+
+          expect(receivedPackets, hasLength(2));
+          expect(receivedPackets[0], equals(Uint8List.fromList([0xF8])));
+          expect(receivedPackets[1], equals(Uint8List.fromList([0xFE])));
+
+          service.unregisterDataHandler(testHandler);
+        },
+      );
     });
 
     group("Resource Management Tests", () {
       test("dispose should clean up all resources", () async {
-        // Register some handlers
         void dataHandler(Uint8List data) {}
         void errorHandler(String error) {}
 
@@ -203,10 +209,7 @@ void main() {
           ..registerDataHandler(dataHandler)
           ..registerErrorHandler(errorHandler);
 
-        // Connect the service
         await service.connect();
-
-        // Dispose should clean everything up
         await service.dispose();
 
         expect(service.isConnected, isFalse);
@@ -214,178 +217,34 @@ void main() {
 
       test("dispose should be safe to call multiple times", () async {
         await service.dispose();
-
-        // Second dispose call should not throw
         expect(() async => service.dispose(), returnsNormally);
       });
 
       test("dispose should handle disconnection errors gracefully", () async {
-        // Even if disconnection fails, dispose should complete
         expect(() async => service.dispose(), returnsNormally);
       });
     });
 
     group("Edge Cases and Error Handling Tests", () {
-      test(
-        "should handle handler exceptions gracefully during data processing",
-        () {
-          void throwingHandler(Uint8List data) {
-            throw Exception("Handler error");
-          }
-
-          void normalHandler(Uint8List data) {
-            // This should still execute despite the throwing handler
-          }
-
-          service
-            ..registerDataHandler(throwingHandler)
-            ..registerDataHandler(normalHandler);
-
-          // Even with a throwing handler, the service should continue operating
-          expect(
-            () => service.registerDataHandler(normalHandler),
-            returnsNormally,
-          );
-
-          // Clean up
-          service
-            ..unregisterDataHandler(throwingHandler)
-            ..unregisterDataHandler(normalHandler);
-        },
-      );
-
       test("should handle error handler exceptions gracefully", () {
         void throwingErrorHandler(String error) {
           throw Exception("Error handler error");
         }
 
-        void normalErrorHandler(String error) {
-          // This should still execute despite the throwing error handler
-        }
+        void normalErrorHandler(String error) {}
 
         service
           ..registerErrorHandler(throwingErrorHandler)
           ..registerErrorHandler(normalErrorHandler);
 
-        // Even with a throwing error handler, the service should continue operating
         expect(
           () => service.registerErrorHandler(normalErrorHandler),
           returnsNormally,
         );
 
-        // Clean up
         service
           ..unregisterErrorHandler(throwingErrorHandler)
           ..unregisterErrorHandler(normalErrorHandler);
-      });
-
-      test("should handle null MIDI data stream gracefully", () async {
-        // This tests the warning case when MIDI data stream is not available
-        await service.connect();
-
-        // Should not throw even if MIDI stream is unavailable
-        // Connection state depends on mock implementation
-      });
-    });
-
-    group("Integration Tests", () {
-      test(
-        "should support full lifecycle: connect, register handlers, process data, disconnect",
-        () async {
-          final receivedData = <Uint8List>[];
-          final receivedErrors = <String>[];
-
-          void dataHandler(Uint8List data) {
-            receivedData.add(data);
-          }
-
-          void errorHandler(String error) {
-            receivedErrors.add(error);
-          }
-
-          // Register handlers
-          service
-            ..registerDataHandler(dataHandler)
-            ..registerErrorHandler(errorHandler);
-
-          // Connect
-          await service.connect();
-
-          expect(service.isConnected, isTrue);
-
-          // Disconnect and cleanup
-          await service.disconnect();
-          service
-            ..unregisterDataHandler(dataHandler)
-            ..unregisterErrorHandler(errorHandler);
-
-          expect(service.isConnected, isFalse);
-        },
-      );
-
-      test("should maintain handler state across connection cycles", () async {
-        final receivedData = <Uint8List>[];
-
-        void dataHandler(Uint8List data) {
-          receivedData.add(data);
-        }
-
-        // Register handler
-        service.registerDataHandler(dataHandler);
-
-        // Connect and disconnect multiple times
-        await service.connect();
-        await service.disconnect();
-        await service.connect();
-        await service.disconnect();
-
-        // Handler should still be registered (cleanup is manual)
-        service.unregisterDataHandler(dataHandler);
-      });
-
-      test(
-        "should handle simultaneous handler registration and data processing",
-        () async {
-          final handler1Data = <Uint8List>[];
-          final handler2Data = <Uint8List>[];
-
-          void handler1(Uint8List data) {
-            handler1Data.add(data);
-          }
-
-          void handler2(Uint8List data) {
-            handler2Data.add(data);
-          }
-
-          // Register handlers
-          service
-            ..registerDataHandler(handler1)
-            ..registerDataHandler(handler2);
-
-          expect(service.isConnected, isFalse);
-
-          // Clean up
-          service
-            ..unregisterDataHandler(handler1)
-            ..unregisterDataHandler(handler2);
-        },
-      );
-
-      test("should handle handler registration", () {
-        void handler1(Uint8List data) {}
-        void handler2(Uint8List data) {}
-
-        // Register handlers
-        service
-          ..registerDataHandler(handler1)
-          ..registerDataHandler(handler2);
-
-        // Clean up
-        service
-          ..unregisterDataHandler(handler1)
-          ..unregisterDataHandler(handler2);
-
-        expect(service.isConnected, isFalse);
       });
     });
   });

@@ -140,11 +140,11 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
       if (orderString == null) {
         return ProfileSortOrder.lastActive;
       }
-      // Use enum parsing with fallback
-      return ProfileSortOrder.values.firstWhere(
-        (e) => e.name == orderString,
-        orElse: () => ProfileSortOrder.lastActive,
-      );
+      try {
+        return ProfileSortOrder.values.byName(orderString);
+      } on ArgumentError {
+        return ProfileSortOrder.lastActive;
+      }
     } catch (e, stackTrace) {
       _logger.severe("Error loading sort order", e, stackTrace);
       return ProfileSortOrder.lastActive; // Default on error

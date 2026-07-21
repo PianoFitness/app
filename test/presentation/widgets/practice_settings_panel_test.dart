@@ -458,5 +458,37 @@ void main() {
         expect(values, contains(PracticeMode.blockChords));
       });
     });
+
+    group("Key dropdown display names", () {
+      testWidgets(
+        "displays key.displayName formatted strings and not raw enum names",
+        (tester) async {
+          const configuration = ExerciseConfiguration(
+            practiceMode: PracticeMode.scales,
+            handSelection: HandSelection.both,
+            key: music.Key.cSharp,
+            scaleType: music.ScaleType.major,
+          );
+
+          await tester.pumpWidget(
+            MaterialApp(
+              home: Scaffold(
+                body: PracticeSettingsPanel(
+                  configuration: configuration,
+                  onConfigurationChanged: (_) {},
+                  practiceActive: false,
+                  onResetPractice: () {},
+                  autoProgressKeys: false,
+                  onAutoProgressKeysChanged: (_) {},
+                ),
+              ),
+            ),
+          );
+
+          expect(find.text("D♭"), findsOneWidget);
+          expect(find.text("cSharp"), findsNothing);
+        },
+      );
+    });
   });
 }
