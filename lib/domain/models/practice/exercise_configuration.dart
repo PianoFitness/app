@@ -370,54 +370,46 @@ class ExerciseConfiguration {
   /// Returns a new configuration with the specified mode and sensible defaults
   /// applied for any fields required by that mode.
   ExerciseConfiguration withMode(PracticeMode newMode) {
-    var newConfig = copyWith(practiceMode: newMode);
+    var newConfig = copyWith(
+      practiceMode: newMode,
+      key: const Field.set(null),
+      scaleType: const Field.set(null),
+      chordType: const Field.set(null),
+      musicalNote: const Field.set(null),
+      arpeggioType: const Field.set(null),
+      chordProgressionId: const Field.set(null),
+    );
 
     switch (newMode) {
       case PracticeMode.scales:
       case PracticeMode.chordsByKey:
-        if (newConfig.key == null) {
-          newConfig = newConfig.copyWith(key: const Field.set(music.Key.c));
-        }
-        if (newConfig.scaleType == null) {
-          newConfig = newConfig.copyWith(
-            scaleType: const Field.set(music.ScaleType.major),
-          );
-        }
+        newConfig = newConfig.copyWith(
+          key: Field.set(key ?? music.Key.c),
+          scaleType: Field.set(scaleType ?? music.ScaleType.major),
+        );
         break;
       case PracticeMode.chordsByType:
-        if (newConfig.chordType == null) {
-          newConfig = newConfig.copyWith(
-            chordType: const Field.set(ChordType.major),
-          );
-        }
+        newConfig = newConfig.copyWith(
+          chordType: Field.set(chordType ?? ChordType.major),
+        );
         break;
       case PracticeMode.arpeggios:
       case PracticeMode.blockChords:
-        if (newConfig.musicalNote == null) {
-          newConfig = newConfig.copyWith(
-            musicalNote: const Field.set(MusicalNote.c),
-          );
-        }
-        if (newConfig.arpeggioType == null) {
-          newConfig = newConfig.copyWith(
-            arpeggioType: const Field.set(ArpeggioType.major),
-          );
-        }
+        newConfig = newConfig.copyWith(
+          musicalNote: Field.set(musicalNote ?? MusicalNote.c),
+          arpeggioType: Field.set(arpeggioType ?? ArpeggioType.major),
+        );
         break;
       case PracticeMode.chordProgressions:
-        if (newConfig.key == null) {
-          newConfig = newConfig.copyWith(key: const Field.set(music.Key.c));
-        }
-        if (newConfig.chordProgressionId == null) {
-          newConfig = newConfig.copyWith(
-            chordProgressionId: const Field.set("I - V"),
-          );
-        }
+        newConfig = newConfig.copyWith(
+          key: Field.set(key ?? music.Key.c),
+          chordProgressionId: Field.set(chordProgressionId ?? "I - V"),
+        );
         break;
       case PracticeMode.dominantCadence:
-        if (newConfig.key == null) {
-          newConfig = newConfig.copyWith(key: const Field.set(music.Key.c));
-        }
+        newConfig = newConfig.copyWith(
+          key: Field.set(key ?? music.Key.c),
+        );
         break;
     }
     return newConfig;

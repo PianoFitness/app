@@ -30,7 +30,7 @@ void main() {
 
     test("schemaVersion is 5", () {
       // Schema version 5 adds the accuracyPercentage, correctNoteCount, and errorCount
-      // columns to PracticeSessions table.
+      // columns to exercise_history_table.
       expect(db.schemaVersion, 5);
     });
 
