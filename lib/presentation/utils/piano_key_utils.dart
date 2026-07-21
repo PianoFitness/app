@@ -17,7 +17,7 @@ library;
 ///
 /// [midiNote] The MIDI note number (0-127)
 /// Returns true if the note is a black key, false if it's a white key
-bool isBlackKey(int midiNote) => const {1, 3, 6, 8, 10}.contains(midiNote % 12);
+bool isBlackKey(int midiNote) => (0x54A & (1 << (midiNote % 12))) != 0;
 
 /// Determines if a MIDI note represents a white key on a piano.
 ///

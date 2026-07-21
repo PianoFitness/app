@@ -407,9 +407,7 @@ class ExerciseConfiguration {
         );
         break;
       case PracticeMode.dominantCadence:
-        newConfig = newConfig.copyWith(
-          key: Field.set(key ?? music.Key.c),
-        );
+        newConfig = newConfig.copyWith(key: Field.set(key ?? music.Key.c));
         break;
     }
     return newConfig;

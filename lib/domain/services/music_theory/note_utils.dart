@@ -140,18 +140,7 @@ class NoteUtils {
     final octave = (midiNumber ~/ 12) - 1;
     final semitone = midiNumber % 12;
 
-    // Find the note for this semitone, with fallback for safety
-    final noteEntry = _noteToSemitone.entries
-        .where((entry) => entry.value == semitone)
-        .firstOrNull;
-
-    if (noteEntry == null) {
-      throw StateError(
-        "No note found for semitone $semitone (MIDI: $midiNumber). This should not happen.",
-      );
-    }
-
-    final note = noteEntry.key;
+    final note = MusicalNote.values[semitone];
     final displayName = "${_noteToString[note]}$octave";
 
     return NoteInfo(

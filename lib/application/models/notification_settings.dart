@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:piano_fitness/domain/models/notification_settings_data.dart";
 
 /// Model representing user notification preferences and settings.
 ///
@@ -12,6 +13,21 @@ class NotificationSettings {
     this.timerCompletionEnabled = false,
     this.permissionGranted = false,
   });
+
+  /// Converts a domain [NotificationSettingsData] into an application [NotificationSettings].
+  factory NotificationSettings.fromDomain(NotificationSettingsData data) {
+    return NotificationSettings(
+      practiceRemindersEnabled: data.practiceRemindersEnabled,
+      dailyReminderTime: data.hasDailyReminderTime
+          ? TimeOfDay(
+              hour: data.dailyReminderHour!,
+              minute: data.dailyReminderMinute!,
+            )
+          : null,
+      timerCompletionEnabled: data.timerCompletionEnabled,
+      permissionGranted: data.permissionGranted,
+    );
+  }
 
   /// Whether daily practice reminder notifications are enabled.
   final bool practiceRemindersEnabled;
@@ -29,6 +45,17 @@ class NotificationSettings {
   /// Whether any notifications are enabled.
   bool get hasAnyNotificationsEnabled =>
       practiceRemindersEnabled || timerCompletionEnabled;
+
+  /// Converts this application model into a domain [NotificationSettingsData].
+  NotificationSettingsData toDomain() {
+    return NotificationSettingsData(
+      practiceRemindersEnabled: practiceRemindersEnabled,
+      dailyReminderHour: dailyReminderTime?.hour,
+      dailyReminderMinute: dailyReminderTime?.minute,
+      timerCompletionEnabled: timerCompletionEnabled,
+      permissionGranted: permissionGranted,
+    );
+  }
 
   /// Creates a copy of this settings with the given fields replaced.
   NotificationSettings copyWith({
