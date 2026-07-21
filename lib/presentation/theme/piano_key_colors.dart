@@ -1,13 +1,18 @@
 import "package:flutter/material.dart";
 
-/// Custom theme extension for the base (unhighlighted) piano key colors.
+/// Custom theme extension for the base (unhighlighted) piano key colors and label text colors.
 ///
-/// These are the neutral key colors before any [PianoKeyVisual] indicator
+/// These are the neutral key colors and label text colors before any [PianoKeyVisual] indicator
 /// (fill/outline/dot) is layered on top by the caller.
 @immutable
 class PianoKeyColors extends ThemeExtension<PianoKeyColors> {
   /// Creates piano key colors with all required parameters.
-  const PianoKeyColors({required this.whiteKey, required this.blackKey});
+  const PianoKeyColors({
+    required this.whiteKey,
+    required this.blackKey,
+    required this.whiteLabel,
+    required this.blackLabel,
+  });
 
   /// Base color for white keys.
   final Color whiteKey;
@@ -15,23 +20,40 @@ class PianoKeyColors extends ThemeExtension<PianoKeyColors> {
   /// Base color for black keys.
   final Color blackKey;
 
+  /// Default text label color for white keys (dark contrast).
+  final Color whiteLabel;
+
+  /// Default text label color for black keys (light contrast).
+  final Color blackLabel;
+
   /// Light theme piano key colors.
   static const light = PianoKeyColors(
     whiteKey: Color(0xFFFAFAFA),
     blackKey: Color(0xFF212121),
+    whiteLabel: Color(0xFF212121),
+    blackLabel: Color(0xFFFAFAFA),
   );
 
   /// Dark theme piano key colors.
   static const dark = PianoKeyColors(
     whiteKey: Color(0xFFE0E0E0),
     blackKey: Color(0xFF303030),
+    whiteLabel: Color(0xFF212121),
+    blackLabel: Color(0xFFE0E0E0),
   );
 
   @override
-  PianoKeyColors copyWith({Color? whiteKey, Color? blackKey}) {
+  PianoKeyColors copyWith({
+    Color? whiteKey,
+    Color? blackKey,
+    Color? whiteLabel,
+    Color? blackLabel,
+  }) {
     return PianoKeyColors(
       whiteKey: whiteKey ?? this.whiteKey,
       blackKey: blackKey ?? this.blackKey,
+      whiteLabel: whiteLabel ?? this.whiteLabel,
+      blackLabel: blackLabel ?? this.blackLabel,
     );
   }
 
@@ -43,6 +65,8 @@ class PianoKeyColors extends ThemeExtension<PianoKeyColors> {
     return PianoKeyColors(
       whiteKey: Color.lerp(whiteKey, other.whiteKey, t)!,
       blackKey: Color.lerp(blackKey, other.blackKey, t)!,
+      whiteLabel: Color.lerp(whiteLabel, other.whiteLabel, t)!,
+      blackLabel: Color.lerp(blackLabel, other.blackLabel, t)!,
     );
   }
 }

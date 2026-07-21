@@ -100,6 +100,7 @@ class MidiMocks {
       case "onBluetoothStateChanged":
         return _bluetoothStateController.stream;
       case "onMidiDataReceived":
+      case "onMidiPacketReceived":
         return _midiDataController.stream;
 
       default:

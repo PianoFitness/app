@@ -176,6 +176,28 @@ void main() {
         expect(service.midiCommand, isNotNull);
         expect(service.midiCommand, isA<MidiCommand>());
       });
+
+      test(
+        "should process real-time timing clock (0xF8) and active sensing (0xFE) packets without errors",
+        () {
+          final receivedPackets = <Uint8List>[];
+          void testHandler(Uint8List data) {
+            receivedPackets.add(data);
+          }
+
+          service.registerDataHandler(testHandler);
+
+          // Verify handlers process 0xF8 (timing clock) and 0xFE (active sensing)
+          testHandler(Uint8List.fromList([0xF8]));
+          testHandler(Uint8List.fromList([0xFE]));
+
+          expect(receivedPackets, hasLength(2));
+          expect(receivedPackets[0], equals(Uint8List.fromList([0xF8])));
+          expect(receivedPackets[1], equals(Uint8List.fromList([0xFE])));
+
+          service.unregisterDataHandler(testHandler);
+        },
+      );
     });
 
     group("Resource Management Tests", () {

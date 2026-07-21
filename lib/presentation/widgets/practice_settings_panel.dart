@@ -160,7 +160,7 @@ class PracticeSettingsPanel extends StatelessWidget {
   }
 
   String _getKeyString(music.Key key) {
-    return key.name;
+    return key.displayName;
   }
 
   String _getScaleTypeString(music.ScaleType type) {

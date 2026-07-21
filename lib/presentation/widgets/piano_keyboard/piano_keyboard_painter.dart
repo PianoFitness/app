@@ -157,6 +157,17 @@ class PianoKeyboardPainter extends CustomPainter {
       final text = noteLabelMode == NoteLabelMode.name
           ? NoteUtils.midiNumberToNote(key.midiNote).displayName
           : key.midiNote.toString();
+      final Color labelColor;
+      if (visual.fill != null) {
+        labelColor =
+            ThemeData.estimateBrightnessForColor(visual.fill!) ==
+                Brightness.dark
+            ? Colors.white
+            : Colors.black87;
+      } else {
+        labelColor = isBlack ? blackLabelColor : whiteLabelColor;
+      }
+
       _drawCenteredText(
         canvas,
         text,
@@ -166,7 +177,7 @@ class PianoKeyboardPainter extends CustomPainter {
           rect.width,
           rect.height / 3,
         ),
-        color: isBlack ? blackLabelColor : whiteLabelColor,
+        color: labelColor,
         fontSize: 10,
       );
     }
