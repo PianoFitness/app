@@ -33,6 +33,12 @@ void main() {
       await service.dispose();
     });
 
+    test("initialize does nothing if already disposed", () async {
+      final service = MetronomeAudioServiceImpl();
+      await service.dispose();
+      await service.initialize(); // Should return early without throwing
+    });
+
     test(
       "playClick gracefully returns if disposed before pool ready",
       () async {

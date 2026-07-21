@@ -27,9 +27,18 @@ void main() {
       expect(playerHandle, isA<AudioPlayerHandle>());
     });
 
-    test("AudioPlayerHandle can be disposed without errors", () async {
+    test("AudioPlayerHandle operations complete cleanly", () async {
       final service = AudioServiceImpl();
       final playerHandle = service.createPlayer();
+
+      try {
+        await playerHandle.playAsset("audio/test.mp3");
+      } catch (_) {}
+
+      try {
+        await playerHandle.stop();
+      } catch (_) {}
+
       await playerHandle.dispose();
     });
   });

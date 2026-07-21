@@ -21,6 +21,27 @@ class FakePlugin {
   }) async {
     return permissionsGranted;
   }
+
+  Future<void> show(
+    int id,
+    String? title,
+    String? body,
+    dynamic notificationDetails, {
+    String? payload,
+  }) async {}
+  Future<void> cancel(int id) async {}
+  Future<void> cancelAll() async {}
+  Future<dynamic> zonedSchedule(
+    int id,
+    String? title,
+    String? body,
+    dynamic scheduledDate,
+    dynamic notificationDetails, {
+    required dynamic uiLocalNotificationDateInterpretation,
+    required bool androidScheduleMode,
+    String? payload,
+    dynamic matchDateTimeComponents,
+  }) async {}
 }
 
 void main() {
@@ -53,6 +74,39 @@ void main() {
       final repo = await NotificationRepositoryImpl.create();
       final result = await repo.requestPermissions();
       expect(result, isA<bool>());
+    });
+
+    test("scheduleDailyNotification executes without throwing", () async {
+      final repo = await NotificationRepositoryImpl.create();
+      await repo.scheduleDailyNotification(
+        title: "Daily Practice",
+        body: "Time to play piano!",
+        scheduledTime: DateTime.now().add(const Duration(hours: 1)),
+      );
+    });
+
+    test("showInstantNotification executes without throwing", () async {
+      final repo = await NotificationRepositoryImpl.create();
+      await repo.showInstantNotification(
+        id: 1,
+        title: "Goal Achieved",
+        body: "Well done!",
+      );
+    });
+
+    test(
+      "cancelNotification and cancelAllNotifications execute cleanly",
+      () async {
+        final repo = await NotificationRepositoryImpl.create();
+        await repo.cancelNotification(1);
+        await repo.cancelAllNotifications();
+      },
+    );
+
+    test("getPendingNotifications returns list", () async {
+      final repo = await NotificationRepositoryImpl.create();
+      final pending = await repo.getPendingNotifications();
+      expect(pending, isEmpty);
     });
   });
 }

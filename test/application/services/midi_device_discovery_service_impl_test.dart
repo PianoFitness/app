@@ -82,7 +82,7 @@ void main() {
       service.dispose();
     });
 
-    test("bluetoothStatus maps status correctly", () {
+    test("bluetoothStatus maps status correctly for all states", () {
       fakeCommand.currentBluetoothState = midi_cmd.BluetoothState.unsupported;
       expect(service.bluetoothStatus, equals(BluetoothStatus.unsupported));
 
@@ -91,6 +91,18 @@ void main() {
 
       fakeCommand.currentBluetoothState = midi_cmd.BluetoothState.poweredOn;
       expect(service.bluetoothStatus, equals(BluetoothStatus.poweredOn));
+
+      fakeCommand.currentBluetoothState = midi_cmd.BluetoothState.resetting;
+      expect(service.bluetoothStatus, equals(BluetoothStatus.resetting));
+
+      fakeCommand.currentBluetoothState = midi_cmd.BluetoothState.unauthorized;
+      expect(service.bluetoothStatus, equals(BluetoothStatus.unauthorized));
+
+      fakeCommand.currentBluetoothState = midi_cmd.BluetoothState.unknown;
+      expect(service.bluetoothStatus, equals(BluetoothStatus.unknown));
+
+      fakeCommand.currentBluetoothState = midi_cmd.BluetoothState.other;
+      expect(service.bluetoothStatus, equals(BluetoothStatus.other));
     });
 
     test(

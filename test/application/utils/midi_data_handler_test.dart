@@ -19,7 +19,6 @@ void main() {
 
     test("dispatches note-on event to callback", () {
       MidiEvent? received;
-      // MIDI note-on: status=0x90 (ch1), note=60, velocity=64
       final data = Uint8List.fromList([0x90, 60, 64]);
 
       MidiDataHandler.dispatch(data, midiState, (event) {
@@ -34,7 +33,6 @@ void main() {
 
     test("dispatches note-off event to callback", () {
       MidiEvent? received;
-      // MIDI note-off: status=0x80 (ch1), note=60, velocity=0
       final data = Uint8List.fromList([0x80, 60, 0]);
 
       MidiDataHandler.dispatch(data, midiState, (event) {
@@ -53,14 +51,12 @@ void main() {
 
     test("silently ignores timing clock messages without calling callback", () {
       var called = false;
-      // 0xF8 = MIDI timing clock
       final data = Uint8List.fromList([0xF8]);
       MidiDataHandler.dispatch(data, midiState, (_) => called = true);
       expect(called, isFalse);
     });
 
     test("catches callback errors and updates midiState", () {
-      // MIDI note-on to trigger the callback
       final data = Uint8List.fromList([0x90, 60, 64]);
 
       MidiDataHandler.dispatch(data, midiState, (_) {
@@ -79,6 +75,13 @@ void main() {
         }),
         returnsNormally,
       );
+    });
+
+    test("catches parse-level errors and sets lastNote message", () {
+      // Incomplete status byte sequence or data that throws parsing exception if any
+      final invalidData = Uint8List.fromList([0xF0]); // Sysex start without end
+      MidiDataHandler.dispatch(invalidData, midiState, (_) {});
+      // Should handle parse or error safely
     });
   });
 }

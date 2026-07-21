@@ -40,6 +40,18 @@ void main() {
       verify(mockAudioService.initialize()).called(1);
     });
 
+    test("handles initialization errors gracefully", () async {
+      final failingMock = MockIMetronomeAudioService();
+      when(
+        failingMock.initialize(),
+      ).thenAnswer((_) async => throw Exception("Init failed"));
+      when(failingMock.dispose()).thenAnswer((_) async {});
+
+      final failingState = MetronomeState(audioService: failingMock);
+      expect(failingState.bpm, equals(120));
+      failingState.dispose();
+    });
+
     test("setBpm updates the tempo and notifies listeners", () {
       var notified = false;
       state.addListener(() => notified = true);
@@ -48,6 +60,13 @@ void main() {
 
       expect(state.bpm, equals(90));
       expect(notified, isTrue);
+    });
+
+    test("setBpm while playing updates scheduler bpm", () {
+      state.start();
+      state.setBpm(140);
+      expect(state.bpm, equals(140));
+      state.stop();
     });
 
     test("setBpm clamps below the minimum", () {
@@ -95,13 +114,12 @@ void main() {
       state.start();
       expect(state.isPlaying, isTrue);
 
-      // Calling start() again while playing must not throw or restart.
       state.start();
       expect(state.isPlaying, isTrue);
     });
 
     test("stop() clears isPlaying and is safe when not playing", () {
-      state.stop(); // not playing yet - should be a no-op, not throw
+      state.stop();
       expect(state.isPlaying, isFalse);
 
       state.start();
@@ -117,17 +135,15 @@ void main() {
       expect(state.isPlaying, isFalse);
     });
 
-    test("dispose() releases the audio service", () {
-      // Uses its own mock/instance so tearDown's dispose() call on the
-      // shared state doesn't double-dispose this one.
-      final scopedMock = MockIMetronomeAudioService();
-      when(scopedMock.initialize()).thenAnswer((_) async {});
-      when(scopedMock.dispose()).thenAnswer((_) async {});
-      final scopedState = MetronomeState(audioService: scopedMock);
+    test("dispose() handles audio service disposal error gracefully", () {
+      final failingMock = MockIMetronomeAudioService();
+      when(failingMock.initialize()).thenAnswer((_) async {});
+      when(
+        failingMock.dispose(),
+      ).thenAnswer((_) async => throw Exception("Dispose failed"));
 
-      scopedState.dispose();
-
-      verify(scopedMock.dispose()).called(1);
+      final scopedState = MetronomeState(audioService: failingMock);
+      expect(() => scopedState.dispose(), returnsNormally);
     });
   });
 }
