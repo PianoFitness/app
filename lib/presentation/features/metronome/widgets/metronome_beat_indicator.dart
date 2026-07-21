@@ -1,5 +1,3 @@
-import "dart:async";
-
 import "package:flutter/material.dart";
 import "package:piano_fitness/domain/models/metronome/beat_emphasis.dart";
 import "package:piano_fitness/domain/models/metronome/beat_info.dart";
@@ -32,10 +30,11 @@ class _MetronomeBeatIndicatorState extends State<MetronomeBeatIndicator>
   Animation<double> _scaleAnimation = const AlwaysStoppedAnimation(1);
 
   static const double _diameter = 96;
-  static const Map<BeatEmphasis, double> _peakScaleByEmphasis = {
-    BeatEmphasis.strong: 1.3,
-    BeatEmphasis.medium: 1.18,
-    BeatEmphasis.weak: 1.08,
+
+  static double _peakScaleFor(BeatEmphasis emphasis) => switch (emphasis) {
+    BeatEmphasis.strong => 1.3,
+    BeatEmphasis.medium => 1.18,
+    BeatEmphasis.weak => 1.08,
   };
 
   @override
@@ -44,7 +43,17 @@ class _MetronomeBeatIndicatorState extends State<MetronomeBeatIndicator>
     _pulseController = AnimationController(
       duration: AnimationDurations.short,
       vsync: this,
-    );
+    )..addStatusListener(_onPulseStatusChanged);
+  }
+
+  // A persistent listener (rather than chaining .then() off each
+  // forward() call) so a beat arriving before the previous pulse finishes
+  // can't have that earlier call's callback reverse the new, still-rising
+  // animation out from under it.
+  void _onPulseStatusChanged(AnimationStatus status) {
+    if (status == AnimationStatus.completed && mounted) {
+      _pulseController.reverse();
+    }
   }
 
   @override
@@ -53,18 +62,12 @@ class _MetronomeBeatIndicatorState extends State<MetronomeBeatIndicator>
     final beat = widget.beat;
     if (beat != null && !_isSameBeat(beat, oldWidget.beat)) {
       _scaleAnimation =
-          Tween<double>(
-            begin: 1,
-            end: _peakScaleByEmphasis[beat.emphasis],
-          ).animate(
+          Tween<double>(begin: 1, end: _peakScaleFor(beat.emphasis)).animate(
             CurvedAnimation(parent: _pulseController, curve: Curves.easeOut),
           );
-      _pulseController.reset();
-      unawaited(
-        _pulseController.forward().then((_) {
-          if (mounted) _pulseController.reverse();
-        }),
-      );
+      _pulseController
+        ..reset()
+        ..forward();
     }
   }
 
@@ -86,7 +89,10 @@ class _MetronomeBeatIndicatorState extends State<MetronomeBeatIndicator>
     final isDownbeat = beat?.isDownbeat ?? false;
 
     return Semantics(
-      liveRegion: true,
+      // Announce on stop and on each downbeat only - a live region on
+      // every beat would fire several times a second while playing,
+      // each announcement cutting off the last.
+      liveRegion: beat == null || isDownbeat,
       label: beat == null
           ? "Metronome stopped"
           : "Beat ${beat.beatNumber} of measure ${beat.measureNumber}"

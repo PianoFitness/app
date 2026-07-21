@@ -252,12 +252,13 @@ class PracticeHubPage extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        _buildQuickStartCard(
+        _buildActionCard(
           context,
           title: "Metronome",
           subtitle: "Keep a steady tempo while you practice",
           icon: Icons.timer,
           onTap: () => _navigateToMetronome(context),
+          keyPrefix: "tools",
         ),
       ],
     );
@@ -277,7 +278,7 @@ class PracticeHubPage extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        _buildQuickStartCard(
+        _buildActionCard(
           context,
           title: "Beginner Chord Progression",
           subtitle: "I - V in C Major",
@@ -288,7 +289,7 @@ class PracticeHubPage extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        _buildQuickStartCard(
+        _buildActionCard(
           context,
           title: "C Major Scale",
           subtitle: "All white keys",
@@ -350,13 +351,15 @@ class PracticeHubPage extends StatelessWidget {
     );
   }
 
-  /// Builds a quick start card widget.
-  Widget _buildQuickStartCard(
+  /// Builds a tappable action card, used by both the Quick Start and Tools
+  /// sections.
+  Widget _buildActionCard(
     BuildContext context, {
     required String title,
     required String subtitle,
     required IconData icon,
     required VoidCallback onTap,
+    String keyPrefix = "quick_start",
   }) {
     // Create a key based on the title for test reliability
     final keyName = _slugify(title);
@@ -364,7 +367,7 @@ class PracticeHubPage extends StatelessWidget {
     return Card(
       elevation: 1,
       child: ListTile(
-        key: Key("quick_start_$keyName"),
+        key: Key("${keyPrefix}_$keyName"),
         leading: Icon(
           icon,
           color: Theme.of(context).colorScheme.primary,

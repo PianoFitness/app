@@ -24,7 +24,13 @@ class MetronomeState extends ChangeNotifier {
   /// beat isn't slower than the rest.
   MetronomeState({required IMetronomeAudioService audioService})
     : _audioService = audioService {
-    unawaited(_audioService.initialize());
+    unawaited(
+      _audioService.initialize().catchError((Object error) {
+        debugPrint(
+          "MetronomeState: failed to initialize audio service: $error",
+        );
+      }),
+    );
   }
 
   static const int _defaultBpm = 120;
@@ -120,7 +126,13 @@ class MetronomeState extends ChangeNotifier {
     // Timing-critical: trigger playback before any other work.
     final beat = BeatTracker.beatAt(beatIndex, _timeSignature);
     if (!_isMuted) {
-      unawaited(_audioService.playClick(volume: beat.emphasis.intensity));
+      unawaited(
+        _audioService.playClick(volume: beat.emphasis.intensity).catchError((
+          Object error,
+        ) {
+          debugPrint("MetronomeState: failed to play click: $error");
+        }),
+      );
     }
     _currentBeat = beat;
     notifyListeners();
@@ -129,7 +141,11 @@ class MetronomeState extends ChangeNotifier {
   @override
   void dispose() {
     _scheduler.stop();
-    unawaited(_audioService.dispose());
+    unawaited(
+      _audioService.dispose().catchError((Object error) {
+        debugPrint("MetronomeState: failed to dispose audio service: $error");
+      }),
+    );
     super.dispose();
   }
 }

@@ -270,6 +270,22 @@ void main() {
         },
       );
 
+      testWidgets(
+        "opening the full view from the quick panel navigates to MetronomePage",
+        (tester) async {
+          await pumpPortraitMainNavigation(tester);
+
+          await tester.tap(find.byKey(const Key("metronome_button")));
+          await tester.pumpAndSettle();
+
+          await tester.tap(find.byKey(const Key("metronome_open_full_page")));
+          await tester.pumpAndSettle();
+
+          expect(find.byKey(const Key("metronome_quick_panel")), findsNothing);
+          expect(find.byKey(const Key("metronome_page")), findsOneWidget);
+        },
+      );
+
       testWidgets("metronome keeps playing when navigating between tabs", (
         tester,
       ) async {

@@ -32,10 +32,11 @@ class MetronomeAudioServiceImpl implements IMetronomeAudioService {
   AudioPool? _pool;
   Future<AudioPool>? _poolFuture;
   Duration _releaseDelay = _fallbackReleaseDelay;
+  bool _disposed = false;
 
   @override
   Future<void> initialize() async {
-    if (_pool != null) return;
+    if (_pool != null || _disposed) return;
     _poolFuture ??= AudioPool.createFromAsset(
       path: assetPath,
       minPlayers: minPlayers,
@@ -44,6 +45,13 @@ class MetronomeAudioServiceImpl implements IMetronomeAudioService {
     );
     final pool = await _poolFuture!;
     final duration = await pool.getDuration();
+    if (_disposed) {
+      // dispose() ran while this pool was being created, so it never saw
+      // this instance to dispose - do it now instead of leaking it or
+      // resurrecting it into _pool after the service was torn down.
+      await pool.dispose();
+      return;
+    }
     if (duration != null) {
       _releaseDelay = duration;
     }
@@ -58,8 +66,11 @@ class MetronomeAudioServiceImpl implements IMetronomeAudioService {
       // interface doc) so only a missed warm-up pays this latency cost.
       await initialize();
       pool = _pool;
+      // Still null after initialize() means dispose() won the race; skip
+      // the click rather than force-unwrapping a pool that doesn't exist.
+      if (pool == null) return;
     }
-    final stop = await pool!.start(volume: volume);
+    final stop = await pool.start(volume: volume);
     // PlayerMode.lowLatency players aren't auto-released on completion
     // (see AudioPool docs), so release explicitly - otherwise the pool
     // grows unbounded over a long practice session instead of recycling.
@@ -68,6 +79,7 @@ class MetronomeAudioServiceImpl implements IMetronomeAudioService {
 
   @override
   Future<void> dispose() async {
+    _disposed = true;
     final pool = _pool;
     _pool = null;
     _poolFuture = null;

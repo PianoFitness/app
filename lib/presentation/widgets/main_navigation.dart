@@ -263,18 +263,19 @@ class _MetronomeAppBarButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<MetronomeState>();
+    // Scoped to isPlaying/bpm rather than watching MetronomeState as a
+    // whole, so this icon doesn't rebuild on every currentBeat change
+    // (several times a second while playing).
+    final isPlaying = context.select<MetronomeState, bool>(
+      (state) => state.isPlaying,
+    );
+    final bpm = context.select<MetronomeState, int>((state) => state.bpm);
     final colorScheme = Theme.of(context).colorScheme;
 
     return IconButton(
       key: const Key("metronome_button"),
-      icon: Icon(
-        Icons.timer,
-        color: state.isPlaying ? colorScheme.primary : null,
-      ),
-      tooltip: state.isPlaying
-          ? "Metronome (${state.bpm} BPM, playing)"
-          : "Metronome",
+      icon: Icon(Icons.timer, color: isPlaying ? colorScheme.primary : null),
+      tooltip: isPlaying ? "Metronome ($bpm BPM, playing)" : "Metronome",
       onPressed: () => _showMetronomePanel(context),
     );
   }
