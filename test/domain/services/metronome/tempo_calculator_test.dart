@@ -17,13 +17,6 @@ void main() {
       );
     });
 
-    test("round-trips interval back to BPM", () {
-      for (final bpm in [40, 60, 90, 120, 168, 208]) {
-        final interval = TempoCalculator.bpmToInterval(bpm);
-        expect(TempoCalculator.intervalToBpm(interval), equals(bpm));
-      }
-    });
-
     test("clampBpm keeps in-range values unchanged", () {
       expect(TempoCalculator.clampBpm(120), equals(120));
     });

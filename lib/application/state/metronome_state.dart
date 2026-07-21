@@ -30,7 +30,6 @@ class MetronomeState extends ChangeNotifier {
   static const int _defaultBpm = 120;
 
   final IMetronomeAudioService _audioService;
-  final BeatTracker _beatTracker = BeatTracker(TimeSignature.fourFour);
   late final MetronomeScheduler _scheduler = MetronomeScheduler(
     onBeat: _onSchedulerBeat,
   );
@@ -82,7 +81,6 @@ class MetronomeState extends ChangeNotifier {
   void setTimeSignature(TimeSignature timeSignature) {
     if (timeSignature == _timeSignature) return;
     _timeSignature = timeSignature;
-    _beatTracker.setTimeSignature(timeSignature);
     notifyListeners();
   }
 
@@ -120,7 +118,7 @@ class MetronomeState extends ChangeNotifier {
 
   void _onSchedulerBeat(int beatIndex) {
     // Timing-critical: trigger playback before any other work.
-    final beat = _beatTracker.beatAt(beatIndex);
+    final beat = BeatTracker.beatAt(beatIndex, _timeSignature);
     if (!_isMuted) {
       unawaited(_audioService.playClick(volume: beat.emphasis.intensity));
     }

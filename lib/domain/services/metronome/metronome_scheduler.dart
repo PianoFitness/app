@@ -87,9 +87,10 @@ class MetronomeScheduler {
 
   void _tick() {
     final now = _elapsed;
-    while (_dueTime(_scheduledBeatIndex) < now + _scheduleAheadTime) {
+    var due = _dueTime(_scheduledBeatIndex);
+    while (due < now + _scheduleAheadTime) {
       final beatIndex = _scheduledBeatIndex;
-      final delay = _dueTime(beatIndex) - now;
+      final delay = due - now;
       late final Timer beatTimer;
       beatTimer = Timer(delay.isNegative ? Duration.zero : delay, () {
         _pendingBeatTimers.remove(beatTimer);
@@ -97,6 +98,7 @@ class MetronomeScheduler {
       });
       _pendingBeatTimers.add(beatTimer);
       _scheduledBeatIndex++;
+      due = _dueTime(_scheduledBeatIndex);
     }
   }
 

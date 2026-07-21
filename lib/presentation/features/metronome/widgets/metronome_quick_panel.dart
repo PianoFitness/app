@@ -1,13 +1,8 @@
 import "package:flutter/material.dart";
-import "package:provider/provider.dart";
 
-import "package:piano_fitness/application/state/metronome_state.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:piano_fitness/presentation/features/metronome/metronome_page.dart";
-import "package:piano_fitness/presentation/features/metronome/widgets/metronome_beat_indicator.dart";
-import "package:piano_fitness/presentation/features/metronome/widgets/metronome_bpm_control.dart";
-import "package:piano_fitness/presentation/features/metronome/widgets/metronome_time_signature_selector.dart";
-import "package:piano_fitness/presentation/features/metronome/widgets/metronome_transport_controls.dart";
+import "package:piano_fitness/presentation/features/metronome/widgets/metronome_control_panel.dart";
 
 /// Quick-access metronome controls, shown in a bottom sheet from the app
 /// bar on every page (see `main_navigation.dart`) - the same controls as
@@ -19,7 +14,6 @@ class MetronomeQuickPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<MetronomeState>();
     return SafeArea(
       child: Padding(
         key: const Key("metronome_quick_panel"),
@@ -45,13 +39,7 @@ class MetronomeQuickPanel extends StatelessWidget {
             ),
             Text("Metronome", style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: Spacing.md),
-            MetronomeBeatIndicator(beat: state.currentBeat),
-            const SizedBox(height: Spacing.md),
-            MetronomeBpmControl(state: state),
-            const SizedBox(height: Spacing.md),
-            MetronomeTimeSignatureSelector(state: state),
-            const SizedBox(height: Spacing.lg),
-            MetronomeTransportControls(state: state),
+            const MetronomeControlPanel(),
             const SizedBox(height: Spacing.sm),
             TextButton(
               key: const Key("metronome_open_full_page"),

@@ -6,9 +6,10 @@ import "package:piano_fitness/domain/services/metronome/beat_tracker.dart";
 void main() {
   group("BeatTracker", () {
     test("4/4 measure produces strong, weak, medium, weak", () {
-      final tracker = BeatTracker(TimeSignature.fourFour);
-
-      final beats = [for (var i = 0; i < 4; i++) tracker.beatAt(i)];
+      final beats = [
+        for (var i = 0; i < 4; i++)
+          BeatTracker.beatAt(i, TimeSignature.fourFour),
+      ];
 
       expect(beats.map((b) => b.emphasis), [
         BeatEmphasis.strong,
@@ -23,37 +24,28 @@ void main() {
     });
 
     test("beat index wraps into a new measure", () {
-      final tracker = BeatTracker(TimeSignature.fourFour);
-
-      final beat = tracker.beatAt(4); // first beat of the second measure
+      // Beat index 4 is the first beat of the second measure.
+      final beat = BeatTracker.beatAt(4, TimeSignature.fourFour);
 
       expect(beat.beatNumber, equals(1));
       expect(beat.measureNumber, equals(2));
       expect(beat.isDownbeat, isTrue);
     });
 
-    test(
-      "beatAt is stateless - querying out of order gives consistent results",
-      () {
-        final tracker = BeatTracker(TimeSignature.threeFour);
+    test("querying out of order gives consistent, independent results", () {
+      final beatFive = BeatTracker.beatAt(5, TimeSignature.threeFour);
+      final beatTwo = BeatTracker.beatAt(2, TimeSignature.threeFour);
 
-        final beatFive = tracker.beatAt(5);
-        final beatTwo = tracker.beatAt(2);
-
-        expect(beatFive.beatNumber, equals(3));
-        expect(beatFive.measureNumber, equals(2));
-        expect(beatTwo.beatNumber, equals(3));
-        expect(beatTwo.measureNumber, equals(1));
-      },
-    );
+      expect(beatFive.beatNumber, equals(3));
+      expect(beatFive.measureNumber, equals(2));
+      expect(beatTwo.beatNumber, equals(3));
+      expect(beatTwo.measureNumber, equals(1));
+    });
 
     test(
-      "setTimeSignature changes the pattern used for subsequent queries",
+      "the same beat index is reinterpreted under a different signature",
       () {
-        final tracker = BeatTracker(TimeSignature.fourFour);
-
-        tracker.setTimeSignature(TimeSignature.threeFour);
-        final beat = tracker.beatAt(2);
+        final beat = BeatTracker.beatAt(2, TimeSignature.threeFour);
 
         expect(beat.beatNumber, equals(3));
         expect(beat.emphasis, equals(BeatEmphasis.weak));
@@ -61,9 +53,10 @@ void main() {
     );
 
     test("6/8 has a secondary accent on the second group of three", () {
-      final tracker = BeatTracker(TimeSignature.sixEight);
-
-      final beats = [for (var i = 0; i < 6; i++) tracker.beatAt(i)];
+      final beats = [
+        for (var i = 0; i < 6; i++)
+          BeatTracker.beatAt(i, TimeSignature.sixEight),
+      ];
 
       expect(beats.map((b) => b.emphasis), [
         BeatEmphasis.strong,

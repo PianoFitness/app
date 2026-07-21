@@ -278,31 +278,28 @@ enum BeatEmphasis {
 
 ### Beat Tracking and Accent Patterns
 
+`BeatTracker` is deliberately stateless: `MetronomeScheduler` already hands
+`onBeat` an absolute, 0-based beat index counted from the start of playback
+(see [Lookahead Scheduling](#lookahead-scheduling)), so beat/measure number
+and emphasis can always be derived directly from that index and the current
+time signature - there's no running counter to keep in sync with the
+scheduler's own count, and no `reset()` call needed when starting a new
+session.
+
 ```dart
 class BeatTracker {
-  TimeSignature _timeSignature;
-  int _currentBeat = 0;
-  int _currentMeasure = 0;
-  
-  BeatTracker(this._timeSignature);
-  
-  BeatInfo nextBeat() {
-    _currentBeat = (_currentBeat + 1) % _timeSignature.numerator;
-    if (_currentBeat == 0) {
-      _currentMeasure++;
-    }
-    
+  const BeatTracker._();
+
+  static BeatInfo beatAt(int beatIndex, TimeSignature timeSignature) {
+    final beatInMeasure = beatIndex % timeSignature.numerator;
+    final measureNumber = beatIndex ~/ timeSignature.numerator + 1;
+
     return BeatInfo(
-      beatNumber: _currentBeat + 1,
-      measureNumber: _currentMeasure + 1,
-      emphasis: _timeSignature.pattern[_currentBeat],
-      isDownbeat: _currentBeat == 0,
+      beatNumber: beatInMeasure + 1,
+      measureNumber: measureNumber,
+      emphasis: timeSignature.pattern[beatInMeasure],
+      isDownbeat: beatInMeasure == 0,
     );
-  }
-  
-  void reset() {
-    _currentBeat = 0;
-    _currentMeasure = 0;
   }
 }
 
@@ -339,6 +336,15 @@ before it can ship; until they're sourced, implementation should start with
 the bell as the single default sound plus the silent/visual-only mode, not
 block on the full roster.
 
+The `MetronomeAudioEngine`/`MetronomeSound` design below is the target shape
+for that full roster. The current implementation is simpler, matching the
+single-sound phase it's actually in: `IMetronomeAudioService` wraps one
+`AudioPool` directly (`initialize()` / `playClick({volume})` / `dispose()`,
+no per-sound map), and mute is a plain `bool` on `MetronomeState` rather
+than a `MetronomeSound.silent` value. Reintroduce the map/enum shape here
+once a second sound asset actually exists, rather than building it ahead
+of need.
+
 ### Sound Playback
 
 ```dart
@@ -371,11 +377,8 @@ class MetronomeAudioEngine {
   }
 
   Future<void> dispose() async {
-    // Required for PlayerMode.lowLatency players — see AudioPool docs.
     for (final pool in _pools.values) {
-      for (final player in pool.currentPlayers.values) {
-        await player.dispose();
-      }
+      await pool.dispose();
     }
   }
 }
@@ -549,7 +552,7 @@ class PrecisionMetronome {
   final _beatController = StreamController<BeatInfo>.broadcast();
 
   late MetronomeScheduler _scheduler;
-  BeatTracker _beatTracker = BeatTracker(TimeSignature.fourFour);
+  TimeSignature _timeSignature = TimeSignature.fourFour;
   MetronomeSound _sound = MetronomeSound.bell;
   int _bpm = 120;
 
@@ -561,13 +564,12 @@ class PrecisionMetronome {
   }
 
   void setTimeSignature(TimeSignature signature) {
-    _beatTracker = BeatTracker(signature);
+    _timeSignature = signature;
   }
 
   void setSound(MetronomeSound sound) => _sound = sound;
 
   void start() {
-    _beatTracker.reset();
     _scheduler = MetronomeScheduler(onBeat: _onSchedulerBeat)
       ..start(bpm: _bpm);
   }
@@ -576,7 +578,7 @@ class PrecisionMetronome {
 
   void _onSchedulerBeat(int beatIndex) {
     // Timing-critical: trigger playback before touching the stream/UI.
-    final beat = _beatTracker.nextBeat();
+    final beat = BeatTracker.beatAt(beatIndex, _timeSignature);
     unawaited(_audioEngine.playBeat(_sound, beat.emphasis));
     _beatController.add(beat);
   }

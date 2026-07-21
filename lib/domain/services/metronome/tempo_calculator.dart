@@ -17,12 +17,6 @@ class TempoCalculator {
     return Duration(microseconds: microseconds);
   }
 
-  /// Converts a beat [interval] back to whole BPM.
-  static int intervalToBpm(Duration interval) {
-    assert(interval > Duration.zero, "interval must be positive");
-    return (_microsecondsPerMinute / interval.inMicroseconds).round();
-  }
-
   /// Clamps [bpm] to the supported [minBpm]-[maxBpm] range.
   static int clampBpm(int bpm) => bpm.clamp(minBpm, maxBpm);
 }
