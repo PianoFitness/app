@@ -115,12 +115,13 @@ class PracticePageViewModel extends ChangeNotifier {
         notifyListeners();
       },
     );
-    _practiceSession!.setPracticeMode(initialMode);
-
-    // Set initial chord progression if provided
+    var config = _practiceSession!.config.withMode(initialMode);
     if (initialChordProgression != null) {
-      _practiceSession!.setSelectedChordProgression(initialChordProgression);
+      config = config.copyWith(
+        chordProgressionId: Field.set(initialChordProgression.name),
+      );
     }
+    _practiceSession!.updateConfiguration(config);
   }
 
   /// Records the just-completed exercise to the history log.
@@ -226,71 +227,108 @@ class PracticePageViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Legacy setter methods for backward compatibility (delegate to PracticeSession)
+  // Configuration setter methods
 
   /// Changes the practice mode and updates the session.
   void setPracticeMode(PracticeMode mode) {
-    _practiceSession?.setPracticeMode(mode);
+    if (_practiceSession == null) return;
+    _practiceSession!.updateConfiguration(
+      _practiceSession!.config.withMode(mode),
+    );
     notifyListeners();
   }
 
   /// Changes the selected key and updates the session.
   void setSelectedKey(music.Key key) {
-    _practiceSession?.setSelectedKey(key);
+    if (_practiceSession == null) return;
+    _practiceSession!.updateConfiguration(
+      _practiceSession!.config.copyWith(key: Field.set(key)),
+    );
     notifyListeners();
   }
 
   /// Changes the selected scale type and updates the session.
   void setSelectedScaleType(music.ScaleType type) {
-    _practiceSession?.setSelectedScaleType(type);
+    if (_practiceSession == null) return;
+    _practiceSession!.updateConfiguration(
+      _practiceSession!.config.copyWith(scaleType: Field.set(type)),
+    );
     notifyListeners();
   }
 
   /// Changes the selected root note and updates the session.
   void setSelectedRootNote(MusicalNote rootNote) {
-    _practiceSession?.setSelectedRootNote(rootNote);
+    if (_practiceSession == null) return;
+    _practiceSession!.updateConfiguration(
+      _practiceSession!.config.copyWith(musicalNote: Field.set(rootNote)),
+    );
     notifyListeners();
   }
 
   /// Changes the selected arpeggio type and updates the session.
   void setSelectedArpeggioType(ArpeggioType type) {
-    _practiceSession?.setSelectedArpeggioType(type);
+    if (_practiceSession == null) return;
+    _practiceSession!.updateConfiguration(
+      _practiceSession!.config.copyWith(arpeggioType: Field.set(type)),
+    );
     notifyListeners();
   }
 
   /// Changes the selected arpeggio octaves and updates the session.
   void setSelectedArpeggioOctaves(ArpeggioOctaves octaves) {
-    _practiceSession?.setSelectedArpeggioOctaves(octaves);
+    if (_practiceSession == null) return;
+    _practiceSession!.updateConfiguration(
+      _practiceSession!.config.copyWith(arpeggioOctaves: octaves),
+    );
     notifyListeners();
   }
 
   /// Changes the selected chord progression type and updates the session.
   void setSelectedChordProgression(ChordProgression progression) {
-    _practiceSession?.setSelectedChordProgression(progression);
+    if (_practiceSession == null) return;
+    _practiceSession!.updateConfiguration(
+      _practiceSession!.config.copyWith(
+        chordProgressionId: Field.set(progression.name),
+      ),
+    );
     notifyListeners();
   }
 
   /// Changes the selected chord type and updates the session.
   void setSelectedChordType(ChordType type) {
-    _practiceSession?.setSelectedChordType(type);
+    if (_practiceSession == null) return;
+    _practiceSession!.updateConfiguration(
+      _practiceSession!.config.copyWith(chordType: Field.set(type)),
+    );
     notifyListeners();
   }
 
   /// Changes the include inversions setting and updates the session.
   void setIncludeInversions(bool includeInversions) {
-    _practiceSession?.setIncludeInversions(includeInversions);
+    if (_practiceSession == null) return;
+    _practiceSession!.updateConfiguration(
+      _practiceSession!.config.copyWith(includeInversions: includeInversions),
+    );
     notifyListeners();
   }
 
   /// Changes the include seventh chords setting and updates the session.
   void setIncludeSeventhChords(bool includeSeventhChords) {
-    _practiceSession?.setIncludeSeventhChords(includeSeventhChords);
+    if (_practiceSession == null) return;
+    _practiceSession!.updateConfiguration(
+      _practiceSession!.config.copyWith(
+        includeSeventhChords: includeSeventhChords,
+      ),
+    );
     notifyListeners();
   }
 
   /// Changes the selected hand and updates the session.
   void setSelectedHandSelection(HandSelection handSelection) {
-    _practiceSession?.setSelectedHandSelection(handSelection);
+    if (_practiceSession == null) return;
+    _practiceSession!.updateConfiguration(
+      _practiceSession!.config.copyWith(handSelection: handSelection),
+    );
     notifyListeners();
   }
 
