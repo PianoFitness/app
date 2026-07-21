@@ -58,7 +58,6 @@ class MidiService {
             data1: data1,
             data2: data2,
             type: MidiEventType.noteOn,
-            displayMessage: "Note ON: $data1 (Ch: $channel, Vel: $data2)",
           );
         } else {
           // Note On with velocity 0 is equivalent to Note Off
@@ -68,7 +67,6 @@ class MidiService {
             data1: data1,
             data2: data2,
             type: MidiEventType.noteOff,
-            displayMessage: "Note OFF: $data1 (Ch: $channel)",
           );
         }
 
@@ -79,7 +77,6 @@ class MidiService {
           data1: data1,
           data2: data2,
           type: MidiEventType.noteOff,
-          displayMessage: "Note OFF: $data1 (Ch: $channel)",
         );
 
       case 0xB0: // Control Change
@@ -89,7 +86,6 @@ class MidiService {
           data1: data1,
           data2: data2,
           type: MidiEventType.controlChange,
-          displayMessage: "CC: Controller $data1 = $data2 (Ch: $channel)",
         );
 
       case 0xC0: // Program Change
@@ -99,20 +95,15 @@ class MidiService {
           data1: data1,
           data2: data2,
           type: MidiEventType.programChange,
-          displayMessage: "Program Change: $data1 (Ch: $channel)",
         );
 
       case 0xE0: // Pitch Bend
-        final rawPitch = data1 + (data2 << 7);
-        final pitchValue = ((rawPitch / 0x3FFF) * 2.0) - 1;
         event = MidiEvent(
           status: status,
           channel: channel,
           data1: data1,
           data2: data2,
           type: MidiEventType.pitchBend,
-          displayMessage:
-              "Pitch Bend: ${pitchValue.toStringAsFixed(2)} (Ch: $channel)",
         );
 
       default: // Other MIDI messages
@@ -122,8 +113,6 @@ class MidiService {
           data1: data1,
           data2: data2,
           type: MidiEventType.other,
-          displayMessage:
-              'MIDI: Status 0x${status.toRadixString(16).toUpperCase().padLeft(2, '0')} Data: ${data.map((b) => '0x${b.toRadixString(16).toUpperCase().padLeft(2, '0')}').join(' ')}',
         );
     }
 
@@ -147,11 +136,11 @@ class MidiService {
         data1: data[1],
         data2: 0,
         type: MidiEventType.programChange,
-        displayMessage: "Program Change: ${data[1]} (Ch: $channel)",
       );
       onEvent(event);
     }
   }
+
 
   /// Gets the pitch bend value as a normalized float (-1.0 to 1.0)
   /// from raw MIDI pitch bend data

@@ -1,6 +1,8 @@
 import "package:flutter/material.dart";
 import "package:piano_fitness/presentation/accessibility/services/musical_announcements_service.dart";
 import "package:piano_fitness/presentation/features/repertoire/repertoire_constants.dart";
+import "package:piano_fitness/presentation/features/repertoire/widgets/repertoire_timer_progress_ring.dart";
+
 
 /// Configuration object for timer state.
 class TimerState {
@@ -154,92 +156,14 @@ class RepertoireTimerDisplay extends StatelessWidget {
                         : (isCompact ? 6.0 : 10.0)));
 
         // Create timer widget
-        final timerWidget = Container(
-          width: circleSize + 16,
-          height: circleSize + 16,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: LinearGradient(
-              colors: [
-                colorScheme.surface,
-                colorScheme.surfaceContainerHighest,
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: colorScheme.shadow.withValues(alpha: 0.1),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Center(
-            child: SizedBox(
-              width: circleSize,
-              height: circleSize,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Gradient Progress Ring
-                  CircularProgressIndicator(
-                    value: state.progress,
-                    strokeWidth: isVeryConstrained ? 4 : 6,
-                    backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      state.isRunning
-                          ? colorScheme
-                                .tertiary // Green when running
-                          : colorScheme.primary, // Primary when paused/stopped
-                    ),
-                  ),
-                  // Inner gradient circle
-                  Container(
-                    width: circleSize - 20,
-                    height: circleSize - 20,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          colorScheme.surface,
-                          colorScheme.primary.withValues(alpha: 0.05),
-                        ],
-                      ),
-                    ),
-                  ),
-                  // Time Display
-                  Semantics(
-                    label: "Timer display: ${state.formattedTime} remaining",
-                    liveRegion: true,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (!isVeryConstrained)
-                          Icon(
-                            Icons.music_note,
-                            size: timerFontSize * 0.8,
-                            color: state.isRunning
-                                ? colorScheme.tertiary
-                                : colorScheme.primary,
-                          ),
-                        Text(
-                          state.formattedTime,
-                          style: TextStyle(
-                            fontSize: timerFontSize,
-                            fontWeight: FontWeight.bold,
-                            color: colorScheme.primary,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        final timerWidget = RepertoireTimerProgressRing(
+
+          state: state,
+          circleSize: circleSize,
+          timerFontSize: timerFontSize,
+          isVeryConstrained: isVeryConstrained,
         );
+
 
         // Create action buttons
         final actionButtons = [

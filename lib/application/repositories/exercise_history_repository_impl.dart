@@ -76,42 +76,38 @@ class ExerciseHistoryRepositoryImpl implements IExerciseHistoryRepository {
   /// Converts a database row back to the domain model.
   ///
   /// Reconstructs an [ExerciseConfiguration] from the stored enum name strings
-  /// and then delegates to the canonical factory constructor so all fields are
-  /// set consistently.
+  /// safely and then delegates to the canonical factory constructor so all
+  /// fields are set consistently without throwing on unrecognized enum names.
   ExerciseHistoryEntry _toDomainModel(ExerciseHistoryTableData row) {
     final config = ExerciseConfiguration(
-      practiceMode: PracticeMode.values.byName(row.practiceMode),
-      handSelection: HandSelection.values.byName(row.handSelection),
-      key: row.musicalKey != null
-          ? music.Key.values.byName(row.musicalKey!)
-          : null,
-      scaleType: row.scaleType != null
-          ? music.ScaleType.values.byName(row.scaleType!)
-          : null,
-      chordType: row.chordType != null
-          ? ChordType.values.byName(row.chordType!)
-          : null,
+      practiceMode: _safeByName(
+        PracticeMode.values,
+        row.practiceMode,
+        PracticeMode.scales,
+      ),
+      handSelection: _safeByName(
+        HandSelection.values,
+        row.handSelection,
+        HandSelection.right,
+      ),
+      key: _tryByName(music.Key.values, row.musicalKey),
+      scaleType: _tryByName(music.ScaleType.values, row.scaleType),
+      chordType: _tryByName(ChordType.values, row.chordType),
       includeInversions: row.includeInversions,
       includeSeventhChords: row.includeSeventhChords,
-      musicalNote: row.musicalNote != null
-          ? MusicalNote.values.byName(row.musicalNote!)
-          : null,
-      arpeggioType: row.arpeggioType != null
-          ? ArpeggioType.values.byName(row.arpeggioType!)
-          : null,
-      // arpeggioOctaves is non-nullable in ExerciseConfiguration (defaults to
-      // ArpeggioOctaves.one), so null is never written to this column through
-      // the normal save path. The fallback is kept for defensive correctness.
-      arpeggioOctaves: row.arpeggioOctaves != null
-          ? ArpeggioOctaves.values.byName(row.arpeggioOctaves!)
-          : ArpeggioOctaves.one,
-      // pattern is non-nullable in ExerciseConfiguration (defaults to
-      // ChordTonePattern.straight), so null is never written to this column
-      // through the normal save path. The fallback is kept for defensive
-      // correctness.
-      pattern: row.pattern != null
-          ? ChordTonePattern.values.byName(row.pattern!)
-          : ChordTonePattern.straight,
+      musicalNote: _tryByName(MusicalNote.values, row.musicalNote),
+      arpeggioType: _tryByName(ArpeggioType.values, row.arpeggioType),
+      arpeggioOctaves: _safeByName(
+        ArpeggioOctaves.values,
+        row.arpeggioOctaves ?? "",
+        ArpeggioOctaves.one,
+      ),
+      pattern: _safeByName(
+        ChordTonePattern.values,
+        row.pattern ?? "",
+        ChordTonePattern.straight,
+      ),
+
       includeLeftHandRoot: row.includeLeftHandRoot,
       chordProgressionId: row.chordProgressionId,
     );
@@ -123,4 +119,21 @@ class ExerciseHistoryRepositoryImpl implements IExerciseHistoryRepository {
       config: config,
     );
   }
+
+  static T? _tryByName<T extends Enum>(Iterable<T> values, String? name) {
+    if (name == null) return null;
+    for (final value in values) {
+      if (value.name == name) return value;
+    }
+    return null;
+  }
+
+  static T _safeByName<T extends Enum>(
+    Iterable<T> values,
+    String name,
+    T fallback,
+  ) {
+    return _tryByName(values, name) ?? fallback;
+  }
 }
+

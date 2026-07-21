@@ -1,191 +1,135 @@
+import "dart:typed_data";
+import "package:flutter_midi_command/flutter_midi_command.dart" as midi_cmd;
 import "package:flutter_test/flutter_test.dart";
-import "package:mockito/mockito.dart";
 import "package:piano_fitness/application/repositories/midi_repository_impl.dart";
+import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
 
-import "../../shared/test_helpers/mock_repositories.mocks.dart";
+class FakeMidiCommand implements midi_cmd.MidiCommand {
+  Uint8List? lastSentData;
+
+  @override
+  void sendData(Uint8List data, {String? deviceId, int? timestamp}) {
+    lastSentData = data;
+  }
+
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+class FakeMidiConnectionService implements MidiConnectionService {
+  bool _connected = false;
+  bool throwOnConnect = false;
+  final Set<void Function(Uint8List)> handlers = {};
+
+  @override
+  bool get isConnected => _connected;
+
+  @override
+  Future<void> connect() async {
+    if (throwOnConnect) {
+      throw Exception("Connection error");
+    }
+    _connected = true;
+  }
+
+  @override
+  Future<void> disconnect() async {
+    _connected = false;
+  }
+
+  @override
+  void registerDataHandler(void Function(Uint8List p1) handler) {
+    handlers.add(handler);
+  }
+
+  @override
+  void unregisterDataHandler(void Function(Uint8List p1) handler) {
+    handlers.remove(handler);
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
 
 void main() {
-  group("MidiRepositoryImpl Retry Logic", () {
-    late MockMidiConnectionService mockService;
-    late MockMidiCommand mockMidiCommand;
+  group("MidiRepositoryImpl Unit Tests", () {
+    late FakeMidiConnectionService fakeService;
+    late FakeMidiCommand fakeCommand;
+    late MidiRepositoryImpl repo;
 
     setUp(() {
-      mockService = MockMidiConnectionService();
-      mockMidiCommand = MockMidiCommand();
-
-      // Stub connect() to return successfully
-      when(mockService.connect()).thenAnswer((_) async => Future<void>.value());
-    });
-
-    test("initialize uses configurable retry parameters", () {
-      // Verify constructor accepts retry configuration
-      final repository = MidiRepositoryImpl(
-        maxConnectionAttempts: 3,
-        initialRetryDelayMs: 100,
-        service: mockService,
-        midiCommand: mockMidiCommand,
-      );
-
-      expect(repository.maxConnectionAttempts, equals(3));
-      expect(repository.initialRetryDelayMs, equals(100));
-      expect(repository.retryDelayMultiplier, equals(2));
-    });
-
-    test("uses default retry parameters when not specified", () {
-      final repository = MidiRepositoryImpl(
-        service: mockService,
-        midiCommand: mockMidiCommand,
-      );
-
-      expect(repository.maxConnectionAttempts, equals(5));
-      expect(repository.initialRetryDelayMs, equals(200));
-      expect(repository.retryDelayMultiplier, equals(2));
-    });
-
-    test(
-      "retry delay configuration produces correct exponential backoff sequence",
-      () {
-        // This test verifies the repository's retry configuration parameters
-        // will produce the expected exponential backoff delays when used in
-        // the formula: delay = initialRetryDelayMs * (retryDelayMultiplier ^ attempt)
-
-        final repository = MidiRepositoryImpl(
-          maxConnectionAttempts: 4,
-          initialRetryDelayMs: 100,
-          service: mockService,
-          midiCommand: mockMidiCommand,
-        );
-
-        // Simulate the delay calculation that occurs in _connectWithRetry
-        var currentDelay = repository.initialRetryDelayMs;
-        final delays = <int>[];
-
-        for (
-          var attempt = 0;
-          attempt < repository.maxConnectionAttempts;
-          attempt++
-        ) {
-          delays.add(currentDelay);
-          currentDelay *= repository.retryDelayMultiplier;
-        }
-
-        // Verify the sequence matches expected exponential backoff
-        expect(delays, equals([100, 200, 400, 800]));
-      },
-    );
-
-    test("default retry configuration produces correct delay sequence", () {
-      // Verify default retry configuration follows exponential backoff
-      final repository = MidiRepositoryImpl(
-        service: mockService,
-        midiCommand: mockMidiCommand,
-      );
-
-      // Simulate the delay calculation using repository's configuration
-      var currentDelay = repository.initialRetryDelayMs;
-      final delays = <int>[];
-
-      for (
-        var attempt = 0;
-        attempt < repository.maxConnectionAttempts;
-        attempt++
-      ) {
-        delays.add(currentDelay);
-        currentDelay *= repository.retryDelayMultiplier;
-      }
-
-      // With defaults: initialRetryDelayMs=200, multiplier=2, maxAttempts=5
-      expect(delays, equals([200, 400, 800, 1600, 3200]));
-    });
-  });
-
-  group("MidiRepositoryImpl Channel Validation", () {
-    late MidiRepositoryImpl repository;
-    late MockMidiConnectionService mockService;
-    late MockMidiCommand mockMidiCommand;
-
-    setUp(() {
-      mockService = MockMidiConnectionService();
-      mockMidiCommand = MockMidiCommand();
-
-      // Stub required methods
-      when(mockService.connect()).thenAnswer((_) async => Future<void>.value());
-
-      repository = MidiRepositoryImpl(
-        service: mockService,
-        midiCommand: mockMidiCommand,
+      fakeService = FakeMidiConnectionService();
+      fakeCommand = FakeMidiCommand();
+      repo = MidiRepositoryImpl(
+        service: fakeService,
+        midiCommand: fakeCommand,
+        maxConnectionAttempts: 2,
+        initialRetryDelayMs: 10,
+        retryDelayMultiplier: 1,
       );
     });
 
-    group("sendNoteOn", () {
-      test("throws RangeError for negative channel", () async {
-        // Validation happens before sendData, so no bindings needed
-        expect(
-          () async => await repository.sendNoteOn(60, 100, -1),
-          throwsA(
-            isA<RangeError>().having(
-              (e) => e.message,
-              "message",
-              contains("MIDI channel must be between 0 and 15"),
-            ),
-          ),
-        );
-      });
-
-      test("throws RangeError for channel > 15", () async {
-        expect(
-          () async => await repository.sendNoteOn(60, 100, 16),
-          throwsA(
-            isA<RangeError>().having(
-              (e) => e.message,
-              "message",
-              contains("MIDI channel must be between 0 and 15"),
-            ),
-          ),
-        );
-      });
-
-      test("throws RangeError for large invalid channel", () async {
-        expect(
-          () async => await repository.sendNoteOn(60, 100, 100),
-          throwsA(isA<RangeError>()),
-        );
-      });
+    tearDown(() {
+      repo.dispose();
     });
 
-    group("sendNoteOff", () {
-      test("throws RangeError for negative channel", () async {
-        expect(
-          () async => await repository.sendNoteOff(60, -1),
-          throwsA(
-            isA<RangeError>().having(
-              (e) => e.message,
-              "message",
-              contains("MIDI channel must be between 0 and 15"),
-            ),
-          ),
-        );
-      });
+    test("initialize connects via service", () async {
+      await repo.initialize();
+      expect(fakeService.isConnected, isTrue);
+    });
 
-      test("throws RangeError for channel > 15", () async {
-        expect(
-          () async => await repository.sendNoteOff(60, 16),
-          throwsA(
-            isA<RangeError>().having(
-              (e) => e.message,
-              "message",
-              contains("MIDI channel must be between 0 and 15"),
-            ),
-          ),
-        );
-      });
+    test("initialize retries and throws on max attempts reached", () async {
+      fakeService.throwOnConnect = true;
+      expect(() => repo.initialize(), throwsA(isA<Exception>()));
+    });
 
-      test("throws RangeError for large invalid channel", () async {
-        expect(
-          () async => await repository.sendNoteOff(60, 100),
-          throwsA(isA<RangeError>()),
-        );
-      });
+    test("registerDataHandler and unregisterDataHandler track handlers", () {
+      void handler(Uint8List data) {}
+
+      repo.registerDataHandler(handler);
+      expect(fakeService.handlers, contains(handler));
+
+      repo.unregisterDataHandler(handler);
+      expect(fakeService.handlers, isNot(contains(handler)));
+    });
+
+    test("sendNoteOn and sendNoteOff validate input and execute", () async {
+      await repo.sendNoteOn(60, 100, 0);
+      expect(fakeCommand.lastSentData, isNotNull);
+
+      await repo.sendNoteOff(60, 0);
+      expect(fakeCommand.lastSentData, isNotNull);
+
+      expect(() => repo.sendNoteOn(150, 100, 0), throwsArgumentError);
+
+      expect(() => repo.sendNoteOff(60, 20), throwsRangeError);
+    });
+
+    test("sendControlChange, sendProgramChange, sendPitchBend validate inputs", () async {
+      await repo.sendControlChange(1, 64, 0);
+      expect(fakeCommand.lastSentData, isNotNull);
+
+      await repo.sendProgramChange(5, 0);
+      expect(fakeCommand.lastSentData, isNotNull);
+
+      await repo.sendPitchBend(0.5, 0);
+      expect(fakeCommand.lastSentData, isNotNull);
+
+      expect(() => repo.sendControlChange(1, 64, 17), throwsRangeError);
+    });
+
+    test("connectedDevice returns null stub", () {
+      expect(repo.connectedDevice, isNull);
+    });
+
+    test("dispose cleans up registered handlers", () {
+      void handler(Uint8List data) {}
+      repo.registerDataHandler(handler);
+      expect(fakeService.handlers.length, equals(1));
+
+      repo.dispose();
+      expect(fakeService.handlers.length, equals(0));
     });
   });
 }

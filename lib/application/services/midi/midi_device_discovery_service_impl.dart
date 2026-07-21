@@ -90,6 +90,8 @@ class MidiDeviceDiscoveryServiceImpl implements IMidiDeviceDiscoveryService {
     outputPorts: d.outputPorts.map((p) => MidiPort(id: p.id)).toList(),
   );
 
+
+
   BluetoothStatus _toStatus(midi_cmd.BluetoothState state) {
     switch (state) {
       case midi_cmd.BluetoothState.unsupported:
