@@ -61,13 +61,14 @@ void main(List<String> args) {
   print("=========================================================");
   print("                  CODE COVERAGE REPORT                   ");
   print("=========================================================");
-  final totalPct =
-      totalLf > 0 ? (totalLh / totalLf * 100).toStringAsFixed(2) : "0.00";
+  final totalPct = totalLf > 0
+      ? (totalLh / totalLf * 100).toStringAsFixed(2)
+      : "0.00";
   print("OVERALL COVERAGE: $totalLh / $totalLf ($totalPct%)");
   print("---------------------------------------------------------");
 
-  for (final entry in groupStats.entries.toList()
-    ..sort((a, b) => a.key.compareTo(b.key))) {
+  for (final entry
+      in groupStats.entries.toList()..sort((a, b) => a.key.compareTo(b.key))) {
     final grp = entry.key;
     final lf = entry.value["lf"]!;
     final lh = entry.value["lh"]!;
@@ -77,10 +78,9 @@ void main(List<String> args) {
     );
   }
 
-  final appPct =
-      appHandwrittenLf > 0
-          ? (appHandwrittenLh / appHandwrittenLf * 100).toStringAsFixed(2)
-          : "0.00";
+  final appPct = appHandwrittenLf > 0
+      ? (appHandwrittenLh / appHandwrittenLf * 100).toStringAsFixed(2)
+      : "0.00";
   print("---------------------------------------------------------");
   print(
     "HANDWRITTEN APPLICATION  : $appHandwrittenLh / $appHandwrittenLf (${appPct.padLeft(6)}%)",
@@ -94,12 +94,11 @@ void main(List<String> args) {
         return path.startsWith("lib/application") &&
             !path.endsWith(".g.dart") &&
             !path.endsWith(".steps.dart");
-      }).toList()
-        ..sort((a, b) {
-          final pctA = a.value["lf"]! > 0 ? a.value["lh"]! / a.value["lf"]! : 0;
-          final pctB = b.value["lf"]! > 0 ? b.value["lh"]! / b.value["lf"]! : 0;
-          return pctA.compareTo(pctB);
-        });
+      }).toList()..sort((a, b) {
+        final pctA = a.value["lf"]! > 0 ? a.value["lh"]! / a.value["lf"]! : 0;
+        final pctB = b.value["lf"]! > 0 ? b.value["lh"]! / b.value["lf"]! : 0;
+        return pctA.compareTo(pctB);
+      });
 
   for (final entry in appGaps) {
     final path = entry.key;

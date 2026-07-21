@@ -76,7 +76,10 @@ void main() {
 
         expect(practiceSession.selectedChordProgression, isNotNull);
         expect(practiceSession.selectedRootNote, equals(MusicalNote.c));
-        expect(practiceSession.selectedArpeggioType, equals(ArpeggioType.major));
+        expect(
+          practiceSession.selectedArpeggioType,
+          equals(ArpeggioType.major),
+        );
         expect(practiceSession.selectedChordType, equals(ChordType.minor));
         expect(practiceSession.includeInversions, isTrue);
         expect(practiceSession.includeSeventhChords, isTrue);
