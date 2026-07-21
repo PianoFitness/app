@@ -96,13 +96,24 @@ void main() {
       );
 
       expect(viewModel.settings.practiceRemindersEnabled, isTrue);
+      // Verify the scheduling called with exact title/body
       verify(
         mockNotificationRepository.scheduleDailyNotification(
-          title: anyNamed("title"),
-          body: anyNamed("body"),
-          scheduledTime: anyNamed("scheduledTime"),
+          title: "Time to Practice Piano! 🎹",
+          body: "Ready to make some music? Your daily practice session awaits.",
+          scheduledTime: captureAnyNamed('scheduledTime'),
         ),
       ).called(1);
+      // Capture the scheduled time and assert hour/minute are 9:30
+      final capturedTime = verify(
+        mockNotificationRepository.scheduleDailyNotification(
+          title: anyNamed('title'),
+          body: anyNamed('body'),
+          scheduledTime: captureAnyNamed('scheduledTime'),
+        ),
+      ).captured.first as DateTime;
+      expect(capturedTime.hour, equals(9));
+      expect(capturedTime.minute, equals(30));
     });
 
     test("setPracticeRemindersEnabled false cancels notification", () async {
@@ -129,11 +140,20 @@ void main() {
 
         verify(
           mockNotificationRepository.scheduleDailyNotification(
-            title: anyNamed("title"),
-            body: anyNamed("body"),
-            scheduledTime: anyNamed("scheduledTime"),
+            title: anyNamed('title'),
+            body: anyNamed('body'),
+            scheduledTime: captureAnyNamed('scheduledTime'),
           ),
         ).called(1);
+        final capturedNewTime = verify(
+          mockNotificationRepository.scheduleDailyNotification(
+            title: anyNamed('title'),
+            body: anyNamed('body'),
+            scheduledTime: captureAnyNamed('scheduledTime'),
+          ),
+        ).captured.first as DateTime;
+        expect(capturedNewTime.hour, equals(10));
+        expect(capturedNewTime.minute, equals(15));
       },
     );
 

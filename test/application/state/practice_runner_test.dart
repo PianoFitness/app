@@ -95,6 +95,10 @@ void main() {
     test("triggerCompletionForTesting runs completion callback", () {
       runner.triggerCompletionForTesting();
       expect(runner.practiceActive, isFalse);
+      // Verify observable results are reported correctly
+      expect(reportedAccuracy, isNull);
+      expect(reportedCorrect, equals(0));
+      expect(reportedErrors, equals(0));
     });
   });
 }

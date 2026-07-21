@@ -191,6 +191,8 @@ void main() {
       );
       await NotificationService.cancelNotification(1);
       await NotificationService.cancelAllNotifications();
+
+      expect(pluginSpy.methodCalls, isEmpty);
     },
   );
 

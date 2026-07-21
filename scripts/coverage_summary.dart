@@ -29,7 +29,12 @@ void main(List<String> args) {
   for (final line in lines) {
     final trimmed = line.trim();
     if (trimmed.startsWith("SF:")) {
-      currentFile = trimmed.substring(3);
+      var path = trimmed.substring(3).replaceAll("\\", "/");
+      final libIndex = path.indexOf("lib/");
+      if (libIndex != -1) {
+        path = path.substring(libIndex);
+      }
+      currentFile = path;
       currentLf = 0;
       currentLh = 0;
     } else if (trimmed.startsWith("LF:")) {

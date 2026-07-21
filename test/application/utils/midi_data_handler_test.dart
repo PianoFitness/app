@@ -81,7 +81,7 @@ void main() {
       // Incomplete status byte sequence or data that throws parsing exception if any
       final invalidData = Uint8List.fromList([0xF0]); // Sysex start without end
       MidiDataHandler.dispatch(invalidData, midiState, (_) {});
-      // Should handle parse or error safely
+      expect(midiState.lastNote, equals("Error parsing MIDI data"));
     });
   });
 }
