@@ -155,6 +155,9 @@ void main() {
       when(
         mockHistoryRepo.getEntriesForProfile("p1"),
       ).thenAnswer((_) async => []);
+      when(
+        mockHistoryRepo.watchEntriesForProfile("p1"),
+      ).thenAnswer((_) => Stream.value([]));
 
       await tester.pumpWidget(
         createTestWidgetWithMocks(
@@ -176,6 +179,9 @@ void main() {
       when(
         mockHistoryRepo.getEntriesForProfile("p1"),
       ).thenThrow(Exception("db error"));
+      when(
+        mockHistoryRepo.watchEntriesForProfile("p1"),
+      ).thenAnswer((_) => Stream.error(Exception("db error")));
 
       await tester.pumpWidget(
         createTestWidgetWithMocks(
@@ -203,6 +209,9 @@ void main() {
       when(
         mockHistoryRepo.getEntriesForProfile("p1"),
       ).thenAnswer((_) async => entries);
+      when(
+        mockHistoryRepo.watchEntriesForProfile("p1"),
+      ).thenAnswer((_) => Stream.value(entries));
 
       await tester.pumpWidget(
         createTestWidgetWithMocks(
@@ -249,6 +258,27 @@ void main() {
       expect(find.text("C Major Scale"), findsOneWidget);
       expect(find.text("Scales"), findsOneWidget);
       expect(find.text("Both Hands"), findsOneWidget);
+    });
+
+    testWidgets("renders accuracy percentage label when present", (
+      tester,
+    ) async {
+      final entry = ExerciseHistoryEntry.fromConfiguration(
+        id: "scales-acc",
+        profileId: "p1",
+        completedAt: DateTime(2026, 3, 29, 10, 30),
+        config: const ExerciseConfiguration(
+          practiceMode: PracticeMode.scales,
+          handSelection: HandSelection.both,
+          key: music.Key.c,
+          scaleType: music.ScaleType.major,
+        ),
+        accuracyPercentage: 95.0,
+      );
+      await tester.pumpWidget(wrap(entry));
+      await tester.pump();
+
+      expect(find.text("95% accuracy"), findsOneWidget);
     });
 
     testWidgets("renders chordsByKey entry with seventh chords", (

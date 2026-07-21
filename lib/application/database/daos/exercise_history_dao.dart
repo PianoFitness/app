@@ -39,4 +39,22 @@ class ExerciseHistoryDao extends DatabaseAccessor<AppDatabase>
 
     return query.get();
   }
+
+  /// Emits entries for [profileId] ordered by [completedAt] descending whenever data changes.
+  Stream<List<ExerciseHistoryTableData>> watchEntriesForProfile(
+    String profileId, {
+    int? limit,
+  }) {
+    final query = select(exerciseHistoryTable)
+      ..where((t) => t.profileId.equals(profileId))
+      ..orderBy([
+        (t) => OrderingTerm(expression: t.completedAt, mode: OrderingMode.desc),
+      ]);
+
+    if (limit != null) {
+      query.limit(limit);
+    }
+
+    return query.watch();
+  }
 }

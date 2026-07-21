@@ -45,6 +45,9 @@ class ExerciseHistoryRepositoryImpl implements IExerciseHistoryRepository {
         pattern: Value(entry.pattern?.name),
         includeLeftHandRoot: Value(entry.includeLeftHandRoot),
         chordProgressionId: Value(entry.chordProgressionId),
+        accuracyPercentage: Value(entry.accuracyPercentage),
+        correctNoteCount: Value(entry.correctNoteCount),
+        errorCount: Value(entry.errorCount),
       );
 
       await _database.exerciseHistoryDao.insertEntry(companion);
@@ -69,6 +72,16 @@ class ExerciseHistoryRepositoryImpl implements IExerciseHistoryRepository {
       _logger.severe("Error loading exercise history entries", e, stackTrace);
       rethrow;
     }
+  }
+
+  @override
+  Stream<List<ExerciseHistoryEntry>> watchEntriesForProfile(
+    String profileId, {
+    int? limit,
+  }) {
+    return _database.exerciseHistoryDao
+        .watchEntriesForProfile(profileId, limit: limit)
+        .map((rows) => rows.map(_toDomainModel).toList());
   }
 
   // ── Mapping helpers ───────────────────────────────────────────────────────
@@ -117,6 +130,9 @@ class ExerciseHistoryRepositoryImpl implements IExerciseHistoryRepository {
       profileId: row.profileId,
       completedAt: row.completedAt,
       config: config,
+      accuracyPercentage: row.accuracyPercentage,
+      correctNoteCount: row.correctNoteCount,
+      errorCount: row.errorCount,
     );
   }
 

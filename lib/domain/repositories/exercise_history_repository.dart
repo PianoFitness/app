@@ -24,4 +24,12 @@ abstract class IExerciseHistoryRepository {
     String profileId, {
     int? limit,
   });
+
+  /// Emits reactive history entry updates for [profileId], most recent first.
+  ///
+  /// Emits automatically whenever a new history entry is saved or modified.
+  Stream<List<ExerciseHistoryEntry>> watchEntriesForProfile(
+    String profileId, {
+    int? limit,
+  });
 }
