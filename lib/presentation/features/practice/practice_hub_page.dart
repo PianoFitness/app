@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:piano_fitness/presentation/theme/semantic_colors.dart";
+import "package:piano_fitness/presentation/features/metronome/metronome_page.dart";
 import "package:piano_fitness/presentation/features/practice/practice_page.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
@@ -40,6 +41,8 @@ class PracticeHubPage extends StatelessWidget {
               _buildWelcomeSection(context),
               const SizedBox(height: 24),
               _buildPracticeModesSection(context),
+              const SizedBox(height: 24),
+              _buildToolsSection(context),
               const SizedBox(height: 24),
               _buildQuickStartSection(context),
             ],
@@ -235,6 +238,31 @@ class PracticeHubPage extends StatelessWidget {
     );
   }
 
+  /// Builds the practice tools section (metronome, etc.).
+  Widget _buildToolsSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          "Tools",
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 16),
+        _buildQuickStartCard(
+          context,
+          title: "Metronome",
+          subtitle: "Keep a steady tempo while you practice",
+          icon: Icons.timer,
+          onTap: () => _navigateToMetronome(context),
+        ),
+      ],
+    );
+  }
+
   /// Builds the quick start section with preset exercises.
   Widget _buildQuickStartSection(BuildContext context) {
     return Column(
@@ -347,6 +375,13 @@ class PracticeHubPage extends StatelessWidget {
         trailing: const Icon(Icons.arrow_forward_ios, size: 16),
         onTap: onTap,
       ),
+    );
+  }
+
+  /// Navigates to the metronome tool.
+  void _navigateToMetronome(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (context) => const MetronomePage()),
     );
   }
 

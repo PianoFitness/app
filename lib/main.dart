@@ -10,6 +10,7 @@ import "package:timezone/data/latest.dart" as tz;
 
 import "package:piano_fitness/application/database/app_database.dart";
 import "package:piano_fitness/application/repositories/audio_service_impl.dart";
+import "package:piano_fitness/application/repositories/metronome_audio_service_impl.dart";
 import "package:piano_fitness/application/repositories/midi_repository_impl.dart";
 import "package:piano_fitness/application/services/midi/midi_device_discovery_service_impl.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
@@ -20,6 +21,7 @@ import "package:piano_fitness/application/repositories/exercise_history_reposito
 import "package:piano_fitness/application/services/notifications/notification_manager.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/domain/repositories/audio_service.dart";
+import "package:piano_fitness/domain/repositories/metronome_audio_service.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/domain/services/midi_device_discovery_service.dart";
 import "package:piano_fitness/domain/repositories/notification_repository.dart";
@@ -112,6 +114,10 @@ void main() async {
           lazy: false,
         ),
         Provider<IAudioService>(create: (_) => AudioServiceImpl()),
+        Provider<IMetronomeAudioService>(
+          create: (_) => MetronomeAudioServiceImpl(),
+          dispose: (_, service) => service.dispose(),
+        ),
 
         // Database (with dispose callback to close database)
         Provider<AppDatabase>(
