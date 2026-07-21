@@ -78,35 +78,20 @@ class NoteInfo {
 /// MIDI numbers, NotePosition objects (from the piano package), and display strings.
 /// It handles the complex mapping between these different systems.
 class NoteUtils {
-  static const Map<MusicalNote, int> _noteToSemitone = {
-    MusicalNote.c: 0,
-    MusicalNote.cSharp: 1,
-    MusicalNote.d: 2,
-    MusicalNote.dSharp: 3,
-    MusicalNote.e: 4,
-    MusicalNote.f: 5,
-    MusicalNote.fSharp: 6,
-    MusicalNote.g: 7,
-    MusicalNote.gSharp: 8,
-    MusicalNote.a: 9,
-    MusicalNote.aSharp: 10,
-    MusicalNote.b: 11,
-  };
-
-  static const Map<MusicalNote, String> _noteToString = {
-    MusicalNote.c: "C",
-    MusicalNote.cSharp: "C#",
-    MusicalNote.d: "D",
-    MusicalNote.dSharp: "D#",
-    MusicalNote.e: "E",
-    MusicalNote.f: "F",
-    MusicalNote.fSharp: "F#",
-    MusicalNote.g: "G",
-    MusicalNote.gSharp: "G#",
-    MusicalNote.a: "A",
-    MusicalNote.aSharp: "A#",
-    MusicalNote.b: "B",
-  };
+  static const List<String> _noteNames = [
+    "C",
+    "C#",
+    "D",
+    "D#",
+    "E",
+    "F",
+    "F#",
+    "G",
+    "G#",
+    "A",
+    "A#",
+    "B",
+  ];
 
   /// Converts a MusicalNote and octave to a MIDI note number.
   ///
@@ -116,8 +101,7 @@ class NoteUtils {
   ///
   /// Example: `noteToMidiNumber(MusicalNote.c, 4)` returns 60 (middle C).
   static int noteToMidiNumber(MusicalNote note, int octave) {
-    final semitone = _noteToSemitone[note]!;
-    return (octave + 1) * 12 + semitone;
+    return (octave + 1) * 12 + note.index;
   }
 
   /// Converts a MIDI note number to comprehensive note information.
@@ -141,7 +125,7 @@ class NoteUtils {
     final semitone = midiNumber % 12;
 
     final note = MusicalNote.values[semitone];
-    final displayName = "${_noteToString[note]}$octave";
+    final displayName = "${_noteNames[semitone]}$octave";
 
     return NoteInfo(
       note: note,
@@ -158,7 +142,7 @@ class NoteUtils {
   ///
   /// This is commonly used in UI elements to show note names to users.
   static String noteDisplayName(MusicalNote note, int octave) {
-    return "${_noteToString[note]}$octave";
+    return "${_noteNames[note.index]}$octave";
   }
 
   /// Gets a compact note name without octave information.
@@ -172,8 +156,12 @@ class NoteUtils {
   /// Example: `getCompactNoteName(60)` returns "C" (for middle C).
   /// Example: `getCompactNoteName(61)` returns "C#" (for C# above middle C).
   static String getCompactNoteName(int midiNumber) {
-    final noteInfo = midiNumberToNote(midiNumber);
-    return _noteToString[noteInfo.note]!;
+    if (midiNumber < 0 || midiNumber > 127) {
+      throw ArgumentError(
+        "MIDI number must be between 0 and 127, got: $midiNumber",
+      );
+    }
+    return _noteNames[midiNumber % 12];
   }
 
   /// Converts a musical Key to a MusicalNote.
@@ -185,22 +173,7 @@ class NoteUtils {
   /// Example: `keyToMusicalNote(music.Key.c)` returns `MusicalNote.c`.
   /// Example: `keyToMusicalNote(music.Key.fSharp)` returns `MusicalNote.fSharp`.
   static MusicalNote keyToMusicalNote(music.Key key) {
-    const keyToNote = {
-      music.Key.c: MusicalNote.c,
-      music.Key.cSharp: MusicalNote.cSharp,
-      music.Key.d: MusicalNote.d,
-      music.Key.dSharp: MusicalNote.dSharp,
-      music.Key.e: MusicalNote.e,
-      music.Key.f: MusicalNote.f,
-      music.Key.fSharp: MusicalNote.fSharp,
-      music.Key.g: MusicalNote.g,
-      music.Key.gSharp: MusicalNote.gSharp,
-      music.Key.a: MusicalNote.a,
-      music.Key.aSharp: MusicalNote.aSharp,
-      music.Key.b: MusicalNote.b,
-    };
-
-    return keyToNote[key]!;
+    return MusicalNote.values[key.index];
   }
 
   /// Converts a musical Key to its corresponding MIDI note number in the base octave.
@@ -212,22 +185,6 @@ class NoteUtils {
   /// Example: `keyToMidiNumber(music.Key.c)` returns 60 (middle C).
   /// Example: `keyToMidiNumber(music.Key.fSharp)` returns 66 (F#4).
   static int keyToMidiNumber(music.Key key) {
-    // Map keys to MIDI note numbers (base octave)
-    const keyToMidi = {
-      music.Key.c: 60,
-      music.Key.cSharp: 61, // C#/Db
-      music.Key.d: 62,
-      music.Key.dSharp: 63, // D#/Eb
-      music.Key.e: 64,
-      music.Key.f: 65,
-      music.Key.fSharp: 66, // F#/Gb
-      music.Key.g: 67,
-      music.Key.gSharp: 68, // G#/Ab
-      music.Key.a: 69,
-      music.Key.aSharp: 70, // A#/Bb
-      music.Key.b: 71,
-    };
-
-    return keyToMidi[key] ?? 60; // Default to C if not found
+    return 60 + key.index;
   }
 }

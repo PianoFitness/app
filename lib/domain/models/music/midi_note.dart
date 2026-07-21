@@ -115,14 +115,14 @@ class MidiNote {
   /// This extracts the pitch class and converts it to the corresponding
   /// MusicalNote enum (C, C#, D, etc.).
   MusicalNote get musicalNote {
-    return NoteUtils.midiNumberToNote(value).note;
+    return MusicalNote.values[value % 12];
   }
 
   /// The full display name including octave (e.g., "C4", "F#3", "A#5").
   ///
   /// This is commonly used in UI elements to show note names to users.
   String get displayName {
-    return NoteUtils.midiNumberToNote(value).displayName;
+    return NoteUtils.noteDisplayName(musicalNote, octave);
   }
 
   /// The compact note name without octave (e.g., "C", "F#", "A#").

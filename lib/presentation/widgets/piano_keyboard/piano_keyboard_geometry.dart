@@ -97,13 +97,14 @@ class PianoKeyboardLayout {
     final blackMidiNotes = getBlackKeysInRange(range.fromMidi, range.toMidi);
 
     final rects = <PianoKeyRect>[];
+    var whiteIndex = 0;
     for (final blackMidi in blackMidiNotes) {
-      // Index of the preceding white key (the one immediately below this
-      // black key chromatically) within the visible white-key sequence.
-      final precedingWhiteIndex = whiteMidiNotes.lastIndexWhere(
-        (whiteMidi) => whiteMidi < blackMidi,
-      );
-      if (precedingWhiteIndex == -1) continue;
+      while (whiteIndex < whiteMidiNotes.length &&
+          whiteMidiNotes[whiteIndex] < blackMidi) {
+        whiteIndex++;
+      }
+      final precedingWhiteIndex = whiteIndex - 1;
+      if (precedingWhiteIndex < 0) continue;
 
       final boundaryX = (precedingWhiteIndex + 1) * whiteKeyWidth;
       rects.add(
