@@ -70,6 +70,12 @@ class PracticePageViewModel extends ChangeNotifier {
   /// Currently highlighted MIDI notes for piano display.
   List<int> get highlightedNotes => _highlightedNotes;
 
+  /// The currently held notes that are expected for the current step.
+  Set<int> get correctHeldNotes => _practiceSession?.correctHeldNotes ?? {};
+
+  /// The currently held notes that are NOT expected for the current step.
+  Set<int> get wrongHeldNotes => _practiceSession?.wrongHeldNotes ?? {};
+
   /// Current exercise configuration from the practice session.
   ///
   /// Returns null if the practice session is not initialized.
@@ -78,18 +84,30 @@ class PracticePageViewModel extends ChangeNotifier {
 
   /// Initializes the practice session with required callbacks.
   void initializePracticeSession({
-    required VoidCallback onExerciseCompleted,
+    required void Function(
+      double? accuracyPercentage,
+      int? correctNoteCount,
+      int? errorCount,
+    )
+    onExerciseCompleted,
     required void Function(List<int> midiNotes) onHighlightedNotesChanged,
     PracticeMode initialMode = PracticeMode.scales,
     ChordProgression? initialChordProgression,
   }) {
     _practiceSession = PracticeSession(
-      onExerciseCompleted: () {
+      onExerciseCompleted: (accuracyPercentage, correctNoteCount, errorCount) {
         // Snapshot configuration synchronously before crossing the async
         // boundary so _recordExerciseHistory reads consistent state.
         final config = _practiceSession?.config;
-        unawaited(_recordExerciseHistory(config));
-        onExerciseCompleted();
+        unawaited(
+          _recordExerciseHistory(
+            config,
+            accuracyPercentage: accuracyPercentage,
+            correctNoteCount: correctNoteCount,
+            errorCount: errorCount,
+          ),
+        );
+        onExerciseCompleted(accuracyPercentage, correctNoteCount, errorCount);
       },
       onHighlightedNotesChanged: (List<int> notes) {
         _highlightedNotes = notes;
@@ -112,7 +130,12 @@ class PracticePageViewModel extends ChangeNotifier {
   ///
   /// Silently skips (with a warning) when no active profile is set or when
   /// [config] is null, so that the exercise completion UI is never blocked.
-  Future<void> _recordExerciseHistory(ExerciseConfiguration? config) async {
+  Future<void> _recordExerciseHistory(
+    ExerciseConfiguration? config, {
+    double? accuracyPercentage,
+    int? correctNoteCount,
+    int? errorCount,
+  }) async {
     try {
       if (config == null) {
         _log.warning("Skipping exercise history save: no active configuration");
@@ -132,6 +155,9 @@ class PracticePageViewModel extends ChangeNotifier {
         profileId: profileId,
         completedAt: DateTime.now(),
         config: config,
+        accuracyPercentage: accuracyPercentage,
+        correctNoteCount: correctNoteCount,
+        errorCount: errorCount,
       );
 
       await _exerciseHistoryRepository.saveEntry(entry);

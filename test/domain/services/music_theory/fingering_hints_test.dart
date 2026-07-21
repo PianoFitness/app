@@ -11,22 +11,25 @@ void main() {
   group("FingeringHints.scale", () {
     for (final key in Key.values) {
       for (final scaleType in ScaleType.values) {
-        test("${key.name} ${scaleType.name} has one finger per note, values 1-5", () {
-          final scale = ScaleDefinitions.getScale(key, scaleType);
-          final notes = scale.getNotes();
-          final expectedLength = scale.getFullScaleSequence(4).length;
+        test(
+          "${key.name} ${scaleType.name} has one finger per note, values 1-5",
+          () {
+            final scale = ScaleDefinitions.getScale(key, scaleType);
+            final notes = scale.getNotes();
+            final expectedLength = scale.getFullScaleSequence(4).length;
 
-          for (final rightHand in [true, false]) {
-            final fingers = FingeringHints.scale(
-              key: key,
-              scaleType: scaleType,
-              notes: notes,
-              rightHand: rightHand,
-            );
-            expect(fingers.length, expectedLength);
-            expect(fingers.every((f) => f >= 1 && f <= 5), isTrue);
-          }
-        });
+            for (final rightHand in [true, false]) {
+              final fingers = FingeringHints.scale(
+                key: key,
+                scaleType: scaleType,
+                notes: notes,
+                rightHand: rightHand,
+              );
+              expect(fingers.length, expectedLength);
+              expect(fingers.every((f) => f >= 1 && f <= 5), isTrue);
+            }
+          },
+        );
       }
     }
 
@@ -45,34 +48,39 @@ void main() {
             expect(
               _blackPitchClasses.contains(notes[i].index),
               isFalse,
-              reason: "${key.name} major: thumb landed on black key at degree ${i + 1}",
+              reason:
+                  "${key.name} major: thumb landed on black key at degree ${i + 1}",
             );
           }
         }
       }
     });
 
-    test("right-hand thumb never lands on a black key for natural minor scales", () {
-      for (final key in Key.values) {
-        final scale = ScaleDefinitions.getScale(key, ScaleType.minor);
-        final notes = scale.getNotes();
-        final fingers = FingeringHints.scale(
-          key: key,
-          scaleType: ScaleType.minor,
-          notes: notes,
-          rightHand: true,
-        );
-        for (var i = 0; i < notes.length; i++) {
-          if (fingers[i] == 1) {
-            expect(
-              _blackPitchClasses.contains(notes[i].index),
-              isFalse,
-              reason: "${key.name} minor: thumb landed on black key at degree ${i + 1}",
-            );
+    test(
+      "right-hand thumb never lands on a black key for natural minor scales",
+      () {
+        for (final key in Key.values) {
+          final scale = ScaleDefinitions.getScale(key, ScaleType.minor);
+          final notes = scale.getNotes();
+          final fingers = FingeringHints.scale(
+            key: key,
+            scaleType: ScaleType.minor,
+            notes: notes,
+            rightHand: true,
+          );
+          for (var i = 0; i < notes.length; i++) {
+            if (fingers[i] == 1) {
+              expect(
+                _blackPitchClasses.contains(notes[i].index),
+                isFalse,
+                reason:
+                    "${key.name} minor: thumb landed on black key at degree ${i + 1}",
+              );
+            }
           }
         }
-      }
-    });
+      },
+    );
 
     test("aeolian matches natural minor (identical intervals)", () {
       final scale = ScaleDefinitions.getScale(Key.g, ScaleType.aeolian);
@@ -96,11 +104,21 @@ void main() {
       final scale = ScaleDefinitions.getScale(Key.c, ScaleType.major);
       final notes = scale.getNotes();
       expect(
-        FingeringHints.scale(key: Key.c, scaleType: ScaleType.major, notes: notes, rightHand: true),
+        FingeringHints.scale(
+          key: Key.c,
+          scaleType: ScaleType.major,
+          notes: notes,
+          rightHand: true,
+        ),
         [1, 2, 3, 1, 2, 3, 4, 5, 4, 3, 2, 1, 3, 2, 1],
       );
       expect(
-        FingeringHints.scale(key: Key.c, scaleType: ScaleType.major, notes: notes, rightHand: false),
+        FingeringHints.scale(
+          key: Key.c,
+          scaleType: ScaleType.major,
+          notes: notes,
+          rightHand: false,
+        ),
         [5, 4, 3, 2, 1, 3, 2, 1, 2, 3, 1, 2, 3, 4, 5],
       );
     });
@@ -113,7 +131,11 @@ void main() {
           test(
             "${rootNote.name} ${arpeggioType.name} (${octaves.name}) has one finger per note, values 1-5",
             () {
-              final arpeggio = ArpeggioDefinitions.getArpeggio(rootNote, arpeggioType, octaves);
+              final arpeggio = ArpeggioDefinitions.getArpeggio(
+                rootNote,
+                arpeggioType,
+                octaves,
+              );
               final expectedLength = arpeggio.getFullArpeggioSequence(4).length;
 
               for (final rightHand in [true, false]) {
@@ -169,30 +191,42 @@ void main() {
 
   group("FingeringHints.chordVoicing", () {
     test("returns the standard triad shape for 3 notes", () {
-      expect(
-        FingeringHints.chordVoicing(rightHand: true, noteCount: 3),
-        [1, 3, 5],
-      );
-      expect(
-        FingeringHints.chordVoicing(rightHand: false, noteCount: 3),
-        [5, 3, 1],
-      );
+      expect(FingeringHints.chordVoicing(rightHand: true, noteCount: 3), [
+        1,
+        3,
+        5,
+      ]);
+      expect(FingeringHints.chordVoicing(rightHand: false, noteCount: 3), [
+        5,
+        3,
+        1,
+      ]);
     });
 
     test("returns the standard seventh-chord shape for 4 notes", () {
-      expect(
-        FingeringHints.chordVoicing(rightHand: true, noteCount: 4),
-        [1, 2, 3, 5],
-      );
-      expect(
-        FingeringHints.chordVoicing(rightHand: false, noteCount: 4),
-        [5, 3, 2, 1],
-      );
+      expect(FingeringHints.chordVoicing(rightHand: true, noteCount: 4), [
+        1,
+        2,
+        3,
+        5,
+      ]);
+      expect(FingeringHints.chordVoicing(rightHand: false, noteCount: 4), [
+        5,
+        3,
+        2,
+        1,
+      ]);
     });
 
     test("returns null for an unsupported note count", () {
-      expect(FingeringHints.chordVoicing(rightHand: true, noteCount: 5), isNull);
-      expect(FingeringHints.chordVoicing(rightHand: true, noteCount: 2), isNull);
+      expect(
+        FingeringHints.chordVoicing(rightHand: true, noteCount: 5),
+        isNull,
+      );
+      expect(
+        FingeringHints.chordVoicing(rightHand: true, noteCount: 2),
+        isNull,
+      );
     });
   });
 
@@ -214,35 +248,29 @@ void main() {
       );
     });
 
-    test(
-      "both-hands triad concatenates left-hand voicing then right-hand "
-      "voicing",
-      () {
-        // totalNoteCount=6 (both hands, 3 notes each) -> coreCount=3.
-        expect(
-          FingeringHints.chordFingersForHand(
-            hand: HandSelection.both,
-            totalNoteCount: 6,
-          ),
-          [5, 3, 1, 1, 3, 5],
-        );
-      },
-    );
+    test("both-hands triad concatenates left-hand voicing then right-hand "
+        "voicing", () {
+      // totalNoteCount=6 (both hands, 3 notes each) -> coreCount=3.
+      expect(
+        FingeringHints.chordFingersForHand(
+          hand: HandSelection.both,
+          totalNoteCount: 6,
+        ),
+        [5, 3, 1, 1, 3, 5],
+      );
+    });
 
-    test(
-      "both-hands seventh chord concatenates left-hand voicing then "
-      "right-hand voicing",
-      () {
-        // totalNoteCount=8 (both hands, 4 notes each) -> coreCount=4.
-        expect(
-          FingeringHints.chordFingersForHand(
-            hand: HandSelection.both,
-            totalNoteCount: 8,
-          ),
-          [5, 3, 2, 1, 1, 2, 3, 5],
-        );
-      },
-    );
+    test("both-hands seventh chord concatenates left-hand voicing then "
+        "right-hand voicing", () {
+      // totalNoteCount=8 (both hands, 4 notes each) -> coreCount=4.
+      expect(
+        FingeringHints.chordFingersForHand(
+          hand: HandSelection.both,
+          totalNoteCount: 8,
+        ),
+        [5, 3, 2, 1, 1, 2, 3, 5],
+      );
+    });
 
     test("returns null when the per-hand note count is unsupported", () {
       expect(

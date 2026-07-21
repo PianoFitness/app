@@ -36,6 +36,9 @@ class ExerciseHistoryEntry {
     this.pattern,
     required this.includeLeftHandRoot,
     this.chordProgressionId,
+    this.accuracyPercentage,
+    this.correctNoteCount,
+    this.errorCount,
   });
 
   /// Creates an [ExerciseHistoryEntry] from an [ExerciseConfiguration].
@@ -49,6 +52,9 @@ class ExerciseHistoryEntry {
     required String profileId,
     required DateTime completedAt,
     required ExerciseConfiguration config,
+    double? accuracyPercentage,
+    int? correctNoteCount,
+    int? errorCount,
   }) {
     return ExerciseHistoryEntry._(
       id: id,
@@ -67,6 +73,9 @@ class ExerciseHistoryEntry {
       pattern: config.pattern,
       includeLeftHandRoot: config.includeLeftHandRoot,
       chordProgressionId: config.chordProgressionId,
+      accuracyPercentage: accuracyPercentage,
+      correctNoteCount: correctNoteCount,
+      errorCount: errorCount,
     );
   }
 
@@ -126,4 +135,16 @@ class ExerciseHistoryEntry {
 
   /// The chord progression identifier (chordProgressions mode).
   final String? chordProgressionId;
+
+  // ── Accuracy metrics ─────────────────────────────────────────────────────
+
+  /// Top-line accuracy metric (0-100 percentage).
+  /// Nullable so existing rows and future non-scored modes remain valid.
+  final double? accuracyPercentage;
+
+  /// Raw count of expected note-on events during the exercise.
+  final int? correctNoteCount;
+
+  /// Raw count of unexpected note-on events during the exercise.
+  final int? errorCount;
 }

@@ -30,7 +30,14 @@ class HistoryEntryCard extends StatelessWidget {
     final timeLabel = _dateFormat.format(entry.completedAt.toLocal());
     final modeLabel = _modeLabel(entry.practiceMode);
 
-    final semanticLabel = "$modeLabel — $description · $handLabel · $timeLabel";
+    final accuracy = entry.accuracyPercentage;
+    final accuracyLabel = accuracy != null
+        ? "${accuracy.toStringAsFixed(0)}% accuracy"
+        : "";
+
+    final semanticLabel = accuracy != null
+        ? "$modeLabel — $description · $handLabel · $accuracyLabel · $timeLabel"
+        : "$modeLabel — $description · $handLabel · $timeLabel";
 
     return Semantics(
       label: semanticLabel,
@@ -60,11 +67,32 @@ class HistoryEntryCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(description, style: theme.textTheme.bodyLarge),
               const SizedBox(height: 2),
-              Text(
-                handLabel,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+              Row(
+                children: [
+                  Text(
+                    handLabel,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  if (accuracy != null) ...[
+                    const SizedBox(width: 8),
+                    Text(
+                      "·",
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      accuracyLabel,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ],
           ),

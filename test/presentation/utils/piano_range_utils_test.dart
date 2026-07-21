@@ -119,29 +119,32 @@ void main() {
       expect(result, equals(PianoRangeUtils.defaultRange));
     });
 
-    test("should hug a C major scale with only a couple of keys of padding", () {
-      // C major scale degrees, C4-B4 (MIDI 60-71)
-      final cMajorScale = [60, 62, 64, 65, 67, 69, 71];
-      final result = PianoRangeUtils.calculateReferenceRange(cMajorScale);
+    test(
+      "should hug a C major scale with only a couple of keys of padding",
+      () {
+        // C major scale degrees, C4-B4 (MIDI 60-71)
+        final cMajorScale = [60, 62, 64, 65, 67, 69, 71];
+        final result = PianoRangeUtils.calculateReferenceRange(cMajorScale);
 
-      expect(
-        result.fromMidi,
-        equals(60 - PianoRangeUtils.referencePaddingSemitones),
-      );
-      expect(
-        result.toMidi,
-        equals(71 + PianoRangeUtils.referencePaddingSemitones),
-      );
-      // Should be far tighter than the one-octave-buffer, min-2-octave
-      // window that calculateOptimalRange would produce for the same notes.
-      expect(
-        result.toMidi - result.fromMidi,
-        lessThan(
-          PianoRangeUtils.calculateOptimalRange(cMajorScale).toMidi -
-              PianoRangeUtils.calculateOptimalRange(cMajorScale).fromMidi,
-        ),
-      );
-    });
+        expect(
+          result.fromMidi,
+          equals(60 - PianoRangeUtils.referencePaddingSemitones),
+        );
+        expect(
+          result.toMidi,
+          equals(71 + PianoRangeUtils.referencePaddingSemitones),
+        );
+        // Should be far tighter than the one-octave-buffer, min-2-octave
+        // window that calculateOptimalRange would produce for the same notes.
+        expect(
+          result.toMidi - result.fromMidi,
+          lessThan(
+            PianoRangeUtils.calculateOptimalRange(cMajorScale).toMidi -
+                PianoRangeUtils.calculateOptimalRange(cMajorScale).fromMidi,
+          ),
+        );
+      },
+    );
 
     test("should hug a single triad tightly", () {
       const cMajorTriad = [60, 64, 67]; // C4, E4, G4
@@ -269,8 +272,15 @@ void main() {
       "should adjust range when exercise extends beyond initial centering",
       () {
         // Exercise with very high notes that would exceed centered range
-        final highExercise = [84, 85, 86, 87, 88, 89, 90]
-            .toMidiNotes(); // High C6 and above
+        final highExercise = [
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+        ].toMidiNotes(); // High C6 and above
         final result = PianoRangeUtils.calculateFixed49KeyRange(highExercise);
         expect(result, isNotNull);
 
@@ -298,60 +308,57 @@ void main() {
       expect(result, isNotNull);
     });
 
-    test(
-      "should grow beyond 49 keys rather than clip when the exercise span "
-      "exceeds the standard window",
-      () {
-        // Span of 60 semitones (5 octaves) can't fit in a fixed 48-semitone
-        // (49-key) window; the range should grow to fit every note, padded
-        // by referencePaddingSemitones on each side, instead of falling
-        // back to a window that clips notes out of view.
-        final oversizedExercise = [30, 90].toMidiNotes();
-        final result = PianoRangeUtils.calculateFixed49KeyRange(
-          oversizedExercise,
-        );
-        expect(result.fromMidi, lessThanOrEqualTo(30));
-        expect(result.toMidi, greaterThanOrEqualTo(90));
-        expect(
-          result.toMidi - result.fromMidi,
-          greaterThan(PianoRangeUtils.fixed49KeySemitones),
-        );
-      },
-    );
+    test("should grow beyond 49 keys rather than clip when the exercise span "
+        "exceeds the standard window", () {
+      // Span of 60 semitones (5 octaves) can't fit in a fixed 48-semitone
+      // (49-key) window; the range should grow to fit every note, padded
+      // by referencePaddingSemitones on each side, instead of falling
+      // back to a window that clips notes out of view.
+      final oversizedExercise = [30, 90].toMidiNotes();
+      final result = PianoRangeUtils.calculateFixed49KeyRange(
+        oversizedExercise,
+      );
+      expect(result.fromMidi, lessThanOrEqualTo(30));
+      expect(result.toMidi, greaterThanOrEqualTo(90));
+      expect(
+        result.toMidi - result.fromMidi,
+        greaterThan(PianoRangeUtils.fixed49KeySemitones),
+      );
+    });
 
     test("should clamp to piano range boundaries", () {
       // Exercise with extreme notes beyond piano range
-      final extremeExercise = [21, 108].toMidiNotes(); // A0 and C8 (88-key limits)
+      final extremeExercise = [
+        21,
+        108,
+      ].toMidiNotes(); // A0 and C8 (88-key limits)
       final result = PianoRangeUtils.calculateFixed49KeyRange(extremeExercise);
       expect(result, isNotNull);
     });
 
-    test(
-      "should keep every note visible for a both-hands 4-octave arpeggio "
-      "(left hand an octave below the right)",
-      () {
-        // Right hand: C4 (60) up through 4 octaves to C8 (108). Left hand
-        // plays the same shape starting an octave below, at C3 (48). The
-        // combined span (48-108, 60 semitones) exceeds the standard
-        // 49-key/4-octave window.
-        final bothHandsArpeggio = [
-          48, 60, 63, 67, 72, // left hand notes (C3 and up)
-          60, 63, 67, 72, 75, 79, 84, 87, 91, 96, 99, 103, 108, // right hand
-        ].toMidiNotes();
+    test("should keep every note visible for a both-hands 4-octave arpeggio "
+        "(left hand an octave below the right)", () {
+      // Right hand: C4 (60) up through 4 octaves to C8 (108). Left hand
+      // plays the same shape starting an octave below, at C3 (48). The
+      // combined span (48-108, 60 semitones) exceeds the standard
+      // 49-key/4-octave window.
+      final bothHandsArpeggio = [
+        48, 60, 63, 67, 72, // left hand notes (C3 and up)
+        60, 63, 67, 72, 75, 79, 84, 87, 91, 96, 99, 103, 108, // right hand
+      ].toMidiNotes();
 
-        final result = PianoRangeUtils.calculateFixed49KeyRange(
-          bothHandsArpeggio,
+      final result = PianoRangeUtils.calculateFixed49KeyRange(
+        bothHandsArpeggio,
+      );
+
+      for (final note in bothHandsArpeggio) {
+        expect(
+          note.value,
+          inInclusiveRange(result.fromMidi, result.toMidi),
+          reason: "Note ${note.value} must remain visible on the keyboard",
         );
-
-        for (final note in bothHandsArpeggio) {
-          expect(
-            note.value,
-            inInclusiveRange(result.fromMidi, result.toMidi),
-            reason: "Note ${note.value} must remain visible on the keyboard",
-          );
-        }
-      },
-    );
+      }
+    });
 
     test("should use custom fallback range when provided", () {
       const customFallback = MidiNoteRange(fromMidi: 48, toMidi: 96);

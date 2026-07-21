@@ -46,9 +46,7 @@ void main() {
       expect(modeDropdown.initialValue, ReferenceMode.scales);
     });
 
-    testWidgets("should switch between scales and chords mode", (
-      tester,
-    ) async {
+    testWidgets("should switch between scales and chords mode", (tester) async {
       await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 

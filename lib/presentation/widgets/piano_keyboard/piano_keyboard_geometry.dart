@@ -49,9 +49,7 @@ class PianoKeyboardLayout {
     required this.height,
   }) : whiteKeys = _layoutWhiteKeys(range, whiteKeyWidth, height),
        blackKeys = _layoutBlackKeys(range, whiteKeyWidth, height) {
-    totalWidth = whiteKeys.isEmpty
-        ? 0
-        : whiteKeys.last.rect.right;
+    totalWidth = whiteKeys.isEmpty ? 0 : whiteKeys.last.rect.right;
   }
 
   /// The expanded MIDI range this layout covers.
@@ -92,7 +90,8 @@ class PianoKeyboardLayout {
     double whiteKeyWidth,
     double height,
   ) {
-    final blackKeyWidth = whiteKeyWidth * ComponentDimensions.blackKeyWidthRatio;
+    final blackKeyWidth =
+        whiteKeyWidth * ComponentDimensions.blackKeyWidthRatio;
     final blackKeyHeight = height * ComponentDimensions.blackKeyHeightRatio;
     final whiteMidiNotes = getWhiteKeysInRange(range.fromMidi, range.toMidi);
     final blackMidiNotes = getBlackKeysInRange(range.fromMidi, range.toMidi);

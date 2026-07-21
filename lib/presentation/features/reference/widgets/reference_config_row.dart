@@ -199,9 +199,7 @@ class ReferenceConfigRow extends StatelessWidget {
 
   Widget _buildInversionDropdown() {
     return DropdownButtonFormField<ChordInversion>(
-      key: ValueKey(
-        "reference_chord_inversion_${selectedChordInversion.name}",
-      ),
+      key: ValueKey("reference_chord_inversion_${selectedChordInversion.name}"),
       initialValue: selectedChordInversion,
       decoration: _dropdownDecoration("Inv."),
       isExpanded: true,

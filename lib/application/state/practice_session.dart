@@ -31,7 +31,15 @@ class PracticeSession {
   static const int defaultStartOctave = MusicalConstants.baseOctave;
 
   /// Callback fired when a practice exercise is completed successfully.
-  final VoidCallback onExerciseCompleted;
+  ///
+  /// Receives the accuracy percentage, number of correct notes, and number of
+  /// errors made during the exercise.
+  final void Function(
+    double? accuracyPercentage,
+    int? correctNoteCount,
+    int? errorCount,
+  )
+  onExerciseCompleted;
 
   /// Callback fired when the highlighted notes on the piano should change.
   ///
@@ -56,6 +64,9 @@ class PracticeSession {
   bool _practiceActive = false;
 
   final Set<int> _currentlyHeldNotes = {};
+
+  int _correctNoteCount = 0;
+  int _errorCount = 0;
 
   /// The current exercise configuration.
   ExerciseConfiguration get config => _config;
@@ -123,6 +134,20 @@ class PracticeSession {
 
   /// Whether a practice session is currently active.
   bool get practiceActive => _practiceActive;
+
+  /// The currently held notes that are expected for the current step.
+  Set<int> get correctHeldNotes {
+    final step = currentStep;
+    if (step == null) return {};
+    return _currentlyHeldNotes.intersection(step.expectedMidiNotes);
+  }
+
+  /// The currently held notes that are NOT expected for the current step.
+  Set<int> get wrongHeldNotes {
+    final step = currentStep;
+    if (step == null) return {};
+    return _currentlyHeldNotes.difference(step.expectedMidiNotes);
+  }
 
   /// Returns all MIDI notes that will be visible during this exercise.
   ///
@@ -428,6 +453,8 @@ class PracticeSession {
     _currentExercise = strategy.initializeExercise();
     _currentStepIndex = 0;
     _currentlyHeldNotes.clear();
+    _correctNoteCount = 0;
+    _errorCount = 0;
 
     _updateHighlightedNotes();
   }
@@ -465,6 +492,13 @@ class PracticeSession {
     // Track expected and unexpected notes so exact set equality enforces
     // "no extras" for every step size.
     _currentlyHeldNotes.add(midiNote);
+
+    final currentStep = _currentExercise!.steps[_currentStepIndex];
+    if (currentStep.expectedMidiNotes.contains(midiNote)) {
+      _correctNoteCount++;
+    } else {
+      _errorCount++;
+    }
     _checkStepCompletion();
   }
 
@@ -509,7 +543,14 @@ class PracticeSession {
 
   void _completeExercise() {
     _practiceActive = false;
-    onExerciseCompleted();
+
+    double? accuracyPercentage;
+    final totalNotes = _correctNoteCount + _errorCount;
+    if (totalNotes > 0) {
+      accuracyPercentage = (_correctNoteCount / totalNotes) * 100;
+    }
+
+    onExerciseCompleted(accuracyPercentage, _correctNoteCount, _errorCount);
 
     // If auto-progression is enabled, advance to the next key in the circle of fifths
     if (_autoProgressKeys) {
@@ -519,6 +560,8 @@ class PracticeSession {
     // Reset for immediate repetition - ready for next practice session
     _currentStepIndex = 0;
     _currentlyHeldNotes.clear();
+    _correctNoteCount = 0;
+    _errorCount = 0;
     _updateHighlightedNotes();
   }
 
@@ -556,6 +599,8 @@ class PracticeSession {
     _practiceActive = true;
     _currentStepIndex = 0;
     _currentlyHeldNotes.clear();
+    _correctNoteCount = 0;
+    _errorCount = 0;
     _updateHighlightedNotes();
   }
 
@@ -568,6 +613,8 @@ class PracticeSession {
     _practiceActive = false;
     _currentStepIndex = 0;
     _currentlyHeldNotes.clear();
+    _correctNoteCount = 0;
+    _errorCount = 0;
     _updateHighlightedNotes();
   }
 

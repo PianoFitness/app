@@ -143,34 +143,35 @@ void main() {
     },
   );
 
-  testWidgets("multi-touch: two concurrent pointers produce independent chords", (
-    tester,
-  ) async {
-    final events = <String>[];
-    final keyVisuals = ValueNotifier<Map<int, PianoKeyVisual>>({});
-    await tester.pumpWidget(
-      buildKeyboard(
-        keyVisuals: keyVisuals,
-        onKeyDown: (m) => events.add("down:$m"),
-        onKeyUp: (m) => events.add("up:$m"),
-      ),
-    );
+  testWidgets(
+    "multi-touch: two concurrent pointers produce independent chords",
+    (tester) async {
+      final events = <String>[];
+      final keyVisuals = ValueNotifier<Map<int, PianoKeyVisual>>({});
+      await tester.pumpWidget(
+        buildKeyboard(
+          keyVisuals: keyVisuals,
+          onKeyDown: (m) => events.add("down:$m"),
+          onKeyUp: (m) => events.add("up:$m"),
+        ),
+      );
 
-    final gesture1 = await tester.startGesture(c4Offset);
-    await tester.pump();
-    final gesture2 = await tester.startGesture(d4Offset, pointer: 2);
-    await tester.pump();
+      final gesture1 = await tester.startGesture(c4Offset);
+      await tester.pump();
+      final gesture2 = await tester.startGesture(d4Offset, pointer: 2);
+      await tester.pump();
 
-    expect(events, containsAll(["down:60", "down:62"]));
-    expect(events.length, 2);
+      expect(events, containsAll(["down:60", "down:62"]));
+      expect(events.length, 2);
 
-    await gesture1.up();
-    await gesture2.up();
-    await tester.pump();
+      await gesture1.up();
+      await gesture2.up();
+      await tester.pump();
 
-    expect(events, containsAll(["up:60", "up:62"]));
-    expect(events.length, 4);
-  });
+      expect(events, containsAll(["up:60", "up:62"]));
+      expect(events.length, 4);
+    },
+  );
 
   testWidgets(
     "single pointer drifting while the other stays put is not mistaken "
@@ -314,37 +315,38 @@ void main() {
     expect(controller.scrollController.offset, greaterThan(0));
   });
 
-  testWidgets("each key exposes a semantics tap action wired to the callbacks", (
-    tester,
-  ) async {
-    final events = <String>[];
-    final keyVisuals = ValueNotifier<Map<int, PianoKeyVisual>>({});
-    final handle = tester.ensureSemantics();
+  testWidgets(
+    "each key exposes a semantics tap action wired to the callbacks",
+    (tester) async {
+      final events = <String>[];
+      final keyVisuals = ValueNotifier<Map<int, PianoKeyVisual>>({});
+      final handle = tester.ensureSemantics();
 
-    await tester.pumpWidget(
-      buildKeyboard(
-        keyVisuals: keyVisuals,
-        onKeyDown: (m) => events.add("down:$m"),
-        onKeyUp: (m) => events.add("up:$m"),
-      ),
-    );
-    await tester.pump();
+      await tester.pumpWidget(
+        buildKeyboard(
+          keyVisuals: keyVisuals,
+          onKeyDown: (m) => events.add("down:$m"),
+          onKeyUp: (m) => events.add("up:$m"),
+        ),
+      );
+      await tester.pump();
 
-    // The per-key nodes come from CustomPainter.semanticsBuilder, not a
-    // widget-declared Semantics, so find.bySemanticsLabel (an Element-tree
-    // finder) can't see them — walk the raw SemanticsNode tree instead.
-    final root = tester.getSemantics(find.byType(PianoKeyboard));
-    final c4Node = findSemanticsNodeByLabel(root, "C4");
-    // ignore: deprecated_member_use
-    tester.binding.pipelineOwner.semanticsOwner!.performAction(
-      c4Node.id,
-      SemanticsAction.tap,
-    );
-    await tester.pump();
+      // The per-key nodes come from CustomPainter.semanticsBuilder, not a
+      // widget-declared Semantics, so find.bySemanticsLabel (an Element-tree
+      // finder) can't see them — walk the raw SemanticsNode tree instead.
+      final root = tester.getSemantics(find.byType(PianoKeyboard));
+      final c4Node = findSemanticsNodeByLabel(root, "C4");
+      // ignore: deprecated_member_use
+      tester.binding.pipelineOwner.semanticsOwner!.performAction(
+        c4Node.id,
+        SemanticsAction.tap,
+      );
+      await tester.pump();
 
-    expect(events, ["down:60", "up:60"]);
-    handle.dispose();
-  });
+      expect(events, ["down:60", "up:60"]);
+      handle.dispose();
+    },
+  );
 
   testWidgets(
     "the per-key label is independent of the widget-level note-label mode",

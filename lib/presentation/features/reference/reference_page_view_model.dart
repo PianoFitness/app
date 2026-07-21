@@ -224,11 +224,7 @@ class ReferencePageViewModel extends ChangeNotifier {
 
   /// Handles a piano key release by sending a MIDI note-off.
   Future<void> onKeyUp(int midiNote) async {
-    await VirtualPianoUtils.noteOff(
-      midiNote,
-      _midiRepository,
-      _localMidiState,
-    );
+    await VirtualPianoUtils.noteOff(midiNote, _midiRepository, _localMidiState);
   }
 
   @override

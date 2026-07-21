@@ -87,10 +87,7 @@ void main() {
       expect(getModeString(PracticeMode.chordsByKey), equals("Chords by Key"));
       expect(getModeString(PracticeMode.chordsByType), equals("Chord Types"));
       expect(getModeString(PracticeMode.arpeggios), equals("Arpeggios"));
-      expect(
-        getModeString(PracticeMode.blockChords),
-        equals("Block Chords"),
-      );
+      expect(getModeString(PracticeMode.blockChords), equals("Block Chords"));
       expect(
         getModeString(PracticeMode.chordProgressions),
         equals("Chord Progressions"),

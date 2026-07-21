@@ -77,7 +77,7 @@ void main() {
 
       // Note: Practice page now uses local MIDI state, so we don't set external state
       viewModel.initializePracticeSession(
-        onExerciseCompleted: () {
+        onExerciseCompleted: (a, b, c) {
           exerciseCompletedCalled = true;
         },
         onHighlightedNotesChanged: (notes) {
@@ -296,7 +296,7 @@ void main() {
         expect(exerciseCompletedCalled, isFalse);
 
         // Simulate exercise completion by calling the callback directly
-        viewModel.practiceSession!.onExerciseCompleted();
+        viewModel.practiceSession!.onExerciseCompleted(null, null, null);
 
         expect(exerciseCompletedCalled, isTrue);
       });
@@ -513,9 +513,7 @@ void main() {
           viewModel.setIncludeInversions(false);
           viewModel.startPractice();
 
-          final rootOnlyNotes = List<int>.from(
-            receivedHighlightedNotes,
-          );
+          final rootOnlyNotes = List<int>.from(receivedHighlightedNotes);
           expect(rootOnlyNotes.isNotEmpty, isTrue);
 
           receivedHighlightedNotes.clear();
@@ -798,7 +796,7 @@ void main() {
         viewModel.startPractice();
 
         // Trigger exercise completion
-        viewModel.practiceSession!.onExerciseCompleted();
+        viewModel.practiceSession!.onExerciseCompleted(null, null, null);
 
         // Allow the fire-and-forget async work to finish
         await Future<void>.delayed(Duration.zero);
@@ -808,7 +806,7 @@ void main() {
 
       test("should call saveEntry with correct profileId", () async {
         viewModel.startPractice();
-        viewModel.practiceSession!.onExerciseCompleted();
+        viewModel.practiceSession!.onExerciseCompleted(null, null, null);
         await Future<void>.delayed(Duration.zero);
 
         final captured = verify(
@@ -824,7 +822,7 @@ void main() {
           ..setPracticeMode(PracticeMode.scales)
           ..setSelectedKey(music.Key.g);
         viewModel.startPractice();
-        viewModel.practiceSession!.onExerciseCompleted();
+        viewModel.practiceSession!.onExerciseCompleted(null, null, null);
         await Future<void>.delayed(Duration.zero);
 
         final captured = verify(
@@ -844,7 +842,7 @@ void main() {
         ).thenAnswer((_) async => null);
 
         viewModel.startPractice();
-        viewModel.practiceSession!.onExerciseCompleted();
+        viewModel.practiceSession!.onExerciseCompleted(null, null, null);
         await Future<void>.delayed(Duration.zero);
 
         verifyNever(mockExerciseHistoryRepository.saveEntry(any));
@@ -857,11 +855,11 @@ void main() {
 
         var callbackFired = false;
         viewModel.initializePracticeSession(
-          onExerciseCompleted: () => callbackFired = true,
+          onExerciseCompleted: (a, b, c) => callbackFired = true,
           onHighlightedNotesChanged: (_) {},
         );
         viewModel.startPractice();
-        viewModel.practiceSession!.onExerciseCompleted();
+        viewModel.practiceSession!.onExerciseCompleted(null, null, null);
 
         // UI callback must fire synchronously before the async save
         expect(callbackFired, isTrue);
@@ -871,7 +869,7 @@ void main() {
         "should update UserProfile.lastPracticeDate after recording history",
         () async {
           viewModel.startPractice();
-          viewModel.practiceSession!.onExerciseCompleted();
+          viewModel.practiceSession!.onExerciseCompleted(null, null, null);
           await Future<void>.delayed(Duration.zero);
 
           final captured = verify(
@@ -890,7 +888,7 @@ void main() {
         ).thenAnswer((_) async => null);
 
         viewModel.startPractice();
-        viewModel.practiceSession!.onExerciseCompleted();
+        viewModel.practiceSession!.onExerciseCompleted(null, null, null);
         await Future<void>.delayed(Duration.zero);
 
         verifyNever(mockUserProfileRepository.updateProfile(any));
@@ -905,7 +903,7 @@ void main() {
           ).thenAnswer((_) async => null);
 
           viewModel.startPractice();
-          viewModel.practiceSession!.onExerciseCompleted();
+          viewModel.practiceSession!.onExerciseCompleted(null, null, null);
           await Future<void>.delayed(Duration.zero);
 
           verify(mockExerciseHistoryRepository.saveEntry(any)).called(1);

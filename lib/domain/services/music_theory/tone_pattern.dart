@@ -140,7 +140,9 @@ class TonePattern {
   static List<PatternToken> straightBroken({
     required int n,
     required int octaves,
-  }) => [for (var d = 1; d <= n * octaves + 1; d++) [DegreeNote(d)]];
+  }) => [
+    for (var d = 1; d <= n * octaves + 1; d++) [DegreeNote(d)],
+  ];
 
   /// Rolling broken (arpeggiated) pattern: overlapping n-note windows over
   /// the ascending degree sequence, each window one degree further than
@@ -182,9 +184,7 @@ class TonePattern {
   }) {
     final seqLength = n * octaves + 1;
     final degrees = List<int>.generate(seqLength, (i) => i + 1);
-    return [
-      for (var g = 0; g + n <= seqLength; g++) degrees.sublist(g, g + n),
-    ];
+    return [for (var g = 0; g + n <= seqLength; g++) degrees.sublist(g, g + n)];
   }
 
   /// Ascending tokens followed by the mirrored descent (excludes the

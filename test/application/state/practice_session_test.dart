@@ -25,7 +25,7 @@ void main() {
       exerciseCompletionCount = 0;
 
       practiceSession = PracticeSession(
-        onExerciseCompleted: () {
+        onExerciseCompleted: (a, b, c) {
           exerciseCompletionCount++;
         },
         onHighlightedNotesChanged: (notes) {

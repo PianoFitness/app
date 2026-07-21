@@ -74,6 +74,18 @@ class ExerciseHistoryTable extends Table {
   /// Chord progression identifier (chordProgressions mode). Null otherwise.
   TextColumn get chordProgressionId => text().nullable()();
 
+  // ── Accuracy metrics ─────────────────────────────────────────────────────
+
+  /// Top-line accuracy metric (0-100 percentage).
+  /// Nullable so existing rows and future non-scored modes remain valid.
+  RealColumn get accuracyPercentage => real().nullable()();
+
+  /// Raw count of expected note-on events during the exercise.
+  IntColumn get correctNoteCount => integer().nullable()();
+
+  /// Raw count of unexpected note-on events during the exercise.
+  IntColumn get errorCount => integer().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }

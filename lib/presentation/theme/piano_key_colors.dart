@@ -7,10 +7,7 @@ import "package:flutter/material.dart";
 @immutable
 class PianoKeyColors extends ThemeExtension<PianoKeyColors> {
   /// Creates piano key colors with all required parameters.
-  const PianoKeyColors({
-    required this.whiteKey,
-    required this.blackKey,
-  });
+  const PianoKeyColors({required this.whiteKey, required this.blackKey});
 
   /// Base color for white keys.
   final Color whiteKey;
