@@ -19,6 +19,7 @@ import "package:piano_fitness/application/repositories/settings_repository_impl.
 import "package:piano_fitness/application/repositories/user_profile_repository_impl.dart";
 import "package:piano_fitness/application/repositories/exercise_history_repository_impl.dart";
 import "package:piano_fitness/application/services/notifications/notification_manager.dart";
+import "package:piano_fitness/application/state/metronome_state.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/domain/repositories/audio_service.dart";
 import "package:piano_fitness/domain/repositories/metronome_audio_service.dart";
@@ -151,6 +152,14 @@ void main() async {
 
         // Global MIDI state (shared across all features)
         ChangeNotifierProvider<MidiState>(create: (_) => MidiState()),
+
+        // Global metronome state (shared across all features, so a
+        // student can start it once and keep it running while navigating)
+        ChangeNotifierProvider<MetronomeState>(
+          create: (context) => MetronomeState(
+            audioService: context.read<IMetronomeAudioService>(),
+          ),
+        ),
       ],
       child: const MyApp(),
     ),

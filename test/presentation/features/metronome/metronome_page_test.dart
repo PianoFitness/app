@@ -1,7 +1,7 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:mockito/mockito.dart";
-import "package:piano_fitness/domain/repositories/metronome_audio_service.dart";
+import "package:piano_fitness/application/state/metronome_state.dart";
 import "package:piano_fitness/presentation/features/metronome/metronome_page.dart";
 import "package:provider/provider.dart";
 
@@ -22,8 +22,8 @@ void main() {
 
     Widget createTestWidget() {
       return MaterialApp(
-        home: Provider<IMetronomeAudioService>.value(
-          value: mockAudioService,
+        home: ChangeNotifierProvider<MetronomeState>(
+          create: (_) => MetronomeState(audioService: mockAudioService),
           child: const MetronomePage(),
         ),
       );

@@ -43,7 +43,10 @@ const List<String> _pageTitlesForTest = [
 void expectTabActive(WidgetTester tester, int expectedIndex) {
   final bottomNav = find.byKey(const Key("bottom_navigation_bar"));
   if (bottomNav.evaluate().isNotEmpty) {
-    expect(tester.widget<NavigationBar>(bottomNav).selectedIndex, equals(expectedIndex));
+    expect(
+      tester.widget<NavigationBar>(bottomNav).selectedIndex,
+      equals(expectedIndex),
+    );
     return;
   }
   expect(
@@ -63,12 +66,8 @@ void main() {
       expect(find.text("Free Play"), findsWidgets);
       expect(find.byIcon(Icons.piano), findsWidgets);
 
-      // Verify MIDI and notification settings buttons are present using stable keys
-      expect(find.byKey(const Key("midi_settings_button")), findsOneWidget);
-      expect(
-        find.byKey(const Key("notification_settings_button")),
-        findsOneWidget,
-      );
+      // Verify the overflow menu (MIDI/notification settings) is present
+      expect(find.byKey(const Key("more_actions_button")), findsOneWidget);
 
       // Verify bottom navigation bar and its items using stable key
       expect(find.byKey(const Key("bottom_navigation_bar")), findsOneWidget);
@@ -116,79 +115,68 @@ void main() {
     });
 
     group("MIDI Controls Integration", () {
-      testWidgets("should display MIDI settings button with correct tooltip", (
+      // MIDI Settings and Notification Settings live behind a shared "more"
+      // overflow menu (see _buildMoreActionsButton) rather than each having
+      // its own app bar icon, so these tests open the menu before asserting
+      // on its items.
+      testWidgets("should display MIDI settings entry with correct label", (
         tester,
       ) async {
         await pumpPortraitMainNavigation(tester);
 
-        // Find MIDI settings button using stable key
-        final settingsButton = find.byKey(const Key("midi_settings_button"));
-        expect(settingsButton, findsOneWidget);
-
-        // Verify tooltip
-        await tester.longPress(settingsButton);
+        await tester.tap(find.byKey(const Key("more_actions_button")));
         await tester.pumpAndSettle();
+
+        expect(find.byKey(const Key("midi_settings_button")), findsOneWidget);
         expect(find.text("MIDI Settings"), findsOneWidget);
-
-        // Dismiss tooltip
-        await tester.tapAt(const Offset(0, 0));
-        await tester.pumpAndSettle();
       });
 
-      testWidgets("should have interactive MIDI settings button", (
+      testWidgets("should have an interactive MIDI settings entry", (
         tester,
       ) async {
         await pumpPortraitMainNavigation(tester);
 
-        // Verify MIDI settings button is interactive using stable key
-        final settingsButton = find.byKey(const Key("midi_settings_button"));
-        expect(settingsButton, findsOneWidget);
+        await tester.tap(find.byKey(const Key("more_actions_button")));
+        await tester.pumpAndSettle();
 
-        final buttonWidget = tester.widget<IconButton>(settingsButton);
-        expect(buttonWidget.onPressed, isNotNull);
-        expect(buttonWidget.tooltip, equals("MIDI Settings"));
+        final item = tester.widget<PopupMenuItem<Object?>>(
+          find.byKey(const Key("midi_settings_button")),
+        );
+        expect(item.enabled, isTrue);
       });
 
       testWidgets(
-        "should display notification settings button with correct tooltip",
+        "should display notification settings entry with correct label",
         (tester) async {
           await pumpPortraitMainNavigation(tester);
 
-          // Find notification settings button using stable key
-          final notificationButton = find.byKey(
-            const Key("notification_settings_button"),
+          await tester.tap(find.byKey(const Key("more_actions_button")));
+          await tester.pumpAndSettle();
+
+          expect(
+            find.byKey(const Key("notification_settings_button")),
+            findsOneWidget,
           );
-          expect(notificationButton, findsOneWidget);
-
-          // Verify tooltip
-          await tester.longPress(notificationButton);
-          await tester.pumpAndSettle();
           expect(find.text("Notification Settings"), findsOneWidget);
-
-          // Dismiss tooltip
-          await tester.tapAt(const Offset(0, 0));
-          await tester.pumpAndSettle();
         },
       );
 
-      testWidgets("should have interactive notification settings button", (
+      testWidgets("should have an interactive notification settings entry", (
         tester,
       ) async {
         await pumpPortraitMainNavigation(tester);
 
-        // Verify notification settings button is interactive using stable key
-        final notificationButton = find.byKey(
-          const Key("notification_settings_button"),
-        );
-        expect(notificationButton, findsOneWidget);
+        await tester.tap(find.byKey(const Key("more_actions_button")));
+        await tester.pumpAndSettle();
 
-        final buttonWidget = tester.widget<IconButton>(notificationButton);
-        expect(buttonWidget.onPressed, isNotNull);
-        expect(buttonWidget.tooltip, equals("Notification Settings"));
+        final item = tester.widget<PopupMenuItem<Object?>>(
+          find.byKey(const Key("notification_settings_button")),
+        );
+        expect(item.enabled, isTrue);
       });
 
       testWidgets(
-        "should maintain MIDI controls accessibility across all pages",
+        "should maintain the overflow menu's accessibility across all pages",
         (tester) async {
           await pumpPortraitMainNavigation(tester);
 
@@ -202,7 +190,14 @@ void main() {
             // Navigate to page using stable navigation helper
             await navigateToTab(tester, tabKey);
 
-            // Verify MIDI controls are still accessible using stable keys
+            // Verify the overflow menu is still present and opens with both
+            // settings entries.
+            expect(
+              find.byKey(const Key("more_actions_button")),
+              findsOneWidget,
+            );
+            await tester.tap(find.byKey(const Key("more_actions_button")));
+            await tester.pumpAndSettle();
             expect(
               find.byKey(const Key("midi_settings_button")),
               findsOneWidget,
@@ -211,18 +206,95 @@ void main() {
               find.byKey(const Key("notification_settings_button")),
               findsOneWidget,
             );
-
-            // Test that settings button is interactive (without navigating)
-            final settingsButton = find.byKey(
-              const Key("midi_settings_button"),
-            );
-            expect(
-              tester.widget<IconButton>(settingsButton).onPressed,
-              isNotNull,
-            );
+            // Close the menu before navigating to the next tab.
+            await tester.tapAt(const Offset(0, 0));
+            await tester.pumpAndSettle();
           }
         },
       );
+    });
+
+    group("Metronome Quick Access", () {
+      testWidgets("should display the metronome button", (tester) async {
+        await pumpPortraitMainNavigation(tester);
+
+        final metronomeButton = find.byKey(const Key("metronome_button"));
+        expect(metronomeButton, findsOneWidget);
+        expect(
+          tester.widget<IconButton>(metronomeButton).tooltip,
+          equals("Metronome"),
+        );
+      });
+
+      testWidgets(
+        "tapping the metronome button opens the quick panel with controls",
+        (tester) async {
+          await pumpPortraitMainNavigation(tester);
+
+          await tester.tap(find.byKey(const Key("metronome_button")));
+          await tester.pumpAndSettle();
+
+          expect(
+            find.byKey(const Key("metronome_quick_panel")),
+            findsOneWidget,
+          );
+          expect(
+            find.byKey(const Key("metronome_start_stop_button")),
+            findsOneWidget,
+          );
+          expect(find.byKey(const Key("metronome_bpm_slider")), findsOneWidget);
+        },
+      );
+
+      testWidgets(
+        "starting the metronome from the quick panel updates the app bar icon",
+        (tester) async {
+          await pumpPortraitMainNavigation(tester);
+
+          await tester.tap(find.byKey(const Key("metronome_button")));
+          await tester.pumpAndSettle();
+
+          await tester.tap(
+            find.byKey(const Key("metronome_start_stop_button")),
+          );
+          await tester.pump();
+
+          // Close the sheet and check the app bar button reflects playing state.
+          await tester.tapAt(const Offset(0, 0));
+          await tester.pumpAndSettle();
+
+          final metronomeButton = tester.widget<IconButton>(
+            find.byKey(const Key("metronome_button")),
+          );
+          expect(metronomeButton.tooltip, contains("playing"));
+        },
+      );
+
+      testWidgets("metronome keeps playing when navigating between tabs", (
+        tester,
+      ) async {
+        await pumpPortraitMainNavigation(tester);
+
+        await tester.tap(find.byKey(const Key("metronome_button")));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key("metronome_start_stop_button")));
+        await tester.pump();
+        await tester.tapAt(const Offset(0, 0)); // close the sheet
+        await tester.pumpAndSettle();
+
+        await navigateToTab(tester, const Key("nav_tab_reference"));
+
+        final metronomeButton = tester.widget<IconButton>(
+          find.byKey(const Key("metronome_button")),
+        );
+        expect(metronomeButton.tooltip, contains("playing"));
+
+        // Stop it again so the periodic Timer doesn't outlive the test.
+        await tester.tap(find.byKey(const Key("metronome_button")));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key("metronome_start_stop_button")));
+        await tester.pump();
+      });
     });
 
     group("Navigation State Management", () {
@@ -294,19 +366,15 @@ void main() {
       testWidgets("should provide tooltips for action buttons", (tester) async {
         await pumpPortraitMainNavigation(tester);
 
-        // Test MIDI settings tooltip using stable key
-        final settingsButton = find.byKey(const Key("midi_settings_button"));
-        final settingsWidget = tester.widget<IconButton>(settingsButton);
-        expect(settingsWidget.tooltip, equals("MIDI Settings"));
+        // The overflow menu button is a PopupMenuButton<_MoreAction>, a
+        // type private to main_navigation.dart, so its tooltip is checked
+        // via the Tooltip it renders rather than casting to the widget type.
+        expect(find.byTooltip("More options"), findsOneWidget);
 
-        // Test notifications tooltip using stable key
-        final notificationsButton = find.byKey(
-          const Key("notification_settings_button"),
-        );
-        final notificationsWidget = tester.widget<IconButton>(
-          notificationsButton,
-        );
-        expect(notificationsWidget.tooltip, equals("Notification Settings"));
+        // Test the metronome quick-access tooltip using its stable key
+        final metronomeButton = find.byKey(const Key("metronome_button"));
+        final metronomeWidget = tester.widget<IconButton>(metronomeButton);
+        expect(metronomeWidget.tooltip, equals("Metronome"));
       });
     });
 

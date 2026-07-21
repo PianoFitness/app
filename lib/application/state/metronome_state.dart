@@ -8,16 +8,21 @@ import "package:piano_fitness/domain/services/metronome/beat_tracker.dart";
 import "package:piano_fitness/domain/services/metronome/metronome_scheduler.dart";
 import "package:piano_fitness/domain/services/metronome/tempo_calculator.dart";
 
-/// ViewModel for the Metronome page.
+/// App-wide metronome state, shared across every page (see [MidiState] for
+/// the same pattern applied to MIDI).
 ///
-/// Facade that wires [MetronomeScheduler] (when a beat fires), [BeatTracker]
-/// (which beat / what emphasis), and [IMetronomeAudioService] (the click
-/// sound) into the state and controls the UI binds to. See
+/// A student may want a tempo reference in Free Play, Reference, or a
+/// Practice session alike, so this is provided once at the app root rather
+/// than scoped to a single page - starting it in one place keeps it running
+/// as they navigate elsewhere. Facade that wires [MetronomeScheduler] (when
+/// a beat fires), [BeatTracker] (which beat / what emphasis), and
+/// [IMetronomeAudioService] (the click sound) into the state and controls
+/// the UI binds to. See
 /// docs/specifications/metronome-component.md#putting-it-together.
-class MetronomePageViewModel extends ChangeNotifier {
-  /// Creates the view model and starts pre-warming the click sound so the
-  /// first beat isn't slower than the rest.
-  MetronomePageViewModel({required IMetronomeAudioService audioService})
+class MetronomeState extends ChangeNotifier {
+  /// Creates the state and starts pre-warming the click sound so the first
+  /// beat isn't slower than the rest.
+  MetronomeState({required IMetronomeAudioService audioService})
     : _audioService = audioService {
     unawaited(_audioService.initialize());
   }
