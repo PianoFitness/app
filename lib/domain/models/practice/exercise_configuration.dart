@@ -4,6 +4,7 @@ import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/chord_definitions.dart";
+import "package:piano_fitness/domain/services/music_theory/circle_of_fifths.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
 
@@ -346,4 +347,71 @@ class ExerciseConfiguration {
     includeLeftHandRoot,
     chordProgressionId,
   );
+
+  /// Progresses to the next key in the circle of fifths.
+  ///
+  /// For arpeggios and block chords modes, this also updates the root note to
+  /// match the new key.
+  ExerciseConfiguration nextInCircleOfFifths() {
+    if (key == null) return this;
+    final nextKey = CircleOfFifths.getNextKey(key!);
+
+    if (practiceMode == PracticeMode.arpeggios ||
+        practiceMode == PracticeMode.blockChords) {
+      return copyWith(
+        key: Field.set(nextKey),
+        musicalNote: Field.set(NoteUtils.keyToMusicalNote(nextKey)),
+      );
+    } else {
+      return copyWith(key: Field.set(nextKey));
+    }
+  }
+
+  /// Returns a new configuration with the specified mode and sensible defaults
+  /// applied for any fields required by that mode.
+  ExerciseConfiguration withMode(PracticeMode newMode) {
+    var newConfig = copyWith(
+      practiceMode: newMode,
+      key: const Field.set(null),
+      scaleType: const Field.set(null),
+      chordType: const Field.set(null),
+      musicalNote: const Field.set(null),
+      arpeggioType: const Field.set(null),
+      chordProgressionId: const Field.set(null),
+    );
+
+    switch (newMode) {
+      case PracticeMode.scales:
+      case PracticeMode.chordsByKey:
+        newConfig = newConfig.copyWith(
+          key: Field.set(key ?? music.Key.c),
+          scaleType: Field.set(scaleType ?? music.ScaleType.major),
+        );
+        break;
+      case PracticeMode.chordsByType:
+        newConfig = newConfig.copyWith(
+          chordType: Field.set(chordType ?? ChordType.major),
+        );
+        break;
+      case PracticeMode.arpeggios:
+      case PracticeMode.blockChords:
+        newConfig = newConfig.copyWith(
+          musicalNote: Field.set(musicalNote ?? MusicalNote.c),
+          arpeggioType: Field.set(arpeggioType ?? ArpeggioType.major),
+        );
+        break;
+      case PracticeMode.chordProgressions:
+        newConfig = newConfig.copyWith(
+          key: Field.set(key ?? music.Key.c),
+          chordProgressionId: Field.set(chordProgressionId ?? "I - V"),
+        );
+        break;
+      case PracticeMode.dominantCadence:
+        newConfig = newConfig.copyWith(
+          key: Field.set(key ?? music.Key.c),
+        );
+        break;
+    }
+    return newConfig;
+  }
 }

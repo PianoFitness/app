@@ -325,10 +325,9 @@ class PianoRangeUtils {
     // Grow the window beyond the standard 4-octave width when the exercise
     // needs it, rather than falling back and silently clipping notes.
     final paddedSpan = (maxNote - minNote) + 2 * referencePaddingSemitones;
-    final windowSemitones = (paddedSpan > fixed49KeySemitones
-            ? paddedSpan
-            : fixed49KeySemitones)
-        .clamp(0, max88KeyMidi - min88KeyMidi);
+    final windowSemitones =
+        (paddedSpan > fixed49KeySemitones ? paddedSpan : fixed49KeySemitones)
+            .clamp(0, max88KeyMidi - min88KeyMidi);
 
     // Calculate the center point of the exercise range
     final centerNote = (minNote + maxNote) ~/ 2;

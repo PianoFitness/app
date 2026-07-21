@@ -49,7 +49,9 @@ class PianoAccessibilityUtils {
       final noteName = _getNoteDisplayName(newHighlightedMidiNotes.first);
       return AccessibilityLabels.piano.highlightedNotes([noteName]);
     } else {
-      final noteNames = newHighlightedMidiNotes.map(_getNoteDisplayName).toList();
+      final noteNames = newHighlightedMidiNotes
+          .map(_getNoteDisplayName)
+          .toList();
       return AccessibilityLabels.piano.highlightedNotes(noteNames);
     }
   }
@@ -116,7 +118,9 @@ class PianoAccessibilityUtils {
     BuildContext context,
     List<int> newHighlightedMidiNotes,
   ) {
-    final announcement = getHighlightedNotesAnnouncement(newHighlightedMidiNotes);
+    final announcement = getHighlightedNotesAnnouncement(
+      newHighlightedMidiNotes,
+    );
 
     // Determine the appropriate announcement method based on content
     if (newHighlightedMidiNotes.isEmpty) {
@@ -125,7 +129,9 @@ class PianoAccessibilityUtils {
       final noteName = _getNoteDisplayName(newHighlightedMidiNotes.first);
       MusicalAnnouncementsService.announceNote(context, noteName);
     } else {
-      final noteNames = newHighlightedMidiNotes.map(_getNoteDisplayName).toList();
+      final noteNames = newHighlightedMidiNotes
+          .map(_getNoteDisplayName)
+          .toList();
       MusicalAnnouncementsService.announceChord(context, noteNames);
     }
   }

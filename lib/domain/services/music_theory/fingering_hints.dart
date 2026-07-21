@@ -48,7 +48,12 @@ class FingeringHints {
     required List<MusicalNote> notes,
     required bool rightHand,
   }) => _mirrored(
-    _ascendingScaleFingers(key: key, scaleType: scaleType, notes: notes, rightHand: rightHand),
+    _ascendingScaleFingers(
+      key: key,
+      scaleType: scaleType,
+      notes: notes,
+      rightHand: rightHand,
+    ),
   );
 
   static List<int> _ascendingScaleFingers({
@@ -70,13 +75,18 @@ class FingeringHints {
       case ScaleType.lydian:
       case ScaleType.mixolydian:
       case ScaleType.locrian:
-        final isBlack = notes.map((note) => _isBlackPitchClass(note.index)).toList();
-        return rightHand ? _deriveRightHandScale(isBlack) : _deriveLeftHandScale(isBlack);
+        final isBlack = notes
+            .map((note) => _isBlackPitchClass(note.index))
+            .toList();
+        return rightHand
+            ? _deriveRightHandScale(isBlack)
+            : _deriveLeftHandScale(isBlack);
     }
   }
 
   /// Standard one-octave major-scale fingerings, ascending, by key.
-  static const Map<Key, ({List<int> rh, List<int> lh})> _majorScaleFingerings = {
+  static const Map<Key, ({List<int> rh, List<int> lh})>
+  _majorScaleFingerings = {
     Key.c: (rh: [1, 2, 3, 1, 2, 3, 4, 5], lh: [5, 4, 3, 2, 1, 3, 2, 1]),
     Key.cSharp: (rh: [2, 3, 1, 2, 3, 4, 1, 2], lh: [3, 2, 1, 4, 3, 2, 1, 3]),
     Key.d: (rh: [1, 2, 3, 1, 2, 3, 4, 5], lh: [5, 4, 3, 2, 1, 3, 2, 1]),
@@ -93,7 +103,8 @@ class FingeringHints {
 
   /// Standard one-octave natural minor (Aeolian) scale fingerings,
   /// ascending, by key.
-  static const Map<Key, ({List<int> rh, List<int> lh})> _naturalMinorScaleFingerings = {
+  static const Map<Key, ({List<int> rh, List<int> lh})>
+  _naturalMinorScaleFingerings = {
     Key.c: (rh: [1, 2, 3, 1, 2, 3, 4, 5], lh: [5, 4, 3, 2, 1, 3, 2, 1]),
     Key.cSharp: (rh: [3, 4, 1, 2, 3, 1, 2, 3], lh: [3, 2, 1, 4, 3, 2, 1, 3]),
     Key.d: (rh: [1, 2, 3, 1, 2, 3, 4, 5], lh: [5, 4, 3, 2, 1, 3, 2, 1]),
@@ -108,7 +119,8 @@ class FingeringHints {
     Key.b: (rh: [1, 2, 3, 1, 2, 3, 4, 5], lh: [4, 3, 2, 1, 4, 3, 2, 1]),
   };
 
-  static bool _isBlackPitchClass(int pitchClass) => const {1, 3, 6, 8, 10}.contains(pitchClass % 12);
+  static bool _isBlackPitchClass(int pitchClass) =>
+      const {1, 3, 6, 8, 10}.contains(pitchClass % 12);
 
   /// Derives right-hand ascending fingering for an 8-note scale (root
   /// through its octave repeat) using the standard rule: the thumb
@@ -182,10 +194,22 @@ class FingeringHints {
   }
 
   // Named finger shapes, shared across the roots/qualities that use them.
-  static const ({List<int> rh, List<int> lh}) _white3 = (rh: [1, 2, 3, 5], lh: [5, 3, 2, 1]);
-  static const ({List<int> rh, List<int> lh}) _blackA3 = (rh: [4, 1, 2, 4], lh: [2, 1, 4, 2]);
-  static const ({List<int> rh, List<int> lh}) _blackB3 = (rh: [4, 1, 2, 4], lh: [3, 2, 1, 3]);
-  static const ({List<int> rh, List<int> lh}) _blackC3 = (rh: [2, 3, 1, 2], lh: [3, 2, 1, 3]);
+  static const ({List<int> rh, List<int> lh}) _white3 = (
+    rh: [1, 2, 3, 5],
+    lh: [5, 3, 2, 1],
+  );
+  static const ({List<int> rh, List<int> lh}) _blackA3 = (
+    rh: [4, 1, 2, 4],
+    lh: [2, 1, 4, 2],
+  );
+  static const ({List<int> rh, List<int> lh}) _blackB3 = (
+    rh: [4, 1, 2, 4],
+    lh: [3, 2, 1, 3],
+  );
+  static const ({List<int> rh, List<int> lh}) _blackC3 = (
+    rh: [2, 3, 1, 2],
+    lh: [3, 2, 1, 3],
+  );
 
   static const ({List<int> rh, List<int> lh}) _white4 = (
     rh: [1, 2, 3, 4, 5],
@@ -214,7 +238,10 @@ class FingeringHints {
   /// per-quality exceptions, including two "all-black" chords (F# major,
   /// D#/Eb minor) where every chord tone is a black key and the thumb has
   /// no white-key option, so standard pedagogy just falls back to 1-2-3-5.
-  static ({List<int> rh, List<int> lh}) _triadArpeggioShape(MusicalNote root, ArpeggioType type) {
+  static ({List<int> rh, List<int> lh}) _triadArpeggioShape(
+    MusicalNote root,
+    ArpeggioType type,
+  ) {
     switch (root) {
       case MusicalNote.cSharp: // Db
         switch (type) {
@@ -286,12 +313,17 @@ class FingeringHints {
   /// this method). White-key roots use the uniform 1-2-3-4-5 / 5-4-3-2-1
   /// shape. D#/Eb minor7 is the seventh-chord "all-black" exception
   /// (Eb-Gb-Bb-Db are all black keys).
-  static ({List<int> rh, List<int> lh}) _seventhArpeggioShape(MusicalNote root, ArpeggioType type) {
+  static ({List<int> rh, List<int> lh}) _seventhArpeggioShape(
+    MusicalNote root,
+    ArpeggioType type,
+  ) {
     switch (root) {
       case MusicalNote.cSharp: // Db/C#
         return _blackA4;
       case MusicalNote.dSharp: // Eb
-        return type == ArpeggioType.minor7 ? _white4 : _blackA4; // all-black exception
+        return type == ArpeggioType.minor7
+            ? _white4
+            : _blackA4; // all-black exception
       case MusicalNote.fSharp: // Gb/F#
         return type == ArpeggioType.minor7 ? _blackA4 : _blackB4;
       case MusicalNote.gSharp: // Ab
@@ -327,7 +359,10 @@ class FingeringHints {
   /// of key or inversion (a common simplified teaching convention for
   /// blocked chords), so it's only an approximation once voicings move
   /// out of root position.
-  static List<int>? chordVoicing({required bool rightHand, required int noteCount}) {
+  static List<int>? chordVoicing({
+    required bool rightHand,
+    required int noteCount,
+  }) {
     switch (noteCount) {
       case 3:
         return rightHand ? _triadFingersRight : _triadFingersLeft;
@@ -345,7 +380,10 @@ class FingeringHints {
   /// [HandSelection.both] (matching `getMidiNotesForHand`'s
   /// left-notes-then-right-notes concatenation). Returns `null` if
   /// [totalNoteCount] doesn't correspond to a known voicing shape.
-  static List<int>? chordFingersForHand({required HandSelection hand, required int totalNoteCount}) {
+  static List<int>? chordFingersForHand({
+    required HandSelection hand,
+    required int totalNoteCount,
+  }) {
     if (hand == HandSelection.both) {
       final coreCount = totalNoteCount ~/ 2;
       final left = chordVoicing(rightHand: false, noteCount: coreCount);
@@ -353,7 +391,10 @@ class FingeringHints {
       if (left == null || right == null) return null;
       return [...left, ...right];
     }
-    return chordVoicing(rightHand: hand == HandSelection.right, noteCount: totalNoteCount);
+    return chordVoicing(
+      rightHand: hand == HandSelection.right,
+      noteCount: totalNoteCount,
+    );
   }
 
   // ---------------------------------------------------------------------
@@ -364,5 +405,8 @@ class FingeringHints {
   /// matching the note-sequence construction used by [Scale] and
   /// [Arpeggio] (`[...ascending, ...ascending.reversed.skip(1)]`), so the
   /// resulting list always has one finger per note.
-  static List<int> _mirrored(List<int> ascending) => [...ascending, ...ascending.reversed.skip(1)];
+  static List<int> _mirrored(List<int> ascending) => [
+    ...ascending,
+    ...ascending.reversed.skip(1),
+  ];
 }

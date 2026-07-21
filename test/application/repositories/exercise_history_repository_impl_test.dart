@@ -281,11 +281,7 @@ void main() {
         pattern: ChordTonePattern.rolling,
       );
       await repository.saveEntry(
-        makeEntry(
-          id: "block-chords",
-          profileId: testProfileId,
-          config: config,
-        ),
+        makeEntry(id: "block-chords", profileId: testProfileId, config: config),
       );
 
       final results = await repository.getEntriesForProfile(testProfileId);

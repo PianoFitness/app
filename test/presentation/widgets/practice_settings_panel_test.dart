@@ -348,18 +348,19 @@ void main() {
         },
       );
 
-      testWidgets("left-hand root checkbox is hidden for the straight pattern", (
-        tester,
-      ) async {
-        await tester.pumpWidget(
-          createArpeggioTestWidget(
-            configuration: arpeggioConfig, // pattern defaults to straight
-            onConfigurationChanged: (_) {},
-          ),
-        );
+      testWidgets(
+        "left-hand root checkbox is hidden for the straight pattern",
+        (tester) async {
+          await tester.pumpWidget(
+            createArpeggioTestWidget(
+              configuration: arpeggioConfig, // pattern defaults to straight
+              onConfigurationChanged: (_) {},
+            ),
+          );
 
-        expect(find.byType(CheckboxListTile), findsNothing);
-      });
+          expect(find.byType(CheckboxListTile), findsNothing);
+        },
+      );
 
       testWidgets(
         "left-hand root checkbox is hidden for rolling + both hands",
@@ -398,29 +399,30 @@ void main() {
         },
       );
 
-      testWidgets("toggling the left-hand root checkbox updates the configuration", (
-        tester,
-      ) async {
-        ExerciseConfiguration? captured;
-        final config = arpeggioConfig.copyWith(
-          pattern: ChordTonePattern.rolling,
-        );
+      testWidgets(
+        "toggling the left-hand root checkbox updates the configuration",
+        (tester) async {
+          ExerciseConfiguration? captured;
+          final config = arpeggioConfig.copyWith(
+            pattern: ChordTonePattern.rolling,
+          );
 
-        await tester.pumpWidget(
-          createArpeggioTestWidget(
-            configuration: config,
-            onConfigurationChanged: (c) => captured = c,
-          ),
-        );
+          await tester.pumpWidget(
+            createArpeggioTestWidget(
+              configuration: config,
+              onConfigurationChanged: (c) => captured = c,
+            ),
+          );
 
-        final checkbox = tester.widget<CheckboxListTile>(
-          find.byType(CheckboxListTile),
-        );
-        checkbox.onChanged!(true);
-        await tester.pumpAndSettle();
+          final checkbox = tester.widget<CheckboxListTile>(
+            find.byType(CheckboxListTile),
+          );
+          checkbox.onChanged!(true);
+          await tester.pumpAndSettle();
 
-        expect(captured?.includeLeftHandRoot, isTrue);
-      });
+          expect(captured?.includeLeftHandRoot, isTrue);
+        },
+      );
     });
 
     group("Practice mode dropdown", () {

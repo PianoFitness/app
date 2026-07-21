@@ -45,7 +45,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration {
@@ -83,6 +83,21 @@ class AppDatabase extends _$AppDatabase {
           await m.addColumn(
             schema.exerciseHistoryTable,
             schema.exerciseHistoryTable.includeLeftHandRoot,
+          );
+        },
+        from4To5: (m, schema) async {
+          // Add accuracy metrics for version 5.
+          await m.addColumn(
+            schema.exerciseHistoryTable,
+            schema.exerciseHistoryTable.accuracyPercentage,
+          );
+          await m.addColumn(
+            schema.exerciseHistoryTable,
+            schema.exerciseHistoryTable.correctNoteCount,
+          );
+          await m.addColumn(
+            schema.exerciseHistoryTable,
+            schema.exerciseHistoryTable.errorCount,
           );
         },
       ),

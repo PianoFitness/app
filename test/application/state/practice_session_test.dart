@@ -7,6 +7,7 @@ import "package:flutter_test/flutter_test.dart";
 
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/application/state/practice_session.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/circle_of_fifths.dart";
@@ -25,7 +26,7 @@ void main() {
       exerciseCompletionCount = 0;
 
       practiceSession = PracticeSession(
-        onExerciseCompleted: () {
+        onExerciseCompleted: (a, b, c) {
           exerciseCompletionCount++;
         },
         onHighlightedNotesChanged: (notes) {
@@ -40,8 +41,12 @@ void main() {
       });
 
       test("completing exercise does not change key when disabled", () {
-        practiceSession.setPracticeMode(PracticeMode.scales);
-        practiceSession.setSelectedKey(music.Key.c);
+        practiceSession.updateConfiguration(
+          practiceSession.config.withMode(PracticeMode.scales),
+        );
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(key: const Field.set(music.Key.c)),
+        );
         expect(practiceSession.selectedKey, equals(music.Key.c));
 
         // Complete exercise with auto-progression disabled
@@ -73,8 +78,12 @@ void main() {
       });
 
       test("scales mode progresses through circle of fifths", () {
-        practiceSession.setPracticeMode(PracticeMode.scales);
-        practiceSession.setSelectedKey(music.Key.c);
+        practiceSession.updateConfiguration(
+          practiceSession.config.withMode(PracticeMode.scales),
+        );
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(key: const Field.set(music.Key.c)),
+        );
 
         // Complete first exercise - should progress to G
         practiceSession.triggerCompletionForTesting();
@@ -90,8 +99,12 @@ void main() {
       });
 
       test("chords by key mode progresses through circle of fifths", () {
-        practiceSession.setPracticeMode(PracticeMode.chordsByKey);
-        practiceSession.setSelectedKey(music.Key.e);
+        practiceSession.updateConfiguration(
+          practiceSession.config.withMode(PracticeMode.chordsByKey),
+        );
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(key: const Field.set(music.Key.e)),
+        );
 
         // Complete exercise - should progress from E to B
         practiceSession.triggerCompletionForTesting();
@@ -103,8 +116,12 @@ void main() {
       });
 
       test("chord progressions mode progresses through circle of fifths", () {
-        practiceSession.setPracticeMode(PracticeMode.chordProgressions);
-        practiceSession.setSelectedKey(music.Key.f);
+        practiceSession.updateConfiguration(
+          practiceSession.config.withMode(PracticeMode.chordProgressions),
+        );
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(key: const Field.set(music.Key.f)),
+        );
 
         // Complete exercise - should progress from F to C (wraps around)
         practiceSession.triggerCompletionForTesting();
@@ -116,10 +133,22 @@ void main() {
       });
 
       test("arpeggios mode progresses root note through circle of fifths", () {
-        practiceSession.setPracticeMode(PracticeMode.arpeggios);
-        practiceSession.setSelectedKey(music.Key.c);
-        practiceSession.setSelectedRootNote(MusicalNote.c);
-        practiceSession.setSelectedArpeggioType(ArpeggioType.major);
+        practiceSession.updateConfiguration(
+          practiceSession.config.withMode(PracticeMode.arpeggios),
+        );
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(key: const Field.set(music.Key.c)),
+        );
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(
+            musicalNote: const Field.set(MusicalNote.c),
+          ),
+        );
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(
+            arpeggioType: const Field.set(ArpeggioType.major),
+          ),
+        );
 
         // Verify initial state
         expect(practiceSession.selectedKey, equals(music.Key.c));
@@ -142,8 +171,12 @@ void main() {
       });
 
       test("wraps around from F to C", () {
-        practiceSession.setPracticeMode(PracticeMode.scales);
-        practiceSession.setSelectedKey(music.Key.f);
+        practiceSession.updateConfiguration(
+          practiceSession.config.withMode(PracticeMode.scales),
+        );
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(key: const Field.set(music.Key.f)),
+        );
 
         // Complete exercise - should wrap around to C
         practiceSession.triggerCompletionForTesting();
@@ -151,8 +184,12 @@ void main() {
       });
 
       test("progresses through all 12 keys and returns to start", () {
-        practiceSession.setPracticeMode(PracticeMode.scales);
-        practiceSession.setSelectedKey(music.Key.c);
+        practiceSession.updateConfiguration(
+          practiceSession.config.withMode(PracticeMode.scales),
+        );
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(key: const Field.set(music.Key.c)),
+        );
 
         final keysVisited = <music.Key>[music.Key.c];
 
@@ -176,8 +213,12 @@ void main() {
       });
 
       test("triggers onExerciseCompleted callback on each completion", () {
-        practiceSession.setPracticeMode(PracticeMode.scales);
-        practiceSession.setSelectedKey(music.Key.c);
+        practiceSession.updateConfiguration(
+          practiceSession.config.withMode(PracticeMode.scales),
+        );
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(key: const Field.set(music.Key.c)),
+        );
 
         expect(exerciseCompletionCount, equals(0));
 
@@ -195,16 +236,22 @@ void main() {
     group("Manual key change with auto progression enabled", () {
       setUp(() {
         practiceSession.setAutoKeyProgression(true);
-        practiceSession.setPracticeMode(PracticeMode.scales);
+        practiceSession.updateConfiguration(
+          practiceSession.config.withMode(PracticeMode.scales),
+        );
       });
 
       test("progression starts from manually selected key", () {
         // Start at C
-        practiceSession.setSelectedKey(music.Key.c);
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(key: const Field.set(music.Key.c)),
+        );
         expect(practiceSession.selectedKey, equals(music.Key.c));
 
         // Manually change to E
-        practiceSession.setSelectedKey(music.Key.e);
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(key: const Field.set(music.Key.e)),
+        );
         expect(practiceSession.selectedKey, equals(music.Key.e));
 
         // Complete exercise - should progress from E to B
@@ -217,7 +264,9 @@ void main() {
       });
 
       test("can jump to any key mid-progression", () {
-        practiceSession.setSelectedKey(music.Key.c);
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(key: const Field.set(music.Key.c)),
+        );
 
         // Progress a few times
         practiceSession.triggerCompletionForTesting(); // C → G
@@ -225,7 +274,11 @@ void main() {
         expect(practiceSession.selectedKey, equals(music.Key.d));
 
         // Manually jump to A♯
-        practiceSession.setSelectedKey(music.Key.aSharp);
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(
+            key: const Field.set(music.Key.aSharp),
+          ),
+        );
         expect(practiceSession.selectedKey, equals(music.Key.aSharp));
 
         // Progression should continue from A♯
@@ -239,8 +292,12 @@ void main() {
 
     group("Toggling auto progression mid-session", () {
       test("disabling stops progression", () {
-        practiceSession.setPracticeMode(PracticeMode.scales);
-        practiceSession.setSelectedKey(music.Key.c);
+        practiceSession.updateConfiguration(
+          practiceSession.config.withMode(PracticeMode.scales),
+        );
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(key: const Field.set(music.Key.c)),
+        );
         practiceSession.setAutoKeyProgression(true);
 
         // Complete with auto-progression enabled
@@ -259,8 +316,12 @@ void main() {
       });
 
       test("re-enabling resumes progression from current key", () {
-        practiceSession.setPracticeMode(PracticeMode.scales);
-        practiceSession.setSelectedKey(music.Key.c);
+        practiceSession.updateConfiguration(
+          practiceSession.config.withMode(PracticeMode.scales),
+        );
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(key: const Field.set(music.Key.c)),
+        );
         practiceSession.setAutoKeyProgression(true);
 
         // Progress to D
@@ -283,12 +344,20 @@ void main() {
     group("Auto progression with different scale types", () {
       setUp(() {
         practiceSession.setAutoKeyProgression(true);
-        practiceSession.setPracticeMode(PracticeMode.scales);
+        practiceSession.updateConfiguration(
+          practiceSession.config.withMode(PracticeMode.scales),
+        );
       });
 
       test("major scales progress through all keys", () {
-        practiceSession.setSelectedKey(music.Key.c);
-        practiceSession.setSelectedScaleType(music.ScaleType.major);
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(key: const Field.set(music.Key.c)),
+        );
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(
+            scaleType: const Field.set(music.ScaleType.major),
+          ),
+        );
 
         practiceSession.triggerCompletionForTesting();
         expect(practiceSession.selectedKey, equals(music.Key.g));
@@ -299,8 +368,14 @@ void main() {
       });
 
       test("minor scales progress through all keys", () {
-        practiceSession.setSelectedKey(music.Key.a);
-        practiceSession.setSelectedScaleType(music.ScaleType.minor);
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(key: const Field.set(music.Key.a)),
+        );
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(
+            scaleType: const Field.set(music.ScaleType.minor),
+          ),
+        );
 
         practiceSession.triggerCompletionForTesting();
         expect(practiceSession.selectedKey, equals(music.Key.e));
@@ -311,8 +386,14 @@ void main() {
       });
 
       test("modal scales progress through all keys", () {
-        practiceSession.setSelectedKey(music.Key.d);
-        practiceSession.setSelectedScaleType(music.ScaleType.dorian);
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(key: const Field.set(music.Key.d)),
+        );
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(
+            scaleType: const Field.set(music.ScaleType.dorian),
+          ),
+        );
 
         practiceSession.triggerCompletionForTesting();
         expect(practiceSession.selectedKey, equals(music.Key.a));
@@ -324,10 +405,22 @@ void main() {
 
       test("arpeggios preserve type while progressing through keys", () {
         practiceSession.setAutoKeyProgression(true);
-        practiceSession.setPracticeMode(PracticeMode.arpeggios);
-        practiceSession.setSelectedKey(music.Key.c);
-        practiceSession.setSelectedRootNote(MusicalNote.c);
-        practiceSession.setSelectedArpeggioType(ArpeggioType.minor);
+        practiceSession.updateConfiguration(
+          practiceSession.config.withMode(PracticeMode.arpeggios),
+        );
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(key: const Field.set(music.Key.c)),
+        );
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(
+            musicalNote: const Field.set(MusicalNote.c),
+          ),
+        );
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(
+            arpeggioType: const Field.set(ArpeggioType.minor),
+          ),
+        );
 
         // Progress through multiple keys
         practiceSession.triggerCompletionForTesting();
@@ -348,9 +441,13 @@ void main() {
 
     group("Edge cases and state management", () {
       test("practiceActive is reset after progression", () {
-        practiceSession.setPracticeMode(PracticeMode.scales);
+        practiceSession.updateConfiguration(
+          practiceSession.config.withMode(PracticeMode.scales),
+        );
         practiceSession.setAutoKeyProgression(true);
-        practiceSession.setSelectedKey(music.Key.c);
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(key: const Field.set(music.Key.c)),
+        );
 
         // Start practice
         practiceSession.startPractice();
@@ -364,9 +461,13 @@ void main() {
       });
 
       test("currentExercise is regenerated after progression", () {
-        practiceSession.setPracticeMode(PracticeMode.scales);
+        practiceSession.updateConfiguration(
+          practiceSession.config.withMode(PracticeMode.scales),
+        );
         practiceSession.setAutoKeyProgression(true);
-        practiceSession.setSelectedKey(music.Key.c);
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(key: const Field.set(music.Key.c)),
+        );
 
         final exerciseBefore = practiceSession.currentExercise;
         expect(exerciseBefore, isNotNull);
@@ -383,9 +484,13 @@ void main() {
       });
 
       test("highlighted notes are updated after progression", () {
-        practiceSession.setPracticeMode(PracticeMode.scales);
+        practiceSession.updateConfiguration(
+          practiceSession.config.withMode(PracticeMode.scales),
+        );
         practiceSession.setAutoKeyProgression(true);
-        practiceSession.setSelectedKey(music.Key.c);
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(key: const Field.set(music.Key.c)),
+        );
 
         // Start practice to get initial highlights
         practiceSession.startPractice();
@@ -407,8 +512,12 @@ void main() {
 
     group("Unified step evaluation", () {
       test("unexpected held pitch blocks a singleton step", () {
-        practiceSession.setPracticeMode(PracticeMode.scales);
-        practiceSession.setSelectedHandSelection(HandSelection.right);
+        practiceSession.updateConfiguration(
+          practiceSession.config.withMode(PracticeMode.scales),
+        );
+        practiceSession.updateConfiguration(
+          practiceSession.config.copyWith(handSelection: HandSelection.right),
+        );
         final expectedNote = practiceSession.currentStep!.midiNotes.single;
 
         practiceSession.handleNotePressed(1);
@@ -422,7 +531,9 @@ void main() {
       });
 
       test("hands-together step advances on exact pitch-set equality", () {
-        practiceSession.setPracticeMode(PracticeMode.scales);
+        practiceSession.updateConfiguration(
+          practiceSession.config.withMode(PracticeMode.scales),
+        );
         final expectedNotes = practiceSession.currentStep!.midiNotes;
         expect(expectedNotes, hasLength(2));
 
@@ -438,7 +549,9 @@ void main() {
       });
 
       test("blocked chord uses the same exact pitch-set rule", () {
-        practiceSession.setPracticeMode(PracticeMode.chordsByKey);
+        practiceSession.updateConfiguration(
+          practiceSession.config.withMode(PracticeMode.chordsByKey),
+        );
         final expectedNotes = practiceSession.currentStep!.midiNotes;
         expect(expectedNotes.length, greaterThan(2));
 

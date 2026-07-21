@@ -98,22 +98,23 @@ void main() {
 
     group("hitTest", () {
       test("resolves a white-key-only point to the white key", () {
-        final layout = layoutFor(
-          const MidiNoteRange(fromMidi: 60, toMidi: 72),
-        );
+        final layout = layoutFor(const MidiNoteRange(fromMidi: 60, toMidi: 72));
         // C4 is the first white key; well below the black-key overlap band.
         final midi = layout.hitTest(const Offset(10, 110));
         expect(midi, 60);
       });
 
-      test("resolves a point within the black-key overlap band to the black key", () {
-        final layout = layoutFor(
-          const MidiNoteRange(fromMidi: 60, toMidi: 72),
-        );
-        final blackKey = layout.blackKeys.firstWhere((k) => k.midiNote == 61);
-        final midi = layout.hitTest(blackKey.rect.center);
-        expect(midi, 61);
-      });
+      test(
+        "resolves a point within the black-key overlap band to the black key",
+        () {
+          final layout = layoutFor(
+            const MidiNoteRange(fromMidi: 60, toMidi: 72),
+          );
+          final blackKey = layout.blackKeys.firstWhere((k) => k.midiNote == 61);
+          final midi = layout.hitTest(blackKey.rect.center);
+          expect(midi, 61);
+        },
+      );
 
       test(
         "falls through to the white key below the black-key overlap band",
@@ -121,9 +122,7 @@ void main() {
           final layout = layoutFor(
             const MidiNoteRange(fromMidi: 60, toMidi: 72),
           );
-          final blackKey = layout.blackKeys.firstWhere(
-            (k) => k.midiNote == 61,
-          );
+          final blackKey = layout.blackKeys.firstWhere((k) => k.midiNote == 61);
           // Same x as the black key, but below its bottom edge.
           final belowBlackKey = Offset(
             blackKey.rect.center.dx,
@@ -138,9 +137,7 @@ void main() {
       );
 
       test("returns null outside the keyboard bounds", () {
-        final layout = layoutFor(
-          const MidiNoteRange(fromMidi: 60, toMidi: 72),
-        );
+        final layout = layoutFor(const MidiNoteRange(fromMidi: 60, toMidi: 72));
         expect(layout.hitTest(const Offset(-10, 10)), isNull);
         expect(layout.hitTest(Offset(layout.totalWidth + 10, 10)), isNull);
         expect(layout.hitTest(const Offset(10, 500)), isNull);

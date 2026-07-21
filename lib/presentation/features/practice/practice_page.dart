@@ -101,7 +101,11 @@ class _PracticePageViewState extends State<_PracticePageView> {
     });
   }
 
-  void _completeExercise() {
+  void _completeExercise(
+    double? accuracyPercentage,
+    int? correctNoteCount,
+    int? errorCount,
+  ) {
     // Use a custom overlay approach to show completion message at top
     final overlay = Overlay.of(context);
     late OverlayEntry overlayEntry;
@@ -135,7 +139,9 @@ class _PracticePageViewState extends State<_PracticePageView> {
                 ),
                 const SizedBox(width: Spacing.sm),
                 Text(
-                  "Exercise completed! Well done!",
+                  accuracyPercentage != null
+                      ? "Exercise completed! ${accuracyPercentage.toStringAsFixed(0)}% accuracy"
+                      : "Exercise completed! Well done!",
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onPrimary,
                     fontWeight: FontWeight.w500,
@@ -277,15 +283,37 @@ class _PracticePageViewState extends State<_PracticePageView> {
             keyCount: whiteKeyCount,
           );
           final colorScheme = Theme.of(context).colorScheme;
-          final keyVisuals = ValueNotifier<Map<int, PianoKeyVisual>>({
-            for (var i = 0; i < highlightedNotes.length; i++)
-              highlightedNotes[i]: PianoKeyVisual(
-                fill: colorScheme.primary,
-                label: fingers != null && i < fingers.length
-                    ? fingers[i]?.toString()
-                    : null,
-              ),
-          });
+          final correctHeldNotes = viewModel.correctHeldNotes;
+          final wrongHeldNotes = viewModel.wrongHeldNotes;
+          final keyVisualsMap = <int, PianoKeyVisual>{};
+
+          // First, add target notes (highlighted)
+          for (var i = 0; i < highlightedNotes.length; i++) {
+            final note = highlightedNotes[i];
+            keyVisualsMap[note] = PianoKeyVisual(
+              fill: colorScheme.primary,
+              label: fingers != null && i < fingers.length
+                  ? fingers[i]?.toString()
+                  : null,
+            );
+          }
+
+          // Then, overwrite with held note coloring (blue for correct, red for wrong)
+          for (final note in correctHeldNotes) {
+            keyVisualsMap[note] =
+                keyVisualsMap[note]?.copyWith(fill: Colors.blue) ??
+                PianoKeyVisual(fill: Colors.blue);
+          }
+
+          for (final note in wrongHeldNotes) {
+            keyVisualsMap[note] =
+                keyVisualsMap[note]?.copyWith(fill: Colors.red) ??
+                PianoKeyVisual(fill: Colors.red);
+          }
+
+          final keyVisuals = ValueNotifier<Map<int, PianoKeyVisual>>(
+            keyVisualsMap,
+          );
 
           return PianoAccessibilityUtils.createAccessiblePianoWrapper(
             highlightedMidiNotes: highlightedNotes,

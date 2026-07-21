@@ -154,7 +154,9 @@ void main() {
             [1, 3, 5, 1, 3, 5, 3, 1, 5, 3, 1],
           );
           expect(
-            exercise.steps.every((s) => s.notes.single.hand == PracticeHand.right),
+            exercise.steps.every(
+              (s) => s.notes.single.hand == PracticeHand.right,
+            ),
             isTrue,
           );
         },
@@ -245,7 +247,9 @@ void main() {
         final exercise = strategy.initializeExercise();
 
         for (final step in exercise.steps) {
-          final left = step.notes.firstWhere((n) => n.hand == PracticeHand.left);
+          final left = step.notes.firstWhere(
+            (n) => n.hand == PracticeHand.left,
+          );
           final right = step.notes.firstWhere(
             (n) => n.hand == PracticeHand.right,
           );

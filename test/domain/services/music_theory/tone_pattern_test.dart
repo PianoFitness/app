@@ -14,10 +14,7 @@ List<int> _flatten(List<PatternToken> tokens) {
 void main() {
   group("TonePattern.parse", () {
     test("parses a rolling broken pattern string", () {
-      final tokens = TonePattern.parse(
-        "1,2,3,2,3,4,3,4,5,4,5,6",
-        n: 3,
-      );
+      final tokens = TonePattern.parse("1,2,3,2,3,4,3,4,5,4,5,6", n: 3);
       expect(_flatten(tokens), [1, 2, 3, 2, 3, 4, 3, 4, 5, 4, 5, 6]);
     });
 
@@ -235,10 +232,14 @@ void main() {
         defaultHand: PracticeHand.right,
       );
 
-      expect(
-        steps.map((s) => s.notes.single.pitch.value).toList(),
-        [48, 52, 55, 52, 55, 60],
-      );
+      expect(steps.map((s) => s.notes.single.pitch.value).toList(), [
+        48,
+        52,
+        55,
+        52,
+        55,
+        60,
+      ]);
       for (final step in steps) {
         expect(step.notes.single.hand, PracticeHand.right);
       }

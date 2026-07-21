@@ -534,7 +534,10 @@ class _PianoKeyboardPainter extends CustomPainter {
     required double fontSize,
   }) {
     final textPainter = TextPainter(
-      text: TextSpan(text: text, style: TextStyle(color: color, fontSize: fontSize)),
+      text: TextSpan(
+        text: text,
+        style: TextStyle(color: color, fontSize: fontSize),
+      ),
       textDirection: TextDirection.ltr,
       maxLines: 1,
       ellipsis: "…",
