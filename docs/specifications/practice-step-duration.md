@@ -1,6 +1,6 @@
 # PracticeStep Duration Addendum (MVP)
 
-**Suggested repository path:** `docs/specifications/practice-step-duration-addendum.md`
+**Suggested repository path:** `docs/specifications/practice-step-duration.md`
 **Status:** Proposed
 **Depends on:** `exercise-tempo-calculation.md`
 **Informs:** `skill-progression.md`
