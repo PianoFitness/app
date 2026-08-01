@@ -101,17 +101,19 @@ void main() {
         mockNotificationRepository.scheduleDailyNotification(
           title: "Time to Practice Piano! 🎹",
           body: "Ready to make some music? Your daily practice session awaits.",
-          scheduledTime: captureAnyNamed('scheduledTime'),
+          scheduledTime: captureAnyNamed("scheduledTime"),
         ),
       ).called(1);
       // Capture the scheduled time and assert hour/minute are 9:30
-      final capturedTime = verify(
-        mockNotificationRepository.scheduleDailyNotification(
-          title: anyNamed('title'),
-          body: anyNamed('body'),
-          scheduledTime: captureAnyNamed('scheduledTime'),
-        ),
-      ).captured.first as DateTime;
+      final capturedTime =
+          verify(
+                mockNotificationRepository.scheduleDailyNotification(
+                  title: anyNamed("title"),
+                  body: anyNamed("body"),
+                  scheduledTime: captureAnyNamed("scheduledTime"),
+                ),
+              ).captured.first
+              as DateTime;
       expect(capturedTime.hour, equals(9));
       expect(capturedTime.minute, equals(30));
     });
@@ -140,18 +142,20 @@ void main() {
 
         verify(
           mockNotificationRepository.scheduleDailyNotification(
-            title: anyNamed('title'),
-            body: anyNamed('body'),
-            scheduledTime: captureAnyNamed('scheduledTime'),
+            title: anyNamed("title"),
+            body: anyNamed("body"),
+            scheduledTime: captureAnyNamed("scheduledTime"),
           ),
         ).called(1);
-        final capturedNewTime = verify(
-          mockNotificationRepository.scheduleDailyNotification(
-            title: anyNamed('title'),
-            body: anyNamed('body'),
-            scheduledTime: captureAnyNamed('scheduledTime'),
-          ),
-        ).captured.first as DateTime;
+        final capturedNewTime =
+            verify(
+                  mockNotificationRepository.scheduleDailyNotification(
+                    title: anyNamed("title"),
+                    body: anyNamed("body"),
+                    scheduledTime: captureAnyNamed("scheduledTime"),
+                  ),
+                ).captured.first
+                as DateTime;
         expect(capturedNewTime.hour, equals(10));
         expect(capturedNewTime.minute, equals(15));
       },
