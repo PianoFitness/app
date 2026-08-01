@@ -61,7 +61,7 @@ class PracticeStep {
 }
 ```
 
-Update the model's equality, `copyWith`, JSON conversion, and test fixtures accordingly. Existing strategy code may remain unchanged because it receives the quarter-note default. Strategies for chord-progressions should explicitly emit `noteValue: PracticeStepNoteValue.whole` where the intended rhythm is one chord per whole note. Other values are opt-in per exercise definition.
+Update the model's equality, `copyWith`, JSON conversion, and test fixtures accordingly. Strategies for chord-progressions should explicitly emit `noteValue: PracticeStepNoteValue.whole` where the intended rhythm is one chord per whole note. Scale steps should explicitly emit `PracticeStepNoteValue.eighth` when each note is played as an eighth note. Other values are opt-in per exercise definition.
 
 ## JSON and backward compatibility
 
@@ -122,7 +122,7 @@ Add focused tests for:
 2. JSON without `noteValue` deserializes to `quarter`.
 3. JSON round-trips every supported value and newly serialized steps include it.
 4. Conversion helpers return 4, 2, 1, 0.5, and 0.25 quarter-note beats.
-5. Existing generators retain quarter-note steps without source changes.
+5. Existing generators retain quarter-note steps unless their intended rhythm is explicitly defined.
 6. A chord-progression generator can deliberately emit whole-note steps.
 7. Tempo conversion reports the same 120 BPM for the three examples above.
 8. Mixed-note-value exercises return no tempo BPM and the `unavailable` quality; they do not fail exercise completion.
@@ -143,6 +143,6 @@ Add focused tests for:
 1. Add `PracticeStepNoteValue`, the `PracticeStep.noteValue` default, serialization support, and model tests.
 2. Add `PracticeExercise.uniformTempoNoteValue` and make the tempo tracker consume it for BPM conversion; persist the value with tempo results.
 3. Mark mixed-duration exercises as tempo `unavailable` and cover the behaviour with tests.
-4. Update intended chord-progression exercise definitions to explicitly use `whole`; leave all other generators unchanged until their rhythm is intentionally defined.
+4. Update intended chord-progression exercise definitions to explicitly use `whole`, and scale definitions to explicitly use `eighth`; leave other generators unchanged until their rhythm is intentionally defined.
 
 This keeps the change small: the existing `PracticeExercise`/`PracticeStep` pipeline remains the execution engine, while rhythm metadata provides the interpretation needed for tempo recording and later skill proficiency.

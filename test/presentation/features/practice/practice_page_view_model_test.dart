@@ -118,6 +118,31 @@ void main() {
       expect(viewModel.practiceSession!.practiceActive, isFalse);
     });
 
+    test("uses an exact initial configuration over the initial mode", () {
+      const configuration = ExerciseConfiguration(
+        practiceMode: PracticeMode.dominantCadence,
+        handSelection: HandSelection.right,
+        key: music.Key.d,
+      );
+
+      viewModel.initializePracticeSession(
+        onExerciseCompleted: (_) {},
+        onHighlightedNotesChanged: (_) {},
+        initialMode: PracticeMode.chordsByKey,
+        initialConfiguration: configuration,
+      );
+
+      expect(
+        viewModel.currentConfiguration!.practiceMode,
+        PracticeMode.dominantCadence,
+      );
+      expect(
+        viewModel.currentConfiguration!.handSelection,
+        HandSelection.right,
+      );
+      expect(viewModel.currentConfiguration!.key, music.Key.d);
+    });
+
     test("should handle MIDI data and update state for note on events", () {
       final midiData = Uint8List.fromList([0x90, 60, 100]);
 
@@ -845,7 +870,7 @@ void main() {
             entry.tempoMeasurementVersion,
             TempoMeasurementVersions.current,
           );
-          expect(entry.tempoStepNoteValue, PracticeStepNoteValue.quarter);
+          expect(entry.tempoStepNoteValue, PracticeStepNoteValue.eighth);
         },
       );
 

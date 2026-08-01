@@ -2,11 +2,46 @@ import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise.dart";
 import "package:piano_fitness/domain/models/practice/strategies/scales_strategy.dart";
+import "package:piano_fitness/domain/services/practice/exercise_tempo_calculator.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;
 
 void main() {
   group("ScalesStrategy", () {
+    test("defines each scale onset as an eighth note", () {
+      final exercise = ScalesStrategy(
+        key: music.Key.c,
+        scaleType: music.ScaleType.major,
+        handSelection: HandSelection.right,
+        startOctave: 4,
+      ).initializeExercise();
+
+      expect(
+        exercise.steps.map((step) => step.noteValue),
+        everyElement(PracticeStepNoteValue.eighth),
+      );
+    });
+
+    test("converts eighth-note scale onsets to quarter-note BPM", () {
+      final exercise = ScalesStrategy(
+        key: music.Key.c,
+        scaleType: music.ScaleType.major,
+        handSelection: HandSelection.right,
+        startOctave: 4,
+      ).initializeExercise();
+      final onsets = List.generate(
+        exercise.length,
+        (index) => Duration(microseconds: index * 214286),
+      );
+
+      final tempo = ExerciseTempoCalculator.calculate(
+        onsets,
+        noteValue: exercise.uniformTempoNoteValue!,
+      );
+
+      expect(tempo.measuredTempoBpm, closeTo(140, 0.01));
+    });
+
     test("should initialize C major scale sequence for both hands", () {
       final strategy = ScalesStrategy(
         key: music.Key.c,

@@ -72,6 +72,7 @@ class ScalesStrategy implements PracticeStrategy {
           final degree = (i ~/ 2) + 1;
           steps.add(
             PracticeStep(
+              noteValue: PracticeStepNoteValue.eighth,
               notes: [
                 PracticeNote(
                   pitch: MidiNote(sequence[i]),
@@ -104,6 +105,7 @@ class ScalesStrategy implements PracticeStrategy {
             : "Right";
         steps.add(
           PracticeStep(
+            noteValue: PracticeStepNoteValue.eighth,
             notes: [
               PracticeNote(
                 pitch: MidiNote(sequence[i]),

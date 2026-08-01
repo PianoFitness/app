@@ -90,6 +90,7 @@ class PracticePageViewModel extends ChangeNotifier {
     required void Function(List<int> midiNotes) onHighlightedNotesChanged,
     PracticeMode initialMode = PracticeMode.scales,
     ChordProgression? initialChordProgression,
+    ExerciseConfiguration? initialConfiguration,
   }) {
     _practiceSession = PracticeSession(
       onExerciseCompleted: (result) {
@@ -105,6 +106,12 @@ class PracticePageViewModel extends ChangeNotifier {
         notifyListeners();
       },
     );
+    if (initialConfiguration != null) {
+      initialConfiguration.validate();
+      _practiceSession!.updateConfiguration(initialConfiguration);
+      return;
+    }
+
     var config = _practiceSession!.config.withMode(initialMode);
     if (initialChordProgression != null) {
       config = config.copyWith(

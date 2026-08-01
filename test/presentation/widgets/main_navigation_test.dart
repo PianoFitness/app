@@ -28,6 +28,7 @@ Future<void> navigateToTab(WidgetTester tester, Key tabKey) async {
 const List<String> _pageTitlesForTest = [
   "Free Play",
   "Practice",
+  "Technique Tree",
   "Reference",
   "Repertoire",
   "History",
@@ -72,6 +73,7 @@ void main() {
       // Verify bottom navigation bar and its items using stable key
       expect(find.byKey(const Key("bottom_navigation_bar")), findsOneWidget);
       expect(find.text("Practice"), findsWidgets);
+      expect(find.text("Technique Tree"), findsWidgets);
       expect(find.text("Reference"), findsWidgets);
       expect(find.text("Repertoire"), findsWidgets);
     });
@@ -89,11 +91,18 @@ void main() {
       expect(find.text("Practice"), findsWidgets);
       expect(find.byIcon(Icons.school), findsWidgets);
 
+      // Navigate to Technique Tree using stable key
+      await navigateToTab(tester, const Key("nav_tab_technique_tree"));
+
+      expectTabActive(tester, 2);
+      expect(find.text("Technique Tree"), findsWidgets);
+      expect(find.byIcon(Icons.account_tree_outlined), findsWidgets);
+
       // Navigate to Reference tab using stable key
       await navigateToTab(tester, const Key("nav_tab_reference"));
 
       // Verify page switched to Reference
-      expectTabActive(tester, 2);
+      expectTabActive(tester, 3);
       expect(find.text("Reference"), findsWidgets);
       expect(find.byIcon(Icons.library_books), findsWidgets);
 
@@ -101,7 +110,7 @@ void main() {
       await navigateToTab(tester, const Key("nav_tab_repertoire"));
 
       // Verify page switched to Repertoire
-      expectTabActive(tester, 3);
+      expectTabActive(tester, 4);
       expect(find.text("Repertoire"), findsWidgets);
       expect(find.byIcon(Icons.library_music), findsWidgets);
 
@@ -182,6 +191,7 @@ void main() {
 
           final tabKeys = [
             const Key("nav_tab_practice"),
+            const Key("nav_tab_technique_tree"),
             const Key("nav_tab_reference"),
             const Key("nav_tab_repertoire"),
           ];
@@ -329,7 +339,7 @@ void main() {
         await navigateToTab(tester, const Key("nav_tab_reference"));
 
         // Verify state updated
-        expectTabActive(tester, 2);
+        expectTabActive(tester, 3);
       });
 
       testWidgets("should use IndexedStack to preserve page state", (
@@ -352,14 +362,14 @@ void main() {
           find.byType(IndexedStack),
         );
         expect(indexedStack.index, equals(0));
-        expect(indexedStack.children.length, equals(5));
+        expect(indexedStack.children.length, equals(6));
 
         // Navigate to History tab and verify IndexedStack index updates
         await navigateToTab(tester, const Key("nav_tab_history"));
         final historyStack = tester.widget<IndexedStack>(
           find.byType(IndexedStack),
         );
-        expect(historyStack.index, equals(4));
+        expect(historyStack.index, equals(5));
       });
     });
 
