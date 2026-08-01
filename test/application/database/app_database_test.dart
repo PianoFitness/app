@@ -28,9 +28,9 @@ void main() {
       expect(db, isA<AppDatabase>());
     });
 
-    test("schemaVersion is 6", () {
-      // Schema version 6 adds nullable performed-tempo evidence columns.
-      expect(db.schemaVersion, 6);
+    test("schemaVersion is 7", () {
+      // Schema version 7 adds the tempo step note value column.
+      expect(db.schemaVersion, 7);
     });
 
     test("opens and closes without error", () async {

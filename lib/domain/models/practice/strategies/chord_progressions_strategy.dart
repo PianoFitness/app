@@ -47,6 +47,7 @@ class ChordProgressionsStrategy implements PracticeStrategy {
       steps.add(
         PracticeStep(
           notes: chordNotes.toPracticeNotes(handSelection: handSelection),
+          noteValue: PracticeStepNoteValue.whole,
           metadata: {
             "chordName": chord.name,
             "rootNote": chord.rootNote.name,

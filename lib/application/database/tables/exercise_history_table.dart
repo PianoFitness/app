@@ -116,6 +116,10 @@ class ExerciseHistoryTable extends Table {
   /// legacy rows and independent of the database schema version.
   IntColumn get tempoMeasurementVersion => integer().nullable()();
 
+  /// Uniform step note value used to convert the measured tempo to
+  /// quarter-note BPM; null for rows recorded before rhythmic metadata.
+  TextColumn get tempoStepNoteValue => text().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }

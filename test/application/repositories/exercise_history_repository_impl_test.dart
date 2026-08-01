@@ -7,6 +7,7 @@ import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/exercise_history_entry.dart";
 import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart";
+import "package:piano_fitness/domain/models/practice/practice_step_note_value.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
 import "package:shared_preferences/shared_preferences.dart";
@@ -50,6 +51,7 @@ void main() {
     int? tempoIntervalCount,
     TempoMeasurementQuality? tempoMeasurementQuality,
     int? tempoMeasurementVersion,
+    PracticeStepNoteValue? tempoStepNoteValue,
   }) {
     return ExerciseHistoryEntry.fromConfiguration(
       id: id,
@@ -74,6 +76,7 @@ void main() {
       tempoIntervalCount: tempoIntervalCount,
       tempoMeasurementQuality: tempoMeasurementQuality,
       tempoMeasurementVersion: tempoMeasurementVersion,
+      tempoStepNoteValue: tempoStepNoteValue,
     );
   }
 
@@ -117,7 +120,8 @@ void main() {
         tempoCoefficientOfVariation: 0.0025,
         tempoIntervalCount: 8,
         tempoMeasurementQuality: TempoMeasurementQuality.reliable,
-        tempoMeasurementVersion: 1,
+        tempoMeasurementVersion: 2,
+        tempoStepNoteValue: PracticeStepNoteValue.whole,
       );
       await repository.saveEntry(entry);
 
@@ -130,7 +134,8 @@ void main() {
       expect(result.tempoCoefficientOfVariation, 0.0025);
       expect(result.tempoIntervalCount, 8);
       expect(result.tempoMeasurementQuality, TempoMeasurementQuality.reliable);
-      expect(result.tempoMeasurementVersion, 1);
+      expect(result.tempoMeasurementVersion, 2);
+      expect(result.tempoStepNoteValue, PracticeStepNoteValue.whole);
     });
 
     test("should rethrow on duplicate id", () async {

@@ -1,15 +1,20 @@
 import "dart:math";
 
 import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart";
+import "package:piano_fitness/domain/models/practice/practice_step_note_value.dart";
 
 /// Pure performed-tempo calculation for one completed exercise attempt.
 abstract final class ExerciseTempoCalculator {
-  static ExerciseTempoResult calculate(List<Duration> orderedOnsets) {
+  static ExerciseTempoResult calculate(
+    List<Duration> orderedOnsets, {
+    required PracticeStepNoteValue noteValue,
+  }) {
     final intervalCount = max(orderedOnsets.length - 1, 0);
     if (orderedOnsets.length < 2) {
       return ExerciseTempoResult(
         quality: TempoMeasurementQuality.insufficientData,
         intervalCount: intervalCount,
+        tempoStepNoteValue: noteValue,
       );
     }
 
@@ -48,6 +53,7 @@ abstract final class ExerciseTempoCalculator {
         meanInterOnsetMicroseconds: meanMicroseconds,
         interOnsetStandardDeviationMicroseconds: standardDeviationMicroseconds,
         coefficientOfVariation: coefficientOfVariation,
+        tempoStepNoteValue: noteValue,
       );
     }
 
@@ -59,16 +65,18 @@ abstract final class ExerciseTempoCalculator {
         meanInterOnsetMicroseconds: meanMicroseconds,
         interOnsetStandardDeviationMicroseconds: standardDeviationMicroseconds,
         coefficientOfVariation: coefficientOfVariation,
+        tempoStepNoteValue: noteValue,
       );
     }
 
     return ExerciseTempoResult(
       quality: TempoMeasurementQuality.reliable,
       intervalCount: intervals.length,
-      measuredTempoBpm: 60000000 / mean,
+      measuredTempoBpm: 60000000 * noteValue.quarterNoteBeats / mean,
       meanInterOnsetMicroseconds: meanMicroseconds,
       interOnsetStandardDeviationMicroseconds: standardDeviationMicroseconds,
       coefficientOfVariation: coefficientOfVariation,
+      tempoStepNoteValue: noteValue,
     );
   }
 }

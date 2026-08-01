@@ -9,6 +9,7 @@ import "package:piano_fitness/domain/models/practice/exercise_configuration.dart
 import "package:piano_fitness/domain/models/practice/exercise_completion_result.dart";
 import "package:piano_fitness/domain/models/practice/exercise_history_entry.dart";
 import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart";
+import "package:piano_fitness/domain/models/practice/practice_step_note_value.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/models/user_profile.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
@@ -840,7 +841,11 @@ void main() {
           );
           expect(entry.measuredTempoBpm, completion!.tempo.measuredTempoBpm);
           expect(entry.tempoIntervalCount, completion!.tempo.intervalCount);
-          expect(entry.tempoMeasurementVersion, 1);
+          expect(
+            entry.tempoMeasurementVersion,
+            TempoMeasurementVersions.current,
+          );
+          expect(entry.tempoStepNoteValue, PracticeStepNoteValue.quarter);
         },
       );
 

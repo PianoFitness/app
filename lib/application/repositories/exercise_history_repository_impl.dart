@@ -7,6 +7,7 @@ import "../../domain/models/music/scale_types.dart" as music;
 import "../../domain/models/practice/exercise_configuration.dart";
 import "../../domain/models/practice/exercise_history_entry.dart";
 import "../../domain/models/practice/exercise_tempo_result.dart";
+import "../../domain/models/practice/practice_step_note_value.dart";
 import "../../domain/models/practice/practice_mode.dart";
 import "../../domain/repositories/exercise_history_repository.dart";
 import "../../domain/services/music_theory/arpeggios.dart";
@@ -58,6 +59,7 @@ class ExerciseHistoryRepositoryImpl implements IExerciseHistoryRepository {
         tempoIntervalCount: Value(entry.tempoIntervalCount),
         tempoMeasurementQuality: Value(entry.tempoMeasurementQuality?.name),
         tempoMeasurementVersion: Value(entry.tempoMeasurementVersion),
+        tempoStepNoteValue: Value(entry.tempoStepNoteValue?.name),
       );
 
       await _database.exerciseHistoryDao.insertEntry(companion);
@@ -154,6 +156,10 @@ class ExerciseHistoryRepositoryImpl implements IExerciseHistoryRepository {
         row.tempoMeasurementQuality,
       ),
       tempoMeasurementVersion: row.tempoMeasurementVersion,
+      tempoStepNoteValue: _tryByName(
+        PracticeStepNoteValue.values,
+        row.tempoStepNoteValue,
+      ),
     );
   }
 

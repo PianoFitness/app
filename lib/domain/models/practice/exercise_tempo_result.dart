@@ -1,4 +1,5 @@
 import "package:meta/meta.dart";
+import "package:piano_fitness/domain/models/practice/practice_step_note_value.dart";
 
 /// Whether a completed exercise has usable performed-tempo evidence.
 enum TempoMeasurementQuality {
@@ -18,6 +19,12 @@ abstract final class TempoMeasurementThresholds {
   static const maximumCoefficientOfVariation = 0.15;
 }
 
+/// Versions of the persisted tempo calculation algorithm.
+abstract final class TempoMeasurementVersions {
+  /// Version 2 converts declared step note values to quarter-note BPM.
+  static const current = 2;
+}
+
 /// Statistical evidence derived from the onsets of one exercise attempt.
 @immutable
 class ExerciseTempoResult {
@@ -28,9 +35,10 @@ class ExerciseTempoResult {
     this.meanInterOnsetMicroseconds,
     this.interOnsetStandardDeviationMicroseconds,
     this.coefficientOfVariation,
+    this.tempoStepNoteValue,
   }) : assert(
          quality == TempoMeasurementQuality.reliable
-             ? measuredTempoBpm != null
+             ? measuredTempoBpm != null && tempoStepNoteValue != null
              : measuredTempoBpm == null,
        );
 
@@ -40,4 +48,7 @@ class ExerciseTempoResult {
   final int? meanInterOnsetMicroseconds;
   final int? interOnsetStandardDeviationMicroseconds;
   final double? coefficientOfVariation;
+
+  /// The uniform step value used to convert onsets to quarter-note BPM.
+  final PracticeStepNoteValue? tempoStepNoteValue;
 }

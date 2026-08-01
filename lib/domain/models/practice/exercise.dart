@@ -2,8 +2,10 @@ import "package:collection/collection.dart";
 import "package:meta/meta.dart";
 import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/models/practice/practice_note.dart";
+import "package:piano_fitness/domain/models/practice/practice_step_note_value.dart";
 
 export "package:piano_fitness/domain/models/practice/practice_note.dart";
+export "package:piano_fitness/domain/models/practice/practice_step_note_value.dart";
 
 /// One onset moment in a practice exercise.
 ///
@@ -14,6 +16,7 @@ class PracticeStep {
   /// Creates a practice step containing one or more complete note targets.
   PracticeStep({
     required List<PracticeNote> notes,
+    this.noteValue = PracticeStepNoteValue.quarter,
     Map<String, dynamic>? metadata,
   }) : notes = List.unmodifiable(_validateNotes(notes)),
        metadata = metadata == null
@@ -26,6 +29,7 @@ class PracticeStep {
       notes: (json["notes"] as List<dynamic>)
           .map((note) => PracticeNote.fromJson(note as Map<String, dynamic>))
           .toList(),
+      noteValue: _noteValueFromJson(json["noteValue"]),
       metadata: json["metadata"] as Map<String, dynamic>?,
     );
   }
@@ -35,6 +39,9 @@ class PracticeStep {
   /// List order is deterministic for display and serialization but has no
   /// performance meaning within the step.
   final List<PracticeNote> notes;
+
+  /// The notated rhythmic distance from this onset to the next step.
+  final PracticeStepNoteValue noteValue;
 
   /// Optional information about this onset moment as a whole.
   final Map<String, dynamic>? metadata;
@@ -51,6 +58,7 @@ class PracticeStep {
   Map<String, dynamic> toJson() {
     return {
       "notes": notes.map((note) => note.toJson()).toList(),
+      "noteValue": noteValue.name,
       if (metadata != null) "metadata": metadata,
     };
   }
@@ -58,12 +66,22 @@ class PracticeStep {
   /// Creates a copy of this step with optional field replacements.
   PracticeStep copyWith({
     List<PracticeNote>? notes,
+    PracticeStepNoteValue? noteValue,
     Map<String, dynamic>? metadata,
   }) {
     return PracticeStep(
       notes: notes ?? this.notes,
+      noteValue: noteValue ?? this.noteValue,
       metadata: metadata ?? this.metadata,
     );
+  }
+
+  static PracticeStepNoteValue _noteValueFromJson(Object? value) {
+    if (value == null) return PracticeStepNoteValue.quarter;
+    if (value is! String) {
+      throw ArgumentError.value(value, "noteValue", "must be a string");
+    }
+    return PracticeStepNoteValue.values.byName(value);
   }
 
   static List<PracticeNote> _validateNotes(List<PracticeNote> notes) {
@@ -99,18 +117,20 @@ class PracticeStep {
     if (identical(this, other)) return true;
     return other is PracticeStep &&
         const ListEquality<PracticeNote>().equals(other.notes, notes) &&
+        other.noteValue == noteValue &&
         const DeepCollectionEquality().equals(other.metadata, metadata);
   }
 
   @override
   int get hashCode => Object.hash(
     const ListEquality<PracticeNote>().hash(notes),
+    noteValue,
     const DeepCollectionEquality().hash(metadata),
   );
 
   @override
   String toString() {
-    return "PracticeStep(notes: $notes${metadata != null ? ", metadata: $metadata" : ""})";
+    return "PracticeStep(notes: $notes, noteValue: $noteValue${metadata != null ? ", metadata: $metadata" : ""})";
   }
 }
 
@@ -150,6 +170,18 @@ class PracticeExercise {
 
   /// Returns the number of steps in this exercise.
   int get length => steps.length;
+
+  /// The shared note value used to interpret this exercise's tempo.
+  ///
+  /// Mixed-rhythm exercises remain valid to play, but do not have one
+  /// unambiguous quarter-note BPM in the MVP.
+  PracticeStepNoteValue? get uniformTempoNoteValue {
+    if (steps.isEmpty) return null;
+    final noteValue = steps.first.noteValue;
+    return steps.every((step) => step.noteValue == noteValue)
+        ? noteValue
+        : null;
+  }
 
   /// Returns all unique MIDI notes used in this exercise.
   Set<MidiNote> getAllNotes() {
