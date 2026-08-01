@@ -804,6 +804,46 @@ void main() {
     });
 
     group("Exercise History Recording", () {
+      test(
+        "records reliable tempo evidence from timestamped MIDI input",
+        () async {
+          ExerciseCompletionResult? completion;
+          viewModel.initializePracticeSession(
+            onExerciseCompleted: (result) => completion = result,
+            onHighlightedNotesChanged: (_) {},
+          );
+          final steps = viewModel.practiceSession!.currentExercise!.steps;
+          expect(steps.length, greaterThanOrEqualTo(6));
+
+          for (var stepIndex = 0; stepIndex < steps.length; stepIndex++) {
+            for (final midiNote in steps[stepIndex].expectedMidiNotes) {
+              helper.simulateMidiData(
+                Uint8List.fromList([0x90, midiNote, 100]),
+                receivedAt: Duration(milliseconds: stepIndex * 400),
+              );
+            }
+          }
+
+          await Future<void>.delayed(const Duration(milliseconds: 10));
+
+          expect(completion, isNotNull);
+          expect(completion!.tempo.quality, TempoMeasurementQuality.reliable);
+          expect(completion!.tempo.measuredTempoBpm, isNotNull);
+
+          final captured = verify(
+            mockExerciseHistoryRepository.saveEntry(captureAny),
+          ).captured;
+          final entry = captured.single as ExerciseHistoryEntry;
+          expect(
+            entry.tempoMeasurementQuality,
+            TempoMeasurementQuality.reliable,
+          );
+          expect(entry.measuredTempoBpm, completion!.tempo.measuredTempoBpm);
+          expect(entry.tempoIntervalCount, completion!.tempo.intervalCount);
+          expect(entry.tempoMeasurementVersion, 1);
+        },
+      );
+
       test("should call saveEntry once when exercise completes", () async {
         viewModel.startPractice();
 

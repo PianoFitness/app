@@ -2,6 +2,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/application/state/practice_runner.dart";
 import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/models/practice/exercise.dart";
+import "package:piano_fitness/domain/models/practice/exercise_completion_result.dart";
 import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart";
 
 void main() {
@@ -108,6 +109,41 @@ void main() {
       expect(reportedAccuracy, isNull);
       expect(reportedCorrect, equals(0));
       expect(reportedErrors, equals(0));
+    });
+
+    test("reports reliable external-MIDI tempo evidence on completion", () {
+      ExerciseCompletionResult? completion;
+      final tempoExercise = PracticeExercise(
+        steps: List.generate(
+          6,
+          (index) => PracticeStep(
+            notes: [
+              PracticeNote(
+                pitch: MidiNote(60 + index),
+                hand: PracticeHand.right,
+              ),
+            ],
+          ),
+        ),
+      );
+      final tempoRunner = PracticeRunner(
+        exercise: tempoExercise,
+        onExerciseCompleted: (result) => completion = result,
+        onHighlightedNotesChanged: (_) {},
+      );
+
+      for (var index = 0; index < 6; index++) {
+        tempoRunner.handleNotePressed(
+          60 + index,
+          occurredAt: Duration(milliseconds: index * 400),
+          inputSource: ExerciseInputSource.externalMidi,
+        );
+      }
+
+      expect(completion, isNotNull);
+      expect(completion!.tempo.quality, TempoMeasurementQuality.reliable);
+      expect(completion!.tempo.measuredTempoBpm, closeTo(150, 0.000001));
+      expect(completion!.tempo.intervalCount, 5);
     });
   });
 }

@@ -52,9 +52,9 @@ class MockMidiRepositoryHelper {
   final MockIMidiRepository mock;
   final List<void Function(MidiInputPacket)> _handlers = [];
 
-  /// Simulate receiving MIDI data for testing
-  void simulateMidiData(Uint8List data) {
-    final packet = MidiInputPacket(data: data, receivedAt: Duration.zero);
+  /// Simulates receiving MIDI data at [receivedAt] for testing event timing.
+  void simulateMidiData(Uint8List data, {Duration receivedAt = Duration.zero}) {
+    final packet = MidiInputPacket(data: data, receivedAt: receivedAt);
     for (final handler in List<void Function(MidiInputPacket)>.from(
       _handlers,
     )) {
