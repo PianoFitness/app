@@ -20,7 +20,7 @@ void main() {
 
     setUp(() {
       practiceSession = PracticeSession(
-        onExerciseCompleted: (a, b, c) {},
+        onExerciseCompleted: (_) {},
         onHighlightedNotesChanged: (notes) {},
       );
     });

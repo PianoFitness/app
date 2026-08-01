@@ -6,6 +6,7 @@ import "../../domain/models/music/hand_selection.dart";
 import "../../domain/models/music/scale_types.dart" as music;
 import "../../domain/models/practice/exercise_configuration.dart";
 import "../../domain/models/practice/exercise_history_entry.dart";
+import "../../domain/models/practice/exercise_tempo_result.dart";
 import "../../domain/models/practice/practice_mode.dart";
 import "../../domain/repositories/exercise_history_repository.dart";
 import "../../domain/services/music_theory/arpeggios.dart";
@@ -48,6 +49,15 @@ class ExerciseHistoryRepositoryImpl implements IExerciseHistoryRepository {
         accuracyPercentage: Value(entry.accuracyPercentage),
         correctNoteCount: Value(entry.correctNoteCount),
         errorCount: Value(entry.errorCount),
+        measuredTempoBpm: Value(entry.measuredTempoBpm),
+        meanInterOnsetMicroseconds: Value(entry.meanInterOnsetMicroseconds),
+        interOnsetStandardDeviationMicroseconds: Value(
+          entry.interOnsetStandardDeviationMicroseconds,
+        ),
+        tempoCoefficientOfVariation: Value(entry.tempoCoefficientOfVariation),
+        tempoIntervalCount: Value(entry.tempoIntervalCount),
+        tempoMeasurementQuality: Value(entry.tempoMeasurementQuality?.name),
+        tempoMeasurementVersion: Value(entry.tempoMeasurementVersion),
       );
 
       await _database.exerciseHistoryDao.insertEntry(companion);
@@ -133,6 +143,17 @@ class ExerciseHistoryRepositoryImpl implements IExerciseHistoryRepository {
       accuracyPercentage: row.accuracyPercentage,
       correctNoteCount: row.correctNoteCount,
       errorCount: row.errorCount,
+      measuredTempoBpm: row.measuredTempoBpm,
+      meanInterOnsetMicroseconds: row.meanInterOnsetMicroseconds,
+      interOnsetStandardDeviationMicroseconds:
+          row.interOnsetStandardDeviationMicroseconds,
+      tempoCoefficientOfVariation: row.tempoCoefficientOfVariation,
+      tempoIntervalCount: row.tempoIntervalCount,
+      tempoMeasurementQuality: _tryByName(
+        TempoMeasurementQuality.values,
+        row.tempoMeasurementQuality,
+      ),
+      tempoMeasurementVersion: row.tempoMeasurementVersion,
     );
   }
 

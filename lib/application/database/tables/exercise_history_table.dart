@@ -86,6 +86,23 @@ class ExerciseHistoryTable extends Table {
   /// Raw count of unexpected note-on events during the exercise.
   IntColumn get errorCount => integer().nullable()();
 
+  // ── Tempo metrics ────────────────────────────────────────────────────────
+
+  RealColumn get measuredTempoBpm => real().nullable()();
+
+  IntColumn get meanInterOnsetMicroseconds => integer().nullable()();
+
+  IntColumn get interOnsetStandardDeviationMicroseconds =>
+      integer().nullable()();
+
+  RealColumn get tempoCoefficientOfVariation => real().nullable()();
+
+  IntColumn get tempoIntervalCount => integer().nullable()();
+
+  TextColumn get tempoMeasurementQuality => text().nullable()();
+
+  IntColumn get tempoMeasurementVersion => integer().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }

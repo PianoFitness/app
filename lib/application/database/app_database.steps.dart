@@ -475,11 +475,186 @@ i1.GeneratedColumn<int> _column_21(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NULL',
     );
+
+final class Schema6 extends i0.VersionedSchema {
+  Schema6({required super.database}) : super(version: 6);
+  @override
+  late final List<i1.DatabaseSchemaEntity> entities = [
+    userProfileTable,
+    exerciseHistoryTable,
+  ];
+  late final Shape0 userProfileTable = Shape0(
+    source: i0.VersionedTable(
+      entityName: 'user_profile_table',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [_column_0, _column_1, _column_2, _column_3],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape4 exerciseHistoryTable = Shape4(
+    source: i0.VersionedTable(
+      entityName: 'exercise_history_table',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_7,
+        _column_8,
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_12,
+        _column_13,
+        _column_14,
+        _column_15,
+        _column_17,
+        _column_18,
+        _column_16,
+        _column_19,
+        _column_20,
+        _column_21,
+        _column_22,
+        _column_23,
+        _column_24,
+        _column_25,
+        _column_26,
+        _column_27,
+        _column_28,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+}
+
+class Shape4 extends i0.VersionedTable {
+  Shape4({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<String> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get profileId =>
+      columnsByName['profile_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get completedAt =>
+      columnsByName['completed_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get practiceMode =>
+      columnsByName['practice_mode']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get handSelection =>
+      columnsByName['hand_selection']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get musicalKey =>
+      columnsByName['musical_key']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get scaleType =>
+      columnsByName['scale_type']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get chordType =>
+      columnsByName['chord_type']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get includeInversions =>
+      columnsByName['include_inversions']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get includeSeventhChords =>
+      columnsByName['include_seventh_chords']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get musicalNote =>
+      columnsByName['musical_note']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get arpeggioType =>
+      columnsByName['arpeggio_type']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get arpeggioOctaves =>
+      columnsByName['arpeggio_octaves']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get pattern =>
+      columnsByName['pattern']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get includeLeftHandRoot =>
+      columnsByName['include_left_hand_root']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get chordProgressionId =>
+      columnsByName['chord_progression_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<double> get accuracyPercentage =>
+      columnsByName['accuracy_percentage']! as i1.GeneratedColumn<double>;
+  i1.GeneratedColumn<int> get correctNoteCount =>
+      columnsByName['correct_note_count']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get errorCount =>
+      columnsByName['error_count']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<double> get measuredTempoBpm =>
+      columnsByName['measured_tempo_bpm']! as i1.GeneratedColumn<double>;
+  i1.GeneratedColumn<int> get meanInterOnsetMicroseconds =>
+      columnsByName['mean_inter_onset_microseconds']!
+          as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get interOnsetStandardDeviationMicroseconds =>
+      columnsByName['inter_onset_standard_deviation_microseconds']!
+          as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<double> get tempoCoefficientOfVariation =>
+      columnsByName['tempo_coefficient_of_variation']!
+          as i1.GeneratedColumn<double>;
+  i1.GeneratedColumn<int> get tempoIntervalCount =>
+      columnsByName['tempo_interval_count']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get tempoMeasurementQuality =>
+      columnsByName['tempo_measurement_quality']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get tempoMeasurementVersion =>
+      columnsByName['tempo_measurement_version']! as i1.GeneratedColumn<int>;
+}
+
+i1.GeneratedColumn<double> _column_22(String aliasedName) =>
+    i1.GeneratedColumn<double>(
+      'measured_tempo_bpm',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.double,
+      $customConstraints: 'NULL',
+    );
+i1.GeneratedColumn<int> _column_23(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'mean_inter_onset_microseconds',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NULL',
+    );
+i1.GeneratedColumn<int> _column_24(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'inter_onset_standard_deviation_microseconds',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NULL',
+    );
+i1.GeneratedColumn<double> _column_25(String aliasedName) =>
+    i1.GeneratedColumn<double>(
+      'tempo_coefficient_of_variation',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.double,
+      $customConstraints: 'NULL',
+    );
+i1.GeneratedColumn<int> _column_26(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'tempo_interval_count',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NULL',
+    );
+i1.GeneratedColumn<String> _column_27(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'tempo_measurement_quality',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NULL',
+    );
+i1.GeneratedColumn<int> _column_28(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'tempo_measurement_version',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NULL',
+    );
 i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
   required Future<void> Function(i1.Migrator m, Schema4 schema) from3To4,
   required Future<void> Function(i1.Migrator m, Schema5 schema) from4To5,
+  required Future<void> Function(i1.Migrator m, Schema6 schema) from5To6,
 }) {
   return (currentVersion, database) async {
     switch (currentVersion) {
@@ -503,6 +678,11 @@ i0.MigrationStepWithVersion migrationSteps({
         final migrator = i1.Migrator(database, schema);
         await from4To5(migrator, schema);
         return 5;
+      case 5:
+        final schema = Schema6(database: database);
+        final migrator = i1.Migrator(database, schema);
+        await from5To6(migrator, schema);
+        return 6;
       default:
         throw ArgumentError.value('Unknown migration from $currentVersion');
     }
@@ -514,11 +694,13 @@ i1.OnUpgrade stepByStep({
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
   required Future<void> Function(i1.Migrator m, Schema4 schema) from3To4,
   required Future<void> Function(i1.Migrator m, Schema5 schema) from4To5,
+  required Future<void> Function(i1.Migrator m, Schema6 schema) from5To6,
 }) => i0.VersionedSchema.stepByStepHelper(
   step: migrationSteps(
     from1To2: from1To2,
     from2To3: from2To3,
     from3To4: from3To4,
     from4To5: from4To5,
+    from5To6: from5To6,
   ),
 );

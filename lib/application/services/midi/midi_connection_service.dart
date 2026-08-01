@@ -1,7 +1,7 @@
 import "dart:async";
-import "package:flutter/foundation.dart";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:logging/logging.dart";
+import "package:piano_fitness/domain/models/midi/midi_input_packet.dart";
 
 /// Centralized service for managing MIDI connections and data processing.
 ///
@@ -22,8 +22,9 @@ class MidiConnectionService {
 
   final MidiCommand _midiCommand = MidiCommand();
   StreamSubscription<MidiPacket>? _midiDataSubscription;
+  final Stopwatch _inputClock = Stopwatch()..start();
 
-  final List<void Function(Uint8List data)> _dataHandlers = [];
+  final List<MidiInputHandler> _dataHandlers = [];
   final List<void Function(String error)> _errorHandlers = [];
 
   /// Global MIDI command instance for the entire app.
@@ -43,6 +44,14 @@ class MidiConnectionService {
     if (midiDataStream != null) {
       _midiDataSubscription = midiDataStream.listen(
         (packet) {
+          // Capture this before any logging, parsing, state update, or handler
+          // invocation. It is the canonical clock for exercise tempo.
+          final inputPacket = MidiInputPacket(
+            data: packet.data,
+            receivedAt: _inputClock.elapsed,
+            transportTimestamp: packet.timestamp,
+          );
+
           // Do not log real-time timing clock (0xF8 / 248) or active sensing (0xFE / 254) messages to avoid spamming logs
           final isRealtimeClockOrSense =
               packet.data.isNotEmpty &&
@@ -55,7 +64,7 @@ class MidiConnectionService {
           // Distribute MIDI data to all registered handlers
           for (final handler in _dataHandlers) {
             try {
-              handler(packet.data);
+              handler(inputPacket);
             } on Exception catch (e) {
               _log.warning("Error in MIDI data handler: $e");
             }
@@ -100,12 +109,12 @@ class MidiConnectionService {
   /// The [handler] function will be called whenever MIDI data is received
   /// from any connected device. Multiple handlers can be registered to
   /// support different parts of the application that need MIDI data.
-  void registerDataHandler(void Function(Uint8List data) handler) {
+  void registerDataHandler(MidiInputHandler handler) {
     _dataHandlers.add(handler);
   }
 
   /// Unregisters a previously registered MIDI data handler.
-  void unregisterDataHandler(void Function(Uint8List data) handler) {
+  void unregisterDataHandler(MidiInputHandler handler) {
     _dataHandlers.remove(handler);
   }
 

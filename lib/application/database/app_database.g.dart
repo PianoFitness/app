@@ -573,6 +573,82 @@ class $ExerciseHistoryTableTable extends ExerciseHistoryTable
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _measuredTempoBpmMeta = const VerificationMeta(
+    'measuredTempoBpm',
+  );
+  @override
+  late final GeneratedColumn<double> measuredTempoBpm = GeneratedColumn<double>(
+    'measured_tempo_bpm',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _meanInterOnsetMicrosecondsMeta =
+      const VerificationMeta('meanInterOnsetMicroseconds');
+  @override
+  late final GeneratedColumn<int> meanInterOnsetMicroseconds =
+      GeneratedColumn<int>(
+        'mean_inter_onset_microseconds',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _interOnsetStandardDeviationMicrosecondsMeta =
+      const VerificationMeta('interOnsetStandardDeviationMicroseconds');
+  @override
+  late final GeneratedColumn<int> interOnsetStandardDeviationMicroseconds =
+      GeneratedColumn<int>(
+        'inter_onset_standard_deviation_microseconds',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _tempoCoefficientOfVariationMeta =
+      const VerificationMeta('tempoCoefficientOfVariation');
+  @override
+  late final GeneratedColumn<double> tempoCoefficientOfVariation =
+      GeneratedColumn<double>(
+        'tempo_coefficient_of_variation',
+        aliasedName,
+        true,
+        type: DriftSqlType.double,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _tempoIntervalCountMeta =
+      const VerificationMeta('tempoIntervalCount');
+  @override
+  late final GeneratedColumn<int> tempoIntervalCount = GeneratedColumn<int>(
+    'tempo_interval_count',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _tempoMeasurementQualityMeta =
+      const VerificationMeta('tempoMeasurementQuality');
+  @override
+  late final GeneratedColumn<String> tempoMeasurementQuality =
+      GeneratedColumn<String>(
+        'tempo_measurement_quality',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _tempoMeasurementVersionMeta =
+      const VerificationMeta('tempoMeasurementVersion');
+  @override
+  late final GeneratedColumn<int> tempoMeasurementVersion =
+      GeneratedColumn<int>(
+        'tempo_measurement_version',
+        aliasedName,
+        true,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -594,6 +670,13 @@ class $ExerciseHistoryTableTable extends ExerciseHistoryTable
     accuracyPercentage,
     correctNoteCount,
     errorCount,
+    measuredTempoBpm,
+    meanInterOnsetMicroseconds,
+    interOnsetStandardDeviationMicroseconds,
+    tempoCoefficientOfVariation,
+    tempoIntervalCount,
+    tempoMeasurementQuality,
+    tempoMeasurementVersion,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -764,6 +847,69 @@ class $ExerciseHistoryTableTable extends ExerciseHistoryTable
         errorCount.isAcceptableOrUnknown(data['error_count']!, _errorCountMeta),
       );
     }
+    if (data.containsKey('measured_tempo_bpm')) {
+      context.handle(
+        _measuredTempoBpmMeta,
+        measuredTempoBpm.isAcceptableOrUnknown(
+          data['measured_tempo_bpm']!,
+          _measuredTempoBpmMeta,
+        ),
+      );
+    }
+    if (data.containsKey('mean_inter_onset_microseconds')) {
+      context.handle(
+        _meanInterOnsetMicrosecondsMeta,
+        meanInterOnsetMicroseconds.isAcceptableOrUnknown(
+          data['mean_inter_onset_microseconds']!,
+          _meanInterOnsetMicrosecondsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('inter_onset_standard_deviation_microseconds')) {
+      context.handle(
+        _interOnsetStandardDeviationMicrosecondsMeta,
+        interOnsetStandardDeviationMicroseconds.isAcceptableOrUnknown(
+          data['inter_onset_standard_deviation_microseconds']!,
+          _interOnsetStandardDeviationMicrosecondsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('tempo_coefficient_of_variation')) {
+      context.handle(
+        _tempoCoefficientOfVariationMeta,
+        tempoCoefficientOfVariation.isAcceptableOrUnknown(
+          data['tempo_coefficient_of_variation']!,
+          _tempoCoefficientOfVariationMeta,
+        ),
+      );
+    }
+    if (data.containsKey('tempo_interval_count')) {
+      context.handle(
+        _tempoIntervalCountMeta,
+        tempoIntervalCount.isAcceptableOrUnknown(
+          data['tempo_interval_count']!,
+          _tempoIntervalCountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('tempo_measurement_quality')) {
+      context.handle(
+        _tempoMeasurementQualityMeta,
+        tempoMeasurementQuality.isAcceptableOrUnknown(
+          data['tempo_measurement_quality']!,
+          _tempoMeasurementQualityMeta,
+        ),
+      );
+    }
+    if (data.containsKey('tempo_measurement_version')) {
+      context.handle(
+        _tempoMeasurementVersionMeta,
+        tempoMeasurementVersion.isAcceptableOrUnknown(
+          data['tempo_measurement_version']!,
+          _tempoMeasurementVersionMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -852,6 +998,34 @@ class $ExerciseHistoryTableTable extends ExerciseHistoryTable
         DriftSqlType.int,
         data['${effectivePrefix}error_count'],
       ),
+      measuredTempoBpm: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}measured_tempo_bpm'],
+      ),
+      meanInterOnsetMicroseconds: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}mean_inter_onset_microseconds'],
+      ),
+      interOnsetStandardDeviationMicroseconds: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}inter_onset_standard_deviation_microseconds'],
+      ),
+      tempoCoefficientOfVariation: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}tempo_coefficient_of_variation'],
+      ),
+      tempoIntervalCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}tempo_interval_count'],
+      ),
+      tempoMeasurementQuality: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tempo_measurement_quality'],
+      ),
+      tempoMeasurementVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}tempo_measurement_version'],
+      ),
     );
   }
 
@@ -925,6 +1099,13 @@ class ExerciseHistoryTableData extends DataClass
 
   /// Raw count of unexpected note-on events during the exercise.
   final int? errorCount;
+  final double? measuredTempoBpm;
+  final int? meanInterOnsetMicroseconds;
+  final int? interOnsetStandardDeviationMicroseconds;
+  final double? tempoCoefficientOfVariation;
+  final int? tempoIntervalCount;
+  final String? tempoMeasurementQuality;
+  final int? tempoMeasurementVersion;
   const ExerciseHistoryTableData({
     required this.id,
     required this.profileId,
@@ -945,6 +1126,13 @@ class ExerciseHistoryTableData extends DataClass
     this.accuracyPercentage,
     this.correctNoteCount,
     this.errorCount,
+    this.measuredTempoBpm,
+    this.meanInterOnsetMicroseconds,
+    this.interOnsetStandardDeviationMicroseconds,
+    this.tempoCoefficientOfVariation,
+    this.tempoIntervalCount,
+    this.tempoMeasurementQuality,
+    this.tempoMeasurementVersion,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -989,6 +1177,35 @@ class ExerciseHistoryTableData extends DataClass
     }
     if (!nullToAbsent || errorCount != null) {
       map['error_count'] = Variable<int>(errorCount);
+    }
+    if (!nullToAbsent || measuredTempoBpm != null) {
+      map['measured_tempo_bpm'] = Variable<double>(measuredTempoBpm);
+    }
+    if (!nullToAbsent || meanInterOnsetMicroseconds != null) {
+      map['mean_inter_onset_microseconds'] = Variable<int>(
+        meanInterOnsetMicroseconds,
+      );
+    }
+    if (!nullToAbsent || interOnsetStandardDeviationMicroseconds != null) {
+      map['inter_onset_standard_deviation_microseconds'] = Variable<int>(
+        interOnsetStandardDeviationMicroseconds,
+      );
+    }
+    if (!nullToAbsent || tempoCoefficientOfVariation != null) {
+      map['tempo_coefficient_of_variation'] = Variable<double>(
+        tempoCoefficientOfVariation,
+      );
+    }
+    if (!nullToAbsent || tempoIntervalCount != null) {
+      map['tempo_interval_count'] = Variable<int>(tempoIntervalCount);
+    }
+    if (!nullToAbsent || tempoMeasurementQuality != null) {
+      map['tempo_measurement_quality'] = Variable<String>(
+        tempoMeasurementQuality,
+      );
+    }
+    if (!nullToAbsent || tempoMeasurementVersion != null) {
+      map['tempo_measurement_version'] = Variable<int>(tempoMeasurementVersion);
     }
     return map;
   }
@@ -1036,6 +1253,30 @@ class ExerciseHistoryTableData extends DataClass
       errorCount: errorCount == null && nullToAbsent
           ? const Value.absent()
           : Value(errorCount),
+      measuredTempoBpm: measuredTempoBpm == null && nullToAbsent
+          ? const Value.absent()
+          : Value(measuredTempoBpm),
+      meanInterOnsetMicroseconds:
+          meanInterOnsetMicroseconds == null && nullToAbsent
+          ? const Value.absent()
+          : Value(meanInterOnsetMicroseconds),
+      interOnsetStandardDeviationMicroseconds:
+          interOnsetStandardDeviationMicroseconds == null && nullToAbsent
+          ? const Value.absent()
+          : Value(interOnsetStandardDeviationMicroseconds),
+      tempoCoefficientOfVariation:
+          tempoCoefficientOfVariation == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tempoCoefficientOfVariation),
+      tempoIntervalCount: tempoIntervalCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tempoIntervalCount),
+      tempoMeasurementQuality: tempoMeasurementQuality == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tempoMeasurementQuality),
+      tempoMeasurementVersion: tempoMeasurementVersion == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tempoMeasurementVersion),
     );
   }
 
@@ -1072,6 +1313,23 @@ class ExerciseHistoryTableData extends DataClass
       ),
       correctNoteCount: serializer.fromJson<int?>(json['correctNoteCount']),
       errorCount: serializer.fromJson<int?>(json['errorCount']),
+      measuredTempoBpm: serializer.fromJson<double?>(json['measuredTempoBpm']),
+      meanInterOnsetMicroseconds: serializer.fromJson<int?>(
+        json['meanInterOnsetMicroseconds'],
+      ),
+      interOnsetStandardDeviationMicroseconds: serializer.fromJson<int?>(
+        json['interOnsetStandardDeviationMicroseconds'],
+      ),
+      tempoCoefficientOfVariation: serializer.fromJson<double?>(
+        json['tempoCoefficientOfVariation'],
+      ),
+      tempoIntervalCount: serializer.fromJson<int?>(json['tempoIntervalCount']),
+      tempoMeasurementQuality: serializer.fromJson<String?>(
+        json['tempoMeasurementQuality'],
+      ),
+      tempoMeasurementVersion: serializer.fromJson<int?>(
+        json['tempoMeasurementVersion'],
+      ),
     );
   }
   @override
@@ -1097,6 +1355,23 @@ class ExerciseHistoryTableData extends DataClass
       'accuracyPercentage': serializer.toJson<double?>(accuracyPercentage),
       'correctNoteCount': serializer.toJson<int?>(correctNoteCount),
       'errorCount': serializer.toJson<int?>(errorCount),
+      'measuredTempoBpm': serializer.toJson<double?>(measuredTempoBpm),
+      'meanInterOnsetMicroseconds': serializer.toJson<int?>(
+        meanInterOnsetMicroseconds,
+      ),
+      'interOnsetStandardDeviationMicroseconds': serializer.toJson<int?>(
+        interOnsetStandardDeviationMicroseconds,
+      ),
+      'tempoCoefficientOfVariation': serializer.toJson<double?>(
+        tempoCoefficientOfVariation,
+      ),
+      'tempoIntervalCount': serializer.toJson<int?>(tempoIntervalCount),
+      'tempoMeasurementQuality': serializer.toJson<String?>(
+        tempoMeasurementQuality,
+      ),
+      'tempoMeasurementVersion': serializer.toJson<int?>(
+        tempoMeasurementVersion,
+      ),
     };
   }
 
@@ -1120,6 +1395,13 @@ class ExerciseHistoryTableData extends DataClass
     Value<double?> accuracyPercentage = const Value.absent(),
     Value<int?> correctNoteCount = const Value.absent(),
     Value<int?> errorCount = const Value.absent(),
+    Value<double?> measuredTempoBpm = const Value.absent(),
+    Value<int?> meanInterOnsetMicroseconds = const Value.absent(),
+    Value<int?> interOnsetStandardDeviationMicroseconds = const Value.absent(),
+    Value<double?> tempoCoefficientOfVariation = const Value.absent(),
+    Value<int?> tempoIntervalCount = const Value.absent(),
+    Value<String?> tempoMeasurementQuality = const Value.absent(),
+    Value<int?> tempoMeasurementVersion = const Value.absent(),
   }) => ExerciseHistoryTableData(
     id: id ?? this.id,
     profileId: profileId ?? this.profileId,
@@ -1148,6 +1430,28 @@ class ExerciseHistoryTableData extends DataClass
         ? correctNoteCount.value
         : this.correctNoteCount,
     errorCount: errorCount.present ? errorCount.value : this.errorCount,
+    measuredTempoBpm: measuredTempoBpm.present
+        ? measuredTempoBpm.value
+        : this.measuredTempoBpm,
+    meanInterOnsetMicroseconds: meanInterOnsetMicroseconds.present
+        ? meanInterOnsetMicroseconds.value
+        : this.meanInterOnsetMicroseconds,
+    interOnsetStandardDeviationMicroseconds:
+        interOnsetStandardDeviationMicroseconds.present
+        ? interOnsetStandardDeviationMicroseconds.value
+        : this.interOnsetStandardDeviationMicroseconds,
+    tempoCoefficientOfVariation: tempoCoefficientOfVariation.present
+        ? tempoCoefficientOfVariation.value
+        : this.tempoCoefficientOfVariation,
+    tempoIntervalCount: tempoIntervalCount.present
+        ? tempoIntervalCount.value
+        : this.tempoIntervalCount,
+    tempoMeasurementQuality: tempoMeasurementQuality.present
+        ? tempoMeasurementQuality.value
+        : this.tempoMeasurementQuality,
+    tempoMeasurementVersion: tempoMeasurementVersion.present
+        ? tempoMeasurementVersion.value
+        : this.tempoMeasurementVersion,
   );
   ExerciseHistoryTableData copyWithCompanion(
     ExerciseHistoryTableCompanion data,
@@ -1200,6 +1504,28 @@ class ExerciseHistoryTableData extends DataClass
       errorCount: data.errorCount.present
           ? data.errorCount.value
           : this.errorCount,
+      measuredTempoBpm: data.measuredTempoBpm.present
+          ? data.measuredTempoBpm.value
+          : this.measuredTempoBpm,
+      meanInterOnsetMicroseconds: data.meanInterOnsetMicroseconds.present
+          ? data.meanInterOnsetMicroseconds.value
+          : this.meanInterOnsetMicroseconds,
+      interOnsetStandardDeviationMicroseconds:
+          data.interOnsetStandardDeviationMicroseconds.present
+          ? data.interOnsetStandardDeviationMicroseconds.value
+          : this.interOnsetStandardDeviationMicroseconds,
+      tempoCoefficientOfVariation: data.tempoCoefficientOfVariation.present
+          ? data.tempoCoefficientOfVariation.value
+          : this.tempoCoefficientOfVariation,
+      tempoIntervalCount: data.tempoIntervalCount.present
+          ? data.tempoIntervalCount.value
+          : this.tempoIntervalCount,
+      tempoMeasurementQuality: data.tempoMeasurementQuality.present
+          ? data.tempoMeasurementQuality.value
+          : this.tempoMeasurementQuality,
+      tempoMeasurementVersion: data.tempoMeasurementVersion.present
+          ? data.tempoMeasurementVersion.value
+          : this.tempoMeasurementVersion,
     );
   }
 
@@ -1224,13 +1550,22 @@ class ExerciseHistoryTableData extends DataClass
           ..write('chordProgressionId: $chordProgressionId, ')
           ..write('accuracyPercentage: $accuracyPercentage, ')
           ..write('correctNoteCount: $correctNoteCount, ')
-          ..write('errorCount: $errorCount')
+          ..write('errorCount: $errorCount, ')
+          ..write('measuredTempoBpm: $measuredTempoBpm, ')
+          ..write('meanInterOnsetMicroseconds: $meanInterOnsetMicroseconds, ')
+          ..write(
+            'interOnsetStandardDeviationMicroseconds: $interOnsetStandardDeviationMicroseconds, ',
+          )
+          ..write('tempoCoefficientOfVariation: $tempoCoefficientOfVariation, ')
+          ..write('tempoIntervalCount: $tempoIntervalCount, ')
+          ..write('tempoMeasurementQuality: $tempoMeasurementQuality, ')
+          ..write('tempoMeasurementVersion: $tempoMeasurementVersion')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     profileId,
     completedAt,
@@ -1250,7 +1585,14 @@ class ExerciseHistoryTableData extends DataClass
     accuracyPercentage,
     correctNoteCount,
     errorCount,
-  );
+    measuredTempoBpm,
+    meanInterOnsetMicroseconds,
+    interOnsetStandardDeviationMicroseconds,
+    tempoCoefficientOfVariation,
+    tempoIntervalCount,
+    tempoMeasurementQuality,
+    tempoMeasurementVersion,
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1273,7 +1615,16 @@ class ExerciseHistoryTableData extends DataClass
           other.chordProgressionId == this.chordProgressionId &&
           other.accuracyPercentage == this.accuracyPercentage &&
           other.correctNoteCount == this.correctNoteCount &&
-          other.errorCount == this.errorCount);
+          other.errorCount == this.errorCount &&
+          other.measuredTempoBpm == this.measuredTempoBpm &&
+          other.meanInterOnsetMicroseconds == this.meanInterOnsetMicroseconds &&
+          other.interOnsetStandardDeviationMicroseconds ==
+              this.interOnsetStandardDeviationMicroseconds &&
+          other.tempoCoefficientOfVariation ==
+              this.tempoCoefficientOfVariation &&
+          other.tempoIntervalCount == this.tempoIntervalCount &&
+          other.tempoMeasurementQuality == this.tempoMeasurementQuality &&
+          other.tempoMeasurementVersion == this.tempoMeasurementVersion);
 }
 
 class ExerciseHistoryTableCompanion
@@ -1297,6 +1648,13 @@ class ExerciseHistoryTableCompanion
   final Value<double?> accuracyPercentage;
   final Value<int?> correctNoteCount;
   final Value<int?> errorCount;
+  final Value<double?> measuredTempoBpm;
+  final Value<int?> meanInterOnsetMicroseconds;
+  final Value<int?> interOnsetStandardDeviationMicroseconds;
+  final Value<double?> tempoCoefficientOfVariation;
+  final Value<int?> tempoIntervalCount;
+  final Value<String?> tempoMeasurementQuality;
+  final Value<int?> tempoMeasurementVersion;
   final Value<int> rowid;
   const ExerciseHistoryTableCompanion({
     this.id = const Value.absent(),
@@ -1318,6 +1676,13 @@ class ExerciseHistoryTableCompanion
     this.accuracyPercentage = const Value.absent(),
     this.correctNoteCount = const Value.absent(),
     this.errorCount = const Value.absent(),
+    this.measuredTempoBpm = const Value.absent(),
+    this.meanInterOnsetMicroseconds = const Value.absent(),
+    this.interOnsetStandardDeviationMicroseconds = const Value.absent(),
+    this.tempoCoefficientOfVariation = const Value.absent(),
+    this.tempoIntervalCount = const Value.absent(),
+    this.tempoMeasurementQuality = const Value.absent(),
+    this.tempoMeasurementVersion = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ExerciseHistoryTableCompanion.insert({
@@ -1340,6 +1705,13 @@ class ExerciseHistoryTableCompanion
     this.accuracyPercentage = const Value.absent(),
     this.correctNoteCount = const Value.absent(),
     this.errorCount = const Value.absent(),
+    this.measuredTempoBpm = const Value.absent(),
+    this.meanInterOnsetMicroseconds = const Value.absent(),
+    this.interOnsetStandardDeviationMicroseconds = const Value.absent(),
+    this.tempoCoefficientOfVariation = const Value.absent(),
+    this.tempoIntervalCount = const Value.absent(),
+    this.tempoMeasurementQuality = const Value.absent(),
+    this.tempoMeasurementVersion = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        profileId = Value(profileId),
@@ -1366,6 +1738,13 @@ class ExerciseHistoryTableCompanion
     Expression<double>? accuracyPercentage,
     Expression<int>? correctNoteCount,
     Expression<int>? errorCount,
+    Expression<double>? measuredTempoBpm,
+    Expression<int>? meanInterOnsetMicroseconds,
+    Expression<int>? interOnsetStandardDeviationMicroseconds,
+    Expression<double>? tempoCoefficientOfVariation,
+    Expression<int>? tempoIntervalCount,
+    Expression<String>? tempoMeasurementQuality,
+    Expression<int>? tempoMeasurementVersion,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1391,6 +1770,20 @@ class ExerciseHistoryTableCompanion
       if (accuracyPercentage != null) 'accuracy_percentage': accuracyPercentage,
       if (correctNoteCount != null) 'correct_note_count': correctNoteCount,
       if (errorCount != null) 'error_count': errorCount,
+      if (measuredTempoBpm != null) 'measured_tempo_bpm': measuredTempoBpm,
+      if (meanInterOnsetMicroseconds != null)
+        'mean_inter_onset_microseconds': meanInterOnsetMicroseconds,
+      if (interOnsetStandardDeviationMicroseconds != null)
+        'inter_onset_standard_deviation_microseconds':
+            interOnsetStandardDeviationMicroseconds,
+      if (tempoCoefficientOfVariation != null)
+        'tempo_coefficient_of_variation': tempoCoefficientOfVariation,
+      if (tempoIntervalCount != null)
+        'tempo_interval_count': tempoIntervalCount,
+      if (tempoMeasurementQuality != null)
+        'tempo_measurement_quality': tempoMeasurementQuality,
+      if (tempoMeasurementVersion != null)
+        'tempo_measurement_version': tempoMeasurementVersion,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1415,6 +1808,13 @@ class ExerciseHistoryTableCompanion
     Value<double?>? accuracyPercentage,
     Value<int?>? correctNoteCount,
     Value<int?>? errorCount,
+    Value<double?>? measuredTempoBpm,
+    Value<int?>? meanInterOnsetMicroseconds,
+    Value<int?>? interOnsetStandardDeviationMicroseconds,
+    Value<double?>? tempoCoefficientOfVariation,
+    Value<int?>? tempoIntervalCount,
+    Value<String?>? tempoMeasurementQuality,
+    Value<int?>? tempoMeasurementVersion,
     Value<int>? rowid,
   }) {
     return ExerciseHistoryTableCompanion(
@@ -1437,6 +1837,19 @@ class ExerciseHistoryTableCompanion
       accuracyPercentage: accuracyPercentage ?? this.accuracyPercentage,
       correctNoteCount: correctNoteCount ?? this.correctNoteCount,
       errorCount: errorCount ?? this.errorCount,
+      measuredTempoBpm: measuredTempoBpm ?? this.measuredTempoBpm,
+      meanInterOnsetMicroseconds:
+          meanInterOnsetMicroseconds ?? this.meanInterOnsetMicroseconds,
+      interOnsetStandardDeviationMicroseconds:
+          interOnsetStandardDeviationMicroseconds ??
+          this.interOnsetStandardDeviationMicroseconds,
+      tempoCoefficientOfVariation:
+          tempoCoefficientOfVariation ?? this.tempoCoefficientOfVariation,
+      tempoIntervalCount: tempoIntervalCount ?? this.tempoIntervalCount,
+      tempoMeasurementQuality:
+          tempoMeasurementQuality ?? this.tempoMeasurementQuality,
+      tempoMeasurementVersion:
+          tempoMeasurementVersion ?? this.tempoMeasurementVersion,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1503,6 +1916,37 @@ class ExerciseHistoryTableCompanion
     if (errorCount.present) {
       map['error_count'] = Variable<int>(errorCount.value);
     }
+    if (measuredTempoBpm.present) {
+      map['measured_tempo_bpm'] = Variable<double>(measuredTempoBpm.value);
+    }
+    if (meanInterOnsetMicroseconds.present) {
+      map['mean_inter_onset_microseconds'] = Variable<int>(
+        meanInterOnsetMicroseconds.value,
+      );
+    }
+    if (interOnsetStandardDeviationMicroseconds.present) {
+      map['inter_onset_standard_deviation_microseconds'] = Variable<int>(
+        interOnsetStandardDeviationMicroseconds.value,
+      );
+    }
+    if (tempoCoefficientOfVariation.present) {
+      map['tempo_coefficient_of_variation'] = Variable<double>(
+        tempoCoefficientOfVariation.value,
+      );
+    }
+    if (tempoIntervalCount.present) {
+      map['tempo_interval_count'] = Variable<int>(tempoIntervalCount.value);
+    }
+    if (tempoMeasurementQuality.present) {
+      map['tempo_measurement_quality'] = Variable<String>(
+        tempoMeasurementQuality.value,
+      );
+    }
+    if (tempoMeasurementVersion.present) {
+      map['tempo_measurement_version'] = Variable<int>(
+        tempoMeasurementVersion.value,
+      );
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1531,6 +1975,15 @@ class ExerciseHistoryTableCompanion
           ..write('accuracyPercentage: $accuracyPercentage, ')
           ..write('correctNoteCount: $correctNoteCount, ')
           ..write('errorCount: $errorCount, ')
+          ..write('measuredTempoBpm: $measuredTempoBpm, ')
+          ..write('meanInterOnsetMicroseconds: $meanInterOnsetMicroseconds, ')
+          ..write(
+            'interOnsetStandardDeviationMicroseconds: $interOnsetStandardDeviationMicroseconds, ',
+          )
+          ..write('tempoCoefficientOfVariation: $tempoCoefficientOfVariation, ')
+          ..write('tempoIntervalCount: $tempoIntervalCount, ')
+          ..write('tempoMeasurementQuality: $tempoMeasurementQuality, ')
+          ..write('tempoMeasurementVersion: $tempoMeasurementVersion, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1899,6 +2352,13 @@ typedef $$ExerciseHistoryTableTableCreateCompanionBuilder =
       Value<double?> accuracyPercentage,
       Value<int?> correctNoteCount,
       Value<int?> errorCount,
+      Value<double?> measuredTempoBpm,
+      Value<int?> meanInterOnsetMicroseconds,
+      Value<int?> interOnsetStandardDeviationMicroseconds,
+      Value<double?> tempoCoefficientOfVariation,
+      Value<int?> tempoIntervalCount,
+      Value<String?> tempoMeasurementQuality,
+      Value<int?> tempoMeasurementVersion,
       Value<int> rowid,
     });
 typedef $$ExerciseHistoryTableTableUpdateCompanionBuilder =
@@ -1922,6 +2382,13 @@ typedef $$ExerciseHistoryTableTableUpdateCompanionBuilder =
       Value<double?> accuracyPercentage,
       Value<int?> correctNoteCount,
       Value<int?> errorCount,
+      Value<double?> measuredTempoBpm,
+      Value<int?> meanInterOnsetMicroseconds,
+      Value<int?> interOnsetStandardDeviationMicroseconds,
+      Value<double?> tempoCoefficientOfVariation,
+      Value<int?> tempoIntervalCount,
+      Value<String?> tempoMeasurementQuality,
+      Value<int?> tempoMeasurementVersion,
       Value<int> rowid,
     });
 
@@ -2057,6 +2524,42 @@ class $$ExerciseHistoryTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<double> get measuredTempoBpm => $composableBuilder(
+    column: $table.measuredTempoBpm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get meanInterOnsetMicroseconds => $composableBuilder(
+    column: $table.meanInterOnsetMicroseconds,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get interOnsetStandardDeviationMicroseconds =>
+      $composableBuilder(
+        column: $table.interOnsetStandardDeviationMicroseconds,
+        builder: (column) => ColumnFilters(column),
+      );
+
+  ColumnFilters<double> get tempoCoefficientOfVariation => $composableBuilder(
+    column: $table.tempoCoefficientOfVariation,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get tempoIntervalCount => $composableBuilder(
+    column: $table.tempoIntervalCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get tempoMeasurementQuality => $composableBuilder(
+    column: $table.tempoMeasurementQuality,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get tempoMeasurementVersion => $composableBuilder(
+    column: $table.tempoMeasurementVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$UserProfileTableTableFilterComposer get profileId {
     final $$UserProfileTableTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -2180,6 +2683,42 @@ class $$ExerciseHistoryTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<double> get measuredTempoBpm => $composableBuilder(
+    column: $table.measuredTempoBpm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get meanInterOnsetMicroseconds => $composableBuilder(
+    column: $table.meanInterOnsetMicroseconds,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get interOnsetStandardDeviationMicroseconds =>
+      $composableBuilder(
+        column: $table.interOnsetStandardDeviationMicroseconds,
+        builder: (column) => ColumnOrderings(column),
+      );
+
+  ColumnOrderings<double> get tempoCoefficientOfVariation => $composableBuilder(
+    column: $table.tempoCoefficientOfVariation,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get tempoIntervalCount => $composableBuilder(
+    column: $table.tempoIntervalCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get tempoMeasurementQuality => $composableBuilder(
+    column: $table.tempoMeasurementQuality,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get tempoMeasurementVersion => $composableBuilder(
+    column: $table.tempoMeasurementVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$UserProfileTableTableOrderingComposer get profileId {
     final $$UserProfileTableTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -2295,6 +2834,42 @@ class $$ExerciseHistoryTableTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<double> get measuredTempoBpm => $composableBuilder(
+    column: $table.measuredTempoBpm,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get meanInterOnsetMicroseconds => $composableBuilder(
+    column: $table.meanInterOnsetMicroseconds,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get interOnsetStandardDeviationMicroseconds =>
+      $composableBuilder(
+        column: $table.interOnsetStandardDeviationMicroseconds,
+        builder: (column) => column,
+      );
+
+  GeneratedColumn<double> get tempoCoefficientOfVariation => $composableBuilder(
+    column: $table.tempoCoefficientOfVariation,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get tempoIntervalCount => $composableBuilder(
+    column: $table.tempoIntervalCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get tempoMeasurementQuality => $composableBuilder(
+    column: $table.tempoMeasurementQuality,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get tempoMeasurementVersion => $composableBuilder(
+    column: $table.tempoMeasurementVersion,
+    builder: (column) => column,
+  );
+
   $$UserProfileTableTableAnnotationComposer get profileId {
     final $$UserProfileTableTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -2374,6 +2949,15 @@ class $$ExerciseHistoryTableTableTableManager
                 Value<double?> accuracyPercentage = const Value.absent(),
                 Value<int?> correctNoteCount = const Value.absent(),
                 Value<int?> errorCount = const Value.absent(),
+                Value<double?> measuredTempoBpm = const Value.absent(),
+                Value<int?> meanInterOnsetMicroseconds = const Value.absent(),
+                Value<int?> interOnsetStandardDeviationMicroseconds =
+                    const Value.absent(),
+                Value<double?> tempoCoefficientOfVariation =
+                    const Value.absent(),
+                Value<int?> tempoIntervalCount = const Value.absent(),
+                Value<String?> tempoMeasurementQuality = const Value.absent(),
+                Value<int?> tempoMeasurementVersion = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExerciseHistoryTableCompanion(
                 id: id,
@@ -2395,6 +2979,14 @@ class $$ExerciseHistoryTableTableTableManager
                 accuracyPercentage: accuracyPercentage,
                 correctNoteCount: correctNoteCount,
                 errorCount: errorCount,
+                measuredTempoBpm: measuredTempoBpm,
+                meanInterOnsetMicroseconds: meanInterOnsetMicroseconds,
+                interOnsetStandardDeviationMicroseconds:
+                    interOnsetStandardDeviationMicroseconds,
+                tempoCoefficientOfVariation: tempoCoefficientOfVariation,
+                tempoIntervalCount: tempoIntervalCount,
+                tempoMeasurementQuality: tempoMeasurementQuality,
+                tempoMeasurementVersion: tempoMeasurementVersion,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2418,6 +3010,15 @@ class $$ExerciseHistoryTableTableTableManager
                 Value<double?> accuracyPercentage = const Value.absent(),
                 Value<int?> correctNoteCount = const Value.absent(),
                 Value<int?> errorCount = const Value.absent(),
+                Value<double?> measuredTempoBpm = const Value.absent(),
+                Value<int?> meanInterOnsetMicroseconds = const Value.absent(),
+                Value<int?> interOnsetStandardDeviationMicroseconds =
+                    const Value.absent(),
+                Value<double?> tempoCoefficientOfVariation =
+                    const Value.absent(),
+                Value<int?> tempoIntervalCount = const Value.absent(),
+                Value<String?> tempoMeasurementQuality = const Value.absent(),
+                Value<int?> tempoMeasurementVersion = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExerciseHistoryTableCompanion.insert(
                 id: id,
@@ -2439,6 +3040,14 @@ class $$ExerciseHistoryTableTableTableManager
                 accuracyPercentage: accuracyPercentage,
                 correctNoteCount: correctNoteCount,
                 errorCount: errorCount,
+                measuredTempoBpm: measuredTempoBpm,
+                meanInterOnsetMicroseconds: meanInterOnsetMicroseconds,
+                interOnsetStandardDeviationMicroseconds:
+                    interOnsetStandardDeviationMicroseconds,
+                tempoCoefficientOfVariation: tempoCoefficientOfVariation,
+                tempoIntervalCount: tempoIntervalCount,
+                tempoMeasurementQuality: tempoMeasurementQuality,
+                tempoMeasurementVersion: tempoMeasurementVersion,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

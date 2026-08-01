@@ -1,5 +1,8 @@
+import "package:piano_fitness/application/state/exercise_tempo_tracker.dart";
 import "package:flutter/foundation.dart";
 import "package:piano_fitness/domain/models/practice/exercise.dart";
+import "package:piano_fitness/domain/models/practice/exercise_completion_result.dart";
+import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart";
 
 /// Manages the real-time execution state of a practice exercise.
 ///
@@ -16,12 +19,7 @@ class PracticeRunner {
   final PracticeExercise exercise;
 
   /// Callback fired when a practice exercise is completed successfully.
-  final void Function(
-    double? accuracyPercentage,
-    int? correctNoteCount,
-    int? errorCount,
-  )
-  onExerciseCompleted;
+  final void Function(ExerciseCompletionResult result) onExerciseCompleted;
 
   /// Callback fired when the highlighted notes on the piano should change.
   final void Function(List<int>) onHighlightedNotesChanged;
@@ -32,6 +30,8 @@ class PracticeRunner {
 
   int _correctNoteCount = 0;
   int _errorCount = 0;
+  final ExerciseTempoTracker _tempoTracker = ExerciseTempoTracker();
+  int? _tempoOnsetStepIndex;
 
   /// Whether the practice session is actively running.
   bool get practiceActive => _practiceActive;
@@ -68,6 +68,8 @@ class PracticeRunner {
     _currentlyHeldNotes.clear();
     _correctNoteCount = 0;
     _errorCount = 0;
+    _tempoTracker.reset();
+    _tempoOnsetStepIndex = null;
     _updateHighlightedNotes();
   }
 
@@ -78,21 +80,36 @@ class PracticeRunner {
     _currentlyHeldNotes.clear();
     _correctNoteCount = 0;
     _errorCount = 0;
+    _tempoTracker.reset();
+    _tempoOnsetStepIndex = null;
     _updateHighlightedNotes();
   }
 
   /// Handles MIDI note press events during practice sessions.
-  void handleNotePressed(int midiNote) {
+  void handleNotePressed(
+    int midiNote, {
+    required Duration occurredAt,
+    required ExerciseInputSource inputSource,
+  }) {
     if (!_practiceActive) {
       startPractice();
     }
 
     if (_currentStepIndex >= exercise.steps.length) return;
 
+    _tempoTracker.recordInputSource(inputSource);
     _currentlyHeldNotes.add(midiNote);
 
     final step = exercise.steps[_currentStepIndex];
     if (step.expectedMidiNotes.contains(midiNote)) {
+      if (_tempoOnsetStepIndex != _currentStepIndex) {
+        _tempoTracker.recordStepOnset(
+          stepIndex: _currentStepIndex,
+          occurredAt: occurredAt,
+          source: inputSource,
+        );
+        _tempoOnsetStepIndex = _currentStepIndex;
+      }
       _correctNoteCount++;
     } else {
       _errorCount++;
@@ -138,7 +155,24 @@ class PracticeRunner {
       accuracyPercentage = (_correctNoteCount / totalNotes) * 100;
     }
 
-    onExerciseCompleted(accuracyPercentage, _correctNoteCount, _errorCount);
+    ExerciseTempoResult tempo;
+    try {
+      tempo = _tempoTracker.complete();
+    } catch (_) {
+      tempo = const ExerciseTempoResult(
+        quality: TempoMeasurementQuality.unavailable,
+        intervalCount: 0,
+      );
+    }
+
+    onExerciseCompleted(
+      ExerciseCompletionResult(
+        accuracyPercentage: accuracyPercentage,
+        correctNoteCount: _correctNoteCount,
+        errorCount: _errorCount,
+        tempo: tempo,
+      ),
+    );
   }
 
   void _updateHighlightedNotes() {

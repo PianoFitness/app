@@ -8,6 +8,8 @@ import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/exercise_history_entry.dart";
+import "package:piano_fitness/domain/models/practice/exercise_completion_result.dart";
+import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/models/music/chord_type.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
@@ -84,30 +86,18 @@ class PracticePageViewModel extends ChangeNotifier {
 
   /// Initializes the practice session with required callbacks.
   void initializePracticeSession({
-    required void Function(
-      double? accuracyPercentage,
-      int? correctNoteCount,
-      int? errorCount,
-    )
-    onExerciseCompleted,
+    required void Function(ExerciseCompletionResult result) onExerciseCompleted,
     required void Function(List<int> midiNotes) onHighlightedNotesChanged,
     PracticeMode initialMode = PracticeMode.scales,
     ChordProgression? initialChordProgression,
   }) {
     _practiceSession = PracticeSession(
-      onExerciseCompleted: (accuracyPercentage, correctNoteCount, errorCount) {
+      onExerciseCompleted: (result) {
         // Snapshot configuration synchronously before crossing the async
         // boundary so _recordExerciseHistory reads consistent state.
         final config = _practiceSession?.config;
-        unawaited(
-          _recordExerciseHistory(
-            config,
-            accuracyPercentage: accuracyPercentage,
-            correctNoteCount: correctNoteCount,
-            errorCount: errorCount,
-          ),
-        );
-        onExerciseCompleted(accuracyPercentage, correctNoteCount, errorCount);
+        unawaited(_recordExerciseHistory(config, result: result));
+        onExerciseCompleted(result);
       },
       onHighlightedNotesChanged: (List<int> notes) {
         _highlightedNotes = notes;
@@ -133,9 +123,7 @@ class PracticePageViewModel extends ChangeNotifier {
   /// [config] is null, so that the exercise completion UI is never blocked.
   Future<void> _recordExerciseHistory(
     ExerciseConfiguration? config, {
-    double? accuracyPercentage,
-    int? correctNoteCount,
-    int? errorCount,
+    required ExerciseCompletionResult result,
   }) async {
     try {
       if (config == null) {
@@ -156,9 +144,17 @@ class PracticePageViewModel extends ChangeNotifier {
         profileId: profileId,
         completedAt: DateTime.now(),
         config: config,
-        accuracyPercentage: accuracyPercentage,
-        correctNoteCount: correctNoteCount,
-        errorCount: errorCount,
+        accuracyPercentage: result.accuracyPercentage,
+        correctNoteCount: result.correctNoteCount,
+        errorCount: result.errorCount,
+        measuredTempoBpm: result.tempo.measuredTempoBpm,
+        meanInterOnsetMicroseconds: result.tempo.meanInterOnsetMicroseconds,
+        interOnsetStandardDeviationMicroseconds:
+            result.tempo.interOnsetStandardDeviationMicroseconds,
+        tempoCoefficientOfVariation: result.tempo.coefficientOfVariation,
+        tempoIntervalCount: result.tempo.intervalCount,
+        tempoMeasurementQuality: result.tempo.quality,
+        tempoMeasurementVersion: 1,
       );
 
       await _exerciseHistoryRepository.saveEntry(entry);
@@ -188,7 +184,11 @@ class PracticePageViewModel extends ChangeNotifier {
     switch (event.type) {
       case MidiEventType.noteOn:
         _midiState.noteOn(event.data1, event.data2, event.channel);
-        _practiceSession?.handleNotePressed(event.data1);
+        _practiceSession?.handleNotePressed(
+          event.data1,
+          occurredAt: event.occurredAt,
+          inputSource: ExerciseInputSource.externalMidi,
+        );
         break;
       case MidiEventType.noteOff:
         _midiState.noteOff(event.data1, event.channel);
@@ -345,7 +345,11 @@ class PracticePageViewModel extends ChangeNotifier {
   /// Handles a piano key press: triggers the practice session's own
   /// auto-start/exercise-advance logic and sends a MIDI note-on.
   Future<void> onKeyDown(int midiNote) async {
-    _practiceSession?.handleNotePressed(midiNote);
+    _practiceSession?.handleNotePressed(
+      midiNote,
+      occurredAt: Duration.zero,
+      inputSource: ExerciseInputSource.virtualPiano,
+    );
     await VirtualPianoUtils.noteOn(midiNote, _midiRepository, _midiState);
   }
 

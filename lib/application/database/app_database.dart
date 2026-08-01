@@ -45,7 +45,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration {
@@ -98,6 +98,36 @@ class AppDatabase extends _$AppDatabase {
           await m.addColumn(
             schema.exerciseHistoryTable,
             schema.exerciseHistoryTable.errorCount,
+          );
+        },
+        from5To6: (m, schema) async {
+          await m.addColumn(
+            schema.exerciseHistoryTable,
+            schema.exerciseHistoryTable.measuredTempoBpm,
+          );
+          await m.addColumn(
+            schema.exerciseHistoryTable,
+            schema.exerciseHistoryTable.meanInterOnsetMicroseconds,
+          );
+          await m.addColumn(
+            schema.exerciseHistoryTable,
+            schema.exerciseHistoryTable.interOnsetStandardDeviationMicroseconds,
+          );
+          await m.addColumn(
+            schema.exerciseHistoryTable,
+            schema.exerciseHistoryTable.tempoCoefficientOfVariation,
+          );
+          await m.addColumn(
+            schema.exerciseHistoryTable,
+            schema.exerciseHistoryTable.tempoIntervalCount,
+          );
+          await m.addColumn(
+            schema.exerciseHistoryTable,
+            schema.exerciseHistoryTable.tempoMeasurementQuality,
+          );
+          await m.addColumn(
+            schema.exerciseHistoryTable,
+            schema.exerciseHistoryTable.tempoMeasurementVersion,
           );
         },
       ),

@@ -35,6 +35,7 @@ class MidiEvent {
     required this.data1,
     required this.data2,
     required this.type,
+    this.occurredAt = Duration.zero,
     String? displayMessage,
   }) : _displayMessage = displayMessage;
 
@@ -52,6 +53,9 @@ class MidiEvent {
 
   /// The categorized type of this MIDI event.
   final MidiEventType type;
+
+  /// Application-owned monotonic timestamp of the packet containing this event.
+  final Duration occurredAt;
 
   final String? _displayMessage;
 

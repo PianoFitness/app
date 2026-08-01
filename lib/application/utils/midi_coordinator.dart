@@ -2,6 +2,7 @@ import "package:flutter/foundation.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/utils/midi_data_handler.dart";
 import "package:piano_fitness/domain/models/midi/midi_event.dart";
+import "package:piano_fitness/domain/models/midi/midi_input_packet.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 
 /// A handle to a MIDI event subscription returned by [MidiCoordinator.subscribe].
@@ -71,8 +72,8 @@ class MidiCoordinator {
     MidiState midiState,
     void Function(MidiEvent event) onEvent,
   ) {
-    void handler(Uint8List data) {
-      MidiDataHandler.dispatch(data, midiState, onEvent);
+    void handler(MidiInputPacket packet) {
+      MidiDataHandler.dispatch(packet, midiState, onEvent);
     }
 
     _repository.registerDataHandler(handler);

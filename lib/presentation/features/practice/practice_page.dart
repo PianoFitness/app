@@ -3,6 +3,7 @@ import "package:provider/provider.dart";
 import "package:piano_fitness/presentation/constants/practice_constants.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
+import "package:piano_fitness/domain/models/practice/exercise_completion_result.dart";
 import "package:piano_fitness/domain/repositories/exercise_history_repository.dart";
 import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
 import "package:piano_fitness/presentation/features/practice/practice_page_view_model.dart";
@@ -101,11 +102,7 @@ class _PracticePageViewState extends State<_PracticePageView> {
     });
   }
 
-  void _completeExercise(
-    double? accuracyPercentage,
-    int? correctNoteCount,
-    int? errorCount,
-  ) {
+  void _completeExercise(ExerciseCompletionResult result) {
     // Use a custom overlay approach to show completion message at top
     final overlay = Overlay.of(context);
     late OverlayEntry overlayEntry;
@@ -139,8 +136,8 @@ class _PracticePageViewState extends State<_PracticePageView> {
                 ),
                 const SizedBox(width: Spacing.sm),
                 Text(
-                  accuracyPercentage != null
-                      ? "Exercise completed! ${accuracyPercentage.toStringAsFixed(0)}% accuracy"
+                  result.accuracyPercentage != null
+                      ? "Exercise completed! ${result.accuracyPercentage!.toStringAsFixed(0)}% accuracy${result.tempo.measuredTempoBpm != null ? " · ${result.tempo.measuredTempoBpm!.toStringAsFixed(1)} BPM" : ""}"
                       : "Exercise completed! Well done!",
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onPrimary,

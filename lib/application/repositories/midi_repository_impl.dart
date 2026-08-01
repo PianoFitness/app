@@ -5,6 +5,7 @@ import "package:flutter_midi_command/flutter_midi_command.dart" as midi_cmd;
 import "package:logging/logging.dart";
 import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
 import "package:piano_fitness/domain/models/midi_channel.dart";
+import "package:piano_fitness/domain/models/midi/midi_input_packet.dart";
 import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 
@@ -28,11 +29,11 @@ class MidiRepositoryImpl implements IMidiRepository {
 
   final MidiConnectionService _service;
   final midi_cmd.MidiCommand _midiCommand;
-  final StreamController<Uint8List> _midiDataController =
-      StreamController<Uint8List>.broadcast();
+  final StreamController<MidiInputPacket> _midiDataController =
+      StreamController<MidiInputPacket>.broadcast();
 
   /// Tracks all handlers registered via registerDataHandler() for cleanup in dispose()
-  final Set<void Function(Uint8List)> _registeredHandlers = {};
+  final Set<MidiInputHandler> _registeredHandlers = {};
 
   /// Maximum number of connection attempts before giving up
   final int maxConnectionAttempts;
@@ -101,7 +102,7 @@ class MidiRepositoryImpl implements IMidiRepository {
   }
 
   @override
-  Stream<Uint8List> get midiDataStream => _midiDataController.stream;
+  Stream<MidiInputPacket> get midiDataStream => _midiDataController.stream;
 
   @override
   Future<List<MidiDevice>> listDevices() async {
@@ -225,7 +226,7 @@ class MidiRepositoryImpl implements IMidiRepository {
   }
 
   @override
-  void registerDataHandler(void Function(Uint8List) handler) {
+  void registerDataHandler(MidiInputHandler handler) {
     // Only register with service if this is a new handler
     if (_registeredHandlers.add(handler)) {
       _service.registerDataHandler(handler);
@@ -233,7 +234,7 @@ class MidiRepositoryImpl implements IMidiRepository {
   }
 
   @override
-  void unregisterDataHandler(void Function(Uint8List) handler) {
+  void unregisterDataHandler(MidiInputHandler handler) {
     // Only unregister from service if handler was actually registered
     if (_registeredHandlers.remove(handler)) {
       _service.unregisterDataHandler(handler);

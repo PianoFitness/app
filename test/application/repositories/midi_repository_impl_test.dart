@@ -3,6 +3,7 @@ import "package:flutter_midi_command/flutter_midi_command.dart" as midi_cmd;
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/application/repositories/midi_repository_impl.dart";
 import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
+import "package:piano_fitness/domain/models/midi/midi_input_packet.dart";
 
 class FakeMidiCommand implements midi_cmd.MidiCommand {
   Uint8List? lastSentData;
@@ -49,7 +50,7 @@ class FakeMidiConnectionService implements MidiConnectionService {
   bool _connected = false;
   bool throwOnConnect = false;
   bool throwOnDisconnect = false;
-  final Set<void Function(Uint8List)> handlers = {};
+  final Set<void Function(MidiInputPacket)> handlers = {};
 
   @override
   bool get isConnected => _connected;
@@ -71,12 +72,12 @@ class FakeMidiConnectionService implements MidiConnectionService {
   }
 
   @override
-  void registerDataHandler(void Function(Uint8List p1) handler) {
+  void registerDataHandler(void Function(MidiInputPacket p1) handler) {
     handlers.add(handler);
   }
 
   @override
-  void unregisterDataHandler(void Function(Uint8List p1) handler) {
+  void unregisterDataHandler(void Function(MidiInputPacket p1) handler) {
     if (throwOnDisconnect) {
       throw Exception("Unregister error");
     }
@@ -120,7 +121,7 @@ void main() {
     });
 
     test("registerDataHandler and unregisterDataHandler track handlers", () {
-      void handler(Uint8List data) {}
+      void handler(MidiInputPacket packet) {}
 
       repo.registerDataHandler(handler);
       expect(fakeService.handlers, contains(handler));

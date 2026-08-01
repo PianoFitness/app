@@ -28,10 +28,9 @@ void main() {
       expect(db, isA<AppDatabase>());
     });
 
-    test("schemaVersion is 5", () {
-      // Schema version 5 adds the accuracyPercentage, correctNoteCount, and errorCount
-      // columns to exercise_history_table.
-      expect(db.schemaVersion, 5);
+    test("schemaVersion is 6", () {
+      // Schema version 6 adds nullable performed-tempo evidence columns.
+      expect(db.schemaVersion, 6);
     });
 
     test("opens and closes without error", () async {

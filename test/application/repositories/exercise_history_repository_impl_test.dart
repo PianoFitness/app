@@ -6,6 +6,7 @@ import "package:piano_fitness/application/repositories/user_profile_repository_i
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/exercise_history_entry.dart";
+import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
 import "package:shared_preferences/shared_preferences.dart";
@@ -42,6 +43,13 @@ void main() {
     double? accuracyPercentage,
     int? correctNoteCount,
     int? errorCount,
+    double? measuredTempoBpm,
+    int? meanInterOnsetMicroseconds,
+    int? interOnsetStandardDeviationMicroseconds,
+    double? tempoCoefficientOfVariation,
+    int? tempoIntervalCount,
+    TempoMeasurementQuality? tempoMeasurementQuality,
+    int? tempoMeasurementVersion,
   }) {
     return ExerciseHistoryEntry.fromConfiguration(
       id: id,
@@ -58,6 +66,14 @@ void main() {
       accuracyPercentage: accuracyPercentage,
       correctNoteCount: correctNoteCount,
       errorCount: errorCount,
+      measuredTempoBpm: measuredTempoBpm,
+      meanInterOnsetMicroseconds: meanInterOnsetMicroseconds,
+      interOnsetStandardDeviationMicroseconds:
+          interOnsetStandardDeviationMicroseconds,
+      tempoCoefficientOfVariation: tempoCoefficientOfVariation,
+      tempoIntervalCount: tempoIntervalCount,
+      tempoMeasurementQuality: tempoMeasurementQuality,
+      tempoMeasurementVersion: tempoMeasurementVersion,
     );
   }
 
@@ -90,6 +106,31 @@ void main() {
       expect(results.first.accuracyPercentage, equals(95.5));
       expect(results.first.correctNoteCount, equals(20));
       expect(results.first.errorCount, equals(1));
+    });
+
+    test("should persist and restore reliable tempo evidence", () async {
+      final entry = makeEntry(
+        profileId: testProfileId,
+        measuredTempoBpm: 120.4,
+        meanInterOnsetMicroseconds: 498339,
+        interOnsetStandardDeviationMicroseconds: 1234,
+        tempoCoefficientOfVariation: 0.0025,
+        tempoIntervalCount: 8,
+        tempoMeasurementQuality: TempoMeasurementQuality.reliable,
+        tempoMeasurementVersion: 1,
+      );
+      await repository.saveEntry(entry);
+
+      final result = (await repository.getEntriesForProfile(
+        testProfileId,
+      )).single;
+      expect(result.measuredTempoBpm, 120.4);
+      expect(result.meanInterOnsetMicroseconds, 498339);
+      expect(result.interOnsetStandardDeviationMicroseconds, 1234);
+      expect(result.tempoCoefficientOfVariation, 0.0025);
+      expect(result.tempoIntervalCount, 8);
+      expect(result.tempoMeasurementQuality, TempoMeasurementQuality.reliable);
+      expect(result.tempoMeasurementVersion, 1);
     });
 
     test("should rethrow on duplicate id", () async {
