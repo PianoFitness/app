@@ -649,6 +649,17 @@ class $ExerciseHistoryTableTable extends ExerciseHistoryTable
         type: DriftSqlType.int,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _tempoStepNoteValueMeta =
+      const VerificationMeta('tempoStepNoteValue');
+  @override
+  late final GeneratedColumn<String> tempoStepNoteValue =
+      GeneratedColumn<String>(
+        'tempo_step_note_value',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -677,6 +688,7 @@ class $ExerciseHistoryTableTable extends ExerciseHistoryTable
     tempoIntervalCount,
     tempoMeasurementQuality,
     tempoMeasurementVersion,
+    tempoStepNoteValue,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -910,6 +922,15 @@ class $ExerciseHistoryTableTable extends ExerciseHistoryTable
         ),
       );
     }
+    if (data.containsKey('tempo_step_note_value')) {
+      context.handle(
+        _tempoStepNoteValueMeta,
+        tempoStepNoteValue.isAcceptableOrUnknown(
+          data['tempo_step_note_value']!,
+          _tempoStepNoteValueMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1026,6 +1047,10 @@ class $ExerciseHistoryTableTable extends ExerciseHistoryTable
         DriftSqlType.int,
         data['${effectivePrefix}tempo_measurement_version'],
       ),
+      tempoStepNoteValue: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}tempo_step_note_value'],
+      ),
     );
   }
 
@@ -1099,13 +1124,37 @@ class ExerciseHistoryTableData extends DataClass
 
   /// Raw count of unexpected note-on events during the exercise.
   final int? errorCount;
+
+  /// Performed step-beats per minute; null unless timing is reliable.
   final double? measuredTempoBpm;
+
+  /// Mean interval between expected step onsets, in microseconds; nullable
+  /// when an attempt does not produce valid timing evidence.
   final int? meanInterOnsetMicroseconds;
+
+  /// Population standard deviation of step-onset intervals, in microseconds;
+  /// null when timing statistics are unavailable.
   final int? interOnsetStandardDeviationMicroseconds;
+
+  /// Standard deviation divided by the mean onset interval; nullable when no
+  /// valid interval statistics are available.
   final double? tempoCoefficientOfVariation;
+
+  /// Count of inter-onset intervals, rather than onset count; nullable for
+  /// history rows created before tempo measurement was introduced.
   final int? tempoIntervalCount;
+
+  /// Reliability classification of the tempo evidence; null for legacy rows
+  /// without a tempo measurement.
   final String? tempoMeasurementQuality;
+
+  /// Version of the tempo-measurement algorithm used for this row; null for
+  /// legacy rows and independent of the database schema version.
   final int? tempoMeasurementVersion;
+
+  /// Uniform step note value used to convert the measured tempo to
+  /// quarter-note BPM; null for rows recorded before rhythmic metadata.
+  final String? tempoStepNoteValue;
   const ExerciseHistoryTableData({
     required this.id,
     required this.profileId,
@@ -1133,6 +1182,7 @@ class ExerciseHistoryTableData extends DataClass
     this.tempoIntervalCount,
     this.tempoMeasurementQuality,
     this.tempoMeasurementVersion,
+    this.tempoStepNoteValue,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1207,6 +1257,9 @@ class ExerciseHistoryTableData extends DataClass
     if (!nullToAbsent || tempoMeasurementVersion != null) {
       map['tempo_measurement_version'] = Variable<int>(tempoMeasurementVersion);
     }
+    if (!nullToAbsent || tempoStepNoteValue != null) {
+      map['tempo_step_note_value'] = Variable<String>(tempoStepNoteValue);
+    }
     return map;
   }
 
@@ -1277,6 +1330,9 @@ class ExerciseHistoryTableData extends DataClass
       tempoMeasurementVersion: tempoMeasurementVersion == null && nullToAbsent
           ? const Value.absent()
           : Value(tempoMeasurementVersion),
+      tempoStepNoteValue: tempoStepNoteValue == null && nullToAbsent
+          ? const Value.absent()
+          : Value(tempoStepNoteValue),
     );
   }
 
@@ -1330,6 +1386,9 @@ class ExerciseHistoryTableData extends DataClass
       tempoMeasurementVersion: serializer.fromJson<int?>(
         json['tempoMeasurementVersion'],
       ),
+      tempoStepNoteValue: serializer.fromJson<String?>(
+        json['tempoStepNoteValue'],
+      ),
     );
   }
   @override
@@ -1372,6 +1431,7 @@ class ExerciseHistoryTableData extends DataClass
       'tempoMeasurementVersion': serializer.toJson<int?>(
         tempoMeasurementVersion,
       ),
+      'tempoStepNoteValue': serializer.toJson<String?>(tempoStepNoteValue),
     };
   }
 
@@ -1402,6 +1462,7 @@ class ExerciseHistoryTableData extends DataClass
     Value<int?> tempoIntervalCount = const Value.absent(),
     Value<String?> tempoMeasurementQuality = const Value.absent(),
     Value<int?> tempoMeasurementVersion = const Value.absent(),
+    Value<String?> tempoStepNoteValue = const Value.absent(),
   }) => ExerciseHistoryTableData(
     id: id ?? this.id,
     profileId: profileId ?? this.profileId,
@@ -1452,6 +1513,9 @@ class ExerciseHistoryTableData extends DataClass
     tempoMeasurementVersion: tempoMeasurementVersion.present
         ? tempoMeasurementVersion.value
         : this.tempoMeasurementVersion,
+    tempoStepNoteValue: tempoStepNoteValue.present
+        ? tempoStepNoteValue.value
+        : this.tempoStepNoteValue,
   );
   ExerciseHistoryTableData copyWithCompanion(
     ExerciseHistoryTableCompanion data,
@@ -1526,6 +1590,9 @@ class ExerciseHistoryTableData extends DataClass
       tempoMeasurementVersion: data.tempoMeasurementVersion.present
           ? data.tempoMeasurementVersion.value
           : this.tempoMeasurementVersion,
+      tempoStepNoteValue: data.tempoStepNoteValue.present
+          ? data.tempoStepNoteValue.value
+          : this.tempoStepNoteValue,
     );
   }
 
@@ -1559,7 +1626,8 @@ class ExerciseHistoryTableData extends DataClass
           ..write('tempoCoefficientOfVariation: $tempoCoefficientOfVariation, ')
           ..write('tempoIntervalCount: $tempoIntervalCount, ')
           ..write('tempoMeasurementQuality: $tempoMeasurementQuality, ')
-          ..write('tempoMeasurementVersion: $tempoMeasurementVersion')
+          ..write('tempoMeasurementVersion: $tempoMeasurementVersion, ')
+          ..write('tempoStepNoteValue: $tempoStepNoteValue')
           ..write(')'))
         .toString();
   }
@@ -1592,6 +1660,7 @@ class ExerciseHistoryTableData extends DataClass
     tempoIntervalCount,
     tempoMeasurementQuality,
     tempoMeasurementVersion,
+    tempoStepNoteValue,
   ]);
   @override
   bool operator ==(Object other) =>
@@ -1624,7 +1693,8 @@ class ExerciseHistoryTableData extends DataClass
               this.tempoCoefficientOfVariation &&
           other.tempoIntervalCount == this.tempoIntervalCount &&
           other.tempoMeasurementQuality == this.tempoMeasurementQuality &&
-          other.tempoMeasurementVersion == this.tempoMeasurementVersion);
+          other.tempoMeasurementVersion == this.tempoMeasurementVersion &&
+          other.tempoStepNoteValue == this.tempoStepNoteValue);
 }
 
 class ExerciseHistoryTableCompanion
@@ -1655,6 +1725,7 @@ class ExerciseHistoryTableCompanion
   final Value<int?> tempoIntervalCount;
   final Value<String?> tempoMeasurementQuality;
   final Value<int?> tempoMeasurementVersion;
+  final Value<String?> tempoStepNoteValue;
   final Value<int> rowid;
   const ExerciseHistoryTableCompanion({
     this.id = const Value.absent(),
@@ -1683,6 +1754,7 @@ class ExerciseHistoryTableCompanion
     this.tempoIntervalCount = const Value.absent(),
     this.tempoMeasurementQuality = const Value.absent(),
     this.tempoMeasurementVersion = const Value.absent(),
+    this.tempoStepNoteValue = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ExerciseHistoryTableCompanion.insert({
@@ -1712,6 +1784,7 @@ class ExerciseHistoryTableCompanion
     this.tempoIntervalCount = const Value.absent(),
     this.tempoMeasurementQuality = const Value.absent(),
     this.tempoMeasurementVersion = const Value.absent(),
+    this.tempoStepNoteValue = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        profileId = Value(profileId),
@@ -1745,6 +1818,7 @@ class ExerciseHistoryTableCompanion
     Expression<int>? tempoIntervalCount,
     Expression<String>? tempoMeasurementQuality,
     Expression<int>? tempoMeasurementVersion,
+    Expression<String>? tempoStepNoteValue,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1784,6 +1858,8 @@ class ExerciseHistoryTableCompanion
         'tempo_measurement_quality': tempoMeasurementQuality,
       if (tempoMeasurementVersion != null)
         'tempo_measurement_version': tempoMeasurementVersion,
+      if (tempoStepNoteValue != null)
+        'tempo_step_note_value': tempoStepNoteValue,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1815,6 +1891,7 @@ class ExerciseHistoryTableCompanion
     Value<int?>? tempoIntervalCount,
     Value<String?>? tempoMeasurementQuality,
     Value<int?>? tempoMeasurementVersion,
+    Value<String?>? tempoStepNoteValue,
     Value<int>? rowid,
   }) {
     return ExerciseHistoryTableCompanion(
@@ -1850,6 +1927,7 @@ class ExerciseHistoryTableCompanion
           tempoMeasurementQuality ?? this.tempoMeasurementQuality,
       tempoMeasurementVersion:
           tempoMeasurementVersion ?? this.tempoMeasurementVersion,
+      tempoStepNoteValue: tempoStepNoteValue ?? this.tempoStepNoteValue,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1947,6 +2025,9 @@ class ExerciseHistoryTableCompanion
         tempoMeasurementVersion.value,
       );
     }
+    if (tempoStepNoteValue.present) {
+      map['tempo_step_note_value'] = Variable<String>(tempoStepNoteValue.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1984,6 +2065,7 @@ class ExerciseHistoryTableCompanion
           ..write('tempoIntervalCount: $tempoIntervalCount, ')
           ..write('tempoMeasurementQuality: $tempoMeasurementQuality, ')
           ..write('tempoMeasurementVersion: $tempoMeasurementVersion, ')
+          ..write('tempoStepNoteValue: $tempoStepNoteValue, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2359,6 +2441,7 @@ typedef $$ExerciseHistoryTableTableCreateCompanionBuilder =
       Value<int?> tempoIntervalCount,
       Value<String?> tempoMeasurementQuality,
       Value<int?> tempoMeasurementVersion,
+      Value<String?> tempoStepNoteValue,
       Value<int> rowid,
     });
 typedef $$ExerciseHistoryTableTableUpdateCompanionBuilder =
@@ -2389,6 +2472,7 @@ typedef $$ExerciseHistoryTableTableUpdateCompanionBuilder =
       Value<int?> tempoIntervalCount,
       Value<String?> tempoMeasurementQuality,
       Value<int?> tempoMeasurementVersion,
+      Value<String?> tempoStepNoteValue,
       Value<int> rowid,
     });
 
@@ -2560,6 +2644,11 @@ class $$ExerciseHistoryTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get tempoStepNoteValue => $composableBuilder(
+    column: $table.tempoStepNoteValue,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$UserProfileTableTableFilterComposer get profileId {
     final $$UserProfileTableTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -2719,6 +2808,11 @@ class $$ExerciseHistoryTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get tempoStepNoteValue => $composableBuilder(
+    column: $table.tempoStepNoteValue,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$UserProfileTableTableOrderingComposer get profileId {
     final $$UserProfileTableTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -2870,6 +2964,11 @@ class $$ExerciseHistoryTableTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get tempoStepNoteValue => $composableBuilder(
+    column: $table.tempoStepNoteValue,
+    builder: (column) => column,
+  );
+
   $$UserProfileTableTableAnnotationComposer get profileId {
     final $$UserProfileTableTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -2958,6 +3057,7 @@ class $$ExerciseHistoryTableTableTableManager
                 Value<int?> tempoIntervalCount = const Value.absent(),
                 Value<String?> tempoMeasurementQuality = const Value.absent(),
                 Value<int?> tempoMeasurementVersion = const Value.absent(),
+                Value<String?> tempoStepNoteValue = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExerciseHistoryTableCompanion(
                 id: id,
@@ -2987,6 +3087,7 @@ class $$ExerciseHistoryTableTableTableManager
                 tempoIntervalCount: tempoIntervalCount,
                 tempoMeasurementQuality: tempoMeasurementQuality,
                 tempoMeasurementVersion: tempoMeasurementVersion,
+                tempoStepNoteValue: tempoStepNoteValue,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -3019,6 +3120,7 @@ class $$ExerciseHistoryTableTableTableManager
                 Value<int?> tempoIntervalCount = const Value.absent(),
                 Value<String?> tempoMeasurementQuality = const Value.absent(),
                 Value<int?> tempoMeasurementVersion = const Value.absent(),
+                Value<String?> tempoStepNoteValue = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => ExerciseHistoryTableCompanion.insert(
                 id: id,
@@ -3048,6 +3150,7 @@ class $$ExerciseHistoryTableTableTableManager
                 tempoIntervalCount: tempoIntervalCount,
                 tempoMeasurementQuality: tempoMeasurementQuality,
                 tempoMeasurementVersion: tempoMeasurementVersion,
+                tempoStepNoteValue: tempoStepNoteValue,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

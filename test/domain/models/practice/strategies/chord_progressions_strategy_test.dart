@@ -27,6 +27,10 @@ void main() {
       expect(exercise.metadata?["key"], "C");
       expect(exercise.metadata?["handSelection"], "both");
       expect(exercise.steps.length, 4);
+      expect(
+        exercise.steps.map((step) => step.noteValue),
+        everyElement(PracticeStepNoteValue.whole),
+      );
     });
 
     test("should initialize I-V progression when progression is provided", () {

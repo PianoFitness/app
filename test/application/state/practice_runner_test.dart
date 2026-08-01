@@ -145,5 +145,42 @@ void main() {
       expect(completion!.tempo.measuredTempoBpm, closeTo(150, 0.000001));
       expect(completion!.tempo.intervalCount, 5);
     });
+
+    test("completes mixed-duration exercises without tempo evidence", () {
+      ExerciseCompletionResult? completion;
+      final mixedExercise = PracticeExercise(
+        steps: List.generate(
+          6,
+          (index) => PracticeStep(
+            notes: [
+              PracticeNote(
+                pitch: MidiNote(60 + index),
+                hand: PracticeHand.right,
+              ),
+            ],
+            noteValue: index.isEven
+                ? PracticeStepNoteValue.quarter
+                : PracticeStepNoteValue.eighth,
+          ),
+        ),
+      );
+      final mixedRunner = PracticeRunner(
+        exercise: mixedExercise,
+        onExerciseCompleted: (result) => completion = result,
+        onHighlightedNotesChanged: (_) {},
+      );
+
+      for (var index = 0; index < 6; index++) {
+        mixedRunner.handleNotePressed(
+          60 + index,
+          occurredAt: Duration(milliseconds: index * 400),
+          inputSource: ExerciseInputSource.externalMidi,
+        );
+      }
+
+      expect(completion!.accuracyPercentage, 100);
+      expect(completion!.tempo.quality, TempoMeasurementQuality.unavailable);
+      expect(completion!.tempo.measuredTempoBpm, isNull);
+    });
   });
 }

@@ -4,6 +4,7 @@ import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart";
+import "package:piano_fitness/domain/models/practice/practice_step_note_value.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/chord_definitions.dart";
@@ -47,6 +48,7 @@ class ExerciseHistoryEntry {
     this.tempoIntervalCount,
     this.tempoMeasurementQuality,
     this.tempoMeasurementVersion,
+    this.tempoStepNoteValue,
   });
 
   /// Creates an [ExerciseHistoryEntry] from an [ExerciseConfiguration].
@@ -70,6 +72,7 @@ class ExerciseHistoryEntry {
     int? tempoIntervalCount,
     TempoMeasurementQuality? tempoMeasurementQuality,
     int? tempoMeasurementVersion,
+    PracticeStepNoteValue? tempoStepNoteValue,
   }) {
     return ExerciseHistoryEntry._(
       id: id,
@@ -99,6 +102,7 @@ class ExerciseHistoryEntry {
       tempoIntervalCount: tempoIntervalCount,
       tempoMeasurementQuality: tempoMeasurementQuality,
       tempoMeasurementVersion: tempoMeasurementVersion,
+      tempoStepNoteValue: tempoStepNoteValue,
     );
   }
 
@@ -193,4 +197,7 @@ class ExerciseHistoryEntry {
 
   /// Version of the tempo measurement algorithm used for this entry.
   final int? tempoMeasurementVersion;
+
+  /// Uniform step value used to convert the measured tempo to quarter-note BPM.
+  final PracticeStepNoteValue? tempoStepNoteValue;
 }

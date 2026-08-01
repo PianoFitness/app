@@ -1,4 +1,5 @@
 import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart";
+import "package:piano_fitness/domain/models/practice/practice_step_note_value.dart";
 import "package:piano_fitness/domain/services/practice/exercise_tempo_calculator.dart";
 
 /// Collects one expected-note onset for each step in a practice attempt.
@@ -46,13 +47,15 @@ class ExerciseTempoTracker {
     }
   }
 
-  ExerciseTempoResult complete() {
-    if (_isUnavailable || _source != ExerciseInputSource.externalMidi) {
+  ExerciseTempoResult complete({required PracticeStepNoteValue? noteValue}) {
+    if (_isUnavailable ||
+        _source != ExerciseInputSource.externalMidi ||
+        noteValue == null) {
       return const ExerciseTempoResult(
         quality: TempoMeasurementQuality.unavailable,
         intervalCount: 0,
       );
     }
-    return ExerciseTempoCalculator.calculate(_onsets);
+    return ExerciseTempoCalculator.calculate(_onsets, noteValue: noteValue);
   }
 }

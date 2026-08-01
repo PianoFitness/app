@@ -1,5 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart";
+import "package:piano_fitness/domain/models/practice/practice_step_note_value.dart";
 import "package:piano_fitness/domain/services/practice/exercise_tempo_calculator.dart";
 
 void main() {
@@ -8,7 +9,10 @@ void main() {
 
   group("ExerciseTempoCalculator", () {
     test("marks fewer than five intervals as insufficient", () {
-      final result = ExerciseTempoCalculator.calculate(onsets([0, 500, 1000]));
+      final result = ExerciseTempoCalculator.calculate(
+        onsets([0, 500, 1000]),
+        noteValue: PracticeStepNoteValue.quarter,
+      );
 
       expect(result.quality, TempoMeasurementQuality.insufficientData);
       expect(result.intervalCount, 2);
@@ -18,6 +22,7 @@ void main() {
     test("requires a measured span of at least two seconds", () {
       final result = ExerciseTempoCalculator.calculate(
         onsets([0, 300, 600, 900, 1200, 1500]),
+        noteValue: PracticeStepNoteValue.quarter,
       );
 
       expect(result.quality, TempoMeasurementQuality.insufficientData);
@@ -28,6 +33,7 @@ void main() {
     test("calculates reliable BPM for steady timing", () {
       final result = ExerciseTempoCalculator.calculate(
         onsets([0, 400, 800, 1200, 1600, 2000]),
+        noteValue: PracticeStepNoteValue.quarter,
       );
 
       expect(result.quality, TempoMeasurementQuality.reliable);
@@ -41,6 +47,7 @@ void main() {
     test("withholds BPM when timing variation exceeds the threshold", () {
       final result = ExerciseTempoCalculator.calculate(
         onsets([0, 400, 800, 1200, 1600, 3200]),
+        noteValue: PracticeStepNoteValue.quarter,
       );
 
       expect(result.quality, TempoMeasurementQuality.inconsistent);
@@ -54,10 +61,30 @@ void main() {
     test("marks non-monotonic onsets unavailable", () {
       final result = ExerciseTempoCalculator.calculate(
         onsets([0, 400, 800, 800, 1600, 2000]),
+        noteValue: PracticeStepNoteValue.quarter,
       );
 
       expect(result.quality, TempoMeasurementQuality.unavailable);
       expect(result.measuredTempoBpm, isNull);
+    });
+
+    test("converts uniform step values to quarter-note BPM", () {
+      final examples = [
+        (PracticeStepNoteValue.quarter, List.generate(6, (i) => i * 500)),
+        (PracticeStepNoteValue.whole, List.generate(6, (i) => i * 2000)),
+        (PracticeStepNoteValue.eighth, List.generate(9, (i) => i * 250)),
+      ];
+
+      for (final (noteValue, timestamps) in examples) {
+        final result = ExerciseTempoCalculator.calculate(
+          onsets(timestamps),
+          noteValue: noteValue,
+        );
+
+        expect(result.quality, TempoMeasurementQuality.reliable);
+        expect(result.measuredTempoBpm, closeTo(120, 0.000001));
+        expect(result.tempoStepNoteValue, noteValue);
+      }
     });
   });
 }

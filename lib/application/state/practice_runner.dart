@@ -157,7 +157,7 @@ class PracticeRunner {
 
     ExerciseTempoResult tempo;
     try {
-      tempo = _tempoTracker.complete();
+      tempo = _tempoTracker.complete(noteValue: exercise.uniformTempoNoteValue);
     } catch (_) {
       tempo = const ExerciseTempoResult(
         quality: TempoMeasurementQuality.unavailable,

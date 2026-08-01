@@ -1,6 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/application/state/exercise_tempo_tracker.dart";
 import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart";
+import "package:piano_fitness/domain/models/practice/practice_step_note_value.dart";
 
 void main() {
   group("ExerciseTempoTracker", () {
@@ -14,7 +15,7 @@ void main() {
         );
       }
 
-      final result = tracker.complete();
+      final result = tracker.complete(noteValue: PracticeStepNoteValue.quarter);
       expect(result.quality, TempoMeasurementQuality.reliable);
       expect(result.measuredTempoBpm, closeTo(150, 0.000001));
     });
@@ -32,7 +33,10 @@ void main() {
           source: ExerciseInputSource.externalMidi,
         );
 
-      expect(tracker.complete().quality, TempoMeasurementQuality.unavailable);
+      expect(
+        tracker.complete(noteValue: PracticeStepNoteValue.quarter).quality,
+        TempoMeasurementQuality.unavailable,
+      );
     });
 
     test("marks virtual or mixed input unavailable", () {
@@ -48,7 +52,10 @@ void main() {
           source: ExerciseInputSource.virtualPiano,
         );
 
-      expect(tracker.complete().quality, TempoMeasurementQuality.unavailable);
+      expect(
+        tracker.complete(noteValue: PracticeStepNoteValue.quarter).quality,
+        TempoMeasurementQuality.unavailable,
+      );
     });
 
     test("reset discards the previous attempt", () {
@@ -60,7 +67,24 @@ void main() {
         )
         ..reset();
 
-      expect(tracker.complete().quality, TempoMeasurementQuality.unavailable);
+      expect(
+        tracker.complete(noteValue: PracticeStepNoteValue.quarter).quality,
+        TempoMeasurementQuality.unavailable,
+      );
+    });
+
+    test("marks mixed-duration exercises unavailable", () {
+      final tracker = ExerciseTempoTracker()
+        ..recordStepOnset(
+          stepIndex: 0,
+          occurredAt: Duration.zero,
+          source: ExerciseInputSource.externalMidi,
+        );
+
+      expect(
+        tracker.complete(noteValue: null).quality,
+        TempoMeasurementQuality.unavailable,
+      );
     });
   });
 }

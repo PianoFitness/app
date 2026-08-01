@@ -106,6 +106,13 @@ void main() {
   });
 
   group("PracticeStep", () {
+    test("defaults to a quarter-note duration", () {
+      expect(
+        PracticeStep(notes: [_note(60)]).noteValue,
+        PracticeStepNoteValue.quarter,
+      );
+    });
+
     test("derives deterministic and set-shaped MIDI views", () {
       final step = PracticeStep(
         notes: [
@@ -166,6 +173,38 @@ void main() {
       expect(json, isNot(contains("type")));
       expect(json["metadata"], isNot(contains("hand")));
       expect(json["metadata"], isNot(contains("fingers")));
+      expect(json["noteValue"], "quarter");
+    });
+
+    test("uses quarter notes for legacy JSON without a note value", () {
+      final step = PracticeStep.fromJson({
+        "notes": [
+          {"midiNote": 60, "hand": "right"},
+        ],
+      });
+
+      expect(step.noteValue, PracticeStepNoteValue.quarter);
+    });
+
+    test("round-trips every supported note value", () {
+      for (final noteValue in PracticeStepNoteValue.values) {
+        final step = PracticeStep(notes: [_note(60)], noteValue: noteValue);
+
+        expect(PracticeStep.fromJson(step.toJson()), step);
+        expect(step.toJson()["noteValue"], noteValue.name);
+      }
+    });
+
+    test("rejects unknown note values in JSON", () {
+      expect(
+        () => PracticeStep.fromJson({
+          "notes": [
+            {"midiNote": 60, "hand": "right"},
+          ],
+          "noteValue": "dottedQuarter",
+        }),
+        throwsArgumentError,
+      );
     });
 
     test("makes note and metadata collections read-only", () {
@@ -192,5 +231,41 @@ void main() {
       expect(exercise.getAllNotes().map((note) => note.value), {60, 64});
       expect(PracticeExercise.fromJson(exercise.toJson()), exercise);
     });
+
+    test("exposes a tempo note value only for uniform exercises", () {
+      final uniform = PracticeExercise(
+        steps: [
+          PracticeStep(
+            notes: [_note(60)],
+            noteValue: PracticeStepNoteValue.half,
+          ),
+          PracticeStep(
+            notes: [_note(62)],
+            noteValue: PracticeStepNoteValue.half,
+          ),
+        ],
+      );
+      final mixed = PracticeExercise(
+        steps: [
+          PracticeStep(notes: [_note(60)]),
+          PracticeStep(
+            notes: [_note(62)],
+            noteValue: PracticeStepNoteValue.eighth,
+          ),
+        ],
+      );
+
+      expect(uniform.uniformTempoNoteValue, PracticeStepNoteValue.half);
+      expect(mixed.uniformTempoNoteValue, isNull);
+      expect(PracticeExercise(steps: []).uniformTempoNoteValue, isNull);
+    });
+  });
+
+  test("converts note values to quarter-note beats", () {
+    expect(PracticeStepNoteValue.whole.quarterNoteBeats, 4.0);
+    expect(PracticeStepNoteValue.half.quarterNoteBeats, 2.0);
+    expect(PracticeStepNoteValue.quarter.quarterNoteBeats, 1.0);
+    expect(PracticeStepNoteValue.eighth.quarterNoteBeats, 0.5);
+    expect(PracticeStepNoteValue.sixteenth.quarterNoteBeats, 0.25);
   });
 }

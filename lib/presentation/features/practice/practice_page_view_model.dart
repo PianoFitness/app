@@ -154,7 +154,8 @@ class PracticePageViewModel extends ChangeNotifier {
         tempoCoefficientOfVariation: result.tempo.coefficientOfVariation,
         tempoIntervalCount: result.tempo.intervalCount,
         tempoMeasurementQuality: result.tempo.quality,
-        tempoMeasurementVersion: 1,
+        tempoMeasurementVersion: TempoMeasurementVersions.current,
+        tempoStepNoteValue: result.tempo.tempoStepNoteValue,
       );
 
       await _exerciseHistoryRepository.saveEntry(entry);
