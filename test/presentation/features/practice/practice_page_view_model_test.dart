@@ -824,7 +824,7 @@ void main() {
             }
           }
 
-          await Future<void>.delayed(const Duration(milliseconds: 10));
+          await untilCalled(mockExerciseHistoryRepository.saveEntry(any));
 
           expect(completion, isNotNull);
           expect(completion!.tempo.quality, TempoMeasurementQuality.reliable);
