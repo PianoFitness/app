@@ -3,6 +3,7 @@ import "package:piano_fitness/domain/models/music/chord_tone_pattern.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
+import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/chord_definitions.dart";
@@ -39,6 +40,13 @@ class ExerciseHistoryEntry {
     this.accuracyPercentage,
     this.correctNoteCount,
     this.errorCount,
+    this.measuredTempoBpm,
+    this.meanInterOnsetMicroseconds,
+    this.interOnsetStandardDeviationMicroseconds,
+    this.tempoCoefficientOfVariation,
+    this.tempoIntervalCount,
+    this.tempoMeasurementQuality,
+    this.tempoMeasurementVersion,
   });
 
   /// Creates an [ExerciseHistoryEntry] from an [ExerciseConfiguration].
@@ -55,6 +63,13 @@ class ExerciseHistoryEntry {
     double? accuracyPercentage,
     int? correctNoteCount,
     int? errorCount,
+    double? measuredTempoBpm,
+    int? meanInterOnsetMicroseconds,
+    int? interOnsetStandardDeviationMicroseconds,
+    double? tempoCoefficientOfVariation,
+    int? tempoIntervalCount,
+    TempoMeasurementQuality? tempoMeasurementQuality,
+    int? tempoMeasurementVersion,
   }) {
     return ExerciseHistoryEntry._(
       id: id,
@@ -76,6 +91,14 @@ class ExerciseHistoryEntry {
       accuracyPercentage: accuracyPercentage,
       correctNoteCount: correctNoteCount,
       errorCount: errorCount,
+      measuredTempoBpm: measuredTempoBpm,
+      meanInterOnsetMicroseconds: meanInterOnsetMicroseconds,
+      interOnsetStandardDeviationMicroseconds:
+          interOnsetStandardDeviationMicroseconds,
+      tempoCoefficientOfVariation: tempoCoefficientOfVariation,
+      tempoIntervalCount: tempoIntervalCount,
+      tempoMeasurementQuality: tempoMeasurementQuality,
+      tempoMeasurementVersion: tempoMeasurementVersion,
     );
   }
 
@@ -147,4 +170,27 @@ class ExerciseHistoryEntry {
 
   /// Raw count of unexpected note-on events during the exercise.
   final int? errorCount;
+
+  // ── Tempo metrics ────────────────────────────────────────────────────────
+
+  /// Performed step-beats per minute, only present for reliable measurements.
+  final double? measuredTempoBpm;
+
+  /// Arithmetic mean of valid inter-onset intervals, in microseconds.
+  final int? meanInterOnsetMicroseconds;
+
+  /// Population standard deviation of inter-onset intervals, in microseconds.
+  final int? interOnsetStandardDeviationMicroseconds;
+
+  /// Timing variation normalized by the mean inter-onset interval.
+  final double? tempoCoefficientOfVariation;
+
+  /// Number of inter-onset intervals used in the measurement.
+  final int? tempoIntervalCount;
+
+  /// Reliability classification for the stored tempo evidence.
+  final TempoMeasurementQuality? tempoMeasurementQuality;
+
+  /// Version of the tempo measurement algorithm used for this entry.
+  final int? tempoMeasurementVersion;
 }

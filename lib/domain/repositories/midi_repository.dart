@@ -1,6 +1,8 @@
 import "dart:async";
 import "dart:typed_data";
 
+import "package:piano_fitness/domain/models/midi/midi_input_packet.dart";
+
 /// Repository interface for MIDI operations
 ///
 /// Abstracts MIDI device communication, connection management,
@@ -11,8 +13,8 @@ import "dart:typed_data";
 /// and state management are handled in the domain and application layers
 /// respectively to maintain separation of concerns.
 abstract class IMidiRepository {
-  /// Stream of raw MIDI data bytes from connected devices
-  Stream<Uint8List> get midiDataStream;
+  /// Stream of MIDI packets stamped at the application receive boundary.
+  Stream<MidiInputPacket> get midiDataStream;
 
   /// List available MIDI devices for connection
   Future<List<MidiDevice>> listDevices();
@@ -45,10 +47,10 @@ abstract class IMidiRepository {
   Future<void> sendPitchBend(double bend, int channel);
 
   /// Register handler for incoming MIDI data
-  void registerDataHandler(void Function(Uint8List) handler);
+  void registerDataHandler(MidiInputHandler handler);
 
   /// Unregister MIDI data handler
-  void unregisterDataHandler(void Function(Uint8List) handler);
+  void unregisterDataHandler(MidiInputHandler handler);
 
   /// Get currently connected device
   ///

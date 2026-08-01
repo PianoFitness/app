@@ -5,6 +5,7 @@ import "package:piano_fitness/domain/models/music/chord_type.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
 import "package:piano_fitness/domain/models/practice/exercise_history_entry.dart";
+import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 
@@ -34,10 +35,17 @@ class HistoryEntryCard extends StatelessWidget {
     final accuracyLabel = accuracy != null
         ? "${accuracy.toStringAsFixed(0)}% accuracy"
         : "";
+    final tempoBpm =
+        entry.tempoMeasurementQuality == TempoMeasurementQuality.reliable
+        ? entry.measuredTempoBpm
+        : null;
+    final tempoLabel = tempoBpm != null
+        ? "${tempoBpm.toStringAsFixed(1)} BPM"
+        : null;
 
     final semanticLabel = accuracy != null
-        ? "$modeLabel — $description · $handLabel · $accuracyLabel · $timeLabel"
-        : "$modeLabel — $description · $handLabel · $timeLabel";
+        ? "$modeLabel — $description · $handLabel · $accuracyLabel${tempoLabel != null ? " · $tempoLabel" : ""} · $timeLabel"
+        : "$modeLabel — $description · $handLabel${tempoLabel != null ? " · $tempoLabel" : ""} · $timeLabel";
 
     return Semantics(
       label: semanticLabel,
@@ -86,6 +94,23 @@ class HistoryEntryCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       accuracyLabel,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                  if (tempoLabel != null) ...[
+                    const SizedBox(width: 8),
+                    Text(
+                      "·",
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      tempoLabel,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w500,

@@ -16,7 +16,11 @@ class MidiService {
   ///
   /// [data] - Raw MIDI data bytes
   /// [onEvent] - Callback function that receives the parsed MIDI event
-  static void handleMidiData(Uint8List data, void Function(MidiEvent) onEvent) {
+  static void handleMidiData(
+    Uint8List data,
+    void Function(MidiEvent) onEvent, {
+    Duration occurredAt = Duration.zero,
+  }) {
     if (data.isEmpty || data.length > 256) return; // Prevent oversized packets
 
     // Validate MIDI data bytes (must be 0-127)
@@ -30,9 +34,9 @@ class MidiService {
     if (status == 0xF8 || status == 0xFE) return;
 
     if (data.length >= 3) {
-      _parseThreeByteMessage(data, status, onEvent);
+      _parseThreeByteMessage(data, status, onEvent, occurredAt);
     } else if (data.length >= 2) {
-      _parseTwoByteMessage(data, status, onEvent);
+      _parseTwoByteMessage(data, status, onEvent, occurredAt);
     }
   }
 
@@ -41,6 +45,7 @@ class MidiService {
     Uint8List data,
     int status,
     void Function(MidiEvent) onEvent,
+    Duration occurredAt,
   ) {
     final rawStatus = status & 0xF0;
     final channel = (status & 0x0F) + 1;
@@ -58,6 +63,7 @@ class MidiService {
             data1: data1,
             data2: data2,
             type: MidiEventType.noteOn,
+            occurredAt: occurredAt,
           );
         } else {
           // Note On with velocity 0 is equivalent to Note Off
@@ -67,6 +73,7 @@ class MidiService {
             data1: data1,
             data2: data2,
             type: MidiEventType.noteOff,
+            occurredAt: occurredAt,
           );
         }
 
@@ -77,6 +84,7 @@ class MidiService {
           data1: data1,
           data2: data2,
           type: MidiEventType.noteOff,
+          occurredAt: occurredAt,
         );
 
       case 0xB0: // Control Change
@@ -86,6 +94,7 @@ class MidiService {
           data1: data1,
           data2: data2,
           type: MidiEventType.controlChange,
+          occurredAt: occurredAt,
         );
 
       case 0xC0: // Program Change
@@ -95,6 +104,7 @@ class MidiService {
           data1: data1,
           data2: data2,
           type: MidiEventType.programChange,
+          occurredAt: occurredAt,
         );
 
       case 0xE0: // Pitch Bend
@@ -104,6 +114,7 @@ class MidiService {
           data1: data1,
           data2: data2,
           type: MidiEventType.pitchBend,
+          occurredAt: occurredAt,
         );
 
       default: // Other MIDI messages
@@ -113,6 +124,7 @@ class MidiService {
           data1: data1,
           data2: data2,
           type: MidiEventType.other,
+          occurredAt: occurredAt,
         );
     }
 
@@ -124,6 +136,7 @@ class MidiService {
     Uint8List data,
     int status,
     void Function(MidiEvent) onEvent,
+    Duration occurredAt,
   ) {
     final rawStatus = status & 0xF0;
     final channel = (status & 0x0F) + 1;
@@ -136,6 +149,7 @@ class MidiService {
         data1: data[1],
         data2: 0,
         type: MidiEventType.programChange,
+        occurredAt: occurredAt,
       );
       onEvent(event);
     }

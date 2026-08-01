@@ -3,6 +3,7 @@ import "dart:typed_data";
 import "package:flutter_midi_command/flutter_midi_command.dart";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
+import "package:piano_fitness/domain/models/midi/midi_input_packet.dart";
 import "../../../shared/midi_mocks.dart";
 
 void main() {
@@ -33,7 +34,7 @@ void main() {
         final service1 = MidiConnectionService();
         final service2 = MidiConnectionService();
 
-        void testHandler(Uint8List data) {}
+        void testHandler(MidiInputPacket packet) {}
         service1.registerDataHandler(testHandler);
 
         expect(identical(service1, service2), isTrue);
@@ -70,8 +71,8 @@ void main() {
       test("should register data handlers", () {
         final receivedData = <Uint8List>[];
 
-        void testHandler(Uint8List data) {
-          receivedData.add(data);
+        void testHandler(MidiInputPacket packet) {
+          receivedData.add(packet.data);
         }
 
         service.registerDataHandler(testHandler);
@@ -81,9 +82,9 @@ void main() {
       });
 
       test("should allow multiple data handler registrations", () {
-        void handler1(Uint8List data) {}
-        void handler2(Uint8List data) {}
-        void handler3(Uint8List data) {}
+        void handler1(MidiInputPacket packet) {}
+        void handler2(MidiInputPacket packet) {}
+        void handler3(MidiInputPacket packet) {}
 
         expect(() {
           service
@@ -99,7 +100,7 @@ void main() {
       });
 
       test("should unregister data handlers", () {
-        void testHandler(Uint8List data) {}
+        void testHandler(MidiInputPacket packet) {}
 
         service.registerDataHandler(testHandler);
         expect(
@@ -109,7 +110,7 @@ void main() {
       });
 
       test("should handle unregistering non-existent handlers gracefully", () {
-        void testHandler(Uint8List data) {}
+        void testHandler(MidiInputPacket packet) {}
 
         expect(
           () => service.unregisterDataHandler(testHandler),
@@ -181,15 +182,25 @@ void main() {
         "should process real-time timing clock (0xF8) and active sensing (0xFE) packets without errors",
         () {
           final receivedPackets = <Uint8List>[];
-          void testHandler(Uint8List data) {
-            receivedPackets.add(data);
+          void testHandler(MidiInputPacket packet) {
+            receivedPackets.add(packet.data);
           }
 
           service.registerDataHandler(testHandler);
 
           // Verify handlers process 0xF8 (timing clock) and 0xFE (active sensing)
-          testHandler(Uint8List.fromList([0xF8]));
-          testHandler(Uint8List.fromList([0xFE]));
+          testHandler(
+            MidiInputPacket(
+              data: Uint8List.fromList([0xF8]),
+              receivedAt: Duration.zero,
+            ),
+          );
+          testHandler(
+            MidiInputPacket(
+              data: Uint8List.fromList([0xFE]),
+              receivedAt: Duration.zero,
+            ),
+          );
 
           expect(receivedPackets, hasLength(2));
           expect(receivedPackets[0], equals(Uint8List.fromList([0xF8])));
@@ -202,7 +213,7 @@ void main() {
 
     group("Resource Management Tests", () {
       test("dispose should clean up all resources", () async {
-        void dataHandler(Uint8List data) {}
+        void dataHandler(MidiInputPacket packet) {}
         void errorHandler(String error) {}
 
         service

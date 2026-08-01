@@ -2,6 +2,8 @@ import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/application/state/practice_runner.dart";
 import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/models/practice/exercise.dart";
+import "package:piano_fitness/domain/models/practice/exercise_completion_result.dart";
+import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart";
 
 void main() {
   group("PracticeRunner Unit Tests", () {
@@ -30,16 +32,24 @@ void main() {
 
       runner = PracticeRunner(
         exercise: exercise,
-        onExerciseCompleted: (accuracy, correct, errors) {
-          reportedAccuracy = accuracy;
-          reportedCorrect = correct;
-          reportedErrors = errors;
+        onExerciseCompleted: (result) {
+          reportedAccuracy = result.accuracyPercentage;
+          reportedCorrect = result.correctNoteCount;
+          reportedErrors = result.errorCount;
         },
         onHighlightedNotesChanged: (notes) {
           highlightedNotes = notes;
         },
       );
     });
+
+    void press(int midiNote) {
+      runner.handleNotePressed(
+        midiNote,
+        occurredAt: Duration.zero,
+        inputSource: ExerciseInputSource.externalMidi,
+      );
+    }
 
     test("initial state is inactive with currentStep at 0", () {
       expect(runner.practiceActive, isFalse);
@@ -52,13 +62,13 @@ void main() {
     test(
       "handleNotePressed starts practice and tracks correct vs wrong notes",
       () {
-        runner.handleNotePressed(60); // Correct note for step 1
+        press(60); // Correct note for step 1
         expect(runner.practiceActive, isTrue);
 
         expect(runner.currentStepIndex, equals(1));
         expect(highlightedNotes, equals([62]));
 
-        runner.handleNotePressed(65); // Wrong note for step 2
+        press(65); // Wrong note for step 2
         expect(runner.wrongHeldNotes, contains(65));
         expect(runner.correctHeldNotes, isEmpty);
       },
@@ -70,8 +80,8 @@ void main() {
     });
 
     test("completing all steps invokes onExerciseCompleted callback", () {
-      runner.handleNotePressed(60); // Step 1
-      runner.handleNotePressed(62); // Step 2
+      press(60); // Step 1
+      press(62); // Step 2
 
       expect(runner.currentStep, isNull);
       expect(runner.correctHeldNotes, isEmpty);
@@ -83,7 +93,7 @@ void main() {
 
     test("resetPractice resets state and highlights", () {
       runner.startPractice();
-      runner.handleNotePressed(60);
+      press(60);
       expect(runner.currentStepIndex, equals(1));
 
       runner.resetPractice();
@@ -99,6 +109,41 @@ void main() {
       expect(reportedAccuracy, isNull);
       expect(reportedCorrect, equals(0));
       expect(reportedErrors, equals(0));
+    });
+
+    test("reports reliable external-MIDI tempo evidence on completion", () {
+      ExerciseCompletionResult? completion;
+      final tempoExercise = PracticeExercise(
+        steps: List.generate(
+          6,
+          (index) => PracticeStep(
+            notes: [
+              PracticeNote(
+                pitch: MidiNote(60 + index),
+                hand: PracticeHand.right,
+              ),
+            ],
+          ),
+        ),
+      );
+      final tempoRunner = PracticeRunner(
+        exercise: tempoExercise,
+        onExerciseCompleted: (result) => completion = result,
+        onHighlightedNotesChanged: (_) {},
+      );
+
+      for (var index = 0; index < 6; index++) {
+        tempoRunner.handleNotePressed(
+          60 + index,
+          occurredAt: Duration(milliseconds: index * 400),
+          inputSource: ExerciseInputSource.externalMidi,
+        );
+      }
+
+      expect(completion, isNotNull);
+      expect(completion!.tempo.quality, TempoMeasurementQuality.reliable);
+      expect(completion!.tempo.measuredTempoBpm, closeTo(150, 0.000001));
+      expect(completion!.tempo.intervalCount, 5);
     });
   });
 }

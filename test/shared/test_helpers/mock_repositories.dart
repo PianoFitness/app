@@ -4,6 +4,7 @@ import "package:mockito/annotations.dart";
 import "package:mockito/mockito.dart";
 import "package:piano_fitness/application/repositories/notification_manager_interface.dart";
 import "package:piano_fitness/application/services/midi/midi_connection_service.dart";
+import "package:piano_fitness/domain/models/midi/midi_input_packet.dart";
 import "package:piano_fitness/domain/repositories/audio_service.dart";
 import "package:piano_fitness/domain/repositories/exercise_history_repository.dart";
 import "package:piano_fitness/domain/repositories/metronome_audio_service.dart";
@@ -37,24 +38,27 @@ class MockMidiRepositoryHelper {
     // Setup default stub behaviors
     when(mock.registerDataHandler(any)).thenAnswer((invocation) {
       final handler =
-          invocation.positionalArguments[0] as void Function(Uint8List);
+          invocation.positionalArguments[0] as void Function(MidiInputPacket);
       _handlers.add(handler);
     });
 
     when(mock.unregisterDataHandler(any)).thenAnswer((invocation) {
       final handler =
-          invocation.positionalArguments[0] as void Function(Uint8List);
+          invocation.positionalArguments[0] as void Function(MidiInputPacket);
       _handlers.remove(handler);
     });
   }
 
   final MockIMidiRepository mock;
-  final List<void Function(Uint8List)> _handlers = [];
+  final List<void Function(MidiInputPacket)> _handlers = [];
 
-  /// Simulate receiving MIDI data for testing
-  void simulateMidiData(Uint8List data) {
-    for (final handler in List<void Function(Uint8List)>.from(_handlers)) {
-      handler(data);
+  /// Simulates receiving MIDI data at [receivedAt] for testing event timing.
+  void simulateMidiData(Uint8List data, {Duration receivedAt = Duration.zero}) {
+    final packet = MidiInputPacket(data: data, receivedAt: receivedAt);
+    for (final handler in List<void Function(MidiInputPacket)>.from(
+      _handlers,
+    )) {
+      handler(packet);
     }
   }
 }

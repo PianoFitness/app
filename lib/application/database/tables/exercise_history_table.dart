@@ -86,6 +86,36 @@ class ExerciseHistoryTable extends Table {
   /// Raw count of unexpected note-on events during the exercise.
   IntColumn get errorCount => integer().nullable()();
 
+  // ── Tempo metrics ────────────────────────────────────────────────────────
+
+  /// Performed step-beats per minute; null unless timing is reliable.
+  RealColumn get measuredTempoBpm => real().nullable()();
+
+  /// Mean interval between expected step onsets, in microseconds; nullable
+  /// when an attempt does not produce valid timing evidence.
+  IntColumn get meanInterOnsetMicroseconds => integer().nullable()();
+
+  /// Population standard deviation of step-onset intervals, in microseconds;
+  /// null when timing statistics are unavailable.
+  IntColumn get interOnsetStandardDeviationMicroseconds =>
+      integer().nullable()();
+
+  /// Standard deviation divided by the mean onset interval; nullable when no
+  /// valid interval statistics are available.
+  RealColumn get tempoCoefficientOfVariation => real().nullable()();
+
+  /// Count of inter-onset intervals, rather than onset count; nullable for
+  /// history rows created before tempo measurement was introduced.
+  IntColumn get tempoIntervalCount => integer().nullable()();
+
+  /// Reliability classification of the tempo evidence; null for legacy rows
+  /// without a tempo measurement.
+  TextColumn get tempoMeasurementQuality => text().nullable()();
+
+  /// Version of the tempo-measurement algorithm used for this row; null for
+  /// legacy rows and independent of the database schema version.
+  IntColumn get tempoMeasurementVersion => integer().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }

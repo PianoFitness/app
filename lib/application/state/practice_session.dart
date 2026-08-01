@@ -5,8 +5,10 @@ import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/models/practice/exercise.dart";
+import "package:piano_fitness/domain/models/practice/exercise_completion_result.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
+import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
 import "package:piano_fitness/domain/services/music_theory/chords.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
@@ -22,12 +24,7 @@ class PracticeSession {
     required this.onHighlightedNotesChanged,
   });
 
-  final void Function(
-    double? accuracyPercentage,
-    int? correctNoteCount,
-    int? errorCount,
-  )
-  onExerciseCompleted;
+  final void Function(ExerciseCompletionResult result) onExerciseCompleted;
 
   final void Function(List<int>) onHighlightedNotesChanged;
 
@@ -103,12 +100,8 @@ class PracticeSession {
     _runner!.resetPractice();
   }
 
-  void _handleExerciseCompleted(
-    double? accuracyPercentage,
-    int? correctNoteCount,
-    int? errorCount,
-  ) {
-    onExerciseCompleted(accuracyPercentage, correctNoteCount, errorCount);
+  void _handleExerciseCompleted(ExerciseCompletionResult result) {
+    onExerciseCompleted(result);
 
     if (_autoProgressKeys) {
       _config = _config.nextInCircleOfFifths();
@@ -120,7 +113,15 @@ class PracticeSession {
 
   void startPractice() => _runner?.startPractice();
   void resetPractice() => _runner?.resetPractice();
-  void handleNotePressed(int midiNote) => _runner?.handleNotePressed(midiNote);
+  void handleNotePressed(
+    int midiNote, {
+    required Duration occurredAt,
+    required ExerciseInputSource inputSource,
+  }) => _runner?.handleNotePressed(
+    midiNote,
+    occurredAt: occurredAt,
+    inputSource: inputSource,
+  );
   void handleNoteReleased(int midiNote) =>
       _runner?.handleNoteReleased(midiNote);
 

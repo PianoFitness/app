@@ -3,9 +3,13 @@ import "dart:typed_data";
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/utils/midi_data_handler.dart";
+import "package:piano_fitness/domain/models/midi/midi_input_packet.dart";
 import "package:piano_fitness/domain/services/midi/midi_service.dart";
 
 void main() {
+  MidiInputPacket packet(Uint8List data) =>
+      MidiInputPacket(data: data, receivedAt: Duration.zero);
+
   group("MidiDataHandler", () {
     late MidiState midiState;
 
@@ -21,7 +25,7 @@ void main() {
       MidiEvent? received;
       final data = Uint8List.fromList([0x90, 60, 64]);
 
-      MidiDataHandler.dispatch(data, midiState, (event) {
+      MidiDataHandler.dispatch(packet(data), midiState, (event) {
         received = event;
       });
 
@@ -35,7 +39,7 @@ void main() {
       MidiEvent? received;
       final data = Uint8List.fromList([0x80, 60, 0]);
 
-      MidiDataHandler.dispatch(data, midiState, (event) {
+      MidiDataHandler.dispatch(packet(data), midiState, (event) {
         received = event;
       });
 
@@ -43,23 +47,44 @@ void main() {
       expect(received!.type, equals(MidiEventType.noteOff));
     });
 
+    test("preserves the packet receive timestamp on parsed events", () {
+      MidiEvent? received;
+      const occurredAt = Duration(milliseconds: 1234);
+
+      MidiDataHandler.dispatch(
+        MidiInputPacket(
+          data: Uint8List.fromList([0x90, 60, 64]),
+          receivedAt: occurredAt,
+          transportTimestamp: 42,
+        ),
+        midiState,
+        (event) => received = event,
+      );
+
+      expect(received!.occurredAt, occurredAt);
+    });
+
     test("silently ignores empty data without calling callback", () {
       var called = false;
-      MidiDataHandler.dispatch(Uint8List(0), midiState, (_) => called = true);
+      MidiDataHandler.dispatch(
+        packet(Uint8List(0)),
+        midiState,
+        (_) => called = true,
+      );
       expect(called, isFalse);
     });
 
     test("silently ignores timing clock messages without calling callback", () {
       var called = false;
       final data = Uint8List.fromList([0xF8]);
-      MidiDataHandler.dispatch(data, midiState, (_) => called = true);
+      MidiDataHandler.dispatch(packet(data), midiState, (_) => called = true);
       expect(called, isFalse);
     });
 
     test("catches callback errors and updates midiState", () {
       final data = Uint8List.fromList([0x90, 60, 64]);
 
-      MidiDataHandler.dispatch(data, midiState, (_) {
+      MidiDataHandler.dispatch(packet(data), midiState, (_) {
         throw StateError("simulated handler error");
       });
 
@@ -70,18 +95,17 @@ void main() {
       final data = Uint8List.fromList([0x90, 60, 64]);
 
       expect(
-        () => MidiDataHandler.dispatch(data, midiState, (_) {
+        () => MidiDataHandler.dispatch(packet(data), midiState, (_) {
           throw Exception("boom");
         }),
         returnsNormally,
       );
     });
 
-    test("catches parse-level errors and sets lastNote message", () {
-      // Incomplete status byte sequence or data that throws parsing exception if any
+    test("ignores incomplete system MIDI messages", () {
       final invalidData = Uint8List.fromList([0xF0]); // Sysex start without end
-      MidiDataHandler.dispatch(invalidData, midiState, (_) {});
-      expect(midiState.lastNote, equals("Error parsing MIDI data"));
+      MidiDataHandler.dispatch(packet(invalidData), midiState, (_) {});
+      expect(midiState.lastNote, isEmpty);
     });
   });
 }
