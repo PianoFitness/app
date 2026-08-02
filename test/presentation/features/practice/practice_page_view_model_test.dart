@@ -125,6 +125,9 @@ void main() {
         key: music.Key.d,
       );
 
+      var listenerCalls = 0;
+      viewModel.addListener(() => listenerCalls++);
+
       viewModel.initializePracticeSession(
         onExerciseCompleted: (_) {},
         onHighlightedNotesChanged: (_) {},
@@ -141,6 +144,7 @@ void main() {
         HandSelection.right,
       );
       expect(viewModel.currentConfiguration!.key, music.Key.d);
+      expect(listenerCalls, greaterThan(0));
     });
 
     test("should handle MIDI data and update state for note on events", () {

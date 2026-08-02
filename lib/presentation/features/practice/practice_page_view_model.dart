@@ -109,6 +109,7 @@ class PracticePageViewModel extends ChangeNotifier {
     if (initialConfiguration != null) {
       initialConfiguration.validate();
       _practiceSession!.updateConfiguration(initialConfiguration);
+      notifyListeners();
       return;
     }
 
