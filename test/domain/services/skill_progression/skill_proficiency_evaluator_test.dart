@@ -115,8 +115,8 @@ void main() {
   group("SkillCatalogueValidator", () {
     test("validates the shipped first-slice catalogue", () {
       SkillCatalogueValidator.validate(DefaultSkillCatalogue.catalogue);
-      expect(DefaultSkillCatalogue.catalogue.version, 2);
-      expect(DefaultSkillCatalogue.catalogue.nodes, hasLength(7));
+      expect(DefaultSkillCatalogue.catalogue.version, 3);
+      expect(DefaultSkillCatalogue.catalogue.nodes, hasLength(14));
     });
 
     test("rejects nodes without checkpoints and self-relations", () {
