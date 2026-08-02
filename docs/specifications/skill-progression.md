@@ -1,6 +1,6 @@
 # Skill Progression Specification
 
-**Status:** Draft, revision 4  
+**Status:** Draft, revision 5  
 **Proposed file:** `docs/specifications/skill-progression.md`  
 **Scope:** Non-blocking technique tree, proficiency heatmap, and reuse of the existing Practice Page  
 **Required dependency:** `docs/specifications/exercise-tempo-calculation.md`  
@@ -214,10 +214,12 @@ The system must:
 - Open exercises through the existing Practice Page.
 - Preserve existing free-practice and Practice Hub behaviour.
 - Allow new catalogue entries without invalidating unrelated progress.
+- Allow the catalogue to describe planned technique families as roadmap entries (§13) without requiring an `ExerciseConfiguration`, checkpoints, or proficiency state.
 
 The system should:
 
 - Give learners a clear overview of piano technique.
+- Show learners the fuller arc of the pedagogy, including technique families that are planned but not yet practiseable.
 - Show how many keys have been practised for each skill.
 - Show recent pitch accuracy, repetition count, and reliable exercise tempo when available and applicable.
 - Encourage balanced practice across keys and exercise families.
@@ -243,6 +245,8 @@ The first implementation will not:
 - Require the complete hypothetical curriculum before release.
 - Require explicit skill IDs in exercise history for the first vertical slice.
 - Import the TypeScript curriculum directly at runtime.
+- Require every family in `docs/curriculum.md` to appear as a roadmap entry — inclusion is a curation choice (§13.6).
+- Give a roadmap entry a practice session, checkpoint, or proficiency state.
 
 ## 7. Existing practice behaviour to preserve
 
@@ -511,6 +515,18 @@ The interface must expose:
 
 The first release should reuse existing accessibility utilities and semantic colour conventions where applicable.
 
+### 11.6 Roadmap cards
+
+A roadmap entry (§13) renders as a visually distinct card grouped alongside the real node cards for its group, so a learner sees the fuller arc of the pedagogy — for example, under "Chord Vocabulary" the real Diatonic Triads and ii–V–I nodes appear next to a roadmap card for "Seventh chords".
+
+A roadmap card:
+
+- Is always visible. It is not hidden, collapsed, or blurred behind a paywall-style tease.
+- Carries no navigation action. It is not wrapped in `InkWell`, `GestureDetector`, or any tappable affordance.
+- Uses a neutral, muted style distinct from every proficiency state — it is not part of the proficiency colour scale (§18.3) and must not be confused with the "no evidence yet" state of a real, practiseable node.
+- Shows an explicit "planned" or "coming soon" label as text, not colour alone.
+- Exposes an accessible label that states the entry is planned and not yet available for practice, so a screen-reader user does not treat it as an inert bug (for example, `"Seventh chords, planned, not yet available to practise"`).
+
 ## 12. Catalogue model
 
 The following API is illustrative.
@@ -523,12 +539,14 @@ class SkillCatalogue {
     required this.version,
     required this.nodes,
     this.groups = const [],
+    this.roadmapEntries = const [],
   });
 
   final String id;
   final int version;
   final List<SkillNode> nodes;
   final List<SkillGraphGroup> groups;
+  final List<SkillRoadmapEntry> roadmapEntries;
 }
 ```
 
@@ -641,7 +659,74 @@ class SkillExercise {
 
 The `configuration` is the exact value passed to the Practice Page.
 
-## 13. Relationships
+## 13. Roadmap entries
+
+### 13.1 Purpose
+
+A `SkillNode` must resolve to a real, playable `SkillCheckpoint`/`SkillExercise` backed by a valid `ExerciseConfiguration` (§12.2, §12.4). That is correct for anything a learner can practise today, but it leaves no way to represent "this technique exists on the roadmap and will be practiseable later." An unimplemented family is simply absent from the tree.
+
+A roadmap entry fills that gap. It is a purely descriptive, additive item that names a planned technique family without promising it is playable. It lets a learner see the fuller arc of the pedagogy — including advanced material well beyond the current catalogue — while every non-goal about hard gating (§6) and about not requiring the complete hypothetical curriculum before release remains true.
+
+Roadmap entries do not change §4.4: dependencies still guide rather than lock, and a roadmap entry is not a dependency gate. It is a signpost.
+
+### 13.2 Roadmap entry model
+
+The following API is illustrative.
+
+```dart
+@immutable
+class SkillRoadmapEntry {
+  const SkillRoadmapEntry({
+    required this.id,
+    required this.name,
+    required this.description,
+    this.groupId,
+    this.buildsOnNodeId,
+  });
+
+  final String id;
+  final String name;
+  final String description;
+  final String? groupId;
+  final String? buildsOnNodeId;
+}
+```
+
+- `id`: stable and globally unique, drawn from the same namespace as `SkillNode.id` (§12.2).
+- `name` and `description`: short, learner-facing copy, the same tone as a node card (§11.3).
+- `groupId`: optional. When present, it must reference an existing `SkillGraphGroup.id` (§12.1), and the entry renders alongside that group's node cards (§11.6).
+- `buildsOnNodeId`: optional. When present, it must reference an existing `SkillNode.id`, expressing "this planned family extends an existing, practiseable node" — the same advisory relationship a `recommendedPrerequisite` relation (§14.1) expresses between two real nodes.
+
+### 13.3 What a roadmap entry is not
+
+A roadmap entry has no configuration to validate. It must not have:
+
+- An `ExerciseConfiguration`.
+- A `SkillCheckpoint` or `SkillExercise`.
+- A `SkillProficiencyRule` or `TempoEvidencePolicy`.
+- Proficiency, coverage, or heatmap state of any kind (§18.3).
+
+`SkillCatalogueValidator` must not run its configuration-identity checks (§15.1, §15.2) against roadmap entries — there is no configuration to check. Validation of a roadmap entry is limited to: non-empty unique `id`, and, when present, `groupId`/`buildsOnNodeId` referencing real catalogue entries.
+
+The proficiency evaluator (§16) must never see roadmap entries. They are excluded from history matching entirely, because they have no configuration for a history entry to match against.
+
+### 13.4 Presentation
+
+See §11.6 for the roadmap card itself. In summary: always visible, never tappable, visually distinct from every proficiency state, and never presented as a locked or broken practice session.
+
+### 13.5 Promotion path
+
+When a roadmap entry's family gets implemented, it becomes an ordinary `SkillNode` with real checkpoints and exercises, and is removed from `roadmapEntries`.
+
+This is non-breaking. Roadmap entries are never referenced by exercise history and never carry proficiency state, so there is nothing to migrate — the new `SkillNode` simply starts out neutral, exactly like any other newly added node (§4.7, §19.1).
+
+### 13.6 Source of roadmap entries
+
+`docs/curriculum.md` is the intended source for what roadmap entries to add over time. It describes a much larger draft pedagogy — 35 sections across 25 suggested top-level families, spanning scales, modes, pentatonic and blues vocabulary, extended and altered chords, progressions, cadences, voice leading, secondary dominants, tritone substitution, modal interchange, classical chromatic harmony, chromatic mediants, Neo-Riemannian transformations, jazz voicings, quartal and quintal harmony, and improvisation and composition challenges.
+
+The roadmap is not required to enumerate all 25 curriculum families. Choosing which planned families to surface, and when, is a curation choice, consistent with the existing non-goal of not requiring the complete hypothetical curriculum before release (§6).
+
+## 14. Relationships
 
 ```dart
 enum SkillRelationType {
@@ -665,14 +750,14 @@ class SkillRelation {
 }
 ```
 
-### 13.1 Meanings
+### 14.1 Meanings
 
 - `recommendedPrerequisite`: Commonly prepares the learner for the current node.
 - `variation`: Uses closely related musical material or transformation.
 - `related`: Meaningfully connected without a clear sequence.
 - `appliesIn`: Used within the referenced progression or application exercise.
 
-### 13.2 Behaviour
+### 14.2 Behaviour
 
 Relationships may affect:
 
@@ -683,11 +768,11 @@ Relationships may affect:
 
 Relationships must not affect whether a node can be opened.
 
-## 14. History-to-skill matching
+## 15. History-to-skill matching
 
 The proficiency evaluator matches an `ExerciseHistoryEntry` to a `SkillExercise` by comparing the completed configuration with the catalogue configuration.
 
-### 14.1 Canonical configuration identity
+### 15.1 Canonical configuration identity
 
 Add a domain service or value object that creates a canonical identity from:
 
@@ -722,7 +807,7 @@ class ExerciseConfigurationIdentity {
 }
 ```
 
-### 14.2 Unique matching rule
+### 15.2 Unique matching rule
 
 Within one active catalogue, one canonical configuration should normally map to one `SkillExercise`.
 
@@ -730,7 +815,7 @@ Catalogue validation should reject duplicate configuration identities unless the
 
 This keeps the first implementation deterministic and avoids new history columns.
 
-### 14.3 Existing history
+### 15.3 Existing history
 
 All compatible existing history may contribute, including attempts launched from:
 
@@ -743,9 +828,9 @@ This is a deliberate benefit of configuration-based matching.
 
 History created before tempo measurement may still contribute accuracy evidence for skills whose tempo policy is `optional` or `notApplicable`. It cannot contribute required tempo evidence.
 
-## 15. Proficiency evidence
+## 16. Proficiency evidence
 
-### 15.1 Tempo-evidence policy
+### 16.1 Tempo-evidence policy
 
 ```dart
 enum TempoEvidencePolicy {
@@ -765,14 +850,14 @@ Use `required` only when the generated exercise normally contains enough step on
 
 Short exercises that cannot produce five intervals and two seconds of measured material in one repetition must use `optional` or `notApplicable` until a later specification supports pooled timing evidence across repetitions.
 
-### 15.2 Accuracy-qualifying attempt
+### 16.2 Accuracy-qualifying attempt
 
 A history entry provides accuracy evidence when:
 
 1. Its configuration matches the skill exercise.
 2. Its pitch accuracy is at or above the configured threshold.
 
-### 15.3 Tempo-qualifying attempt
+### 16.3 Tempo-qualifying attempt
 
 A history entry provides tempo evidence when:
 
@@ -784,7 +869,7 @@ A history entry provides tempo evidence when:
 
 `insufficientData`, `inconsistent`, and `unavailable` entries never provide tempo evidence.
 
-### 15.4 Progression-qualifying attempt
+### 16.4 Progression-qualifying attempt
 
 The policy determines whether an attempt counts toward established proficiency:
 
@@ -792,7 +877,7 @@ The policy determines whether an attempt counts toward established proficiency:
 - `optional`: accuracy evidence is sufficient; tempo evidence is retained separately when available.
 - `notApplicable`: accuracy evidence is sufficient and tempo fields are ignored.
 
-### 15.5 Proficiency rule
+### 16.5 Proficiency rule
 
 ```dart
 @immutable
@@ -823,7 +908,7 @@ Catalogue validation must reject:
 - A reference BPM when tempo is `notApplicable`.
 - A `required` policy when the generated exercise contains fewer than six `PracticeStep` values and therefore cannot produce five inter-onset intervals.
 
-### 15.6 Skill-exercise proficiency
+### 16.6 Skill-exercise proficiency
 
 ```dart
 @immutable
@@ -867,7 +952,7 @@ When fewer progression-qualifying attempts exist than required:
 - The UI may show partial repetition progress.
 - The cell does not appear fully established.
 
-### 15.7 Checkpoint proficiency
+### 16.7 Checkpoint proficiency
 
 A checkpoint aggregates its required skill exercises.
 
@@ -878,7 +963,7 @@ For example, C major hands apart may aggregate:
 
 The detail view must show individual exercise values if they differ materially.
 
-### 15.8 Node proficiency and coverage
+### 16.8 Node proficiency and coverage
 
 A node exposes at least:
 
@@ -905,7 +990,7 @@ Tempo shown per exercise
 
 The heatmap colour is a compact summary. The underlying values remain available.
 
-## 16. Tempo progression
+## 17. Tempo progression
 
 Tempo progression is optional and applies only to a compatible skill exercise or checkpoint, not to a graph tier.
 
@@ -952,9 +1037,9 @@ Passing a suggested BPM into the Practice Page is not required for the first ver
 
 If later added, it should use the existing global metronome state rather than introducing skill-specific tempo controls.
 
-## 17. Heatmap presentation
+## 18. Heatmap presentation
 
-### 17.1 Positive-only states
+### 18.1 Positive-only states
 
 Recommended states:
 
@@ -966,7 +1051,7 @@ Recommended states:
 
 For `optional` and `notApplicable` skills, established proficiency must remain visually achievable without reliable tempo evidence.
 
-### 17.2 No negative state
+### 18.2 No negative state
 
 An attempt below the threshold remains in history but does not add positive proficiency evidence.
 
@@ -978,9 +1063,15 @@ Recent values may change over time, but the UI should distinguish:
 - Historical best.
 - Coverage.
 
-## 18. Catalogue evolution
+### 18.3 Roadmap entries are outside the heatmap
 
-### 18.1 Adding nodes
+A roadmap entry (§13) carries no proficiency and is never part of the heatmap's neutral, partial, established, or full-intensity states.
+
+Its card uses a separate, neutral-but-not-heatmapped visual treatment (§11.6) so it cannot be mistaken for a real node that simply has "no evidence yet."
+
+## 19. Catalogue evolution
+
+### 19.1 Adding nodes
 
 Adding a node is non-destructive.
 
@@ -988,7 +1079,7 @@ It appears neutral until matching history exists.
 
 Existing nodes retain their proficiency.
 
-### 18.2 Editing nodes
+### 19.2 Editing nodes
 
 Display-copy changes do not require migration.
 
@@ -998,11 +1089,11 @@ Changing the underlying configuration identity may change which history matches.
 - A compatibility decision.
 - Tests covering the intended migration behaviour.
 
-### 18.3 Removing nodes
+### 19.3 Removing nodes
 
 Removing a node hides it from the active catalogue but does not delete exercise history.
 
-## 19. Recommended first implementation
+## 20. Recommended first implementation
 
 Use a small vertical slice of existing practice modes:
 
@@ -1028,7 +1119,9 @@ The slice should demonstrate:
 - Non-blocking dependencies.
 - Additive catalogue updates.
 
-## 20. Suggested file structure
+The shipped catalogue (version 3) has already grown past this illustrative slice: it also covers the remaining scale modes (dorian, phrygian, lydian, mixolydian, locrian) and the i–vi–iv–v and ii–v–i progressions. See `default_skill_catalogue.dart`.
+
+## 21. Suggested file structure
 
 ```text
 lib/domain/models/skill_progression/
@@ -1059,7 +1152,7 @@ lib/infrastructure/skill_progression/
 
 No new runner, practice session, practice settings panel, or exercise-history repository is required.
 
-## 21. Incremental delivery plan
+## 22. Incremental delivery plan
 
 ### Dependency 0: Exercise tempo calculation
 
@@ -1113,9 +1206,17 @@ Implement `docs/specifications/exercise-tempo-calculation.md`:
 - Suggest the next tempo only from compatible reliable exercise-tempo evidence.
 - Preserve learner and teacher choice.
 
-## 22. Testing requirements
+### Increment 6: Roadmap visibility (optional)
 
-### 22.1 Practice Page compatibility
+- Add the `SkillRoadmapEntry` model (§13.2) and an optional `roadmapEntries` list to `SkillCatalogue`.
+- Extend `SkillCatalogueValidator` to check roadmap-entry id uniqueness and group/node references, without running configuration-identity checks against them (§13.3).
+- Curate an initial set of roadmap entries from `docs/curriculum.md` (§13.6).
+- Render roadmap cards in the technique tree (§11.6).
+- Confirm roadmap cards are never tappable and never appear on the proficiency heatmap (§18.3).
+
+## 23. Testing requirements
+
+### 23.1 Practice Page compatibility
 
 - Existing `PracticePage(initialMode: ...)` behaviour remains unchanged.
 - Existing chord-progression initialisation remains unchanged.
@@ -1126,7 +1227,7 @@ Implement `docs/specifications/exercise-tempo-calculation.md`:
 - Practice settings remain editable.
 - Every completed repetition still creates an ordinary history entry.
 
-### 22.2 Catalogue tests
+### 23.2 Catalogue tests
 
 - Reject duplicate node IDs.
 - Reject missing relationship targets.
@@ -1135,7 +1236,7 @@ Implement `docs/specifications/exercise-tempo-calculation.md`:
 - Reject invalid proficiency rules.
 - Validate the complete default catalogue.
 
-### 22.3 History matching tests
+### 23.3 History matching tests
 
 - Matching configurations contribute to the correct skill exercise.
 - Attempts launched from the Practice Hub contribute.
@@ -1149,7 +1250,7 @@ Implement `docs/specifications/exercise-tempo-calculation.md`:
 - Missing tempo evidence cannot establish proficiency for a `required` skill.
 - Incompatible tempo-measurement versions are not aggregated.
 
-### 22.4 Proficiency tests
+### 23.4 Proficiency tests
 
 - Fewer than three progression-qualifying attempts produces partial evidence.
 - Three progression-qualifying attempts produces established evidence.
@@ -1165,7 +1266,7 @@ Implement `docs/specifications/exercise-tempo-calculation.md`:
 - Adding a new node does not change existing proficiency.
 - Adding a dependency does not lock either node.
 
-### 22.5 Reactive UI tests
+### 23.5 Reactive UI tests
 
 - The tree subscribes to active-profile history.
 - A newly saved repetition updates proficiency.
@@ -1173,7 +1274,7 @@ Implement `docs/specifications/exercise-tempo-calculation.md`:
 - Subscription errors use an existing user-friendly error pattern.
 - The subscription is cancelled on disposal.
 
-## 23. Acceptance criteria
+## 24. Acceptance criteria
 
 The first vertical slice is ready when:
 
@@ -1202,13 +1303,15 @@ The first vertical slice is ready when:
 23. Existing Practice Hub routes and free practice continue to work.
 24. No new Practice Runner or parallel practice workflow is introduced.
 25. The UI uses no negative proficiency colour and does not rely on colour alone.
+26. Roadmap entries, when present, carry no `ExerciseConfiguration`, checkpoints, or proficiency state, and are never tappable into a practice session (§13.3, §11.6).
 
-## 24. Future extensions
+## 25. Future extensions
 
 The architecture should permit:
 
 - A richer graph or periodic-table visualisation.
 - Multiple curated routes through the same catalogue.
+- Tooling to help curate roadmap entries from `docs/curriculum.md` as new families are prioritised.
 - Teacher-authored recommendations.
 - Placement exercises.
 - Spaced review and freshness indicators.
@@ -1222,7 +1325,7 @@ The architecture should permit:
 - Recent, best-ever, and long-term trend views.
 - Suggested BPM integration through the existing metronome state.
 
-## 25. Summary
+## 26. Summary
 
 The technique tree adds organisation and proficiency visualisation without creating a second practice system.
 
@@ -1233,3 +1336,5 @@ Every repetition continues through the existing history pipeline. The technique 
 Tempo evidence is consumed exactly as classified by the exercise-tempo specification. Longer exercises may require reliable exercise BPM, while short cadences and progressions can use accuracy-only proficiency until pooled timing evidence is supported. Unreliable timing remains neutral and never becomes a misleading BPM or a negative proficiency signal.
 
 Recommended dependencies guide the learner but never lock the graph. Positive heatmap colours show demonstrated proficiency across keys, while newly added exercises simply appear neutral. This provides the smallest practical implementation delta while supporting the broader “periodic table of piano exercises” vision.
+
+Roadmap entries extend that vision without extending the practice surface: a learner sees the fuller arc of the pedagogy, including advanced families not yet implemented, but every card that opens a practice session still opens a real one.
