@@ -7,6 +7,7 @@ import "package:piano_fitness/presentation/features/notifications/notifications_
 import "package:piano_fitness/presentation/features/history/history_page.dart";
 import "package:piano_fitness/presentation/features/play/play_page.dart";
 import "package:piano_fitness/presentation/features/practice/practice_hub_page.dart";
+import "package:piano_fitness/presentation/features/skill_progression/skill_tree_page.dart";
 import "package:piano_fitness/presentation/features/reference/reference_page.dart";
 import "package:piano_fitness/presentation/features/repertoire/repertoire_page.dart";
 import "package:piano_fitness/presentation/features/user_profile/user_profile_page.dart";
@@ -32,6 +33,7 @@ class _MainNavigationState extends State<MainNavigation> {
   static final List<Widget> _pages = <Widget>[
     const PlayPage(),
     const PracticeHubPage(),
+    const SkillTreePage(),
     const ReferencePage(),
     const RepertoirePage(),
     const HistoryPage(),
@@ -41,6 +43,7 @@ class _MainNavigationState extends State<MainNavigation> {
   static const List<String> _pageTitles = [
     "Free Play",
     "Practice",
+    "Technique Tree",
     "Reference",
     "Repertoire",
     "History",
@@ -50,6 +53,7 @@ class _MainNavigationState extends State<MainNavigation> {
   static const List<IconData> _pageIcons = [
     Icons.piano,
     Icons.school,
+    Icons.account_tree_outlined,
     Icons.library_books,
     Icons.library_music,
     Icons.history,
@@ -61,6 +65,7 @@ class _MainNavigationState extends State<MainNavigation> {
   static const List<Key> _tabKeys = [
     Key("nav_tab_free_play"),
     Key("nav_tab_practice"),
+    Key("nav_tab_technique_tree"),
     Key("nav_tab_reference"),
     Key("nav_tab_repertoire"),
     Key("nav_tab_history"),

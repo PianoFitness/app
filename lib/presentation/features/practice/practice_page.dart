@@ -3,6 +3,7 @@ import "package:provider/provider.dart";
 import "package:piano_fitness/presentation/constants/practice_constants.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
+import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/exercise_completion_result.dart";
 import "package:piano_fitness/domain/repositories/exercise_history_repository.dart";
 import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
@@ -36,6 +37,8 @@ class PracticePage extends StatelessWidget {
     this.initialMode = PracticeMode.scales,
     this.midiChannel = 0,
     this.initialChordProgression,
+    this.initialConfiguration,
+    this.backTooltip = "Back to Practice Hub",
   });
 
   /// The initial practice mode to display when the page loads.
@@ -46,6 +49,13 @@ class PracticePage extends StatelessWidget {
 
   /// The initial chord progression to pre-select (optional).
   final ChordProgression? initialChordProgression;
+
+  /// An exact exercise configuration supplied by a caller such as the
+  /// technique tree. When present it takes precedence over [initialMode].
+  final ExerciseConfiguration? initialConfiguration;
+
+  /// Accessible label for the source-appropriate back navigation action.
+  final String backTooltip;
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +75,8 @@ class PracticePage extends StatelessWidget {
       child: _PracticePageView(
         initialMode: initialMode,
         initialChordProgression: initialChordProgression,
+        initialConfiguration: initialConfiguration,
+        backTooltip: backTooltip,
       ),
     );
   }
@@ -74,10 +86,14 @@ class _PracticePageView extends StatefulWidget {
   const _PracticePageView({
     required this.initialMode,
     this.initialChordProgression,
+    this.initialConfiguration,
+    required this.backTooltip,
   });
 
   final PracticeMode initialMode;
   final ChordProgression? initialChordProgression;
+  final ExerciseConfiguration? initialConfiguration;
+  final String backTooltip;
 
   @override
   State<_PracticePageView> createState() => _PracticePageViewState();
@@ -98,6 +114,7 @@ class _PracticePageViewState extends State<_PracticePageView> {
         },
         initialMode: widget.initialMode,
         initialChordProgression: widget.initialChordProgression,
+        initialConfiguration: widget.initialConfiguration,
       );
     });
   }
@@ -185,7 +202,7 @@ class _PracticePageViewState extends State<_PracticePageView> {
         key: const Key("practice_back_button"),
         icon: const Icon(Icons.arrow_back),
         onPressed: () => Navigator.of(context).pop(),
-        tooltip: "Back to Practice Hub",
+        tooltip: widget.backTooltip,
       ),
     );
   }

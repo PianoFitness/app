@@ -22,7 +22,12 @@ abstract final class TempoMeasurementThresholds {
 /// Versions of the persisted tempo calculation algorithm.
 abstract final class TempoMeasurementVersions {
   /// Version 2 converts declared step note values to quarter-note BPM.
-  static const current = 2;
+  static const declaredStepDurations = 2;
+
+  /// Version 3 explicitly defines scale-note onsets as eighth notes.
+  static const scaleEighthNotes = 3;
+
+  static const current = scaleEighthNotes;
 }
 
 /// Statistical evidence derived from the onsets of one exercise attempt.
