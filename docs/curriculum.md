@@ -1,1027 +1,932 @@
-# PianoFitness Pedagogy: Open Progression Framework
+# PianoFitness Draft Pedagogy: Exercise Families and Key Exercises
 
-## Purpose
+## 1. General practice dimensions
 
-PianoFitness should help learners develop practical keyboard fluency, harmonic understanding, coordination, and musical independence.
+Most technique families may be explored across:
 
-The curriculum should:
-
-- Put the most useful piano skills within immediate reach.
-- Guide learners from simple patterns toward musical application.
-- Avoid forcing every learner through one rigid sequence.
-- Keep advanced techniques visible and explorable.
-- Encourage breadth across keys without overwhelming learners with repeated combinations.
-- Treat accuracy, consistency, tempo, and musical usefulness as complementary forms of progress.
-- Present exercises as tools for making music, not merely technical hurdles.
-
-The curriculum is therefore organized into broad learning areas rather than locked tiers.
-
-Within each area, exercises move from foundational to developmental and exploratory work. Learners may move freely between areas, while the app recommends sensible next steps.
-
----
-
-# 1. Essential Keyboard Foundations
-
-These exercises should appear first because they provide immediate value to nearly every pianist.
-
-## Major scales
-
-The major scale is the central map of tonal harmony and keyboard geography.
-
-### Foundational study
-
-- One hand at a time
-- Ascending and descending
+- All 12 keys
+- Left hand
+- Right hand
 - Hands together
-- Comfortable, even fingering
-- One octave before expanding the range
-
-### Development
-
-- Multiple octaves
+- Root position and inversions
+- Ascending, descending, and combined directions
+- One or more octaves
 - Increasing tempo
-- Consistent repetitions
-- Smooth turns at the top and bottom
-- Practice across all keys
-- Review less familiar keys regularly
+- Repeated accurate and rhythmically consistent performances
 
-### Musical connections
-
-Major scales support:
-
-- Major-key melodies
-- Diatonic chords
-- Arpeggios
-- Cadences
-- Transposition
-- Improvisation
-- Understanding key signatures
+These are variations of a technique rather than separate pedagogical categories.
 
 ---
 
-## Minor scales
+# Part I: Scales, Modes, and Melodic Fluency
 
-Minor scales should follow naturally from major-scale familiarity but remain available from the beginning.
-
-### Core forms
-
-- Natural minor
-- Harmonic minor
-- Melodic minor
-
-### Development
-
-- Relate each minor key to its relative major
-- Compare the sound of the three minor forms
-- Practise each hand separately before combining
-- Use harmonic minor to understand dominant harmony in minor keys
-- Use melodic minor in melodic and jazz contexts
-
-### Musical connections
-
-Minor scales support:
-
-- Minor-key melodies
-- Minor chord progressions
-- Minor ii–V–i
-- Minor cadences
-- Improvisation
-- Harmonic analysis
-
----
-
-## Basic triads
-
-Triads give learners immediate access to harmony and accompaniment.
-
-### Core chord qualities
-
-- Major
-- Minor
-- Diminished
-- Augmented
-
-### Foundational study
-
-- Root position
-- Separate hands
-- Hands together where comfortable
-- Chord recognition by sound and shape
-- Chords built from each scale degree
-
-### Development
-
-- First inversion
-- Second inversion
-- Moving through all inversions
-- Connecting chords with minimal movement
-- Playing triads in every key
-
-### Musical connections
-
-Triads support:
-
-- Song accompaniment
-- Cadences
-- Chord progressions
-- Arpeggios
-- Improvisation
-- Harmonic analysis
-
----
-
-## Primary chords: I, IV, and V
-
-The primary chords should be introduced early because they allow learners to accompany and understand a large amount of tonal music.
+## 2. Major and minor scales
 
 ### Core exercises
 
-- I–IV–V in root position
-- I–IV–V–I
-- V–I
-- IV–I
-- I–V–I
-- Chords held slowly before faster changes
+- Major scale, hands separately
+- Major scale, hands together
+- Natural minor scale
+- Harmonic minor scale with raised seventh
+- Melodic minor scale with raised sixth and seventh ascending
 
-### Development
+### Suggested development
 
-- Inversions
-- Smooth voice leading
-- Left-hand roots with right-hand chords
-- Different accompaniment patterns
-- Transposition to every key
-
-### Musical purpose
-
-These chords introduce:
-
-- Tonic, subdominant, and dominant function
-- Harmonic tension and release
-- Basic song structure
-- Cadential movement
+- Learn each hand independently
+- Combine the hands
+- Play ascending and descending
+- Extend the range
+- Increase tempo while maintaining accuracy and consistency
+- Relate major keys to their relative minor keys
+- Apply scales in improvisation and harmonic contexts
 
 ---
 
-# 2. Core Technique and Keyboard Fluency
+## 3. Modes
 
-## Arpeggios
+### Core modes
 
-Arpeggios connect chord knowledge with melodic movement and keyboard coordination.
-
-### Foundational study
-
-- Major arpeggios
-- Minor arpeggios
-- One hand at a time
-- One octave
-- Root position
-- Ascending and descending
-
-### Development
-
-- Hands together
-- Multiple octaves
-- Inversions
-- Dominant seventh arpeggios
-- Diminished seventh arpeggios
-- Even tempo and smooth crossings
+- Ionian: major-scale sound
+- Dorian: minor with natural sixth
+- Phrygian: minor with flattened second
+- Lydian: major with raised fourth
+- Mixolydian: major with flattened seventh
+- Aeolian: natural minor
+- Locrian: minor with flattened second and fifth
 
 ### Musical applications
 
-- Accompaniment
-- Improvisation
-- Chord-tone targeting
-- Solo textures
-- Broken-chord patterns
+- Dorian for minor improvisation, funk, soul, and modal jazz
+- Mixolydian over dominant-seventh chords and blues
+- Lydian for bright, floating, or cinematic harmony
+- Phrygian for darker or Spanish-influenced sounds
+- Aeolian for conventional minor-key melody
+- Locrian over half-diminished harmony
+- Ionian as the modal understanding of the major scale
 
 ---
 
-## Broken chords
+## 4. Pentatonic and blues scales
 
-Broken chords should appear alongside arpeggios but remain distinct.
+### Foundational scales
 
-An arpeggio usually traverses a chord across a wider range. A broken-chord pattern repeats a smaller chord shape as an accompaniment texture.
+- Major pentatonic: 1–2–3–5–6
+- Minor pentatonic: 1–♭3–4–5–♭7
+- Blues scale: 1–♭3–4–♭5–5–♭7
+- Extended pentatonic scales with an added second or ninth
 
-### Core patterns
+### Pattern exercises
 
-- Root–third–fifth–octave
-- Root–fifth–third–fifth
-- Up-and-down chord patterns
-- Repeating chord-tone patterns
-- Patterns through chord progressions
-
-### Development
-
-- Different inversions
-- Wider ranges
-- Repeated rhythmic patterns
-- Left-hand accompaniment
-- Right-hand melodic independence
-
----
-
-## Alberti bass
-
-Alberti bass provides a familiar introduction to repeated accompaniment patterns.
-
-### Suggested progression
-
-- Learn the pattern slowly
-- Apply it to one chord
-- Move between I, IV, and V
-- Maintain evenness
-- Combine with a simple melody
-- Transpose into other keys
-
----
-
-## Pentatonic scales
-
-Pentatonic scales provide a quick route into expressive improvisation.
-
-### Core scales
-
-- Major pentatonic
-- Minor pentatonic
-
-### Pattern development
-
-- Ascending and descending
-- Groups of three
-- Groups of four
+- Ascending and descending pentatonic patterns
 - Skip patterns
-- Sequences
-- Repeated motifs
+- Patterns in thirds and fourths
+- Groups of three, four, and five notes
+- Repeated melodic sequences
+- Rhythmic displacement of familiar patterns
+- Blues licks using the ♭5 blue note
+- Chromatic approach notes into chord tones
+- ♭5-to-5 blues resolution
 
-### Musical applications
+### Conceptual relationships
 
-- Folk-style melodies
-- Pop improvisation
-- Rock improvisation
-- Blues foundations
-- Call and response
-- Chord-tone targeting
-
----
-
-## Blues scale
-
-The blues scale can follow minor pentatonic study.
-
-### Core learning
-
-- Minor pentatonic plus the ♭5
-- Hear the tension of the blue note
-- Practise ♭5 resolving to 5
-- Build short blues phrases
-- Use repetition and variation
-
-### Applications
-
-- Twelve-bar blues
-- Blues-rock improvisation
-- Call and response
-- Major/minor ambiguity
-- Simple left-hand blues patterns
+- Relative major and minor pentatonic scales
+- Switching tonal centre while using the same pitch collection
+- Combining major and minor pentatonic sounds
+- Matching pentatonic scales to individual chords
+- Targeting chord tones on strong beats
 
 ---
 
-# 3. Foundational Harmony and Progressions
+## 5. Pentatonic and blues improvisation
 
-## Diatonic triads
+### Foundational contexts
 
-Once learners know major scales and basic triads, they can build the full chord vocabulary of a key.
+- Major pentatonic over I–IV–V
+- Minor pentatonic over a 12-bar blues
+- Major pentatonic over I–vi–IV–V
+- Minor pentatonic over a minor i–iv vamp
+- Major pentatonic over ii–V–I
+- Minor pentatonic over minor ii–V–i
+- Major pentatonic over a one-chord major or Dorian vamp
+- Minor pentatonic over a one-chord minor or Dorian vamp
 
-### Core study
+### Expressive development
 
-- I through vii°
-- Chord quality on each scale degree
-- Root-position chords
-- Chords in sequence
-- Chord recognition by Roman numeral
+- Create simple, singable melodies
+- Add rhythmic variety
+- Use space between phrases
+- Practise call and response
+- Build four-bar questions and four-bar answers
+- Repeat and vary short motifs
+- Combine major and minor pentatonic for emotional contrast
+- Target chord tones as harmony changes
+- Shift phrases across bar lines
+- Develop reusable riffs and licks
+
+### Advanced pentatonic applications
+
+- Switch between major and minor pentatonic over a dominant chord
+- Use pentatonic material over modal interchange
+- Improvise over borrowed chords
+- Combine a left-hand pentatonic ostinato with right-hand improvisation
+- Trade call-and-response phrases between the hands
+- Use pentatonic scales to outline changing harmony
+
+---
+
+# Part II: Chord Vocabulary
+
+## 6. Foundational triads
+
+### Core exercises
+
+- I–IV–V triads in root position
+- All seven diatonic triads in a major key
+- Major triads
+- Minor triads
+- Diminished triads
+- Augmented triads
+- Triad inversions: root, first, and second inversion
 
 ### Development
 
-- Inversions
-- Smooth transitions
-- Common-tone awareness
-- Progressions built from diatonic chords
-- Comparison between major and minor keys
+- Play each chord type in every key
+- Cycle through all inversions
+- Compare chord qualities by ear
+- Resolve unstable triads into stable chords
+- Connect triads with minimal hand movement
+- Recognize their functions within a key
 
 ---
 
-## Common progressions
+## 7. Suspended chords
 
-The following progressions are especially useful and should be readily available:
+### Core exercises
 
-- I–IV–V–I
-- I–V–vi–IV
-- I–vi–IV–V
-- vi–IV–I–V
-- ii–V–I
-- Minor i–iv–V–i
-- Minor iiø7–V7–i
+- Sus4 chords: 1–4–5
+- Sus2 chords: 1–2–5
+- Sus4 to major resolution: 4→3
+- Sus2 to major resolution: 2→3
+- Dominant sus4 chords
+- V7sus4 → V7 → I
+- I → Isus4 → I
+- ii7 → V7sus4 → V7 → I
 
-These progressions should be practised as:
+### Learning goals
 
-- Slow chord changes
-- Root-position chords
-- Inversions
-- Smooth voice leading
-- Left-hand roots with right-hand chords
-- Accompaniment textures
-- Improvisation contexts
+- Hear tension and release
+- Distinguish unresolved suspension from resolved harmony
+- Practise the movement of one suspended voice
+- Delay dominant resolution for expressive effect
 
 ---
 
-## Cadences
+## 8. Augmented and diminished triads
 
-Cadences teach harmonic direction and resolution.
+### Augmented exercises
 
-### Essential cadences
+- Build augmented triads: 1–3–#5
+- Play augmented inversions
+- Explore the symmetry of augmented triads
+- Map the four unique augmented-triad pitch collections
+- I → I+ → vi
+- I → I+ → first-inversion tonic
+- I+ → IV
+- I+ → V
+- Use augmented chords as chromatic passing harmony
 
-- Authentic cadence: V–I
-- Plagal cadence: IV–I
-- Half cadence: ending on V
-- Deceptive cadence: V–vi
+### Diminished exercises
 
-### Development
-
-- Root position
-- Inversions
-- Seventh chords
-- Smooth inner voices
-- Major and minor forms
-- Cadences inside longer progressions
-
----
-
-## Voice leading
-
-Voice leading should be introduced early as a practical skill rather than reserved for advanced harmony.
-
-### Core principles
-
-- Keep common tones
-- Move other voices by the smallest useful interval
-- Resolve leading tones naturally
-- Resolve chordal sevenths downward
-- Avoid unnecessary jumps
-- Listen to each individual voice
-
-### Foundational exercises
-
-- I–IV–V–I
-- V7–I
-- ii–V–I
-- Minor iiø7–V7–i
-- Progressions using inversions
-- Guide-tone-only practice
+- Build diminished triads: 1–♭3–♭5
+- Play diminished inversions
+- vii° → I
+- Resolve leading-tone diminished chords in every key
+- I → #I° → ii
+- iii → #iii° → IV
+- Use diminished chords between diatonic chords
+- Practise half-step voice leading into the destination chord
 
 ---
 
-# 4. Seventh Chords and Jazz Foundations
-
-## Essential seventh chords
+## 9. Seventh chords
 
 ### Core chord types
 
-- Major seventh
 - Dominant seventh
+- Major seventh
 - Minor seventh
-- Half-diminished seventh
-- Diminished seventh
+- Half-diminished seventh or minor-seven-flat-five
 
-### Development
+### Suggested exercises
 
-- Root position
-- Inversions
-- Diatonic seventh chords
-- Guide tones
-- Smooth progression practice
-- Chord-quality recognition
-
----
-
-## Major ii–V–I
-
-The major ii–V–I is one of the most useful progressions for jazz and broader harmonic fluency.
-
-### Suggested stages
-
-- Root-position seventh chords
-- Guide tones only
-- Smooth inversions
-- Left-hand shells
-- Rootless voicings
-- Chord extensions
-- Improvisation using chord tones
-- Improvisation using the parent major scale
+- Build each chord from scale-degree formulas
+- Play all inversions
+- Compare their harmonic functions
+- Resolve dominant seventh chords
+- Use minor seventh chords as ii, iii, and vi
+- Use half-diminished seventh chords in minor ii–V–i
+- Connect seventh chords through smooth voice leading
 
 ---
 
-## Minor ii–V–i
+## 10. Chord extensions
 
-### Suggested stages
+### Ninth chords
 
-- Half-diminished ii
-- Dominant V
-- Minor tonic
-- Guide-tone movement
-- Harmonic-minor relationship
-- Altered dominant colour
-- Rootless voicings
-- Smooth inversions
-- Improvisation over the progression
+- Major ninth: 1–3–5–7–9
+- Minor ninth: 1–♭3–5–♭7–9
+- Dominant ninth: 1–3–5–♭7–9
+
+### Eleventh chords
+
+- Dominant eleventh
+- Dominant-eleventh voicings without the third
+- Suspended dominant-eleventh colours
+
+### Thirteenth chords
+
+- Major thirteenth
+- Dominant thirteenth
+- Selective voicing of essential tones
+- Root–third–seventh–ninth–thirteenth combinations
+
+### Learning goals
+
+- Hear the difference between basic seventh chords and extensions
+- Learn which notes may be omitted
+- Avoid muddy or conflicting voicings
+- Use extensions in jazz, neo-soul, R&B, and contemporary harmony
 
 ---
 
-## Shell voicings
+## 11. Altered dominant chords
 
-Shell voicings provide a manageable introduction to jazz accompaniment.
+### Core alterations
 
-### Core forms
-
-- Root and third
-- Root and seventh
-- Third and seventh
-- Left-hand shells with right-hand melody or colour tones
+- Dominant ♭9
+- Dominant #9
+- Dominant #11
+- Dominant ♭13
+- Fully altered dominant
+- Diminished-dominant combinations
 
 ### Applications
 
+- Use altered dominants before major or minor resolutions
+- Combine ♭9 and ♭13 for darker dominant colour
+- Use #9 for blues and rock colour
+- Use #11 for Lydian-dominant or tritone-substitution colour
+- Select rather than stack every available alteration
+- Compare increasing levels of dominant tension
+
+---
+
+# Part III: Progressions, Cadences, and Voice Leading
+
+## 12. Foundational chord progressions
+
+### Core progressions
+
+- I–IV–V–I
+- I–vi–IV–V
 - ii–V–I
-- Minor ii–V–i
-- Blues
-- Accompaniment
-- Rootless ensemble playing
+- ii7–V7–Imaj7
+- Minor iiø7–V7–im7
+
+### Suggested development
+
+- Root-position chords
+- Inversions
+- Whole-note chord changes
+- Reduced transition time
+- Smooth common-tone voice leading
+- Left-hand roots with right-hand chords
+- Rootless voicings
+- Guide-tone-only versions
+- Practice through all inversions
 
 ---
 
-# 5. Modes and Modal Playing
+## 13. Cadences
 
-Modes should be presented as sounds and applications, not merely scale formulas.
+### Authentic cadence
 
-## Ionian
+- V → I
+- V7 → I
+- Keep common tones
+- Resolve scale degree 7 upward to 1
+- Resolve the chordal seventh downward
+- Practise until the resolution becomes reflexive
 
-- Major-key tonal centre
-- Diatonic harmony
-- Conventional major melodies
+### Plagal cadence
 
-## Dorian
+- IV → I
+- Keep common tones
+- Move scale degree 6 smoothly to 5
+- Compare its softer resolution with V–I
 
-- Minor with natural sixth
-- Minor vamps
-- Funk
-- Soul
-- Modal jazz
+### Extended cadence exercises
 
-## Phrygian
-
-- Minor with flattened second
-- Dark and Spanish-influenced sound
-- Static minor harmony
-
-## Lydian
-
-- Major with raised fourth
-- Bright, floating sound
-- Film and contemporary harmony
-- Major chords with #11 colour
-
-## Mixolydian
-
-- Major with flattened seventh
-- Dominant chords
-- Blues
-- Rock
-- Modal dominant vamps
-
-## Aeolian
-
-- Natural minor
-- Minor-key melody and harmony
-
-## Locrian
-
-- Half-diminished context
-- Minor ii–V–i
-- Tension and instability
-
-### Modal development
-
-- Play the mode
-- Sustain its tonal centre
-- Improvise over a one-chord vamp
-- Build diatonic chords from the mode
-- Compare it with major or natural minor
-- Explore characteristic notes
+- V–I with smooth voice leading
+- IV–I with smooth voice leading
+- Cadences in root position and inversions
+- Cadences using seventh chords
+- Cadences embedded in larger progressions
 
 ---
 
-# 6. Improvisation and Musical Language
+## 14. Minor ii–V–i
 
-Improvisation should be available from the beginning in simple forms.
+### Core exercises
 
-## Early improvisation
+- iiø7–V7–im7
+- Smooth guide-tone voice leading
+- Third-and-seventh-only exercise
+- Altered V7 with ♭9 and ♭13
+- Rootless right-hand voicings
+- All inversions
+- Drop-2 voicings
+- Spread voicings
+- Left-hand shell voicings
+- Quartal voicings
+- Minor ii–V–i ostinato
 
-- Improvise using black keys
-- Improvise with three notes
-- Major pentatonic over a tonic chord
-- Minor pentatonic over a minor chord
-- Call and response
-- Question-and-answer phrases
-- Repeat and vary one motif
+### Reharmonized versions
 
-## Developing improvisation
-
-- Major pentatonic over I–IV–V
-- Minor pentatonic over blues
-- Pentatonic over pop progressions
-- Chord-tone targeting
-- Guide-tone targeting
-- Rhythmic displacement
-- Motif development
-- Phrasing across bar lines
-
-## Harmonic improvisation
-
-- Major scale over diatonic progressions
-- Dorian over minor vamps
-- Mixolydian over dominant chords
-- Chord-scale relationships
-- Arpeggio-based improvisation
-- Upper-structure melodic material
-- Modal interchange contexts
-
-## Musical priorities
-
-Improvisation exercises should encourage:
-
-- Listening
-- Space
-- Repetition
-- Contrast
-- Dynamics
-- Phrase shape
-- Rhythmic intention
-- A clear beginning and ending
+- iiø7–♭II7–im7
+- Double tritone substitution
+- Chromatic bass-line versions
 
 ---
 
-# 7. Accompaniment and Hand Independence
+## 15. General voice-leading exercises
 
-## Ostinatos
+### Core principles
 
-- Repeated bass notes
-- Broken-chord patterns
-- Pentatonic ostinatos
-- Quartal ostinatos
-- Progression-based ostinatos
+- Keep common tones stationary
+- Move remaining voices by step where possible
+- Prefer half-step resolutions when harmonically appropriate
+- Minimize unnecessary hand movement
+- Practise guide tones independently
+- Create clear soprano and bass lines
+- Explore contrary motion between outer voices
 
-## Left-hand accompaniment
+### Key exercises
 
-- Root notes
-- Root and fifth
-- Octaves
-- Shell voicings
-- Alberti bass
-- Broken chords
-- Walking bass
-- Rhythmic chord patterns
-
-## Coordination development
-
-- One hand maintains a repeating pattern
-- The other hand plays a melody
-- The melody begins with long notes
-- Rhythmic complexity increases gradually
-- Roles may be reversed
-- Dynamics should remain independently controlled
+- Smooth I–IV–V–I
+- Smooth ii–V–I
+- Smooth minor ii–V–i
+- Chord progressions through inversions
+- Chromatic passing chords
+- Suspensions resolving by step
+- Diminished chords resolving inward or outward
+- Borrowed chords with chromatic inner lines
 
 ---
 
-# 8. Harmonic Colour
+# Part IV: Applied Functional and Chromatic Harmony
 
-These techniques are useful but need not block foundational study.
+## 16. Secondary dominants and tonicization
 
-## Suspended chords
+### Individual secondary dominants
 
-- Sus2
-- Sus4
-- Sus4 resolving to major
-- Sus2 resolving upward
-- Dominant sus chords
-- Suspended progressions
+- V7/V → V
+- V7/ii → ii
+- V7/iii → iii
+- V7/IV → IV
+- V7/vi → vi
 
-## Added-note and extended chords
+### Progression exercises
 
-- Add2
-- Add9
-- Sixth chords
-- Major ninth
-- Minor ninth
-- Dominant ninth
-- Eleventh chords
-- Thirteenth chords
-
-## Altered dominant chords
-
-- ♭9
-- #9
-- #11
-- ♭13
-- Fully altered dominant
-
-These should be explored through:
-
-- Construction
-- Comparison
-- Resolution
-- Voice leading
-- Application in ii–V–I
-- Improvisation
+- Chain of secondary dominants
+- V7/vi → vi → V7/V → V → I
+- I → V7/IV → IV → V7 → I
+- Secondary dominants inserted into familiar progressions
+- Chromatic leading-tone resolution into each target chord
 
 ---
 
-# 9. Reharmonization and Chromatic Harmony
+## 17. Tritone substitution
 
-Advanced harmony should remain openly accessible, but it should be presented as colour and application rather than as a prerequisite ladder.
-
-## Secondary dominants
-
-- V7/V
-- V7/ii
-- V7/iii
-- V7/IV
-- V7/vi
-- Chains of secondary dominants
-- Chromatic leading tones into target chords
-
-## Tritone substitution
+### Core exercises
 
 - Replace V7 with ♭II7
 - ii–♭II7–I
-- Chromatic bass-line resolutions
-- Guide-tone comparison
+- Preserve the dominant guide tones
+- Practise descending chromatic bass motion
+- Double tritone substitution
 - Tritone substitutions in turnarounds
-- Minor ii–V–i substitutions
+- Improvise while inserting substitutions spontaneously
 
-## Modal interchange
+### Combined applications
 
-- Minor iv in major
-- ♭VI
-- ♭VII
-- ♭II
-- Major IV in minor
-- Major tonic ending in minor
-- Progressions combining borrowed chords
-- Chromatic voice leading between borrowed and diatonic harmony
-
-## Passing diminished chords
-
-- I–#I°–ii
-- iii–#iii°–IV
-- vii°7 of target chords
-- Chromatic diminished passing movement
-- Symmetry of diminished-seventh chords
+- Tritone substitutions in major ii–V–I
+- Tritone substitutions in minor ii–V–i
+- Tritone substitution with upper-structure triads
+- Tritone substitution as reharmonization
 
 ---
 
-# 10. Classical Chromatic Harmony
+## 18. Modal interchange and borrowed chords
 
-These topics are valuable for advanced harmony, analysis, composition, and expressive playing.
+### Borrowing into major
 
-## Neapolitan sixth
+- Minor iv
+- ♭VI major
+- ♭VII major
+- ♭II or Neapolitan colour
 
-- Construction of ♭II6
-- N6–V–i
-- N6–V–I
-- Voice leading
-- Cadential 6/4 applications
-- Root-position Neapolitan
-- Enharmonic reinterpretation
+### Borrowing into minor
 
-## Augmented-sixth chords
+- Major tonic or Picardy third
+- Major IV
 
-- Augmented-sixth interval
-- Italian sixth
-- German sixth
-- French sixth
-- Resolution to V
-- Cadential 6/4
-- Comparison between forms
-- Major- and minor-key use
-- Enharmonic reinterpretation
+### Progression exercises
 
-## Common-tone augmented-sixth chords
-
-- Common-tone Italian
-- Common-tone German
-- Common-tone French
-- Resolution directly to tonic
-- Chromatic passing applications
+- I–iv–I
+- I–♭VI–IV–I
+- I–♭VII–IV–I
+- I–♭II–V–I
+- i–iv–V–I
+- i–IV–V7–i
+- Progressions using several borrowed chords
+- Smooth chromatic voice leading between borrowed and diatonic harmony
 
 ---
 
-# 11. Modern and Cinematic Harmony
+## 19. Applied diminished-seventh harmony
 
-## Chromatic mediants
+### Leading-tone diminished chords
 
-- Major chords a third apart
-- Minor and major third relationships
-- Common-tone voice leading
-- I–♭VI
-- I–#III
-- I–♭III
-- Chained mediants
-- Film-score progressions
-- Ostinatos under mediant changes
+- vii°7/ii → ii
+- vii°7/iii → iii
+- vii°7/IV → IV
+- vii°7/V → V
+- vii°7/vi → vi
 
-## Neo-Riemannian transformations
+### Additional exercises
 
-- Parallel
-- Relative
-- Leading-tone exchange
-- Transformation chains
-- Hexatonic cycles
-- Tonnetz exploration
-- Composition through smooth triadic transformation
-- Analysis of chromatic film and Romantic harmony
-
-These exercises should emphasize hearing and voice leading before theoretical naming.
-
----
-
-# 12. Jazz and Contemporary Voicing Systems
-
-## Drop-2 voicings
-
-- Major seventh
-- Minor seventh
-- Dominant seventh
-- Half-diminished seventh
-- All inversions
-- Major and minor ii–V–I
-- Melody harmonization
-- Rootless forms
-- Extensions
-- Chromatic approaches
-
-## Drop-3 voicings
-
-- Major seventh
-- Minor seventh
-- Dominant seventh
-- Half-diminished seventh
-- All inversions
-- Major and minor ii–V–I
-- Melody harmonization
-- Rootless forms
-- Extensions
-
-## Upper-structure triads
-
-- Natural dominant colours
-- Lydian-dominant colours
-- Altered dominant colours
-- Sus-dominant colours
-- Major and minor ii–V–I applications
-- Left-hand shells with right-hand triads
-- Improvised melodic use
-
----
-
-# 13. Quartal and Quintal Harmony
-
-## Quartal harmony
-
-- Three-note voicings
-- Four-note voicings
-- Five-note voicings
-- Inversions
-- Modal applications
-- Parallel movement
-- Chromatic planing
-- ii–V–I applications
-- Modal vamp accompaniment
-- “So What”-style voicings
-- Quartal improvisation
-
-## Quintal harmony
-
-- Three-note voicings
-- Four-note voicings
-- Inversions
-- Parallel movement
-- Bass-note combinations
-- Cinematic textures
-
-## Combined study
-
-- Quartal/quintal hybrids
-- Ostinatos
-- Spread voicings
-- Tertian resolution
-- Improvisation without conventional triads
-- Short composition studies
-
----
-
-# 14. Musical Application and Creative Practice
-
-Technique becomes meaningful when used in music.
-
-## Transposition
-
-- Transpose a scale pattern
-- Transpose a chord progression
-- Transpose a lick
-- Transpose an accompaniment pattern
-- Transpose a voicing sequence
-- Move one idea into several keys
-
-## Improvisation challenges
-
-- One pass over a familiar progression
-- Sixty-second improvisation
-- Call and response
-- Motif development
-- Chord-tone targeting
-- Modal improvisation
-- Blues improvisation
-- Improvisation over chromatic harmony
-
-## Composition challenges
-
-- Write a melody using a chosen scale
-- Compose over I–IV–V
-- Use a borrowed chord
-- Use a chromatic mediant
-- Create a quartal piece
-- Create an ostinato-based piece
-- Reharmonize a simple progression
-
-## Recording and reflection
-
-- Record a complete improvisation
-- Record an exercise at a comfortable tempo
-- Compare two performances
-- Listen for rhythm, tone, phrasing, and confidence
-- Choose one musical improvement for the next attempt
-- Save a performance worth sharing
-
----
-
-# 15. Recommended Learner-Facing Organization
-
-The curriculum should be presented through a small number of inviting categories.
-
-## Start Here
-
-- Major scales
-- Minor scales
-- Major and minor triads
-- I–IV–V
-- Major and minor arpeggios
-- Pentatonic improvisation
-- Basic accompaniment patterns
-
-## Chords and Harmony
-
-- Triads
-- Inversions
-- Seventh chords
-- Diatonic chords
-- Cadences
-- Progressions
-- Voice leading
-
-## Technique and Coordination
-
-- Scales
-- Arpeggios
-- Broken chords
-- Alberti bass
-- Ostinatos
-- Hands together
-- Hand independence
-
-## Improvisation
-
-- Pentatonic
-- Blues
-- Modal
-- Chord-tone targeting
-- Call and response
-- Motif development
-
-## Jazz Piano
-
-- ii–V–I
-- Shell voicings
-- Extensions
-- Altered dominants
-- Drop voicings
-- Upper structures
-- Quartal harmony
-
-## Harmonic Colour
-
-- Suspended chords
-- Added-note chords
-- Modal interchange
-- Secondary dominants
-- Tritone substitution
 - Passing diminished chords
-
-## Advanced Harmony
-
-- Neapolitan sixth
-- Augmented-sixth chords
-- Chromatic mediants
-- Neo-Riemannian transformations
-- Contemporary voicing systems
-
-## Create and Apply
-
-- Accompaniment
-- Transposition
-- Improvisation
-- Reharmonization
-- Composition
-- Recording
+- Symmetrical diminished-seventh inversions
+- Map the three unique diminished-seventh pitch collections
+- Resolve every voice by half-step
+- Use diminished harmony to connect diatonic chords
 
 ---
 
-# 16. Progression Philosophy
+# Part V: Classical Chromatic Harmony
 
-## Foundations should be prominent, not compulsory gates
+## 20. Neapolitan sixth chord
 
-The app should recommend major scales, triads, primary chords, arpeggios, and basic progressions because they have broad usefulness.
+### Construction
 
-Learners should still be able to explore:
+- Build ♭II in first inversion
+- Double the bass or chordal third
+- Compare first inversion with root position
 
-- Jazz voicings
-- Modes
-- Film harmony
-- Blues
-- Reharmonization
-- Contemporary harmony
+### Core progressions
 
-Curiosity can motivate foundational study rather than being postponed until after it.
+- N6 → V → i
+- N6 → V → I
+- i → N6 → V → i
+- N6 → I6/4 → V → i
+- N6 → vii°7/V → V → i
+- N6 → V → vi
+- Root-position ♭II → V → i
 
-## Progress should be multidimensional
+### Voice-leading exercises
 
-A learner may develop through:
-
-- New keys
-- New hand combinations
-- Wider range
-- Improved accuracy
-- Increased tempo
-- Greater consistency
-- Better voice leading
-- More complex harmony
-- Musical application
-- Creative independence
-
-No single dimension should define all progress.
-
-## Advanced study should point back to foundations
-
-Examples:
-
-- Upper structures point back to triads and dominant sevenths.
-- Quartal harmony points back to intervals and modes.
-- Tritone substitution points back to guide tones.
-- Chromatic mediants point back to triads and common tones.
-- Improvisation points back to scales, rhythm, and phrasing.
-
-This makes the curriculum a connected web rather than a staircase.
-
-## Review should be positive and purposeful
-
-Previously secure exercises may return because:
-
-- The learner has not practised them recently.
-- A related advanced skill depends on them.
-- One key is less secure than others.
-- Tempo or consistency has declined.
-- The learner is preparing a musical application.
-
-Review should feel like maintenance and reinforcement, not loss of status.
+- ♭2 resolving downward
+- Bass and inner-voice motion into V
+- Avoid parallel fifths
+- Maintain smooth four-part movement
+- Use the Neapolitan for modulation or enharmonic reinterpretation
 
 ---
 
-# 17. Pedagogical Priority
+## 21. Augmented-sixth chords
 
-When deciding what to feature most prominently, use this order:
+### Foundational interval
 
-1. Skills with immediate musical usefulness  
-2. Skills that unlock many other areas  
-3. Skills that build healthy coordination and keyboard familiarity  
-4. Skills that help learners accompany, improvise, or create music  
-5. Skills that deepen harmonic understanding  
-6. Specialized historical, analytical, or stylistic techniques  
+- Build the augmented sixth between ♭6 and #4
+- Resolve both notes outward by half-step to scale degree 5
 
-This keeps the curriculum approachable while preserving the full depth of the original exercise tree.
+### Italian augmented sixth
+
+- Construct It+6
+- Resolve It+6 → V
+
+### German augmented sixth
+
+- Construct Ger+6
+- Resolve through cadential I6/4 where needed
+- Ger+6 → I6/4 → V → i
+
+### French augmented sixth
+
+- Construct Fr+6
+- Resolve directly to V
+- Compare its colour with Italian and German forms
+
+### Further exercises
+
+- Use augmented-sixth chords in major keys
+- Compare Italian, German, and French forms
+- Substitute augmented-sixth harmony for iv
+- Enharmonically reinterpret German sixth as a dominant seventh
+- Connect augmented-sixth harmony with jazz altered dominants
+- Practise complete chromatic pre-dominant progressions
+
+---
+
+## 22. Common-tone augmented-sixth chords
+
+### Core forms
+
+- Common-tone Italian augmented sixth
+- Common-tone German augmented sixth
+- Common-tone French augmented sixth
+
+### Applications
+
+- Resolve directly to tonic
+- Keep the common tone stationary
+- Insert between diatonic chords
+- Use before tonic in major and minor
+- Compare standard augmented-sixth-to-dominant motion with common-tone-to-tonic motion
+- Apply common-tone augmented sixths as reharmonization devices
+- Explore enharmonic reinterpretations
+
+---
+
+# Part VI: Chromatic and Cinematic Harmony
+
+## 23. Chromatic mediants
+
+### Foundational relationships
+
+- I → ♭VI
+- I → #III
+- I → vi
+- I → iii
+- i → ♭VI
+- I → chromatic minor-mediant relationships
+
+### Key exercises
+
+- Move between parallel major triads a third apart
+- Preserve common tones
+- Hold a common tone in the melody
+- Chain descending-third relationships
+- I → ♭VI → ♭III → I
+- I → ♭VI → ♭III → ♭VII → I
+- Combine chromatic mediants with tritone-related harmony
+- Create alternating I/♭VI ostinatos
+- Improvise over repeated chromatic-mediant shifts
+- Catalogue available mediant relationships from one tonic
+
+### Musical goals
+
+- Develop cinematic harmonic colour
+- Hear non-functional but connected triadic motion
+- Create emotional pivots using shared tones
+- Compose with dramatic third relationships
+
+---
+
+## 24. Neo-Riemannian transformations
+
+### Core transformations
+
+- Parallel transformation: major ↔ parallel minor
+- Relative transformation: major ↔ relative minor
+- Leading-tone exchange
+- Strict common-tone voice leading
+
+### Development exercises
+
+- Practise P, L, and R in all keys
+- Combine transformations into chains
+- Alternate transformations to create cycles
+- Explore hexatonic cycles
+- Explore octatonic relationships
+- Derive chromatic-mediant relationships through compound transformations
+- Navigate a Tonnetz or harmonic lattice
+- Reverse transformation chains
+- Compose using only transformation-based harmony
+- Integrate transformation-based chords into tonal progressions
+
+### Additional draft concepts
+
+- Slide transformations
+- Nebenverwandt transformations
+- Transformation algebra and symmetry
+- Analysis of Romantic and film-score progressions
+
+Some of these entries in the source are marked by exploratory or self-correcting descriptions and may require later theoretical review.
+
+---
+
+# Part VII: Jazz Voicings and Reharmonization
+
+## 25. Upper-structure triads
+
+### Foundational concept
+
+Play a simple right-hand triad over a dominant-chord shell or bass to create upper extensions.
+
+### Principal upper structures over V7
+
+- V major triad: natural dominant ninth colour
+- II major triad: 9, #11, and 13
+- ♭II major triad: ♭9 colour
+- ♭VI major triad: altered ♭9 and ♭13 colour
+- ♭VII major triad: sus or dominant-eleventh colour
+- iii minor triad: basic dominant quality
+- vi minor triad: natural upper extensions
+- ii minor triad: 9, 11, and 13
+- Diminished upper structures
+- Additional major and minor triads for ambiguous colours
+
+### Applications
+
+- Compare several upper structures over one dominant
+- Apply them to major ii–V–I
+- Apply altered structures to minor ii–V–i
+- Move upper structures with smooth voice leading
+- Combine left-hand guide-tone shells with right-hand triads
+- Use upper structures in comping
+- Arpeggiate upper structures during improvisation
+- Reharmonize melodies
+- Combine upper structures with tritone substitutions
+- Use upper structures in extended dominant chains
+- Explore them over modal dominant vamps
+
+---
+
+## 26. Drop-2 voicings
+
+### Foundational exercises
+
+- Understand dropping the second voice from the top
+- Major seventh drop-2
+- Dominant seventh drop-2
+- Minor seventh drop-2
+- Half-diminished seventh drop-2
+- All four inversions
+
+### Progression exercises
+
+- Major ii–V–I in drop-2
+- Minor ii–V–i in drop-2
+- Chromatic parallel motion
+- Contrary motion
+- Melody harmonization
+- Walking bass with drop-2 accompaniment
+- Rootless drop-2 voicings
+- Drop-2 with extensions
+- Chromatic approaches into target voicings
+
+---
+
+## 27. Drop-3 voicings
+
+### Foundational exercises
+
+- Understand dropping the third voice from the top
+- Major seventh drop-3
+- Dominant seventh drop-3
+- Minor seventh drop-3
+- Half-diminished seventh drop-3
+- All four inversions
+
+### Applications
+
+- Major ii–V–I in drop-3
+- Minor ii–V–i in drop-3
+- Compare drop-2 and drop-3 spacing
+- Mix drop-2 and drop-3 in one progression
+- Harmonize melodies
+- Rootless drop-3 voicings
+- Drop-3 voicings with extensions
+- Chromatic approach voicings
+- Practise drop voicings through all keys
+
+---
+
+# Part VIII: Quartal and Quintal Harmony
+
+## 28. Quartal harmony
+
+### Construction exercises
+
+- Three-note quartal voicings
+- Four-note quartal voicings
+- Five-note quartal voicings
+- Quartal inversions
+- Close quartal clusters
+- Spread quartal voicings
+
+### Scale and modal applications
+
+- Quartal voicings derived from major scales
+- Dorian quartal voicings
+- Lydian quartal voicings
+- Mixolydian quartal voicings
+- Phrygian quartal voicings
+- Chromatic perfect-fourth voicings
+
+### Movement and progression exercises
+
+- Parallel quartal motion
+- Chromatic planing
+- Quartal voicings over specific bass notes
+- Quartal ii–V–I
+- Quartal voicings over modal vamps
+- Smooth quartal voice leading
+- Quartal tension resolving to tertian harmony
+
+### Performance applications
+
+- Left-hand quartal comping
+- Quartal ostinatos
+- Improvisation using notes from one quartal voicing
+- “So What”-style voicings
+- Quartal upper structures over conventional chord roots
+
+---
+
+## 29. Quintal harmony
+
+### Core exercises
+
+- Three-note quintal voicings
+- Four-note quintal voicings
+- Quintal voicings derived from a major scale
+- Parallel quintal motion
+- Quintal voicings over a bass note
+- Quintal inversions
+
+### Combined quartal/quintal work
+
+- Hybrid fourth-and-fifth voicings
+- Quartal/quintal ostinatos
+- Convert quartal forms into quintal inversions
+- Improvise using only quartal and quintal harmony
+- Compose a short piece without tertian chords
+- Study quartal and quintal harmony in modern jazz and contemporary music
+
+---
+
+# Part IX: Arpeggiation, Accompaniment, and Texture
+
+## 30. Broken chords and arpeggiation
+
+### Foundational exercises
+
+- Simple ascending broken chord: root–third–fifth–octave
+- Two-octave broken chord ascending and descending
+- Arpeggio patterns through chord progressions
+- Repeating broken-chord accompaniment
+
+### Development
+
+- Transpose patterns through every key
+- Apply patterns to major and minor harmony
+- Use different inversions
+- Extend the range
+- Maintain consistent pulse
+- Combine the pattern with right-hand melody or improvisation
+
+---
+
+## 31. Alberti bass
+
+### Core pattern
+
+- Low–high–middle–high or equivalent chord-tone order
+
+### Development
+
+- Apply to major and minor triads
+- Move through progressions
+- Maintain even rhythm
+- Change inversions smoothly
+- Combine with a right-hand melody
+- Increase tempo without tension
+
+---
+
+## 32. Ostinatos
+
+### Exercises
+
+- Turn one progression into a repeating left-hand bed
+- Build pentatonic ostinatos
+- Build broken-chord ostinatos
+- Build quartal or quintal ostinatos
+- Create chromatic-mediant ostinatos
+- Create minor ii–V–i ostinatos
+- Maintain the ostinato while improvising with the other hand
+
+### Learning goals
+
+- Hand independence
+- Groove
+- Repetition without stiffness
+- Dynamic control
+- Layering melody over accompaniment
+
+---
+
+# Part X: Musical Application
+
+## 33. Improvisation challenges
+
+### Core challenges
+
+- Improvise one complete pass over I–vi–IV–V
+- Improvise over I–IV–V
+- Improvise over a 12-bar blues
+- Improvise over a modal vamp
+- Improvise over major or minor ii–V–I
+- Improvise over chromatic-mediant harmony
+- Improvise using upper-structure material
+- Improvise using quartal and quintal material
+
+### Development
+
+- Use call and response
+- Target chord tones
+- Vary rhythm and phrase length
+- Repeat and transform motifs
+- Use silence intentionally
+- Shape dynamics
+- Build a beginning, middle, and ending
+
+---
+
+## 34. Transposition challenges
+
+- Transpose a known lick into three new keys
+- Transpose pentatonic patterns
+- Transpose blues phrases
+- Transpose chord progressions
+- Transpose voicing patterns
+- Transpose accompaniment textures
+- Apply the same melodic idea over several harmonic contexts
+
+---
+
+## 35. Composition and recording challenges
+
+### Composition
+
+- Compose a short piece using quartal and quintal harmony
+- Compose using only Neo-Riemannian transformations
+- Create a chromatic-mediant film-score progression
+- Reharmonize an existing progression
+- Harmonize a melody with drop voicings
+- Build a progression using borrowed chords
+- Build a progression using secondary dominants
+
+### Performance artifacts
+
+- Use one learned arpeggiation pattern beneath a 60-second improvisation
+- Record an improvisation
+- Record a performance the learner would be willing to share
+- Review the recording for phrasing, consistency, harmony, and musical shape
+
+---
+
+# Suggested top-level pedagogy families
+
+For a learner-facing curriculum, the draft can be condensed into these main families:
+
+1. Major and minor scales  
+2. Modes  
+3. Pentatonic and blues vocabulary  
+4. Improvisation and melodic phrasing  
+5. Triads and inversions  
+6. Seventh chords  
+7. Suspended, augmented, and diminished chords  
+8. Chord extensions and altered dominants  
+9. Cadences  
+10. Diatonic chord progressions  
+11. Major and minor ii–V–I  
+12. Voice leading  
+13. Secondary dominants  
+14. Tritone substitution  
+15. Modal interchange and borrowed harmony  
+16. Neapolitan and augmented-sixth harmony  
+17. Chromatic mediants  
+18. Neo-Riemannian transformations  
+19. Upper-structure triads  
+20. Drop voicings  
+21. Quartal and quintal harmony  
+22. Broken chords and arpeggiation  
+23. Accompaniment patterns and ostinatos  
+24. Transposition  
+25. Improvisation, composition, and recording challenges  
+
+The individual keys, hands, inversions, ranges, directions, and tempo levels can then appear as variations after the learner selects one of these families.
