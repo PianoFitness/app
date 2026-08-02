@@ -35,7 +35,7 @@ void main() {
         createTestWidget(
           const PracticePage(
             initialConfiguration: configuration,
-            backTooltip: "Back to Technique Tree",
+            backTooltip: "Back to Curriculum",
           ),
         ),
       );
@@ -54,7 +54,7 @@ void main() {
         HandSelection.right,
       );
       expect(viewModel.currentConfiguration!.key, music.Key.d);
-      expect(find.byTooltip("Back to Technique Tree"), findsOneWidget);
+      expect(find.byTooltip("Back to Curriculum"), findsOneWidget);
     });
   });
 }

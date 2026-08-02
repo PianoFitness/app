@@ -15,7 +15,7 @@ abstract final class DefaultSkillCatalogue {
   static SkillCatalogue _create() {
     final catalogue = SkillCatalogue(
       id: "piano-fitness-foundations",
-      version: 2,
+      version: 3,
       groups: [
         SkillGraphGroup(
           id: "key-foundations",
@@ -30,11 +30,32 @@ abstract final class DefaultSkillCatalogue {
           displayOrder: 0,
         ),
         SkillGraphGroup(
+          id: "modes",
+          name: "Modes",
+          description:
+              "The remaining major- and minor-scale modes, heard as "
+              "variations on the major and natural minor scales.",
+          nodeIds: [
+            "dorian-mode",
+            "phrygian-mode",
+            "lydian-mode",
+            "mixolydian-mode",
+            "locrian-mode",
+          ],
+          displayOrder: 1,
+        ),
+        SkillGraphGroup(
           id: "chord-vocabulary",
           name: "Chord Vocabulary",
           description: "Diatonic chords, progressions, and cadences.",
-          nodeIds: ["diatonic-triads", "i-v-vi-iv", "dominant-cadence"],
-          displayOrder: 1,
+          nodeIds: [
+            "diatonic-triads",
+            "i-v-vi-iv",
+            "i-vi-iv-v",
+            "ii-v-i",
+            "dominant-cadence",
+          ],
+          displayOrder: 2,
         ),
       ],
       nodes: [
@@ -83,6 +104,98 @@ abstract final class DefaultSkillCatalogue {
           ],
         ),
         SkillNode(
+          id: "dorian-mode",
+          name: "Dorian mode, hands together",
+          description:
+              "Practise the Dorian sound: natural minor with a raised "
+              "sixth.",
+          checkpoints: _scaleCheckpoints("dorian-mode", music.ScaleType.dorian),
+          proficiencyRule: SkillProficiencyRule(referenceTempoBpm: 90),
+          tempoProgression: const TempoProgression(incrementBpm: 5),
+          relations: const [
+            SkillRelation(
+              type: SkillRelationType.variation,
+              nodeId: "natural-minor",
+              description: "Compare with the natural minor sound.",
+            ),
+          ],
+        ),
+        SkillNode(
+          id: "phrygian-mode",
+          name: "Phrygian mode, hands together",
+          description:
+              "Practise the Phrygian sound: minor with a flattened "
+              "second.",
+          checkpoints: _scaleCheckpoints(
+            "phrygian-mode",
+            music.ScaleType.phrygian,
+          ),
+          proficiencyRule: SkillProficiencyRule(referenceTempoBpm: 90),
+          tempoProgression: const TempoProgression(incrementBpm: 5),
+          relations: const [
+            SkillRelation(
+              type: SkillRelationType.variation,
+              nodeId: "natural-minor",
+              description: "Compare with the natural minor sound.",
+            ),
+          ],
+        ),
+        SkillNode(
+          id: "lydian-mode",
+          name: "Lydian mode, hands together",
+          description: "Practise the Lydian sound: major with a raised fourth.",
+          checkpoints: _scaleCheckpoints("lydian-mode", music.ScaleType.lydian),
+          proficiencyRule: SkillProficiencyRule(referenceTempoBpm: 90),
+          tempoProgression: const TempoProgression(incrementBpm: 5),
+          relations: const [
+            SkillRelation(
+              type: SkillRelationType.variation,
+              nodeId: "major-scale",
+              description: "Compare with the major scale sound.",
+            ),
+          ],
+        ),
+        SkillNode(
+          id: "mixolydian-mode",
+          name: "Mixolydian mode, hands together",
+          description:
+              "Practise the Mixolydian sound: major with a flattened "
+              "seventh.",
+          checkpoints: _scaleCheckpoints(
+            "mixolydian-mode",
+            music.ScaleType.mixolydian,
+          ),
+          proficiencyRule: SkillProficiencyRule(referenceTempoBpm: 90),
+          tempoProgression: const TempoProgression(incrementBpm: 5),
+          relations: const [
+            SkillRelation(
+              type: SkillRelationType.variation,
+              nodeId: "major-scale",
+              description: "Compare with the major scale sound.",
+            ),
+          ],
+        ),
+        SkillNode(
+          id: "locrian-mode",
+          name: "Locrian mode, hands together",
+          description:
+              "Practise the Locrian sound: minor with a flattened second "
+              "and fifth.",
+          checkpoints: _scaleCheckpoints(
+            "locrian-mode",
+            music.ScaleType.locrian,
+          ),
+          proficiencyRule: SkillProficiencyRule(referenceTempoBpm: 90),
+          tempoProgression: const TempoProgression(incrementBpm: 5),
+          relations: const [
+            SkillRelation(
+              type: SkillRelationType.variation,
+              nodeId: "natural-minor",
+              description: "Compare with the natural minor sound.",
+            ),
+          ],
+        ),
+        SkillNode(
           id: "major-arpeggio",
           name: "One-octave major arpeggio",
           description: "Connect chord tones as a smooth broken chord.",
@@ -126,7 +239,7 @@ abstract final class DefaultSkillCatalogue {
           id: "i-v-vi-iv",
           name: "I–V–vi–IV progression",
           description: "Practise a foundational four-chord pop progression.",
-          checkpoints: _progressionCheckpoints(),
+          checkpoints: _progressionCheckpoints("i-v-vi-iv", "I - V - vi - IV"),
           proficiencyRule: SkillProficiencyRule(
             tempoEvidencePolicy: TempoEvidencePolicy.optional,
             supportedTempoMeasurementVersions: {
@@ -138,6 +251,47 @@ abstract final class DefaultSkillCatalogue {
             SkillRelation(
               type: SkillRelationType.appliesIn,
               nodeId: "diatonic-triads",
+            ),
+          ],
+        ),
+        SkillNode(
+          id: "i-vi-iv-v",
+          name: "I–vi–IV–V progression",
+          description:
+              "Practise the classic circle progression with smooth "
+              "voice leading.",
+          checkpoints: _progressionCheckpoints("i-vi-iv-v", "I - vi - IV - V"),
+          proficiencyRule: SkillProficiencyRule(
+            tempoEvidencePolicy: TempoEvidencePolicy.optional,
+            supportedTempoMeasurementVersions: {
+              TempoMeasurementVersions.declaredStepDurations,
+              TempoMeasurementVersions.scaleEighthNotes,
+            },
+          ),
+          relations: const [
+            SkillRelation(
+              type: SkillRelationType.appliesIn,
+              nodeId: "diatonic-triads",
+            ),
+          ],
+        ),
+        SkillNode(
+          id: "ii-v-i",
+          name: "ii–V–I progression",
+          description: "Practise the fundamental jazz progression.",
+          checkpoints: _progressionCheckpoints("ii-v-i", "ii - V - I"),
+          proficiencyRule: SkillProficiencyRule(
+            tempoEvidencePolicy: TempoEvidencePolicy.optional,
+            supportedTempoMeasurementVersions: {
+              TempoMeasurementVersions.declaredStepDurations,
+              TempoMeasurementVersions.scaleEighthNotes,
+            },
+          ),
+          relations: const [
+            SkillRelation(
+              type: SkillRelationType.recommendedPrerequisite,
+              nodeId: "diatonic-triads",
+              description: "Know the seven diatonic triads first.",
             ),
           ],
         ),
@@ -253,21 +407,25 @@ abstract final class DefaultSkillCatalogue {
         .toList(growable: false);
   }
 
-  static List<SkillCheckpoint> _progressionCheckpoints() {
+  static List<SkillCheckpoint> _progressionCheckpoints(
+    String nodeId,
+    String chordProgressionId,
+  ) {
+    final displayLabel = chordProgressionId.replaceAll(" - ", "–");
     return music.Key.values
         .map((key) {
           return SkillCheckpoint(
-            id: "i-v-vi-iv-${key.name}",
+            id: "$nodeId-${key.name}",
             name: "${key.displayName} major",
             exercises: [
               SkillExercise(
-                id: "i-v-vi-iv-${key.name}",
-                name: "${key.displayName}: I–V–vi–IV",
+                id: "$nodeId-${key.name}",
+                name: "${key.displayName}: $displayLabel",
                 configuration: ExerciseConfiguration(
                   practiceMode: PracticeMode.chordProgressions,
                   handSelection: HandSelection.both,
                   key: key,
-                  chordProgressionId: "I - V - vi - IV",
+                  chordProgressionId: chordProgressionId,
                 ),
               ),
             ],

@@ -28,7 +28,7 @@ Future<void> navigateToTab(WidgetTester tester, Key tabKey) async {
 const List<String> _pageTitlesForTest = [
   "Free Play",
   "Practice",
-  "Technique Tree",
+  "Curriculum",
   "Reference",
   "Repertoire",
   "History",
@@ -73,7 +73,7 @@ void main() {
       // Verify bottom navigation bar and its items using stable key
       expect(find.byKey(const Key("bottom_navigation_bar")), findsOneWidget);
       expect(find.text("Practice"), findsWidgets);
-      expect(find.text("Technique Tree"), findsWidgets);
+      expect(find.text("Curriculum"), findsWidgets);
       expect(find.text("Reference"), findsWidgets);
       expect(find.text("Repertoire"), findsWidgets);
     });
@@ -91,12 +91,12 @@ void main() {
       expect(find.text("Practice"), findsWidgets);
       expect(find.byIcon(Icons.school), findsWidgets);
 
-      // Navigate to Technique Tree using stable key
-      await navigateToTab(tester, const Key("nav_tab_technique_tree"));
+      // Navigate to Curriculum using stable key
+      await navigateToTab(tester, const Key("nav_tab_curriculum"));
 
       expectTabActive(tester, 2);
-      expect(find.text("Technique Tree"), findsWidgets);
-      expect(find.byIcon(Icons.account_tree_outlined), findsWidgets);
+      expect(find.text("Curriculum"), findsWidgets);
+      expect(find.byIcon(Icons.menu_book), findsWidgets);
 
       // Navigate to Reference tab using stable key
       await navigateToTab(tester, const Key("nav_tab_reference"));
@@ -191,7 +191,7 @@ void main() {
 
           final tabKeys = [
             const Key("nav_tab_practice"),
-            const Key("nav_tab_technique_tree"),
+            const Key("nav_tab_curriculum"),
             const Key("nav_tab_reference"),
             const Key("nav_tab_repertoire"),
           ];
