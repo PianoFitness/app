@@ -722,9 +722,9 @@ This is non-breaking. Roadmap entries are never referenced by exercise history a
 
 ### 13.6 Source of roadmap entries
 
-`docs/curriculum.md` is the intended source for what roadmap entries to add over time. It describes a much larger draft pedagogy — 35 sections across 25 suggested top-level families, spanning scales, modes, pentatonic and blues vocabulary, extended and altered chords, progressions, cadences, voice leading, secondary dominants, tritone substitution, modal interchange, classical chromatic harmony, chromatic mediants, Neo-Riemannian transformations, jazz voicings, quartal and quintal harmony, and improvisation and composition challenges.
+`docs/curriculum.md` is the intended source for what roadmap entries to add over time. It describes a much larger draft pedagogy — 35 exercise families across six parts (Start Here, Core Technique and Coordination, Harmony and Accompaniment, Improvisation and Musical Language, Jazz/Chromatic/Contemporary Harmony, and Creative Application), each labelled with a developmental priority (Foundation, Developing, Advanced, or Exploratory) per `docs/pedagogy.md`, spanning scales, modes, pentatonic and blues vocabulary, extended and altered chords, progressions, cadences, voice leading, secondary dominants, tritone substitution, modal interchange, classical chromatic harmony, chromatic mediants, Neo-Riemannian transformations, jazz voicings, quartal and quintal harmony, and improvisation and composition challenges.
 
-The roadmap is not required to enumerate all 25 curriculum families. Choosing which planned families to surface, and when, is a curation choice, consistent with the existing non-goal of not requiring the complete hypothetical curriculum before release (§6).
+The roadmap is not required to enumerate all 35 curriculum families. Choosing which planned families to surface, and when, is a curation choice — Foundation and Developing families are natural early candidates — consistent with the existing non-goal of not requiring the complete hypothetical curriculum before release (§6).
 
 ## 14. Relationships
 
