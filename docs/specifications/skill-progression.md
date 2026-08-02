@@ -2,7 +2,7 @@
 
 **Status:** Draft, revision 5  
 **Proposed file:** `docs/specifications/skill-progression.md`  
-**Scope:** Non-blocking technique tree, proficiency heatmap, and reuse of the existing Practice Page  
+**Scope:** Non-blocking Curriculum page, proficiency heatmap, and reuse of the existing Practice Page  
 **Required dependency:** `docs/specifications/exercise-tempo-calculation.md`  
 
 ## Related implementation
@@ -49,13 +49,13 @@ The long-term goal is a “periodic table of piano exercises”: a structured ca
 
 ## 2. Minimal-delta design
 
-The technique tree is a navigator and progress visualisation. It is not a second practice environment.
+The Curriculum page is a navigator and progress visualisation. It is not a second practice environment.
 
 ```text
 Practice Hub
     |
     v
-Technique Tree
+Curriculum
     |
     | Navigator.push(...)
     v
@@ -71,20 +71,20 @@ Existing ExerciseHistoryEntry persistence
 Reactive history stream
     |
     v
-Technique Tree heatmap updates
+Curriculum heatmap updates
 ```
 
-The student selects a skill, key, and exercise from the technique tree. PianoFitness then opens the existing Practice Page with the corresponding `ExerciseConfiguration`.
+The student selects a skill, key, and exercise from the Curriculum page. PianoFitness then opens the existing Practice Page with the corresponding `ExerciseConfiguration`.
 
 The learner may:
 
 - Complete as many repetitions as desired.
 - Change settings using the existing Practice Settings panel.
 - Revisit a skill that is already proficient.
-- Use ordinary back navigation to return to the technique tree.
+- Use ordinary back navigation to return to the Curriculum page.
 - Enter the same exercises through the Practice Hub or other existing entry points.
 
-Each completed repetition is saved through the existing exercise-history path. The technique tree derives proficiency from that history.
+Each completed repetition is saved through the existing exercise-history path. The Curriculum page derives proficiency from that history.
 
 No new Practice Runner, alternate exercise session, or duplicate completion workflow should be introduced.
 
@@ -132,7 +132,7 @@ Not every exercise is long enough to satisfy the tempo specification's minimum e
 
 The existing Practice Page remains the only guided MIDI exercise page.
 
-The technique tree must launch it rather than reproduce:
+The Curriculum page must launch it rather than reproduce:
 
 - Exercise settings.
 - MIDI subscription and coordination.
@@ -210,7 +210,7 @@ The system must:
 - Derive per-exercise, per-key, and per-node proficiency.
 - Require repeated qualifying attempts before showing established proficiency.
 - Apply reliable exercise-tempo evidence according to each skill's tempo-evidence policy rather than using the metronome setting.
-- Display the catalogue as a freely traversable technique tree or grouped skill map.
+- Display the catalogue as a freely traversable Curriculum page or grouped skill map.
 - Open exercises through the existing Practice Page.
 - Preserve existing free-practice and Practice Hub behaviour.
 - Allow new catalogue entries without invalidating unrelated progress.
@@ -274,7 +274,7 @@ This behaviour already supports the desired workflow:
 2. Receive completion feedback.
 3. Begin another repetition of the same exercise.
 4. Repeat as many times as desired.
-5. Return to the technique tree when finished.
+5. Return to the Curriculum page when finished.
 
 The skill feature must not add a separate “next repetition” page or progression dialog.
 
@@ -288,7 +288,7 @@ Reliable exercise BPM may be added to the existing completion message by `exerci
 
 ### 7.5 Editable practice settings
 
-Exercises opened from the technique tree use the ordinary Practice Settings panel.
+Exercises opened from the Curriculum page use the ordinary Practice Settings panel.
 
 The learner may change the key, hand, mode, or other supported settings.
 
@@ -296,7 +296,7 @@ Every completed attempt is matched from the configuration that was actually acti
 
 - An unchanged configuration contributes to the originally selected graph cell.
 - A changed configuration contributes to another matching graph exercise, if one exists.
-- An unmatched configuration remains valid practice history but does not affect the technique tree.
+- An unmatched configuration remains valid practice history but does not affect the Curriculum page.
 
 No special “skill progression mode” is required.
 
@@ -360,12 +360,12 @@ This is the only required Practice Page configuration change for the first verti
 
 Use the existing app-bar back button and `Navigator.of(context).pop()`.
 
-The technique tree pushes the Practice Page onto the existing navigator stack, so popping naturally returns to the same graph position.
+The Curriculum page pushes the Practice Page onto the existing navigator stack, so popping naturally returns to the same graph position.
 
 Use a source-appropriate tooltip:
 
 ```text
-Back to Technique Tree
+Back to Curriculum
 ```
 
 The page title may remain:
@@ -376,7 +376,7 @@ Practice Session
 
 No custom return router, callback, or result object is required.
 
-## 9. Technique-tree navigation
+## 9. Curriculum navigation
 
 Follow the existing `PracticeHubPage` convention of using `Navigator.push` with `MaterialPageRoute`.
 
@@ -391,7 +391,7 @@ Future<void> openSkillExercise(
     MaterialPageRoute<void>(
       builder: (context) => PracticePage(
         initialConfiguration: exercise.configuration,
-        backTooltip: "Back to Technique Tree",
+        backTooltip: "Back to Curriculum",
       ),
     ),
   );
@@ -402,7 +402,7 @@ The tree does not need a returned completion result because exercise history is 
 
 ## 10. Reactive proficiency updates
 
-The technique-tree ViewModel should follow the existing History Page pattern:
+The Curriculum ViewModel should follow the existing History Page pattern:
 
 1. Resolve the active profile.
 2. Subscribe to `watchEntriesForProfile(profileId)`.
@@ -418,14 +418,14 @@ The first version should not add a second progress database or require a manual 
 
 ### 11.1 Practice Hub entry
 
-Add the technique tree to the existing Practice Hub.
+Add the Curriculum page to the existing Practice Hub.
 
 Because it is not a `PracticeMode`, represent it as an action card or dedicated section rather than adding an enum value.
 
 Suggested card:
 
 ```text
-Technique Tree
+Curriculum
 Explore exercises and track proficiency across keys
 ```
 
@@ -819,7 +819,7 @@ This keeps the first implementation deterministic and avoids new history columns
 
 All compatible existing history may contribute, including attempts launched from:
 
-- The technique tree.
+- The Curriculum page.
 - The Practice Hub.
 - Quick Start.
 - Any other existing route to the Practice Page.
@@ -1179,7 +1179,7 @@ Implement `docs/specifications/exercise-tempo-calculation.md`:
 - Apply it through `PracticePageViewModel.initializePracticeSession`.
 - Preserve existing mode and chord-progression launch paths.
 - Add a source-appropriate back tooltip.
-- Add a Technique Tree action to `PracticeHubPage`.
+- Add a Curriculum action to `PracticeHubPage`.
 
 ### Increment 3: Proficiency evaluation
 
@@ -1190,7 +1190,7 @@ Implement `docs/specifications/exercise-tempo-calculation.md`:
 - Retain historical best compatible reliable exercise tempo.
 - Add deterministic tests.
 
-### Increment 4: Technique-tree UI
+### Increment 4: Curriculum UI
 
 - Display grouped nodes without locks.
 - Use existing cards, list tiles, spacing, colours, and accessibility conventions.
@@ -1211,7 +1211,7 @@ Implement `docs/specifications/exercise-tempo-calculation.md`:
 - Add the `SkillRoadmapEntry` model (§13.2) and an optional `roadmapEntries` list to `SkillCatalogue`.
 - Extend `SkillCatalogueValidator` to check roadmap-entry id uniqueness and group/node references, without running configuration-identity checks against them (§13.3).
 - Curate an initial set of roadmap entries from `docs/curriculum.md` (§13.6).
-- Render roadmap cards in the technique tree (§11.6).
+- Render roadmap cards in the Curriculum page (§11.6).
 - Confirm roadmap cards are never tappable and never appear on the proficiency heatmap (§18.3).
 
 ## 23. Testing requirements
@@ -1240,7 +1240,7 @@ Implement `docs/specifications/exercise-tempo-calculation.md`:
 
 - Matching configurations contribute to the correct skill exercise.
 - Attempts launched from the Practice Hub contribute.
-- Attempts launched from the technique tree contribute.
+- Attempts launched from the Curriculum page contribute.
 - Changed Practice Page settings contribute to the newly matching configuration.
 - Unmatched configurations do not affect the tree.
 - Accuracy below the threshold does not qualify.
@@ -1281,7 +1281,7 @@ The first vertical slice is ready when:
 1. Exercise history contains the version 1 tempo fields defined by `exercise-tempo-calculation.md`.
 2. The proficiency evaluator consumes the stored tempo quality and does not recalculate timing reliability.
 3. PianoFitness contains a validated, versioned skill catalogue.
-4. The Practice Hub links to a technique-tree page.
+4. The Practice Hub links to a Curriculum page.
 5. The tree opens the existing Practice Page through `MaterialPageRoute`.
 6. The Practice Page accepts an exact initial `ExerciseConfiguration`.
 7. The learner can complete unlimited repetitions using the existing completion and reset flow.
@@ -1327,11 +1327,11 @@ The architecture should permit:
 
 ## 26. Summary
 
-The technique tree adds organisation and proficiency visualisation without creating a second practice system.
+The Curriculum page adds organisation and proficiency visualisation without creating a second practice system.
 
 Each playable graph leaf is an ordinary `ExerciseConfiguration`. Selecting it pushes the existing Practice Page using the same navigation convention as the Practice Hub. The learner practises as many repetitions as desired, receives the existing completion feedback, and returns using the ordinary back button.
 
-Every repetition continues through the existing history pipeline. The technique tree subscribes to that history and matches attempts by their completed configuration. This allows technique-tree sessions, Practice Hub sessions, Quick Start sessions, and edited Practice Page configurations to contribute through one shared source of truth.
+Every repetition continues through the existing history pipeline. The Curriculum page subscribes to that history and matches attempts by their completed configuration. This allows Curriculum sessions, Practice Hub sessions, Quick Start sessions, and edited Practice Page configurations to contribute through one shared source of truth.
 
 Tempo evidence is consumed exactly as classified by the exercise-tempo specification. Longer exercises may require reliable exercise BPM, while short cadences and progressions can use accuracy-only proficiency until pooled timing evidence is supported. Unreliable timing remains neutral and never becomes a misleading BPM or a negative proficiency signal.
 

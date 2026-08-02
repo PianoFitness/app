@@ -43,7 +43,7 @@ class _MainNavigationState extends State<MainNavigation> {
   static const List<String> _pageTitles = [
     "Free Play",
     "Practice",
-    "Technique Tree",
+    "Curriculum",
     "Reference",
     "Repertoire",
     "History",
@@ -53,7 +53,7 @@ class _MainNavigationState extends State<MainNavigation> {
   static const List<IconData> _pageIcons = [
     Icons.piano,
     Icons.school,
-    Icons.account_tree_outlined,
+    Icons.menu_book,
     Icons.library_books,
     Icons.library_music,
     Icons.history,
@@ -65,7 +65,7 @@ class _MainNavigationState extends State<MainNavigation> {
   static const List<Key> _tabKeys = [
     Key("nav_tab_free_play"),
     Key("nav_tab_practice"),
-    Key("nav_tab_technique_tree"),
+    Key("nav_tab_curriculum"),
     Key("nav_tab_reference"),
     Key("nav_tab_repertoire"),
     Key("nav_tab_history"),

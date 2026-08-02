@@ -34,7 +34,7 @@ class _SkillTreeView extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewModel = context.watch<SkillTreePageViewModel>();
     return Scaffold(
-      appBar: AppBar(title: const Text("Technique Tree")),
+      appBar: AppBar(title: const Text("Curriculum")),
       body: _buildBody(context, viewModel),
     );
   }
@@ -239,7 +239,7 @@ class _CheckpointCard extends StatelessWidget {
       MaterialPageRoute<void>(
         builder: (_) => PracticePage(
           initialConfiguration: configuration,
-          backTooltip: "Back to Technique Tree",
+          backTooltip: "Back to Curriculum",
         ),
       ),
     );
