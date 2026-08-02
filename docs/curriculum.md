@@ -28,7 +28,7 @@ These are variations of a technique rather than separate pedagogical categories.
 - Major scale, hands together
 - Natural minor scale
 - Harmonic minor scale with raised seventh
-- Melodic minor scale with raised sixth and seventh ascending
+- Melodic minor scale: raised sixth and seventh ascending, reverting to the natural minor form descending (classical convention)
 
 ### Suggested development
 
@@ -447,7 +447,7 @@ These are variations of a technique rather than separate pedagogical categories.
 - I–♭VI–IV–I
 - I–♭VII–IV–I
 - I–♭II–V–I
-- i–iv–V–I
+- i–iv–V–I (Picardy third)
 - i–IV–V7–i
 - Progressions using several borrowed chords
 - Smooth chromatic voice leading between borrowed and diatonic harmony
@@ -566,9 +566,7 @@ These are variations of a technique rather than separate pedagogical categories.
 ### Foundational relationships
 
 - I → ♭VI
-- I → #III
-- I → vi
-- I → iii
+- I → III (major)
 - i → ♭VI
 - I → chromatic minor-mediant relationships
 
@@ -637,10 +635,10 @@ Play a simple right-hand triad over a dominant-chord shell or bass to create upp
 
 ### Principal upper structures over V7
 
-- V major triad: natural dominant ninth colour
+- v minor triad: natural dominant ninth colour
 - II major triad: 9, #11, and 13
-- ♭II major triad: ♭9 colour
-- ♭VI major triad: altered ♭9 and ♭13 colour
+- ♭II major triad: ♭9 and ♭13 colour
+- ♭VI major triad: altered ♯9 and ♭13 colour
 - ♭VII major triad: sus or dominant-eleventh colour
 - iii minor triad: basic dominant quality
 - vi minor triad: natural upper extensions
