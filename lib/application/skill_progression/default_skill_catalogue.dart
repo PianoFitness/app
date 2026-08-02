@@ -16,7 +16,7 @@ abstract final class DefaultSkillCatalogue {
     final catalogue = SkillCatalogue(
       id: "piano-fitness-foundations",
       version: 2,
-      groups: const [
+      groups: [
         SkillGraphGroup(
           id: "key-foundations",
           name: "Key Foundations",
@@ -47,7 +47,7 @@ abstract final class DefaultSkillCatalogue {
             music.ScaleType.major,
             handsApart: true,
           ),
-          proficiencyRule: const SkillProficiencyRule(referenceTempoBpm: 100),
+          proficiencyRule: SkillProficiencyRule(referenceTempoBpm: 100),
           tempoProgression: const TempoProgression(incrementBpm: 5),
         ),
         SkillNode(
@@ -55,7 +55,7 @@ abstract final class DefaultSkillCatalogue {
           name: "Major scale, hands together",
           description: "Coordinate both hands through every major scale.",
           checkpoints: _scaleCheckpoints("major-scale", music.ScaleType.major),
-          proficiencyRule: const SkillProficiencyRule(referenceTempoBpm: 90),
+          proficiencyRule: SkillProficiencyRule(referenceTempoBpm: 90),
           tempoProgression: const TempoProgression(incrementBpm: 5),
           relations: const [
             SkillRelation(
@@ -73,7 +73,7 @@ abstract final class DefaultSkillCatalogue {
             "natural-minor",
             music.ScaleType.minor,
           ),
-          proficiencyRule: const SkillProficiencyRule(referenceTempoBpm: 90),
+          proficiencyRule: SkillProficiencyRule(referenceTempoBpm: 90),
           tempoProgression: const TempoProgression(incrementBpm: 5),
           relations: const [
             SkillRelation(
@@ -87,7 +87,7 @@ abstract final class DefaultSkillCatalogue {
           name: "One-octave major arpeggio",
           description: "Connect chord tones as a smooth broken chord.",
           checkpoints: _arpeggioCheckpoints(),
-          proficiencyRule: const SkillProficiencyRule(
+          proficiencyRule: SkillProficiencyRule(
             referenceTempoBpm: 90,
             supportedTempoMeasurementVersions: {
               TempoMeasurementVersions.declaredStepDurations,
@@ -107,7 +107,7 @@ abstract final class DefaultSkillCatalogue {
           name: "Diatonic triads",
           description: "Play the seven triads in order in each major key.",
           checkpoints: _chordsByKeyCheckpoints(),
-          proficiencyRule: const SkillProficiencyRule(
+          proficiencyRule: SkillProficiencyRule(
             referenceTempoBpm: 72,
             supportedTempoMeasurementVersions: {
               TempoMeasurementVersions.declaredStepDurations,
@@ -127,7 +127,7 @@ abstract final class DefaultSkillCatalogue {
           name: "I–V–vi–IV progression",
           description: "Practise a foundational four-chord pop progression.",
           checkpoints: _progressionCheckpoints(),
-          proficiencyRule: const SkillProficiencyRule(
+          proficiencyRule: SkillProficiencyRule(
             tempoEvidencePolicy: TempoEvidencePolicy.optional,
             supportedTempoMeasurementVersions: {
               TempoMeasurementVersions.declaredStepDurations,
@@ -146,7 +146,7 @@ abstract final class DefaultSkillCatalogue {
           name: "Dominant cadence",
           description: "Resolve V to I through its inversions in every key.",
           checkpoints: _cadenceCheckpoints(),
-          proficiencyRule: const SkillProficiencyRule(
+          proficiencyRule: SkillProficiencyRule(
             tempoEvidencePolicy: TempoEvidencePolicy.notApplicable,
             supportedTempoMeasurementVersions: {},
           ),
@@ -181,12 +181,12 @@ abstract final class DefaultSkillCatalogue {
               ? [
                   SkillExercise(
                     id: "$nodeId-${key.name}-left",
-                    name: "${key.displayName} major, left hand",
+                    name: "${key.displayName} ${scaleType.name}, left hand",
                     configuration: configuration(HandSelection.left),
                   ),
                   SkillExercise(
                     id: "$nodeId-${key.name}-right",
-                    name: "${key.displayName} major, right hand",
+                    name: "${key.displayName} ${scaleType.name}, right hand",
                     configuration: configuration(HandSelection.right),
                   ),
                 ]
@@ -209,7 +209,7 @@ abstract final class DefaultSkillCatalogue {
   static List<SkillCheckpoint> _arpeggioCheckpoints() {
     return music.Key.values
         .map((key) {
-          final root = MusicalNote.values[key.index];
+          final root = NoteUtils.keyToMusicalNote(key);
           return SkillCheckpoint(
             id: "major-arpeggio-${key.name}",
             name: "${key.displayName} major",

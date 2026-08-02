@@ -1,3 +1,5 @@
+import "dart:convert";
+
 import "package:meta/meta.dart";
 import "package:piano_fitness/domain/models/music/chord_tone_pattern.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
@@ -73,21 +75,21 @@ class ExerciseConfigurationIdentity {
     required bool includeLeftHandRoot,
     required String? chordProgressionId,
   }) {
-    return [
+    return jsonEncode([
       practiceMode,
       handSelection,
-      key ?? "",
-      scaleType ?? "",
-      chordType ?? "",
+      key,
+      scaleType,
+      chordType,
       includeInversions,
       includeSeventhChords,
-      musicalNote ?? "",
-      arpeggioType ?? "",
+      musicalNote,
+      arpeggioType,
       arpeggioOctaves,
       pattern,
       includeLeftHandRoot,
-      chordProgressionId ?? "",
-    ].join("|");
+      chordProgressionId,
+    ]);
   }
 
   @override

@@ -51,12 +51,17 @@ class SkillProficiencyEvaluator {
 
     return SkillExerciseProficiency(
       exercise: exercise,
-      accuracyQualifyingAttemptCount: accurate.length,
-      reliableTempoAttemptCount: reliableTempo.length,
-      progressionQualifyingAttemptCount: progression.length,
+      evidence: SkillEvidenceCounts(
+        accuracyQualifying: accurate.length,
+        reliableTempo: reliableTempo.length,
+        progressionQualifying: progression.length,
+      ),
       recentAverageAccuracy: _averageAccuracy(recentProgression),
-      recentAverageMeasuredBpm: _averageBpm(recentTempo),
-      historicalBestMeasuredBpm: bestTempo,
+      tempo: SkillTempoEvidence(
+        recentAverageMeasuredBpm: _averageBpm(recentTempo),
+        historicalBestMeasuredBpm: bestTempo,
+        suggestedNextTempoBpm: suggestedTempo,
+      ),
       hasSufficientAccuracyEvidence: hasAccuracy,
       hasSufficientTempoEvidence: hasTempo,
       hasEstablishedProficiency: established,
@@ -67,7 +72,6 @@ class SkillProficiencyEvaluator {
         bestTempo: bestTempo,
         referenceTempo: rule.referenceTempoBpm,
       ),
-      suggestedNextTempoBpm: suggestedTempo,
     );
   }
 
@@ -113,7 +117,8 @@ class SkillProficiencyEvaluator {
       recentAverageAccuracy: _averageNullable(
         exercises.map((exercise) => exercise.recentAverageAccuracy),
       ),
-      recentAverageMeasuredBpm: compatibleStepValues.length == 1
+      recentAverageMeasuredBpm:
+          compatibleStepValues.length == 1 && tempos.isNotEmpty
           ? _average(
               tempos.map((exercise) => exercise.recentAverageMeasuredBpm!),
             )
@@ -190,24 +195,19 @@ class SkillProficiencyEvaluator {
     SkillNode node,
     Iterable<ExerciseHistoryEntry> history,
   ) {
-    final exerciseIds = node.checkpoints
-        .expand((checkpoint) => checkpoint.exercises)
-        .map((exercise) => exercise.id)
-        .toSet();
     final values = <PracticeStepNoteValue>{};
     for (final checkpoint in node.checkpoints) {
       for (final exercise in checkpoint.exercises) {
-        final proficiency = evaluateExercise(node, exercise, history);
-        if (exerciseIds.contains(proficiency.exercise.id)) {
-          final entries = SkillHistoryMatcher.entriesForExercise(
-            history,
-            exercise,
-          );
-          for (final entry in entries) {
-            if (_hasCompatibleReliableTempo(entry, node.proficiencyRule) &&
-                entry.tempoStepNoteValue != null) {
-              values.add(entry.tempoStepNoteValue!);
-            }
+        final entries = SkillHistoryMatcher.entriesForExercise(
+          history,
+          exercise,
+        );
+        for (final entry in entries) {
+          if ((entry.accuracyPercentage ?? 0) >=
+                  node.proficiencyRule.minimumAccuracy &&
+              _hasCompatibleReliableTempo(entry, node.proficiencyRule) &&
+              entry.tempoStepNoteValue != null) {
+            values.add(entry.tempoStepNoteValue!);
           }
         }
       }

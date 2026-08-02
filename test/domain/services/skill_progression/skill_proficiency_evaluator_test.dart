@@ -24,12 +24,23 @@ void main() {
     name: "C major",
     configuration: config,
   );
+  const dConfig = ExerciseConfiguration(
+    practiceMode: PracticeMode.scales,
+    handSelection: HandSelection.both,
+    key: music.Key.d,
+    scaleType: music.ScaleType.major,
+  );
+  const dExercise = SkillExercise(
+    id: "d-major",
+    name: "D major",
+    configuration: dConfig,
+  );
 
   SkillNode node(TempoEvidencePolicy policy) => SkillNode(
     id: "major-scale",
     name: "Major scale",
     description: "",
-    checkpoints: const [],
+    checkpoints: [],
     proficiencyRule: SkillProficiencyRule(
       tempoEvidencePolicy: policy,
       supportedTempoMeasurementVersions:
@@ -44,20 +55,25 @@ void main() {
 
   ExerciseHistoryEntry entry(
     String id, {
+    DateTime? completedAt,
+    ExerciseConfiguration? exerciseConfiguration,
     double accuracy = 95,
     TempoMeasurementQuality? quality,
     int? version,
     double? bpm,
+    PracticeStepNoteValue? tempoStepNoteValue,
   }) => ExerciseHistoryEntry.fromConfiguration(
     id: id,
     profileId: "profile",
-    completedAt: DateTime(2026, 8, int.parse(id.substring(1))),
-    config: config,
+    completedAt: completedAt ?? DateTime(2026, 8),
+    config: exerciseConfiguration ?? config,
     accuracyPercentage: accuracy,
     tempoMeasurementQuality: quality,
     tempoMeasurementVersion: version,
     measuredTempoBpm: bpm,
-    tempoStepNoteValue: bpm == null ? null : PracticeStepNoteValue.quarter,
+    tempoStepNoteValue: bpm == null
+        ? null
+        : tempoStepNoteValue ?? PracticeStepNoteValue.quarter,
   );
 
   group("ExerciseConfigurationIdentity", () {
@@ -74,12 +90,76 @@ void main() {
         ExerciseConfigurationIdentity.fromConfiguration(config),
       );
     });
+
+    test("distinguishes null and empty free-form values", () {
+      final emptyProgression = const ExerciseConfiguration(
+        practiceMode: PracticeMode.chordProgressions,
+        handSelection: HandSelection.both,
+        key: music.Key.c,
+        chordProgressionId: "",
+      );
+      final nullProgression = const ExerciseConfiguration(
+        practiceMode: PracticeMode.scales,
+        handSelection: HandSelection.both,
+        key: music.Key.c,
+        scaleType: music.ScaleType.major,
+      );
+
+      expect(
+        ExerciseConfigurationIdentity.fromConfiguration(emptyProgression),
+        isNot(ExerciseConfigurationIdentity.fromConfiguration(nullProgression)),
+      );
+    });
   });
 
   group("SkillCatalogueValidator", () {
     test("validates the shipped first-slice catalogue", () {
+      SkillCatalogueValidator.validate(DefaultSkillCatalogue.catalogue);
       expect(DefaultSkillCatalogue.catalogue.version, 2);
       expect(DefaultSkillCatalogue.catalogue.nodes, hasLength(7));
+    });
+
+    test("rejects nodes without checkpoints and self-relations", () {
+      final noCheckpoint = SkillCatalogue(
+        id: "test",
+        version: 1,
+        nodes: [
+          SkillNode(
+            id: "node",
+            name: "Node",
+            description: "",
+            proficiencyRule: SkillProficiencyRule(),
+            checkpoints: [],
+          ),
+        ],
+      );
+      final selfRelation = SkillCatalogue(
+        id: "test",
+        version: 1,
+        nodes: [
+          SkillNode(
+            id: "node",
+            name: "Node",
+            description: "",
+            proficiencyRule: SkillProficiencyRule(),
+            checkpoints: [
+              SkillCheckpoint(id: "c", name: "C", exercises: [exercise]),
+            ],
+            relations: const [
+              SkillRelation(type: SkillRelationType.related, nodeId: "node"),
+            ],
+          ),
+        ],
+      );
+
+      expect(
+        () => SkillCatalogueValidator.validate(noCheckpoint),
+        throwsArgumentError,
+      );
+      expect(
+        () => SkillCatalogueValidator.validate(selfRelation),
+        throwsArgumentError,
+      );
     });
 
     test("rejects duplicate exercise configurations", () {
@@ -91,8 +171,8 @@ void main() {
             id: "one",
             name: "One",
             description: "",
-            proficiencyRule: const SkillProficiencyRule(),
-            checkpoints: const [
+            proficiencyRule: SkillProficiencyRule(),
+            checkpoints: [
               SkillCheckpoint(id: "c", name: "C", exercises: [exercise]),
             ],
           ),
@@ -100,8 +180,8 @@ void main() {
             id: "two",
             name: "Two",
             description: "",
-            proficiencyRule: const SkillProficiencyRule(),
-            checkpoints: const [
+            proficiencyRule: SkillProficiencyRule(),
+            checkpoints: [
               SkillCheckpoint(id: "d", name: "D", exercises: [exercise]),
             ],
           ),
@@ -112,6 +192,24 @@ void main() {
         () => SkillCatalogueValidator.validate(catalogue),
         throwsArgumentError,
       );
+    });
+
+    test("does not retain mutable catalogue collections", () {
+      final nodes = <SkillNode>[];
+      final catalogue = SkillCatalogue(id: "test", version: 1, nodes: nodes);
+
+      nodes.add(
+        SkillNode(
+          id: "later",
+          name: "Later",
+          description: "",
+          proficiencyRule: SkillProficiencyRule(),
+          checkpoints: [],
+        ),
+      );
+
+      expect(catalogue.nodes, isEmpty);
+      expect(() => catalogue.nodes.add(nodes.single), throwsUnsupportedError);
     });
   });
 
@@ -249,6 +347,67 @@ void main() {
       expect(proficiency.hasEstablishedProficiency, isTrue);
       expect(proficiency.accuracyQualifyingAttemptCount, 3);
       expect(proficiency.positiveScore, greaterThan(0));
+    });
+
+    test("omits node BPM when qualifying tempo step values differ", () {
+      final proficiencyNode = SkillNode(
+        id: "two-keys",
+        name: "Two keys",
+        description: "",
+        proficiencyRule: SkillProficiencyRule(),
+        checkpoints: [
+          SkillCheckpoint(id: "c", name: "C", exercises: [exercise]),
+          SkillCheckpoint(id: "d", name: "D", exercises: [dExercise]),
+        ],
+      );
+      final history = [
+        entry(
+          "c",
+          quality: TempoMeasurementQuality.reliable,
+          version: TempoMeasurementVersions.current,
+          bpm: 100,
+        ),
+        entry(
+          "d",
+          exerciseConfiguration: dConfig,
+          quality: TempoMeasurementQuality.reliable,
+          version: TempoMeasurementVersions.current,
+          bpm: 100,
+          tempoStepNoteValue: PracticeStepNoteValue.eighth,
+        ),
+      ];
+
+      final proficiency = SkillProficiencyEvaluator.evaluateNode(
+        proficiencyNode,
+        history,
+      );
+
+      expect(proficiency.recentAverageMeasuredBpm, isNull);
+    });
+
+    test("omits node BPM without qualifying tempo evidence", () {
+      final proficiencyNode = SkillNode(
+        id: "one-key",
+        name: "One key",
+        description: "",
+        proficiencyRule: SkillProficiencyRule(),
+        checkpoints: [
+          SkillCheckpoint(id: "c", name: "C", exercises: [exercise]),
+        ],
+      );
+
+      final proficiency =
+          SkillProficiencyEvaluator.evaluateNode(proficiencyNode, [
+            entry(
+              "low-accuracy",
+              accuracy: 20,
+              quality: TempoMeasurementQuality.reliable,
+              version: TempoMeasurementVersions.current,
+              bpm: 100,
+            ),
+          ]);
+
+      expect(proficiency.recentAverageMeasuredBpm, isNull);
     });
   });
 }

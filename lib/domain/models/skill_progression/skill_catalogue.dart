@@ -5,12 +5,13 @@ import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart"
 /// A versioned, curated collection of piano skills.
 @immutable
 class SkillCatalogue {
-  const SkillCatalogue({
+  SkillCatalogue({
     required this.id,
     required this.version,
-    required this.nodes,
-    this.groups = const [],
-  });
+    required List<SkillNode> nodes,
+    List<SkillGraphGroup> groups = const [],
+  }) : nodes = List.unmodifiable(nodes),
+       groups = List.unmodifiable(groups);
 
   final String id;
   final int version;
@@ -21,13 +22,13 @@ class SkillCatalogue {
 /// Presentation-only grouping for related skill nodes.
 @immutable
 class SkillGraphGroup {
-  const SkillGraphGroup({
+  SkillGraphGroup({
     required this.id,
     required this.name,
     required this.description,
-    required this.nodeIds,
+    required List<String> nodeIds,
     this.displayOrder,
-  });
+  }) : nodeIds = List.unmodifiable(nodeIds);
 
   final String id;
   final String name;
@@ -39,16 +40,18 @@ class SkillGraphGroup {
 /// A freely accessible technique in the skill catalogue.
 @immutable
 class SkillNode {
-  const SkillNode({
+  SkillNode({
     required this.id,
     required this.name,
     required this.description,
-    required this.checkpoints,
+    required List<SkillCheckpoint> checkpoints,
     required this.proficiencyRule,
     this.tempoProgression,
-    this.relations = const [],
-    this.groupIds = const [],
-  });
+    List<SkillRelation> relations = const [],
+    List<String> groupIds = const [],
+  }) : checkpoints = List.unmodifiable(checkpoints),
+       relations = List.unmodifiable(relations),
+       groupIds = List.unmodifiable(groupIds);
 
   final String id;
   final String name;
@@ -63,11 +66,11 @@ class SkillNode {
 /// A separately tracked variation of a skill, usually a musical key.
 @immutable
 class SkillCheckpoint {
-  const SkillCheckpoint({
+  SkillCheckpoint({
     required this.id,
     required this.name,
-    required this.exercises,
-  });
+    required List<SkillExercise> exercises,
+  }) : exercises = List.unmodifiable(exercises);
 
   final String id;
   final String name;
@@ -115,15 +118,17 @@ enum TempoEvidencePolicy { required, optional, notApplicable }
 /// The positive evidence required to establish proficiency for a skill.
 @immutable
 class SkillProficiencyRule {
-  const SkillProficiencyRule({
+  SkillProficiencyRule({
     this.minimumAccuracy = 90,
     this.evidenceAttemptCount = 3,
     this.tempoEvidencePolicy = TempoEvidencePolicy.required,
-    this.supportedTempoMeasurementVersions = const {
+    Set<int> supportedTempoMeasurementVersions = const {
       TempoMeasurementVersions.current,
     },
     this.referenceTempoBpm,
-  });
+  }) : supportedTempoMeasurementVersions = Set.unmodifiable(
+         supportedTempoMeasurementVersions,
+       );
 
   final double minimumAccuracy;
   final int evidenceAttemptCount;

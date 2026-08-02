@@ -6,42 +6,69 @@ import "package:piano_fitness/domain/models/skill_progression/skill_catalogue.da
 class SkillExerciseProficiency {
   const SkillExerciseProficiency({
     required this.exercise,
-    required this.accuracyQualifyingAttemptCount,
-    required this.reliableTempoAttemptCount,
-    required this.progressionQualifyingAttemptCount,
+    required this.evidence,
     required this.recentAverageAccuracy,
-    required this.recentAverageMeasuredBpm,
-    required this.historicalBestMeasuredBpm,
+    required this.tempo,
     required this.hasSufficientAccuracyEvidence,
     required this.hasSufficientTempoEvidence,
     required this.hasEstablishedProficiency,
     required this.positiveScore,
-    required this.suggestedNextTempoBpm,
   });
 
   final SkillExercise exercise;
-  final int accuracyQualifyingAttemptCount;
-  final int reliableTempoAttemptCount;
-  final int progressionQualifyingAttemptCount;
+  final SkillEvidenceCounts evidence;
   final double? recentAverageAccuracy;
-  final double? recentAverageMeasuredBpm;
-  final double? historicalBestMeasuredBpm;
+  final SkillTempoEvidence tempo;
   final bool hasSufficientAccuracyEvidence;
   final bool hasSufficientTempoEvidence;
   final bool hasEstablishedProficiency;
   final double positiveScore;
+
+  int get accuracyQualifyingAttemptCount => evidence.accuracyQualifying;
+  int get reliableTempoAttemptCount => evidence.reliableTempo;
+  int get progressionQualifyingAttemptCount => evidence.progressionQualifying;
+  double? get recentAverageMeasuredBpm => tempo.recentAverageMeasuredBpm;
+  double? get historicalBestMeasuredBpm => tempo.historicalBestMeasuredBpm;
+  double? get suggestedNextTempoBpm => tempo.suggestedNextTempoBpm;
+}
+
+/// Counts of qualifying historical attempts for one skill exercise.
+@immutable
+class SkillEvidenceCounts {
+  const SkillEvidenceCounts({
+    required this.accuracyQualifying,
+    required this.reliableTempo,
+    required this.progressionQualifying,
+  });
+
+  final int accuracyQualifying;
+  final int reliableTempo;
+  final int progressionQualifying;
+}
+
+/// Compatible reliable tempo evidence for one skill exercise.
+@immutable
+class SkillTempoEvidence {
+  const SkillTempoEvidence({
+    required this.recentAverageMeasuredBpm,
+    required this.historicalBestMeasuredBpm,
+    required this.suggestedNextTempoBpm,
+  });
+
+  final double? recentAverageMeasuredBpm;
+  final double? historicalBestMeasuredBpm;
   final double? suggestedNextTempoBpm;
 }
 
 /// Derived proficiency for all exercises in a checkpoint.
 @immutable
 class SkillCheckpointProficiency {
-  const SkillCheckpointProficiency({
+  SkillCheckpointProficiency({
     required this.checkpoint,
-    required this.exerciseProficiencies,
+    required List<SkillExerciseProficiency> exerciseProficiencies,
     required this.hasEstablishedProficiency,
     required this.positiveScore,
-  });
+  }) : exerciseProficiencies = List.unmodifiable(exerciseProficiencies);
 
   final SkillCheckpoint checkpoint;
   final List<SkillExerciseProficiency> exerciseProficiencies;
@@ -52,14 +79,14 @@ class SkillCheckpointProficiency {
 /// Derived proficiency and key coverage for a catalogue node.
 @immutable
 class SkillNodeProficiency {
-  const SkillNodeProficiency({
+  SkillNodeProficiency({
     required this.node,
-    required this.checkpointProficiencies,
+    required List<SkillCheckpointProficiency> checkpointProficiencies,
     required this.establishedCheckpointCount,
     required this.recentAverageAccuracy,
     required this.recentAverageMeasuredBpm,
     required this.positiveScore,
-  });
+  }) : checkpointProficiencies = List.unmodifiable(checkpointProficiencies);
 
   final SkillNode node;
   final List<SkillCheckpointProficiency> checkpointProficiencies;

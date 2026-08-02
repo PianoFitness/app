@@ -17,6 +17,9 @@ class SkillCatalogueValidator {
         throw ArgumentError("Skill node ids must be non-empty and unique.");
       }
       _validateRule(node.proficiencyRule);
+      if (node.checkpoints.isEmpty) {
+        throw ArgumentError("Every skill node must contain a checkpoint.");
+      }
       final checkpointIds = <String>{};
       for (final checkpoint in node.checkpoints) {
         if (checkpoint.id.isEmpty || !checkpointIds.add(checkpoint.id)) {
@@ -48,6 +51,9 @@ class SkillCatalogueValidator {
 
     for (final node in catalogue.nodes) {
       for (final relation in node.relations) {
+        if (relation.nodeId == node.id) {
+          throw ArgumentError("A skill node cannot relate to itself.");
+        }
         if (!nodeIds.contains(relation.nodeId)) {
           throw ArgumentError(
             "Skill relation targets must exist in the catalogue.",

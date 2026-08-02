@@ -9,17 +9,20 @@ import "package:piano_fitness/domain/services/music_theory/scales.dart"
 void main() {
   group("ScalesStrategy", () {
     test("defines each scale onset as an eighth note", () {
-      final exercise = ScalesStrategy(
-        key: music.Key.c,
-        scaleType: music.ScaleType.major,
-        handSelection: HandSelection.right,
-        startOctave: 4,
-      ).initializeExercise();
+      for (final handSelection in HandSelection.values) {
+        final exercise = ScalesStrategy(
+          key: music.Key.c,
+          scaleType: music.ScaleType.major,
+          handSelection: handSelection,
+          startOctave: 4,
+        ).initializeExercise();
 
-      expect(
-        exercise.steps.map((step) => step.noteValue),
-        everyElement(PracticeStepNoteValue.eighth),
-      );
+        expect(
+          exercise.steps.map((step) => step.noteValue),
+          everyElement(PracticeStepNoteValue.eighth),
+          reason: "${handSelection.name} scale steps should be eighth notes",
+        );
+      }
     });
 
     test("converts eighth-note scale onsets to quarter-note BPM", () {
