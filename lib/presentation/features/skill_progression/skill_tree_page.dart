@@ -50,6 +50,12 @@ class _SkillTreeView extends StatelessWidget {
       for (final proficiency in viewModel.nodeProficiencies)
         proficiency.node.id: proficiency,
     };
+    final groupedNodeIds = viewModel.catalogue.groups
+        .expand((group) => group.nodeIds)
+        .toSet();
+    final ungrouped = viewModel.nodeProficiencies
+        .where((proficiency) => !groupedNodeIds.contains(proficiency.node.id))
+        .toList(growable: false);
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -67,6 +73,12 @@ class _SkillTreeView extends StatelessWidget {
               _SkillNodeCard(proficiency: proficiency),
           const SizedBox(height: 16),
         ],
+        if (ungrouped.isNotEmpty) ...[
+          Text("Other skills", style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 8),
+          for (final proficiency in ungrouped)
+            _SkillNodeCard(proficiency: proficiency),
+        ],
       ],
     );
   }
@@ -80,12 +92,18 @@ class _SkillNodeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final node = proficiency.node;
+    final viewModel = context.read<SkillTreePageViewModel>();
     final prerequisiteNames = node.relations
         .where(
           (relation) =>
               relation.type == SkillRelationType.recommendedPrerequisite,
         )
-        .map((relation) => relation.nodeId.replaceAll("-", " "))
+        .map((relation) {
+          for (final target in viewModel.catalogue.nodes) {
+            if (target.id == relation.nodeId) return target.name;
+          }
+          return relation.description ?? relation.nodeId;
+        })
         .join(", ");
     return Card(
       child: ListTile(
@@ -99,7 +117,10 @@ class _SkillNodeCard extends StatelessWidget {
         trailing: const Icon(Icons.chevron_right),
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute<void>(
-            builder: (_) => SkillNodeDetailPage(proficiency: proficiency),
+            builder: (_) => ChangeNotifierProvider.value(
+              value: viewModel,
+              child: SkillNodeDetailPage(nodeId: node.id),
+            ),
           ),
         ),
       ),
@@ -109,12 +130,19 @@ class _SkillNodeCard extends StatelessWidget {
 
 /// Shows key-level evidence and opens the existing practice workflow.
 class SkillNodeDetailPage extends StatelessWidget {
-  const SkillNodeDetailPage({super.key, required this.proficiency});
+  const SkillNodeDetailPage({super.key, required this.nodeId});
 
-  final SkillNodeProficiency proficiency;
+  final String nodeId;
 
   @override
   Widget build(BuildContext context) {
+    final proficiency = context
+        .select<SkillTreePageViewModel, SkillNodeProficiency?>(
+          (viewModel) => viewModel.proficiencyForNode(nodeId),
+        );
+    if (proficiency == null) {
+      return const Scaffold(body: Center(child: Text("Skill not found.")));
+    }
     return Scaffold(
       appBar: AppBar(title: Text(proficiency.node.name)),
       body: ListView(

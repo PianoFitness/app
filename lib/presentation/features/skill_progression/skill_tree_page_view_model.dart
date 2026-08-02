@@ -35,32 +35,45 @@ class SkillTreePageViewModel extends ChangeNotifier {
   List<SkillNodeProficiency> _nodeProficiencies = const [];
   bool _isLoading = true;
   String? _error;
+  var _isDisposed = false;
 
   List<SkillNodeProficiency> get nodeProficiencies =>
       List.unmodifiable(_nodeProficiencies);
   bool get isLoading => _isLoading;
   String? get error => _error;
 
+  /// Returns the current derived proficiency for a node, if it is catalogued.
+  SkillNodeProficiency? proficiencyForNode(String nodeId) {
+    for (final proficiency in _nodeProficiencies) {
+      if (proficiency.node.id == nodeId) return proficiency;
+    }
+    return null;
+  }
+
   /// Begins watching the active profile's history and recomputes on every
   /// completion, including repetitions made while the tree remains below the
   /// existing Practice Page route.
   Future<void> loadProgress() async {
+    if (_isDisposed) return;
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
       final profileId = await _userProfileRepository.getActiveProfileId();
+      if (_isDisposed) return;
       if (profileId == null) {
         _setEntries(const []);
         return;
       }
       await _historySubscription?.cancel();
+      if (_isDisposed) return;
       _historySubscription = _exerciseHistoryRepository
           .watchEntriesForProfile(profileId)
           .listen(
             _setEntries,
             onError: (Object error, StackTrace stackTrace) {
+              if (_isDisposed) return;
               _log.severe("Failed to watch skill progress", error, stackTrace);
               _nodeProficiencies = const [];
               _error = "Could not load progress. Please try again.";
@@ -69,6 +82,7 @@ class SkillTreePageViewModel extends ChangeNotifier {
             },
           );
     } catch (error, stackTrace) {
+      if (_isDisposed) return;
       _log.severe(
         "Failed to load active profile for skill progress",
         error,
@@ -82,6 +96,7 @@ class SkillTreePageViewModel extends ChangeNotifier {
   }
 
   void _setEntries(List<ExerciseHistoryEntry> entries) {
+    if (_isDisposed) return;
     _nodeProficiencies = catalogue.nodes
         .map((node) => SkillProficiencyEvaluator.evaluateNode(node, entries))
         .toList(growable: false);
@@ -92,6 +107,7 @@ class SkillTreePageViewModel extends ChangeNotifier {
 
   @override
   void dispose() {
+    _isDisposed = true;
     _historySubscription?.cancel();
     super.dispose();
   }

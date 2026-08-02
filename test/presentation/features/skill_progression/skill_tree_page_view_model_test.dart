@@ -27,10 +27,10 @@ void main() {
         id: "major-scale",
         name: "Major scale",
         description: "",
-        proficiencyRule: const SkillProficiencyRule(
+        proficiencyRule: SkillProficiencyRule(
           tempoEvidencePolicy: TempoEvidencePolicy.optional,
         ),
-        checkpoints: const [
+        checkpoints: [
           SkillCheckpoint(
             id: "c",
             name: "C",
@@ -82,4 +82,26 @@ void main() {
     await Future<void>.delayed(Duration.zero);
     expect(viewModel.nodeProficiencies.single.establishedCheckpointCount, 1);
   });
+
+  test(
+    "does not subscribe after being disposed during profile lookup",
+    () async {
+      final profiles = MockIUserProfileRepository();
+      final history = MockIExerciseHistoryRepository();
+      final profileId = Completer<String?>();
+      when(profiles.getActiveProfileId()).thenAnswer((_) => profileId.future);
+
+      final viewModel = SkillTreePageViewModel(
+        userProfileRepository: profiles,
+        exerciseHistoryRepository: history,
+        catalogue: catalogue,
+      );
+      viewModel.dispose();
+
+      profileId.complete("profile");
+      await Future<void>.delayed(Duration.zero);
+
+      verifyNever(history.watchEntriesForProfile(any));
+    },
+  );
 }
