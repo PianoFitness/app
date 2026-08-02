@@ -126,7 +126,7 @@ abstract final class DefaultSkillCatalogue {
           id: "i-v-vi-iv",
           name: "I–V–vi–IV progression",
           description: "Practise a foundational four-chord pop progression.",
-          checkpoints: _progressionCheckpoints(),
+          checkpoints: _progressionCheckpoints("i-v-vi-iv", "I - V - vi - IV"),
           proficiencyRule: SkillProficiencyRule(
             tempoEvidencePolicy: TempoEvidencePolicy.optional,
             supportedTempoMeasurementVersions: {
@@ -253,21 +253,25 @@ abstract final class DefaultSkillCatalogue {
         .toList(growable: false);
   }
 
-  static List<SkillCheckpoint> _progressionCheckpoints() {
+  static List<SkillCheckpoint> _progressionCheckpoints(
+    String nodeId,
+    String chordProgressionId,
+  ) {
+    final displayLabel = chordProgressionId.replaceAll(" - ", "–");
     return music.Key.values
         .map((key) {
           return SkillCheckpoint(
-            id: "i-v-vi-iv-${key.name}",
+            id: "$nodeId-${key.name}",
             name: "${key.displayName} major",
             exercises: [
               SkillExercise(
-                id: "i-v-vi-iv-${key.name}",
-                name: "${key.displayName}: I–V–vi–IV",
+                id: "$nodeId-${key.name}",
+                name: "${key.displayName}: $displayLabel",
                 configuration: ExerciseConfiguration(
                   practiceMode: PracticeMode.chordProgressions,
                   handSelection: HandSelection.both,
                   key: key,
-                  chordProgressionId: "I - V - vi - IV",
+                  chordProgressionId: chordProgressionId,
                 ),
               ),
             ],
