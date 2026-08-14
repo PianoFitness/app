@@ -6,9 +6,7 @@ import "package:piano_fitness/domain/services/music_theory/chord_inversion_utils
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:piano_fitness/presentation/features/reference/reference_page_view_model.dart";
 
-/// The single, thin configuration row (mode + key/type selectors) shown
-/// above the reference page's piano, replacing the previous stack of
-/// full-width chip panels so the options fit without scrolling.
+/// A compact but clearly ordered reference configuration panel.
 ///
 /// Exposes plain values and change callbacks rather than depending on
 /// [ReferencePageViewModel] directly, keeping it reusable and testable in
@@ -62,27 +60,73 @@ class ReferenceConfigRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isScales = selectedMode == ReferenceMode.scales;
-    final fields = <Widget>[
-      _buildModeDropdown(),
-      _buildKeyDropdown(isScales: isScales),
-      if (isScales)
-        _buildScaleTypeDropdown()
-      else ...[
-        _buildChordTypeDropdown(),
-        _buildInversionDropdown(),
-      ],
-    ];
+    final textTheme = Theme.of(context).textTheme;
 
-    return Row(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        for (var i = 0; i < fields.length; i++)
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(left: i == 0 ? 0 : Spacing.xs),
-              child: fields[i],
-            ),
+        Text("Type", style: textTheme.labelLarge),
+        const SizedBox(height: Spacing.sm),
+        SizedBox(
+          width: double.infinity,
+          child: SegmentedButton<ReferenceMode>(
+            key: const Key("reference_kind_selector"),
+            showSelectedIcon: false,
+            expandedInsets: EdgeInsets.zero,
+            segments: const [
+              ButtonSegment(
+                value: ReferenceMode.scales,
+                icon: Icon(Icons.stairs_outlined),
+                label: Text("Scale"),
+              ),
+              ButtonSegment(
+                value: ReferenceMode.chordTypes,
+                icon: Icon(Icons.library_music_outlined),
+                label: Text("Chord"),
+              ),
+            ],
+            selected: {selectedMode},
+            onSelectionChanged: (selection) {
+              onModeChanged(selection.single);
+            },
           ),
+        ),
+        const SizedBox(height: Spacing.lg),
+        Text("Selection", style: textTheme.labelLarge),
+        const SizedBox(height: Spacing.sm),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final keyField = _buildKeyDropdown(isScales: isScales);
+            final qualityField = isScales
+                ? _buildScaleTypeDropdown()
+                : _buildChordTypeDropdown();
+
+            if (constraints.maxWidth < 340) {
+              return Column(
+                children: [
+                  keyField,
+                  const SizedBox(height: Spacing.sm),
+                  qualityField,
+                ],
+              );
+            }
+
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(flex: 2, child: keyField),
+                const SizedBox(width: Spacing.sm),
+                Expanded(flex: 3, child: qualityField),
+              ],
+            );
+          },
+        ),
+        if (!isScales) ...[
+          const SizedBox(height: Spacing.md),
+          Text("Voicing", style: textTheme.labelLarge),
+          const SizedBox(height: Spacing.sm),
+          _buildInversionDropdown(),
+        ],
       ],
     );
   }
@@ -90,38 +134,13 @@ class ReferenceConfigRow extends StatelessWidget {
   InputDecoration _dropdownDecoration(String label) {
     return InputDecoration(
       labelText: label,
-      isDense: true,
       contentPadding: const EdgeInsets.symmetric(
-        horizontal: Spacing.sm,
-        vertical: Spacing.xs,
+        horizontal: Spacing.md,
+        vertical: Spacing.md,
       ),
       border: const OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(AppBorderRadius.small)),
+        borderRadius: BorderRadius.all(Radius.circular(AppBorderRadius.medium)),
       ),
-    );
-  }
-
-  Widget _buildModeDropdown() {
-    return DropdownButtonFormField<ReferenceMode>(
-      key: ValueKey("reference_mode_${selectedMode.name}"),
-      initialValue: selectedMode,
-      decoration: _dropdownDecoration("Mode"),
-      isExpanded: true,
-      items: const [
-        DropdownMenuItem(
-          value: ReferenceMode.scales,
-          child: Text("Scales", overflow: TextOverflow.ellipsis, maxLines: 1),
-        ),
-        DropdownMenuItem(
-          value: ReferenceMode.chordTypes,
-          child: Text("Chords", overflow: TextOverflow.ellipsis, maxLines: 1),
-        ),
-      ],
-      onChanged: (value) {
-        if (value != null) {
-          onModeChanged(value);
-        }
-      },
     );
   }
 
@@ -129,7 +148,7 @@ class ReferenceConfigRow extends StatelessWidget {
     return DropdownButtonFormField<scales.Key>(
       key: ValueKey("reference_key_${selectedKey.name}"),
       initialValue: selectedKey,
-      decoration: _dropdownDecoration(isScales ? "Key" : "Root"),
+      decoration: _dropdownDecoration(isScales ? "Key" : "Root note"),
       isExpanded: true,
       items: scales.Key.values.map((key) {
         return DropdownMenuItem(
@@ -153,7 +172,7 @@ class ReferenceConfigRow extends StatelessWidget {
     return DropdownButtonFormField<scales.ScaleType>(
       key: ValueKey("reference_scale_type_${selectedScaleType.name}"),
       initialValue: selectedScaleType,
-      decoration: _dropdownDecoration("Scale"),
+      decoration: _dropdownDecoration("Scale type"),
       isExpanded: true,
       items: scales.ScaleType.values.map((type) {
         return DropdownMenuItem(
@@ -177,7 +196,7 @@ class ReferenceConfigRow extends StatelessWidget {
     return DropdownButtonFormField<ChordType>(
       key: ValueKey("reference_chord_type_${selectedChordType.name}"),
       initialValue: selectedChordType,
-      decoration: _dropdownDecoration("Chord"),
+      decoration: _dropdownDecoration("Chord type"),
       isExpanded: true,
       items: ChordType.values.map((type) {
         return DropdownMenuItem(
@@ -201,7 +220,7 @@ class ReferenceConfigRow extends StatelessWidget {
     return DropdownButtonFormField<ChordInversion>(
       key: ValueKey("reference_chord_inversion_${selectedChordInversion.name}"),
       initialValue: selectedChordInversion,
-      decoration: _dropdownDecoration("Inv."),
+      decoration: _dropdownDecoration("Inversion"),
       isExpanded: true,
       items: ChordInversion.values.map((inversion) {
         return DropdownMenuItem(

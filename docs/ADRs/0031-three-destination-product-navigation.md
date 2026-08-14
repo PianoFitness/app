@@ -25,11 +25,16 @@ The application has three primary destinations organized around learner intent:
 - **Piano** — play freely or use the musical reference mode; and
 - **Progress** — understand accumulated practice, then inspect recent activity.
 
-Curriculum is the initial destination. Free Play and Reference are modes inside
-Piano and share a segmented mode switch. Practice sessions remain contextual
-routes launched from Curriculum. The Practice Hub and Repertoire are removed
-from primary navigation. History remains the underlying record and is presented
-as the detail layer of Progress.
+Curriculum is the initial destination. Piano is one always-playable instrument
+surface. Reference is an optional **Show notes** tool on that surface: learners
+choose a scale or chord in a focused configuration sheet, then return to the
+piano with those notes highlighted. The piano remains a full-width bottom dock,
+showing two to four octaves according to available width, while the area above
+becomes a learning canvas. Its first reference representation is a 12-tone
+circle that connects selected pitch classes and responds to played notes.
+Practice sessions remain contextual routes launched from Curriculum. The
+Practice Hub and Repertoire are removed from primary navigation. History
+remains the underlying record and is presented as the detail layer of Progress.
 
 Metronome, MIDI setup, notifications, and profile switching remain app-wide
 utilities in the persistent navigation shell established by ADR-0030.
@@ -41,7 +46,7 @@ utilities in the persistent navigation shell established by ADR-0030.
 - The product communicates a simple learn, play, review mental model.
 - Curriculum becomes the obvious starting point and north-star experience.
 - Duplicate ways to find the same technical exercise no longer compete.
-- Free play and reference share the same instrument-oriented context.
+- Free play and reference share one instrument without requiring a mode change.
 - Progress provides meaning before exposing chronological records.
 - Three destinations remain legible on narrow phone navigation bars.
 
@@ -51,7 +56,6 @@ utilities in the persistent navigation shell established by ADR-0030.
   product decision is made.
 - Users accustomed to standalone Free Play, Reference, or History labels must
   learn the broader Piano and Progress labels.
-- Piano initializes both modes so switching preserves each mode's local state.
 
 ### Neutral
 

@@ -134,7 +134,7 @@ feature map:
 | Destination | Learner question | Primary content |
 | --- | --- | --- |
 | Curriculum | What should I practise? | Continue, choose a skill, begin a focused session |
-| Piano | Can I play or look this up? | Free play and reference modes on one piano surface |
+| Piano | Can I play or look this up? | Free play and visual reference on one piano surface |
 | Progress | How is my practice adding up? | Summary first, recent activity second |
 
 Use **learn, play, review** as a quick test for new top-level destinations. A
@@ -153,8 +153,8 @@ Lead with the control or content the learner came to use. A short status line is
 enough when context is necessary. Avoid a decorative hero that repeats the page
 title or explains a familiar interaction before revealing it.
 
-Current example: Piano puts its mode switch and playable keyboard before
-supporting detail.
+Current example: Piano keeps a full-width keyboard docked at the bottom of the
+screen and gives the learning canvas above it to the optional visual reference.
 
 ### Continue, then catalogue
 
@@ -194,14 +194,37 @@ immediate attention.
 Current examples: MIDI Settings prioritizes connection and available keyboards;
 Device Controller collapses device metadata and advanced MIDI controls.
 
-### Mode switch on a shared surface
+### Contextual tool on a shared surface
 
-Use a segmented mode switch when two activities operate on the same object and
-the learner benefits from moving between them without changing sections. Keep
-the modes' state alive while switching. Do not use this pattern for unrelated
-destinations merely to reduce navigation count.
+When a supporting activity modifies the primary object, prefer a contextual
+tool over making the learner switch the entire page into another mode. Keep the
+primary object usable, summarize the active tool state beside it, and move
+multi-field configuration into a focused sheet with a clear reading order.
 
-Current example: Piano combines **Play** and **Reference**.
+Current example: Piano is always playable. **Show notes** opens a Type →
+Selection → Voicing flow, then returns to the same piano with the chosen scale
+or chord highlighted. A 12-tone circle connects those pitch classes into a
+recognizable shape while the keyboard remains fixed at the bottom. Clearing the
+highlights returns to free play without a mode transition.
+
+### Instrument dock and learning canvas
+
+When a page combines an instrument with explanatory material, keep the
+instrument stable and dedicate the remaining space to learning. The keyboard
+spans the bottom edge at a familiar height and adapts by range—two octaves on a
+phone, three on a medium screen, and four on a wide screen—rather than becoming
+taller or moving when reference content changes.
+
+The keyboard is a dense, direct-manipulation instrument rather than a row of
+independent buttons, so its keys may be narrower than the standard 44-pixel
+control target to keep a complete musical range visible. Preserve full-key hit
+areas and per-key semantics; regular buttons, menus, and settings controls still
+use the standard minimum target.
+
+Visual theory aids should explain relationships, not decorate empty space. Use
+consistent pitch positions, connect selected tones when geometry is meaningful,
+and show currently played tones as a separate immediate-feedback state. Name
+the representation accurately: a chromatic circle is not a Tonnetz.
 
 ## Visual language
 

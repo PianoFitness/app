@@ -10,7 +10,10 @@ direction:
 - Curriculum is the default destination and offers a direct **Continue** action
   when matching practice history exists.
 - Primary navigation is reduced to **Curriculum**, **Piano**, and **Progress**.
-- Piano combines free play and reference as modes of one surface.
+- Piano is one always-playable surface; scale and chord reference is an
+  optional **Show notes** tool rather than a separate mode.
+- Piano uses a full-width, responsive two-to-four-octave instrument dock and a
+  12-tone learning canvas that reveals scale and chord geometry.
 - Curriculum-launched practice opens in a focused state, with configuration
   available on demand.
 - Progress leads with practice count, active days, and best accuracy before the
@@ -137,14 +140,15 @@ practice.
 
 Show the piano immediately. Remove the large “Free Play Mode” introduction and
 the banner directing users to Practice. Connection state can be a small status
-near the keyboard. Consider a segmented Play/Reference switch so both tools
-share the same mental model and screen.
+near the keyboard. Keep the instrument docked along the bottom so free play and
+reference share the same stable mental model and screen.
 
 ### Reference — merge into Piano
 
-Reference is useful, but it is a mode of the same interactive piano rather than
-a separate top-level product area. Keep its compact configuration row and reuse
-the common piano surface.
+Reference is useful, but it is a contextual tool on the same interactive piano
+rather than a separate top-level product area. Configure it in a focused sheet,
+then use the open canvas above the keyboard for visual explanations such as a
+12-tone circle or, where harmonic adjacency matters, a Tonnetz.
 
 ### History — evolve into Progress
 

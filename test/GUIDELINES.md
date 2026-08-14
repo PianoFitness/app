@@ -59,9 +59,11 @@ Use descriptive, hierarchical key names that indicate the feature, component, an
 
 ```dart
 // Mode selection
-Key("reference_mode_selector")         // Container
-Key("scales_mode_button")             // Individual button
-Key("chord_types_mode_button")        // Individual button
+Key("reference_kind_selector")         // Scale/chord selector
+Key("piano_show_notes_button")         // Opens reference configuration
+Key("reference_picker_apply")          // Applies the selection
+Key("twelve_tone_circle")              // Harmonic reference visualization
+Key("piano_stage")                     // Full-width instrument dock
 
 // Feature-specific selections
 Key("scales_key_selection")           // Container
@@ -78,8 +80,8 @@ Key("practice_start_button")          // Action buttons
 
 ```dart
 // Correct: Use keys for reliable element targeting
-await tester.tap(find.byKey(const Key("chord_types_mode_button")));
-await tester.tap(find.byKey(const Key("chords_root_fSharp")));
+await tester.tap(find.byKey(const Key("piano_show_notes_button")));
+await tester.tap(find.byKey(const Key("reference_kind_selector")));
 
 // Avoid: Text-based finders are brittle
 await tester.tap(find.text("Chord Types"));  // Breaks if text changes
@@ -91,7 +93,7 @@ Add semantic keys to interactive and testable UI elements:
 
 ```dart
 SegmentedButton(
-  key: const Key("reference_mode_selector"),
+  key: const Key("reference_kind_selector"),
   // ... other properties
 )
 
@@ -133,8 +135,7 @@ testWidgets("should display reference page with initial content", (tester) async
   await tester.pumpAndSettle();
 
   // Use key-based finders
-  expect(find.byKey(const Key("reference_mode_selector")), findsOneWidget);
-  expect(find.byKey(const Key("scales_mode_button")), findsOneWidget);
+  expect(find.byKey(const Key("reference_kind_selector")), findsOneWidget);
 });
 ```
 
@@ -143,25 +144,21 @@ testWidgets("should display reference page with initial content", (tester) async
 Test cross-feature functionality and navigation flows:
 
 ```dart
-testWidgets("should maintain reference state when switching piano modes", (tester) async {
+testWidgets("should keep a piano reference while visiting another section", (tester) async {
   await tester.pumpWidget(createTestApp());
   await tester.pumpAndSettle();
 
-  // Open Piano, select Reference, and interact using stable keys.
+  // Open Piano, configure reference notes, and apply.
   await navigateToTab(tester, const Key("nav_tab_piano"));
-  await tester.tap(find.text("Reference"));
-  await tester.tap(find.byKey(const Key("chord_types_mode_button")));
-  await tester.tap(find.byKey(const Key("chords_root_fSharp")));
+  await tester.tap(find.byKey(const Key("piano_show_notes_button")));
+  await tester.tap(find.byKey(const Key("reference_kind_selector")));
+  await tester.tap(find.byKey(const Key("reference_picker_apply")));
   
-  // Test state persistence across Piano modes.
-  await tester.tap(find.text("Play"));
-  await tester.tap(find.text("Reference"));
+  // Test state persistence across primary destinations.
+  await navigateToTab(tester, const Key("nav_tab_curriculum"));
+  await navigateToTab(tester, const Key("nav_tab_piano"));
   
-  // Verify state is maintained
-  final selectedChip = tester.widget<FilterChip>(
-    find.widgetWithText(FilterChip, "G♭"),
-  );
-  expect(selectedChip.selected, isTrue);
+  expect(find.byKey(const Key("piano_clear_reference")), findsOneWidget);
 });
 ```
 

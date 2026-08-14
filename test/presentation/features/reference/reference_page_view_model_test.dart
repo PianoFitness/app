@@ -175,6 +175,26 @@ void main() {
       });
     });
 
+    test("should apply a complete reference selection once", () {
+      var notificationCount = 0;
+      viewModel.addListener(() => notificationCount++);
+
+      viewModel.setSelection(
+        mode: ReferenceMode.chordTypes,
+        key: scales.Key.fSharp,
+        scaleType: scales.ScaleType.minor,
+        chordType: ChordType.minor7,
+        chordInversion: ChordInversion.first,
+      );
+
+      expect(viewModel.selectedMode, ReferenceMode.chordTypes);
+      expect(viewModel.selectedKey, scales.Key.fSharp);
+      expect(viewModel.selectedScaleType, scales.ScaleType.minor);
+      expect(viewModel.selectedChordType, ChordType.minor7);
+      expect(viewModel.selectedChordInversion, ChordInversion.first);
+      expect(notificationCount, 1);
+    });
+
     group("Highlighted MIDI Notes - Scales", () {
       test("should return correct MIDI notes for C Major scale", () {
         viewModel.setSelectedKey(scales.Key.c);

@@ -56,7 +56,8 @@ void main() {
       await navigateToTab(tester, const Key("nav_tab_piano"));
       expectTabActive(tester, 1);
       expect(find.text("Piano"), findsWidgets);
-      expect(find.byKey(const Key("piano_mode_switch")), findsOneWidget);
+      expect(find.byKey(const Key("piano_keyboard")), findsOneWidget);
+      expect(find.byKey(const Key("piano_show_notes_button")), findsOneWidget);
 
       await navigateToTab(tester, const Key("nav_tab_progress"));
       expectTabActive(tester, 2);

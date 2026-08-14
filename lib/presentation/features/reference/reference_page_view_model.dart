@@ -125,6 +125,31 @@ class ReferencePageViewModel extends ChangeNotifier {
     }
   }
 
+  /// Applies a complete reference selection as one visible state change.
+  void setSelection({
+    required ReferenceMode mode,
+    required scales.Key key,
+    required scales.ScaleType scaleType,
+    required ChordType chordType,
+    required ChordInversion chordInversion,
+  }) {
+    final changed =
+        _selectedMode != mode ||
+        _selectedKey != key ||
+        _selectedScaleType != scaleType ||
+        _selectedChordType != chordType ||
+        _selectedChordInversion != chordInversion;
+    if (!changed) return;
+
+    _selectedMode = mode;
+    _selectedKey = key;
+    _selectedScaleType = scaleType;
+    _selectedChordType = chordType;
+    _selectedChordInversion = chordInversion;
+    _updateLocalHighlightedNotes();
+    notifyListeners();
+  }
+
   /// Returns the MIDI notes that should be highlighted on the piano.
   Set<MidiNote> getHighlightedMidiNotes() {
     if (_selectedMode == ReferenceMode.scales) {
