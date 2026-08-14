@@ -13,6 +13,7 @@ import "../../domain/repositories/exercise_history_repository.dart";
 import "../../domain/services/music_theory/arpeggios.dart";
 import "../../domain/services/music_theory/chord_definitions.dart";
 import "../../domain/services/music_theory/note_utils.dart";
+import "../../domain/services/practice/exercise_tempo_calculator.dart";
 import "../database/app_database.dart";
 
 /// Drift-backed implementation of [IExerciseHistoryRepository].
@@ -104,6 +105,14 @@ class ExerciseHistoryRepositoryImpl implements IExerciseHistoryRepository {
   /// safely and then delegates to the canonical factory constructor so all
   /// fields are set consistently without throwing on unrecognized enum names.
   ExerciseHistoryEntry _toDomainModel(ExerciseHistoryTableData row) {
+    final tempoQuality = _tryByName(
+      TempoMeasurementQuality.values,
+      row.tempoMeasurementQuality,
+    );
+    final tempoStepNoteValue = _tryByName(
+      PracticeStepNoteValue.values,
+      row.tempoStepNoteValue,
+    );
     final config = ExerciseConfiguration(
       practiceMode: _safeByName(
         PracticeMode.values,
@@ -145,21 +154,40 @@ class ExerciseHistoryRepositoryImpl implements IExerciseHistoryRepository {
       accuracyPercentage: row.accuracyPercentage,
       correctNoteCount: row.correctNoteCount,
       errorCount: row.errorCount,
-      measuredTempoBpm: row.measuredTempoBpm,
+      measuredTempoBpm: _restoreMeasuredTempoBpm(
+        storedBpm: row.measuredTempoBpm,
+        meanMicroseconds: row.meanInterOnsetMicroseconds,
+        quality: tempoQuality,
+        noteValue: tempoStepNoteValue,
+      ),
       meanInterOnsetMicroseconds: row.meanInterOnsetMicroseconds,
       interOnsetStandardDeviationMicroseconds:
           row.interOnsetStandardDeviationMicroseconds,
       tempoCoefficientOfVariation: row.tempoCoefficientOfVariation,
       tempoIntervalCount: row.tempoIntervalCount,
-      tempoMeasurementQuality: _tryByName(
-        TempoMeasurementQuality.values,
-        row.tempoMeasurementQuality,
-      ),
+      tempoMeasurementQuality: tempoQuality,
       tempoMeasurementVersion: row.tempoMeasurementVersion,
-      tempoStepNoteValue: _tryByName(
-        PracticeStepNoteValue.values,
-        row.tempoStepNoteValue,
-      ),
+      tempoStepNoteValue: tempoStepNoteValue,
+    );
+  }
+
+  static double? _restoreMeasuredTempoBpm({
+    required double? storedBpm,
+    required int? meanMicroseconds,
+    required TempoMeasurementQuality? quality,
+    required PracticeStepNoteValue? noteValue,
+  }) {
+    if (storedBpm != null) return storedBpm;
+    if (meanMicroseconds == null ||
+        meanMicroseconds <= 0 ||
+        noteValue == null ||
+        quality == null ||
+        quality == TempoMeasurementQuality.unavailable) {
+      return null;
+    }
+    return ExerciseTempoCalculator.bpmFromMeanInterval(
+      meanMicroseconds: meanMicroseconds,
+      noteValue: noteValue,
     );
   }
 

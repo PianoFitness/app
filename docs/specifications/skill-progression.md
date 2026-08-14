@@ -1328,7 +1328,12 @@ Each playable graph leaf is an ordinary `ExerciseConfiguration`. Selecting it pu
 
 Every repetition continues through the existing history pipeline. The Curriculum page subscribes to that history and matches attempts by their completed configuration. This allows Curriculum sessions, Practice Hub sessions, Quick Start sessions, and edited Practice Page configurations to contribute through one shared source of truth.
 
-Tempo evidence is consumed exactly as classified by the exercise-tempo specification. Longer exercises may require reliable exercise BPM, while short cadences and progressions can use accuracy-only proficiency until pooled timing evidence is supported. Unreliable timing remains neutral and never becomes a misleading BPM or a negative proficiency signal.
+Tempo evidence is consumed exactly as classified by the exercise-tempo
+specification. Longer exercises may require reliable exercise BPM, while short
+cadences and progressions can use accuracy-only proficiency until pooled timing
+evidence is supported. Non-qualifying timing remains neutral for proficiency,
+even when History displays its average BPM with learner-facing consistency
+feedback.
 
 Recommended dependencies guide the learner but never lock the graph. Positive heatmap colours show demonstrated proficiency across keys, while newly added exercises simply appear neutral. This provides the smallest practical implementation delta while supporting the broader “periodic table of piano exercises” vision.
 

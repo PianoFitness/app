@@ -394,6 +394,7 @@ void main() {
           "e4",
           quality: TempoMeasurementQuality.inconsistent,
           version: TempoMeasurementVersions.current,
+          bpm: 140,
         ),
       ];
 

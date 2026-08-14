@@ -5,6 +5,25 @@ import "package:piano_fitness/domain/models/practice/practice_step_note_value.da
 
 /// Pure performed-tempo calculation for one completed exercise attempt.
 abstract final class ExerciseTempoCalculator {
+  /// Converts a mean inter-onset interval to quarter-note BPM.
+  ///
+  /// This conversion is independent of measurement quality: a rhythmically
+  /// variable attempt still has an observable average tempo even when it is
+  /// not reliable enough to count as proficiency evidence.
+  static double bpmFromMeanInterval({
+    required int meanMicroseconds,
+    required PracticeStepNoteValue noteValue,
+  }) {
+    if (meanMicroseconds <= 0) {
+      throw ArgumentError.value(
+        meanMicroseconds,
+        "meanMicroseconds",
+        "must be positive",
+      );
+    }
+    return 60000000 * noteValue.quarterNoteBeats / meanMicroseconds;
+  }
+
   static ExerciseTempoResult calculate(
     List<Duration> orderedOnsets, {
     required PracticeStepNoteValue noteValue,
@@ -43,6 +62,7 @@ abstract final class ExerciseTempoCalculator {
     final coefficientOfVariation = standardDeviation / mean;
     final meanMicroseconds = mean.round();
     final standardDeviationMicroseconds = standardDeviation.round();
+    final measuredTempoBpm = 60000000 * noteValue.quarterNoteBeats / mean;
 
     final measuredSpan = orderedOnsets.last - orderedOnsets.first;
     if (intervals.length < TempoMeasurementThresholds.minimumIntervalCount ||
@@ -50,6 +70,7 @@ abstract final class ExerciseTempoCalculator {
       return ExerciseTempoResult(
         quality: TempoMeasurementQuality.insufficientData,
         intervalCount: intervals.length,
+        measuredTempoBpm: measuredTempoBpm,
         meanInterOnsetMicroseconds: meanMicroseconds,
         interOnsetStandardDeviationMicroseconds: standardDeviationMicroseconds,
         coefficientOfVariation: coefficientOfVariation,
@@ -62,6 +83,7 @@ abstract final class ExerciseTempoCalculator {
       return ExerciseTempoResult(
         quality: TempoMeasurementQuality.inconsistent,
         intervalCount: intervals.length,
+        measuredTempoBpm: measuredTempoBpm,
         meanInterOnsetMicroseconds: meanMicroseconds,
         interOnsetStandardDeviationMicroseconds: standardDeviationMicroseconds,
         coefficientOfVariation: coefficientOfVariation,
@@ -72,7 +94,7 @@ abstract final class ExerciseTempoCalculator {
     return ExerciseTempoResult(
       quality: TempoMeasurementQuality.reliable,
       intervalCount: intervals.length,
-      measuredTempoBpm: 60000000 * noteValue.quarterNoteBeats / mean,
+      measuredTempoBpm: measuredTempoBpm,
       meanInterOnsetMicroseconds: meanMicroseconds,
       interOnsetStandardDeviationMicroseconds: standardDeviationMicroseconds,
       coefficientOfVariation: coefficientOfVariation,

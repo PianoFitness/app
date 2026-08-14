@@ -83,7 +83,13 @@ The interface should distinguish these concepts:
 
 - A filled practice dot means a matching practice was recorded.
 - A checkmark means the stricter proficiency rule has been met.
-- BPM appears only when compatible reliable tempo exists.
+- History shows average BPM whenever it can be measured, even when the rhythm
+  varied too much to qualify as reliable proficiency evidence.
+- A compact marker beside History BPM distinguishes steady, mostly steady,
+  varied, and short-sample timing without turning each activity into a
+  diagnostic report. The marker is derived at runtime from the stored
+  coefficient of variation rather than from a frozen UI label.
+- Curriculum BPM and proficiency still use only compatible reliable tempo.
 
 ### 5. Several pages explain themselves before becoming useful
 

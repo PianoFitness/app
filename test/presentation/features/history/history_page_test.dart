@@ -9,6 +9,8 @@ import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/exercise_history_entry.dart";
+import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart";
+import "package:piano_fitness/domain/models/practice/practice_step_note_value.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/presentation/features/history/history_page.dart";
@@ -285,7 +287,202 @@ void main() {
       await tester.pumpWidget(wrap(entry));
       await tester.pump();
 
-      expect(find.text("95% accuracy"), findsOneWidget);
+      expect(find.textContaining("95% accuracy"), findsOneWidget);
+    });
+
+    testWidgets("marks measured BPM when timing varied", (tester) async {
+      final semantics = tester.ensureSemantics();
+      final entry = ExerciseHistoryEntry.fromConfiguration(
+        id: "scales-variable-tempo",
+        profileId: "p1",
+        completedAt: DateTime(2026, 3, 29, 10, 30),
+        config: const ExerciseConfiguration(
+          practiceMode: PracticeMode.scales,
+          handSelection: HandSelection.right,
+          key: music.Key.c,
+          scaleType: music.ScaleType.major,
+        ),
+        accuracyPercentage: 100,
+        measuredTempoBpm: 127.4,
+        meanInterOnsetMicroseconds: 235478,
+        interOnsetStandardDeviationMicroseconds: 58870,
+        tempoCoefficientOfVariation: 0.25,
+        tempoIntervalCount: 12,
+        tempoMeasurementQuality: TempoMeasurementQuality.inconsistent,
+        tempoStepNoteValue: PracticeStepNoteValue.eighth,
+      );
+      await tester.pumpWidget(wrap(entry));
+      await tester.pump();
+
+      expect(find.textContaining("100% accuracy"), findsOneWidget);
+      expect(find.text("127.4 BPM"), findsOneWidget);
+      expect(find.byIcon(Icons.waves_rounded), findsOneWidget);
+      expect(
+        find.byTooltip("Varied tempo · 25.0% timing variation"),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key("history_tempo_varied")), findsOneWidget);
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics &&
+              (widget.properties.label?.contains("127.4 BPM, varied tempo") ??
+                  false),
+        ),
+        findsOneWidget,
+      );
+      semantics.dispose();
+    });
+
+    testWidgets("marks a reliable BPM as steady", (tester) async {
+      final entry = ExerciseHistoryEntry.fromConfiguration(
+        id: "scales-steady-tempo",
+        profileId: "p1",
+        completedAt: DateTime(2026, 3, 29, 10, 30),
+        config: const ExerciseConfiguration(
+          practiceMode: PracticeMode.scales,
+          handSelection: HandSelection.both,
+          key: music.Key.c,
+          scaleType: music.ScaleType.major,
+        ),
+        measuredTempoBpm: 120,
+        meanInterOnsetMicroseconds: 250000,
+        interOnsetStandardDeviationMicroseconds: 12500,
+        tempoCoefficientOfVariation: 0.05,
+        tempoIntervalCount: 12,
+        tempoMeasurementQuality: TempoMeasurementQuality.reliable,
+        tempoStepNoteValue: PracticeStepNoteValue.eighth,
+      );
+      await tester.pumpWidget(wrap(entry));
+
+      expect(find.text("120.0 BPM"), findsOneWidget);
+      expect(find.byIcon(Icons.horizontal_rule_rounded), findsOneWidget);
+      expect(
+        find.byTooltip("Steady tempo · 5.0% timing variation"),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key("history_tempo_steady")), findsOneWidget);
+    });
+
+    testWidgets("derives mostly-steady feedback from stored variation", (
+      tester,
+    ) async {
+      final entry = ExerciseHistoryEntry.fromConfiguration(
+        id: "scales-mostly-steady-tempo",
+        profileId: "p1",
+        completedAt: DateTime(2026, 3, 29, 10, 30),
+        config: const ExerciseConfiguration(
+          practiceMode: PracticeMode.scales,
+          handSelection: HandSelection.both,
+          key: music.Key.c,
+          scaleType: music.ScaleType.major,
+        ),
+        measuredTempoBpm: 120,
+        meanInterOnsetMicroseconds: 250000,
+        interOnsetStandardDeviationMicroseconds: 37500,
+        tempoCoefficientOfVariation: 0.15,
+        tempoIntervalCount: 12,
+        tempoMeasurementQuality: TempoMeasurementQuality.reliable,
+        tempoStepNoteValue: PracticeStepNoteValue.eighth,
+      );
+      await tester.pumpWidget(wrap(entry));
+
+      expect(find.byIcon(Icons.graphic_eq_rounded), findsOneWidget);
+      expect(
+        find.byTooltip("Mostly steady · 15.0% timing variation"),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key("history_tempo_mostlySteady")),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets("falls back to stored quality for legacy tempo rows", (
+      tester,
+    ) async {
+      final entry = ExerciseHistoryEntry.fromConfiguration(
+        id: "scales-legacy-tempo",
+        profileId: "p1",
+        completedAt: DateTime(2026, 3, 29, 10, 30),
+        config: const ExerciseConfiguration(
+          practiceMode: PracticeMode.scales,
+          handSelection: HandSelection.right,
+          key: music.Key.c,
+          scaleType: music.ScaleType.major,
+        ),
+        measuredTempoBpm: 110,
+        tempoMeasurementQuality: TempoMeasurementQuality.inconsistent,
+        tempoStepNoteValue: PracticeStepNoteValue.eighth,
+      );
+      await tester.pumpWidget(wrap(entry));
+
+      expect(find.byTooltip("Varied tempo"), findsOneWidget);
+      expect(
+        find.byKey(const Key("history_tempo_inconsistent")),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets("marks a BPM calculated from a short sample", (tester) async {
+      final entry = ExerciseHistoryEntry.fromConfiguration(
+        id: "scales-short-tempo",
+        profileId: "p1",
+        completedAt: DateTime(2026, 3, 29, 10, 30),
+        config: const ExerciseConfiguration(
+          practiceMode: PracticeMode.scales,
+          handSelection: HandSelection.left,
+          key: music.Key.c,
+          scaleType: music.ScaleType.major,
+        ),
+        measuredTempoBpm: 92.5,
+        meanInterOnsetMicroseconds: 324324,
+        interOnsetStandardDeviationMicroseconds: 16216,
+        tempoCoefficientOfVariation: 0.05,
+        tempoIntervalCount: 3,
+        tempoMeasurementQuality: TempoMeasurementQuality.insufficientData,
+        tempoStepNoteValue: PracticeStepNoteValue.eighth,
+      );
+      await tester.pumpWidget(wrap(entry));
+
+      expect(find.text("92.5 BPM"), findsOneWidget);
+      expect(find.byIcon(Icons.timelapse_rounded), findsOneWidget);
+      expect(find.byTooltip("Short tempo sample"), findsOneWidget);
+      expect(
+        find.byKey(const Key("history_tempo_shortSample")),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets("tempo badge wraps cleanly on a narrow phone", (tester) async {
+      tester.view.physicalSize = const Size(320, 640);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final entry = ExerciseHistoryEntry.fromConfiguration(
+        id: "scales-narrow-tempo",
+        profileId: "p1",
+        completedAt: DateTime(2026, 3, 29, 10, 30),
+        config: const ExerciseConfiguration(
+          practiceMode: PracticeMode.scales,
+          handSelection: HandSelection.both,
+          key: music.Key.c,
+          scaleType: music.ScaleType.major,
+        ),
+        accuracyPercentage: 100,
+        measuredTempoBpm: 127.4,
+        meanInterOnsetMicroseconds: 235478,
+        interOnsetStandardDeviationMicroseconds: 58870,
+        tempoCoefficientOfVariation: 0.25,
+        tempoIntervalCount: 12,
+        tempoMeasurementQuality: TempoMeasurementQuality.inconsistent,
+        tempoStepNoteValue: PracticeStepNoteValue.eighth,
+      );
+      await tester.pumpWidget(wrap(entry));
+
+      expect(tester.takeException(), isNull);
+      expect(find.byKey(const Key("history_tempo_varied")), findsOneWidget);
     });
 
     testWidgets("renders chordsByKey entry with seventh chords", (

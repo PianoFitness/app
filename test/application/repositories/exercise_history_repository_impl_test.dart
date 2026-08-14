@@ -138,6 +138,29 @@ void main() {
       expect(result.tempoStepNoteValue, PracticeStepNoteValue.whole);
     });
 
+    test("recovers BPM for older inconsistent attempts", () async {
+      final entry = makeEntry(
+        profileId: testProfileId,
+        meanInterOnsetMicroseconds: 250000,
+        interOnsetStandardDeviationMicroseconds: 50000,
+        tempoCoefficientOfVariation: 0.2,
+        tempoIntervalCount: 14,
+        tempoMeasurementQuality: TempoMeasurementQuality.inconsistent,
+        tempoMeasurementVersion: TempoMeasurementVersions.current,
+        tempoStepNoteValue: PracticeStepNoteValue.eighth,
+      );
+      await repository.saveEntry(entry);
+
+      final result = (await repository.getEntriesForProfile(
+        testProfileId,
+      )).single;
+      expect(
+        result.tempoMeasurementQuality,
+        TempoMeasurementQuality.inconsistent,
+      );
+      expect(result.measuredTempoBpm, closeTo(120, 0.000001));
+    });
+
     test("should rethrow on duplicate id", () async {
       final entry = makeEntry(profileId: testProfileId);
       await repository.saveEntry(entry);

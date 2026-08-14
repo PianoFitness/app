@@ -71,8 +71,14 @@ over a sentence that makes the student interpret the tracking system.
 
 Show information when it becomes useful.
 
-- Do not show “tempo unavailable” or an empty metric field. Show BPM only after
-  a reliable tempo has been recorded.
+- Do not show “tempo unavailable” or an empty metric field. Show BPM whenever
+  the attempt has enough timing data to calculate an average; keep the stricter
+  reliability classification internal to proficiency decisions.
+- Pair History BPM with a compact tempo-consistency marker: a straight line for
+  steady tempo, an equalizer for mostly steady, a wave for varied tempo, and a
+  timer for a short sample. Derive the band at runtime from stored timing
+  statistics. Use a tooltip and semantic label to explain the marker and expose
+  the exact variation percentage; color only reinforces it.
 - Do not repeat explanatory text on every row.
 - Put detailed history and analysis on a dedicated progress or history view,
   not inside the action picker.
@@ -282,7 +288,9 @@ the representation accurately: a chromatic circle is not a Tonnetz.
 - Page titles come from the app bar or a single clear heading.
 - Exercise/key names use a compact, semibold title style.
 - Supporting copy uses `onSurfaceVariant` and should remain readable, not faint.
-- Metrics such as BPM are concise labels, not prose sentences.
+- Metrics such as BPM are concise labels, not prose sentences. When their
+  quality matters, add a small icon and a plain-language tooltip rather than a
+  second line of diagnostic copy.
 - Use at most three obvious levels of type hierarchy in one section.
 
 ### Spacing and layout

@@ -177,7 +177,10 @@ class ExerciseHistoryEntry {
 
   // ── Tempo metrics ────────────────────────────────────────────────────────
 
-  /// Performed step-beats per minute, only present for reliable measurements.
+  /// Average performed quarter-note BPM when it could be measured.
+  ///
+  /// [tempoMeasurementQuality] separately determines whether it is reliable
+  /// enough to count as proficiency evidence.
   final double? measuredTempoBpm;
 
   /// Arithmetic mean of valid inter-onset intervals, in microseconds.
