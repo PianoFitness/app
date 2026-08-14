@@ -1,12 +1,16 @@
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
+import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/skill_progression/skill_catalogue.dart";
 import "package:piano_fitness/domain/models/skill_progression/skill_proficiency_snapshot.dart";
 import "package:piano_fitness/domain/repositories/exercise_history_repository.dart";
 import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
+import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:piano_fitness/presentation/features/practice/practice_page.dart";
 import "package:piano_fitness/presentation/features/skill_progression/skill_tree_page_view_model.dart";
+import "package:piano_fitness/presentation/widgets/main_navigation_scope.dart";
+import "package:piano_fitness/presentation/widgets/main_navigation.dart";
 
 /// A positive, freely navigable map of the curated piano technique catalogue.
 class SkillTreePage extends StatelessWidget {
@@ -33,10 +37,7 @@ class _SkillTreeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<SkillTreePageViewModel>();
-    return Scaffold(
-      appBar: AppBar(title: const Text("Curriculum")),
-      body: _buildBody(context, viewModel),
-    );
+    return Scaffold(body: _buildBody(context, viewModel));
   }
 
   Widget _buildBody(BuildContext context, SkillTreePageViewModel viewModel) {
@@ -59,10 +60,22 @@ class _SkillTreeView extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text(
-          "Explore exercises and track positive evidence across keys.",
+        if (viewModel.recentPractice case final recent?) ...[
+          _ContinuePracticeCard(recent: recent),
+          const SizedBox(height: Spacing.lg),
+        ],
+        Text(
+          "Build your technique",
+          style: Theme.of(context).textTheme.titleLarge,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: Spacing.xs),
+        Text(
+          "Choose a skill and practice it across keys.",
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: Spacing.md),
         for (final group in viewModel.catalogue.groups) ...[
           Text(group.name, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 4),
@@ -80,6 +93,74 @@ class _SkillTreeView extends StatelessWidget {
             _SkillNodeCard(proficiency: proficiency),
         ],
       ],
+    );
+  }
+}
+
+class _ContinuePracticeCard extends StatelessWidget {
+  const _ContinuePracticeCard({required this.recent});
+
+  final RecentSkillPractice recent;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      key: const Key("curriculum_continue"),
+      padding: const EdgeInsets.all(Spacing.md),
+      decoration: BoxDecoration(
+        color: colorScheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(AppBorderRadius.large),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.replay, color: colorScheme.onSecondaryContainer),
+          const SizedBox(width: Spacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Continue",
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: colorScheme.onSecondaryContainer,
+                  ),
+                ),
+                const SizedBox(height: Spacing.xs),
+                Text(
+                  recent.checkpointName,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: colorScheme.onSecondaryContainer,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  recent.nodeName,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSecondaryContainer,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: Spacing.sm),
+          FilledButton(
+            key: const Key("curriculum_continue_button"),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                settings: const RouteSettings(
+                  name: MainNavigationRouteNames.practiceSession,
+                ),
+                builder: (_) => PracticePage(
+                  initialConfiguration: recent.exercise.configuration,
+                  backTooltip: "Back to Curriculum",
+                ),
+              ),
+            ),
+            child: const Text("Practice"),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -110,13 +191,14 @@ class _SkillNodeCard extends StatelessWidget {
         key: Key("skill_node_${node.id}"),
         title: Text(node.name),
         subtitle: Text(
-          "${node.description}\n${proficiency.establishedCheckpointCount} of ${proficiency.checkpointCount} keys established"
+          "${node.description}\n${proficiency.establishedCheckpointCount} of ${proficiency.checkpointCount} keys complete"
           "${prerequisiteNames.isEmpty ? "" : "\nRecommended first: $prerequisiteNames"}",
         ),
         isThreeLine: true,
         trailing: const Icon(Icons.chevron_right),
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute<void>(
+            settings: RouteSettings(name: node.name),
             builder: (_) => ChangeNotifierProvider.value(
               value: viewModel,
               child: SkillNodeDetailPage(nodeId: node.id),
@@ -144,22 +226,82 @@ class SkillNodeDetailPage extends StatelessWidget {
       return const Scaffold(body: Center(child: Text("Skill not found.")));
     }
     return Scaffold(
-      appBar: AppBar(title: Text(proficiency.node.name)),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Text(proficiency.node.description),
-          const SizedBox(height: 8),
-          Text(
-            "${proficiency.establishedCheckpointCount} of ${proficiency.checkpointCount} keys established",
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 12),
-          for (final checkpoint in proficiency.checkpointProficiencies)
-            _CheckpointCard(
-              checkpoint: checkpoint,
-              rule: proficiency.node.proficiencyRule,
+      appBar: MainNavigationScope.isActive(context)
+          ? null
+          : AppBar(title: Text(proficiency.node.name)),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 840),
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(
+              Spacing.md,
+              Spacing.sm,
+              Spacing.md,
+              Spacing.lg,
             ),
+            children: [
+              _SkillDetailHeader(proficiency: proficiency),
+              const SizedBox(height: Spacing.md),
+              for (final checkpoint in proficiency.checkpointProficiencies)
+                _CheckpointCard(
+                  checkpoint: checkpoint,
+                  rule: proficiency.node.proficiencyRule,
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SkillDetailHeader extends StatelessWidget {
+  const _SkillDetailHeader({required this.proficiency});
+
+  final SkillNodeProficiency proficiency;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final progress = proficiency.checkpointCount == 0
+        ? 0.0
+        : proficiency.establishedCheckpointCount / proficiency.checkpointCount;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: Spacing.xs),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            proficiency.node.description,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: Spacing.md),
+          Row(
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(AppBorderRadius.xs),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 6,
+                    backgroundColor: colorScheme.surfaceContainerHighest,
+                  ),
+                ),
+              ),
+              const SizedBox(width: Spacing.sm),
+              Text(
+                "${proficiency.establishedCheckpointCount} / ${proficiency.checkpointCount} keys",
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -174,61 +316,63 @@ class _CheckpointCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tone = checkpoint.hasEstablishedProficiency
-        ? Theme.of(context).colorScheme.primaryContainer
-        : checkpoint.positiveScore > 0
-        ? Theme.of(context).colorScheme.secondaryContainer
-        : Theme.of(context).colorScheme.surfaceContainerHighest;
-    return Semantics(
-      label:
-          "${checkpoint.checkpoint.name}: ${checkpoint.hasEstablishedProficiency ? "established" : "in progress"}",
-      child: Card(
-        color: tone,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                checkpoint.checkpoint.name,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              for (final exercise in checkpoint.exerciseProficiencies) ...[
-                const SizedBox(height: 8),
-                Text(exercise.exercise.name),
-                Text(
-                  "${exercise.progressionQualifyingAttemptCount} of ${rule.evidenceAttemptCount} qualifying attempts"
-                  "${exercise.recentAverageAccuracy == null ? "" : " · ${exercise.recentAverageAccuracy!.toStringAsFixed(0)}% recent accuracy"}",
-                ),
-                Text(_tempoText(exercise)),
-                const SizedBox(height: 4),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: FilledButton(
-                    key: Key("practice_${exercise.exercise.id}"),
-                    onPressed: () =>
-                        _openPractice(context, exercise.exercise.configuration),
-                    child: const Text("Practice"),
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: Spacing.sm),
+      color: colorScheme.surfaceContainerLow,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppBorderRadius.large),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: Spacing.md,
+          vertical: Spacing.sm,
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: Row(
+                children: [
+                  Flexible(
+                    child: Semantics(
+                      header: true,
+                      child: Text(
+                        checkpoint.checkpoint.name,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ],
-            ],
-          ),
+                  if (checkpoint.hasEstablishedProficiency) ...[
+                    const SizedBox(width: Spacing.xs),
+                    Icon(
+                      Icons.check_circle_rounded,
+                      size: ComponentDimensions.iconSizeSmall,
+                      color: colorScheme.primary,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: Spacing.md),
+            Expanded(
+              flex: 5,
+              child: _PracticeChoiceRow(
+                exercises: checkpoint.exerciseProficiencies,
+                requiredAttemptCount: rule.evidenceAttemptCount,
+                onPractice: (configuration) =>
+                    _openPractice(context, configuration),
+              ),
+            ),
+          ],
         ),
       ),
     );
-  }
-
-  String _tempoText(SkillExerciseProficiency exercise) {
-    final bpm = exercise.recentAverageMeasuredBpm;
-    if (bpm != null) {
-      final next = exercise.suggestedNextTempoBpm;
-      return "${bpm.toStringAsFixed(0)} BPM exercise tempo"
-          "${next == null ? "" : " · next ${next.toStringAsFixed(0)} BPM"}";
-    }
-    return rule.tempoEvidencePolicy == TempoEvidencePolicy.notApplicable
-        ? "Tempo not recorded for this exercise"
-        : "Tempo evidence not yet available";
   }
 
   void _openPractice(
@@ -237,10 +381,204 @@ class _CheckpointCard extends StatelessWidget {
   ) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
+        settings: const RouteSettings(
+          name: MainNavigationRouteNames.practiceSession,
+        ),
         builder: (_) => PracticePage(
           initialConfiguration: configuration,
           backTooltip: "Back to Curriculum",
         ),
+      ),
+    );
+  }
+}
+
+/// Compact practice choices that keep the hand actions together visually.
+class _PracticeChoiceRow extends StatelessWidget {
+  const _PracticeChoiceRow({
+    required this.exercises,
+    required this.requiredAttemptCount,
+    required this.onPractice,
+  });
+
+  final List<SkillExerciseProficiency> exercises;
+  final int requiredAttemptCount;
+  final ValueChanged<ExerciseConfiguration> onPractice;
+
+  @override
+  Widget build(BuildContext context) {
+    final showHandLabels = exercises.length > 1;
+    return Row(
+      children: [
+        for (var index = 0; index < exercises.length; index++) ...[
+          if (index > 0) const SizedBox(width: 8),
+          Expanded(
+            child: _PracticeChoiceButton(
+              exercise: exercises[index],
+              requiredAttemptCount: requiredAttemptCount,
+              label: showHandLabels
+                  ? _handLabel(
+                      exercises[index].exercise.configuration.handSelection,
+                    )
+                  : "Practice",
+              onPressed: () =>
+                  onPractice(exercises[index].exercise.configuration),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  String _handLabel(HandSelection handSelection) => switch (handSelection) {
+    HandSelection.left => "Left",
+    HandSelection.right => "Right",
+    HandSelection.both => "Together",
+  };
+}
+
+class _PracticeChoiceButton extends StatelessWidget {
+  const _PracticeChoiceButton({
+    required this.exercise,
+    required this.requiredAttemptCount,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final SkillExerciseProficiency exercise;
+  final int requiredAttemptCount;
+  final String label;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    // Practice dots acknowledge every recorded repetition. Establishing
+    // proficiency remains a separate, stricter accuracy-and-tempo decision.
+    final completed = exercise.matchingAttemptCount
+        .clamp(0, requiredAttemptCount)
+        .toInt();
+    final bpm = exercise.recentAverageMeasuredBpm;
+    final colorScheme = Theme.of(context).colorScheme;
+    final hasProgress = completed > 0;
+    final backgroundColor = exercise.hasEstablishedProficiency
+        ? colorScheme.primaryContainer
+        : hasProgress
+        ? colorScheme.secondaryContainer.withValues(alpha: 0.72)
+        : colorScheme.surfaceContainerHighest;
+    final foregroundColor = exercise.hasEstablishedProficiency
+        ? colorScheme.onPrimaryContainer
+        : colorScheme.onSurface;
+    final semanticLabel = [
+      exercise.exercise.name,
+      "$completed of $requiredAttemptCount practices recorded",
+      if (bpm != null) "${bpm.toStringAsFixed(0)} BPM",
+    ].join(", ");
+
+    return Semantics(
+      button: true,
+      label: semanticLabel,
+      onTap: onPressed,
+      child: ExcludeSemantics(
+        child: TextButton(
+          key: Key("practice_${exercise.exercise.id}"),
+          style: TextButton.styleFrom(
+            minimumSize: const Size(
+              0,
+              ComponentDimensions.minTouchTarget + Spacing.sm,
+            ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: Spacing.xs,
+              vertical: Spacing.xs,
+            ),
+            backgroundColor: backgroundColor,
+            foregroundColor: foregroundColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppBorderRadius.medium),
+            ),
+          ),
+          onPressed: onPressed,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: foregroundColor,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: Spacing.xs),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _ProgressDots(
+                    completed: completed,
+                    total: requiredAttemptCount,
+                    exerciseId: exercise.exercise.id,
+                  ),
+                  if (bpm != null) ...[
+                    const SizedBox(width: Spacing.xs),
+                    Flexible(
+                      child: Text(
+                        "${bpm.toStringAsFixed(0)} BPM",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: foregroundColor.withValues(alpha: 0.78),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProgressDots extends StatelessWidget {
+  const _ProgressDots({
+    required this.completed,
+    required this.total,
+    required this.exerciseId,
+  });
+
+  final int completed;
+  final int total;
+  final String exerciseId;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Tooltip(
+      message: "$completed of $total practices recorded",
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (var index = 0; index < total; index++) ...[
+            if (index > 0) const SizedBox(width: 5),
+            Container(
+              key: Key("progress_${exerciseId}_$index"),
+              width: 7,
+              height: 7,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: index < completed ? colorScheme.primary : null,
+                border: Border.all(
+                  color: index < completed
+                      ? colorScheme.primary
+                      : colorScheme.outline,
+                ),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

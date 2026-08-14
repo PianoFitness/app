@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:piano_fitness/presentation/features/metronome/widgets/metronome_control_panel.dart";
+import "package:piano_fitness/presentation/widgets/main_navigation_scope.dart";
 
 /// Full-screen metronome view: tempo/time-signature controls, a start/stop
 /// toggle, and a visual beat pulse synchronized to a lookahead-scheduled
@@ -18,7 +19,9 @@ class MetronomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       key: const Key("metronome_page"),
-      appBar: AppBar(title: const Text("Metronome")),
+      appBar: MainNavigationScope.isActive(context)
+          ? null
+          : AppBar(title: const Text("Metronome")),
       body: const SafeArea(
         child: Padding(
           padding: EdgeInsets.all(Spacing.md),

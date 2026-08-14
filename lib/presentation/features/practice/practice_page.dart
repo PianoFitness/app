@@ -8,6 +8,7 @@ import "package:piano_fitness/domain/models/practice/exercise_completion_result.
 import "package:piano_fitness/domain/repositories/exercise_history_repository.dart";
 import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
 import "package:piano_fitness/presentation/features/practice/practice_page_view_model.dart";
+import "package:piano_fitness/presentation/features/practice/widgets/focused_session_header.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
@@ -20,6 +21,7 @@ import "package:piano_fitness/presentation/widgets/practice_settings_panel.dart"
 import "package:piano_fitness/presentation/utils/piano_accessibility_utils.dart";
 import "package:piano_fitness/presentation/theme/semantic_colors.dart";
 import "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard.dart";
+import "package:piano_fitness/presentation/widgets/main_navigation_scope.dart";
 
 /// A comprehensive piano practice page with guided exercises and real-time feedback.
 ///
@@ -38,7 +40,7 @@ class PracticePage extends StatelessWidget {
     this.midiChannel = 0,
     this.initialChordProgression,
     this.initialConfiguration,
-    this.backTooltip = "Back to Practice Hub",
+    this.backTooltip = "Back",
   });
 
   /// The initial practice mode to display when the page loads.
@@ -100,6 +102,8 @@ class _PracticePageView extends StatefulWidget {
 }
 
 class _PracticePageViewState extends State<_PracticePageView> {
+  bool _showConfiguration = false;
+
   @override
   void initState() {
     super.initState();
@@ -184,7 +188,9 @@ class _PracticePageViewState extends State<_PracticePageView> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: const Key("practice_page_scaffold"),
-      appBar: _buildAppBar(context),
+      appBar: MainNavigationScope.isActive(context)
+          ? null
+          : _buildAppBar(context),
       body: Column(
         children: [_buildContentArea(context), _buildPianoSection(context)],
       ),
@@ -220,7 +226,21 @@ class _PracticePageViewState extends State<_PracticePageView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _buildSettingsPanel(viewModel),
+              if (widget.initialConfiguration != null) ...[
+                FocusedSessionHeader(
+                  viewModel: viewModel,
+                  showConfiguration: _showConfiguration,
+                  onReset: _resetPractice,
+                  onToggleConfiguration: () {
+                    setState(() => _showConfiguration = !_showConfiguration);
+                  },
+                ),
+                if (_showConfiguration) ...[
+                  const SizedBox(height: Spacing.sm),
+                  _buildSettingsPanel(viewModel),
+                ],
+              ] else
+                _buildSettingsPanel(viewModel),
               const SizedBox(height: Spacing.sm),
               _buildProgressDisplay(viewModel),
             ],

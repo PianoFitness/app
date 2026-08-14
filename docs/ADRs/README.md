@@ -75,3 +75,9 @@ ADRs are numbered sequentially (0001-0024, etc.). When creating new ADRs:
 
 - [ADR-0028: Exercise History Configuration-Mirroring Schema](0028-exercise-history-configuration-mirroring-schema.md) - 2026-03-28
 - [ADR-0029: Practice History Page — Navigation Placement and MVP Scope](0029-practice-history-navigation-and-scope.md) - 2026-03-29
+- [ADR-0032: Derive Tempo-Consistency Feedback at Runtime](0032-runtime-tempo-consistency-feedback.md) - 2026-08-15
+
+### Navigation
+
+- [ADR-0030: Persistent Application Navigation Shell](0030-persistent-application-navigation-shell.md) - 2026-08-14
+- [ADR-0031: Three-Destination Product Navigation](0031-three-destination-product-navigation.md) - 2026-08-15

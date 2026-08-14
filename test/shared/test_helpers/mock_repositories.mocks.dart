@@ -188,14 +188,13 @@ class MockIMidiRepository extends _i1.Mock implements _i7.IMidiRepository {
           as _i8.Future<void>);
 
   @override
-  void registerDataHandler(void Function(_i9.MidiInputPacket)? handler) =>
-      super.noSuchMethod(
-        Invocation.method(#registerDataHandler, [handler]),
-        returnValueForMissingStub: null,
-      );
+  void registerDataHandler(_i9.MidiInputHandler? handler) => super.noSuchMethod(
+    Invocation.method(#registerDataHandler, [handler]),
+    returnValueForMissingStub: null,
+  );
 
   @override
-  void unregisterDataHandler(void Function(_i9.MidiInputPacket)? handler) =>
+  void unregisterDataHandler(_i9.MidiInputHandler? handler) =>
       super.noSuchMethod(
         Invocation.method(#unregisterDataHandler, [handler]),
         returnValueForMissingStub: null,
@@ -488,6 +487,14 @@ class MockIUserProfileRepository extends _i1.Mock
   }
 
   @override
+  _i8.Stream<String?> get activeProfileIdChanges =>
+      (super.noSuchMethod(
+            Invocation.getter(#activeProfileIdChanges),
+            returnValue: _i8.Stream<String?>.empty(),
+          )
+          as _i8.Stream<String?>);
+
+  @override
   _i8.Future<List<_i3.UserProfile>> getAllProfiles() =>
       (super.noSuchMethod(
             Invocation.method(#getAllProfiles, []),
@@ -575,6 +582,12 @@ class MockIUserProfileRepository extends _i1.Mock
             returnValueForMissingStub: _i8.Future<void>.value(),
           )
           as _i8.Future<void>);
+
+  @override
+  void dispose() => super.noSuchMethod(
+    Invocation.method(#dispose, []),
+    returnValueForMissingStub: null,
+  );
 }
 
 /// A class which mocks [IExerciseHistoryRepository].
@@ -854,14 +867,13 @@ class MockMidiConnectionService extends _i1.Mock
           as _i8.Future<void>);
 
   @override
-  void registerDataHandler(void Function(_i9.MidiInputPacket)? handler) =>
-      super.noSuchMethod(
-        Invocation.method(#registerDataHandler, [handler]),
-        returnValueForMissingStub: null,
-      );
+  void registerDataHandler(_i9.MidiInputHandler? handler) => super.noSuchMethod(
+    Invocation.method(#registerDataHandler, [handler]),
+    returnValueForMissingStub: null,
+  );
 
   @override
-  void unregisterDataHandler(void Function(_i9.MidiInputPacket)? handler) =>
+  void unregisterDataHandler(_i9.MidiInputHandler? handler) =>
       super.noSuchMethod(
         Invocation.method(#unregisterDataHandler, [handler]),
         returnValueForMissingStub: null,

@@ -52,6 +52,7 @@ class SkillProficiencyEvaluator {
     return SkillExerciseProficiency(
       exercise: exercise,
       evidence: SkillEvidenceCounts(
+        matching: entries.length,
         accuracyQualifying: accurate.length,
         reliableTempo: reliableTempo.length,
         progressionQualifying: progression.length,

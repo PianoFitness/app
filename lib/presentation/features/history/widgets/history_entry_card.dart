@@ -8,6 +8,8 @@ import "package:piano_fitness/domain/models/practice/exercise_history_entry.dart
 import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
+import "package:piano_fitness/domain/services/practice/tempo_consistency_interpreter.dart";
+import "package:piano_fitness/presentation/constants/ui_constants.dart";
 
 /// A general-purpose card that displays one [ExerciseHistoryEntry].
 ///
@@ -35,35 +37,51 @@ class HistoryEntryCard extends StatelessWidget {
     final accuracyLabel = accuracy != null
         ? "${accuracy.toStringAsFixed(0)}% accuracy"
         : "";
-    final tempoBpm =
-        entry.tempoMeasurementQuality == TempoMeasurementQuality.reliable
-        ? entry.measuredTempoBpm
-        : null;
+    final tempoBpm = entry.measuredTempoBpm;
     final tempoLabel = tempoBpm != null
         ? "${tempoBpm.toStringAsFixed(1)} BPM"
         : null;
+    final tempoConsistency = TempoConsistencyInterpreter.assess(
+      coefficientOfVariation: entry.tempoCoefficientOfVariation,
+      meanInterOnsetMicroseconds: entry.meanInterOnsetMicroseconds,
+      interOnsetStandardDeviationMicroseconds:
+          entry.interOnsetStandardDeviationMicroseconds,
+      intervalCount: entry.tempoIntervalCount,
+      measurementQuality: entry.tempoMeasurementQuality,
+    );
+    final tempoQualityLabel = tempoBpm != null
+        ? _tempoFeedbackLabel(
+            assessment: tempoConsistency,
+            fallbackQuality: entry.tempoMeasurementQuality,
+          ).toLowerCase()
+        : null;
 
     final semanticLabel = accuracy != null
-        ? "$modeLabel — $description · $handLabel · $accuracyLabel${tempoLabel != null ? " · $tempoLabel" : ""} · $timeLabel"
-        : "$modeLabel — $description · $handLabel${tempoLabel != null ? " · $tempoLabel" : ""} · $timeLabel";
+        ? "$modeLabel — $description · $handLabel · $accuracyLabel${tempoLabel != null ? " · $tempoLabel, $tempoQualityLabel" : ""} · $timeLabel"
+        : "$modeLabel — $description · $handLabel${tempoLabel != null ? " · $tempoLabel, $tempoQualityLabel" : ""} · $timeLabel";
 
     return Semantics(
       label: semanticLabel,
       child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: Spacing.sm,
+                runSpacing: Spacing.xs,
                 children: [
-                  Chip(
-                    label: Text(modeLabel, style: theme.textTheme.labelSmall),
-                    padding: EdgeInsets.zero,
-                    visualDensity: VisualDensity.compact,
+                  Text(
+                    modeLabel,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                  const Spacer(),
                   Text(
                     timeLabel,
                     style: theme.textTheme.bodySmall?.copyWith(
@@ -75,48 +93,26 @@ class HistoryEntryCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(description, style: theme.textTheme.bodyLarge),
               const SizedBox(height: 2),
-              Row(
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: Spacing.sm,
+                runSpacing: Spacing.xs,
                 children: [
                   Text(
-                    handLabel,
+                    accuracy != null
+                        ? "$handLabel · $accuracyLabel"
+                        : handLabel,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
+                      fontWeight: accuracy != null ? FontWeight.w500 : null,
                     ),
                   ),
-                  if (accuracy != null) ...[
-                    const SizedBox(width: 8),
-                    Text(
-                      "·",
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
+                  if (tempoBpm != null)
+                    _TempoBadge(
+                      bpm: tempoBpm,
+                      assessment: tempoConsistency,
+                      fallbackQuality: entry.tempoMeasurementQuality,
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      accuracyLabel,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                  if (tempoLabel != null) ...[
-                    const SizedBox(width: 8),
-                    Text(
-                      "·",
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      tempoLabel,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ],
@@ -287,4 +283,148 @@ class HistoryEntryCard extends StatelessWidget {
     };
     return names[note] ?? note.name;
   }
+}
+
+class _TempoBadge extends StatelessWidget {
+  const _TempoBadge({
+    required this.bpm,
+    required this.assessment,
+    required this.fallbackQuality,
+  });
+
+  final double bpm;
+  final TempoConsistencyAssessment? assessment;
+  final TempoMeasurementQuality? fallbackQuality;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final presentation = switch (assessment?.band) {
+      TempoConsistencyBand.steady => (
+        icon: Icons.horizontal_rule_rounded,
+        stateName: TempoConsistencyBand.steady.name,
+        background: colors.primaryContainer,
+        foreground: colors.onPrimaryContainer,
+      ),
+      TempoConsistencyBand.mostlySteady => (
+        icon: Icons.graphic_eq_rounded,
+        stateName: TempoConsistencyBand.mostlySteady.name,
+        background: colors.secondaryContainer,
+        foreground: colors.onSecondaryContainer,
+      ),
+      TempoConsistencyBand.varied => (
+        icon: Icons.waves_rounded,
+        stateName: TempoConsistencyBand.varied.name,
+        background: colors.tertiaryContainer,
+        foreground: colors.onTertiaryContainer,
+      ),
+      TempoConsistencyBand.shortSample => (
+        icon: Icons.timelapse_rounded,
+        stateName: TempoConsistencyBand.shortSample.name,
+        background: colors.secondaryContainer,
+        foreground: colors.onSecondaryContainer,
+      ),
+      null => _fallbackPresentation(colors),
+    };
+    final bpmLabel = "${bpm.toStringAsFixed(1)} BPM";
+    final feedbackLabel = _tempoFeedbackLabel(
+      assessment: assessment,
+      fallbackQuality: fallbackQuality,
+    );
+    final coefficient = assessment?.coefficientOfVariation;
+    final tooltipLabel = coefficient != null
+        ? "$feedbackLabel · ${(coefficient * 100).toStringAsFixed(1)}% timing variation"
+        : feedbackLabel;
+
+    return Tooltip(
+      message: tooltipLabel,
+      child: Semantics(
+        label: "$bpmLabel, $tooltipLabel",
+        child: ExcludeSemantics(
+          child: DecoratedBox(
+            key: Key("history_tempo_${presentation.stateName}"),
+            decoration: BoxDecoration(
+              color: presentation.background,
+              borderRadius: BorderRadius.circular(AppBorderRadius.small),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: Spacing.sm,
+                vertical: Spacing.xs,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    presentation.icon,
+                    size: ComponentDimensions.iconSizeSmall,
+                    color: presentation.foreground,
+                  ),
+                  const SizedBox(width: Spacing.xs),
+                  Text(
+                    bpmLabel,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: presentation.foreground,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  ({IconData icon, String stateName, Color background, Color foreground})
+  _fallbackPresentation(ColorScheme colors) {
+    return switch (fallbackQuality) {
+      TempoMeasurementQuality.reliable => (
+        icon: Icons.horizontal_rule_rounded,
+        stateName: TempoMeasurementQuality.reliable.name,
+        background: colors.primaryContainer,
+        foreground: colors.onPrimaryContainer,
+      ),
+      TempoMeasurementQuality.inconsistent => (
+        icon: Icons.waves_rounded,
+        stateName: TempoMeasurementQuality.inconsistent.name,
+        background: colors.tertiaryContainer,
+        foreground: colors.onTertiaryContainer,
+      ),
+      TempoMeasurementQuality.insufficientData => (
+        icon: Icons.timelapse_rounded,
+        stateName: TempoMeasurementQuality.insufficientData.name,
+        background: colors.secondaryContainer,
+        foreground: colors.onSecondaryContainer,
+      ),
+      TempoMeasurementQuality.unavailable || null => (
+        icon: Icons.speed_rounded,
+        stateName: "measured",
+        background: colors.surfaceContainerHighest,
+        foreground: colors.onSurfaceVariant,
+      ),
+    };
+  }
+}
+
+String _tempoFeedbackLabel({
+  required TempoConsistencyAssessment? assessment,
+  required TempoMeasurementQuality? fallbackQuality,
+}) {
+  if (assessment != null) {
+    return switch (assessment.band) {
+      TempoConsistencyBand.steady => "Steady tempo",
+      TempoConsistencyBand.mostlySteady => "Mostly steady",
+      TempoConsistencyBand.varied => "Varied tempo",
+      TempoConsistencyBand.shortSample => "Short tempo sample",
+    };
+  }
+  return switch (fallbackQuality) {
+    TempoMeasurementQuality.reliable => "Steady tempo",
+    TempoMeasurementQuality.inconsistent => "Varied tempo",
+    TempoMeasurementQuality.insufficientData => "Short tempo sample",
+    TempoMeasurementQuality.unavailable || null => "Measured tempo",
+  };
 }

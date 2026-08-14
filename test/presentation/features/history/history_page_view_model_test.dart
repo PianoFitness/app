@@ -26,19 +26,22 @@ void main() {
       exerciseHistoryRepository: mockExerciseHistoryRepository,
     );
 
-    ExerciseHistoryEntry makeEntry(String id, {double? accuracyPercentage}) =>
-        ExerciseHistoryEntry.fromConfiguration(
-          id: id,
-          profileId: "profile-1",
-          completedAt: DateTime(2026, 3, 29, 10),
-          config: const ExerciseConfiguration(
-            practiceMode: PracticeMode.scales,
-            handSelection: HandSelection.both,
-            key: music.Key.c,
-            scaleType: music.ScaleType.major,
-          ),
-          accuracyPercentage: accuracyPercentage,
-        );
+    ExerciseHistoryEntry makeEntry(
+      String id, {
+      double? accuracyPercentage,
+      DateTime? completedAt,
+    }) => ExerciseHistoryEntry.fromConfiguration(
+      id: id,
+      profileId: "profile-1",
+      completedAt: completedAt ?? DateTime(2026, 3, 29, 10),
+      config: const ExerciseConfiguration(
+        practiceMode: PracticeMode.scales,
+        handSelection: HandSelection.both,
+        key: music.Key.c,
+        scaleType: music.ScaleType.major,
+      ),
+      accuracyPercentage: accuracyPercentage,
+    );
 
     test("starts in loading state", () {
       when(
@@ -86,7 +89,35 @@ void main() {
         expect(vm.entries, hasLength(2));
         expect(vm.entries.first.id, equals("e2"));
         expect(vm.entries.first.accuracyPercentage, equals(100.0));
+        expect(vm.totalPracticeCount, 2);
+        expect(vm.practiceDayCount, 1);
+        expect(vm.bestAccuracyPercentage, 100);
 
+        vm.dispose();
+      },
+    );
+
+    test(
+      "summarizes distinct practice days and hides absent accuracy",
+      () async {
+        when(
+          mockUserProfileRepository.getActiveProfileId(),
+        ).thenAnswer((_) async => "profile-1");
+        when(
+          mockExerciseHistoryRepository.watchEntriesForProfile("profile-1"),
+        ).thenAnswer(
+          (_) => Stream.value([
+            makeEntry("e1", completedAt: DateTime(2026, 3, 28)),
+            makeEntry("e2", completedAt: DateTime(2026, 3, 29)),
+          ]),
+        );
+
+        final vm = makeViewModel();
+        await Future<void>.delayed(Duration.zero);
+
+        expect(vm.totalPracticeCount, 2);
+        expect(vm.practiceDayCount, 2);
+        expect(vm.bestAccuracyPercentage, isNull);
         vm.dispose();
       },
     );

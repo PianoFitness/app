@@ -20,6 +20,22 @@ void main() {
       expect(result.measuredTempoBpm, closeTo(150, 0.000001));
     });
 
+    test("preserves measured BPM when timing is inconsistent", () {
+      final tracker = ExerciseTempoTracker();
+      final onsets = [0, 400, 800, 1200, 1600, 3200];
+      for (var step = 0; step < onsets.length; step++) {
+        tracker.recordStepOnset(
+          stepIndex: step,
+          occurredAt: Duration(milliseconds: onsets[step]),
+          source: ExerciseInputSource.externalMidi,
+        );
+      }
+
+      final result = tracker.complete(noteValue: PracticeStepNoteValue.quarter);
+      expect(result.quality, TempoMeasurementQuality.inconsistent);
+      expect(result.measuredTempoBpm, closeTo(93.75, 0.000001));
+    });
+
     test("rejects duplicate step onsets", () {
       final tracker = ExerciseTempoTracker()
         ..recordStepOnset(

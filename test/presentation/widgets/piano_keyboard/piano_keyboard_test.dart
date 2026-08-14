@@ -21,6 +21,8 @@ void main() {
     NoteLabelMode noteLabelMode = NoteLabelMode.none,
     PianoKeyboardController? controller,
     MidiNoteRange range = range,
+    double requestedKeyWidth = keyWidth,
+    double minimumKeyWidth = 44,
   }) {
     return MaterialApp(
       home: Scaffold(
@@ -30,7 +32,8 @@ void main() {
           child: PianoKeyboard(
             range: range,
             keyVisuals: keyVisuals,
-            keyWidth: keyWidth,
+            keyWidth: requestedKeyWidth,
+            minimumKeyWidth: minimumKeyWidth,
             enableGlissando: enableGlissando,
             noteLabelMode: noteLabelMode,
             controller: controller,
@@ -313,6 +316,27 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(controller.scrollController.offset, greaterThan(0));
+  });
+
+  testWidgets("a dense instrument layout can fit a complete range", (
+    tester,
+  ) async {
+    final keyVisuals = ValueNotifier<Map<int, PianoKeyVisual>>({});
+    final controller = PianoKeyboardController();
+    addTearDown(controller.dispose);
+
+    await tester.pumpWidget(
+      buildKeyboard(
+        keyVisuals: keyVisuals,
+        controller: controller,
+        range: const MidiNoteRange(fromMidi: 48, toMidi: 72),
+        requestedKeyWidth: 20,
+        minimumKeyWidth: 20,
+      ),
+    );
+    await tester.pump();
+
+    expect(controller.scrollController.position.maxScrollExtent, 0);
   });
 
   testWidgets(

@@ -42,13 +42,22 @@ class ExerciseTempoResult {
     this.coefficientOfVariation,
     this.tempoStepNoteValue,
   }) : assert(
-         quality == TempoMeasurementQuality.reliable
-             ? measuredTempoBpm != null && tempoStepNoteValue != null
-             : measuredTempoBpm == null,
+         quality != TempoMeasurementQuality.reliable ||
+             measuredTempoBpm != null,
+       ),
+       assert(measuredTempoBpm == null || tempoStepNoteValue != null),
+       assert(
+         quality != TempoMeasurementQuality.unavailable ||
+             measuredTempoBpm == null,
        );
 
   final TempoMeasurementQuality quality;
   final int intervalCount;
+
+  /// Average performed tempo when enough ordered onsets exist to calculate it.
+  ///
+  /// This can be present for an inconsistent or short attempt. [quality]
+  /// determines whether the measurement is reliable enough for proficiency.
   final double? measuredTempoBpm;
   final int? meanInterOnsetMicroseconds;
   final int? interOnsetStandardDeviationMicroseconds;

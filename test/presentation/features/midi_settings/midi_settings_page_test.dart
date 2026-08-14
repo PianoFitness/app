@@ -8,6 +8,7 @@ import "package:mockito/mockito.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/domain/services/midi_device_discovery_service.dart";
 import "package:piano_fitness/presentation/features/midi_settings/midi_settings_page.dart";
+import "package:piano_fitness/presentation/widgets/main_navigation_scope.dart";
 import "package:provider/provider.dart";
 import "../../../shared/test_helpers/mock_repositories.mocks.dart";
 
@@ -24,17 +25,31 @@ void main() {
       when(mockService.getDevices()).thenAnswer((_) async => []);
     });
 
-    Widget buildTestWidget({int initialChannel = 0}) {
+    Widget buildTestWidget({int initialChannel = 0, bool insideShell = false}) {
       return MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => MidiState()),
           Provider<IMidiDeviceDiscoveryService>.value(value: mockService),
         ],
         child: MaterialApp(
-          home: MidiSettingsPage(initialChannel: initialChannel),
+          home: insideShell
+              ? MainNavigationScope(
+                  child: MidiSettingsPage(initialChannel: initialChannel),
+                )
+              : MidiSettingsPage(initialChannel: initialChannel),
         ),
       );
     }
+
+    testWidgets("omits its local app bar inside the navigation shell", (
+      tester,
+    ) async {
+      await tester.pumpWidget(buildTestWidget(insideShell: true));
+      await tester.pump();
+
+      final scaffold = tester.widget<Scaffold>(find.byType(Scaffold).first);
+      expect(scaffold.appBar, isNull);
+    });
 
     testWidgets("should create MidiSettingsPage without errors", (
       tester,
@@ -58,7 +73,11 @@ void main() {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      expect(find.text("MIDI Device Configuration"), findsOneWidget);
+      expect(find.byKey(const Key("midi_connection_overview")), findsOneWidget);
+      expect(find.text("Advanced settings"), findsOneWidget);
+
+      await tester.tap(find.text("Advanced settings"));
+      await tester.pumpAndSettle();
       expect(find.text("MIDI Output Channel"), findsOneWidget);
       expect(find.text("Channel: "), findsOneWidget);
       expect(find.byIcon(Icons.add_circle), findsWidgets);
@@ -68,6 +87,9 @@ void main() {
     testWidgets("should handle channel selection changes", (tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
+
+      await tester.tap(find.text("Advanced settings"));
+      await tester.pumpAndSettle();
 
       final addButton = find.byIcon(Icons.add_circle);
       if (addButton.evaluate().isNotEmpty) {
@@ -177,6 +199,9 @@ void main() {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
+      await tester.tap(find.text("Advanced settings"));
+      await tester.pumpAndSettle();
+
       expect(find.text("MIDI Output Channel"), findsOneWidget);
       expect(find.text("Channel: "), findsOneWidget);
       expect(find.text("1"), findsOneWidget); // 0 (0-based) → 1 (user-facing)
@@ -191,6 +216,9 @@ void main() {
       (tester) async {
         await tester.pumpWidget(buildTestWidget());
         await tester.pump();
+
+        await tester.tap(find.text("Advanced settings"));
+        await tester.pumpAndSettle();
 
         expect(find.text("MIDI Output Channel"), findsOneWidget);
         expect(find.text("Channel: "), findsOneWidget);

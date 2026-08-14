@@ -4,6 +4,7 @@ import "package:piano_fitness/presentation/features/metronome/metronome_page.dar
 import "package:piano_fitness/presentation/features/practice/practice_page.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
+import "package:piano_fitness/presentation/widgets/main_navigation.dart";
 
 /// Hub page for organized practice sessions.
 ///
@@ -384,7 +385,10 @@ class PracticeHubPage extends StatelessWidget {
   /// Navigates to the metronome tool.
   void _navigateToMetronome(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (context) => const MetronomePage()),
+      MaterialPageRoute<void>(
+        settings: const RouteSettings(name: MainNavigationRouteNames.metronome),
+        builder: (context) => const MetronomePage(),
+      ),
     );
   }
 
@@ -392,6 +396,9 @@ class PracticeHubPage extends StatelessWidget {
   void _navigateToPractice(BuildContext context, PracticeMode mode) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
+        settings: const RouteSettings(
+          name: MainNavigationRouteNames.practiceSession,
+        ),
         builder: (context) => PracticePage(initialMode: mode),
       ),
     );
@@ -404,6 +411,9 @@ class PracticeHubPage extends StatelessWidget {
   ) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
+        settings: const RouteSettings(
+          name: MainNavigationRouteNames.practiceSession,
+        ),
         builder: (context) => PracticePage(
           initialMode: PracticeMode.chordProgressions,
           initialChordProgression: progression,

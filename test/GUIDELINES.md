@@ -59,9 +59,11 @@ Use descriptive, hierarchical key names that indicate the feature, component, an
 
 ```dart
 // Mode selection
-Key("reference_mode_selector")         // Container
-Key("scales_mode_button")             // Individual button
-Key("chord_types_mode_button")        // Individual button
+Key("reference_kind_selector")         // Scale/chord selector
+Key("piano_show_notes_button")         // Opens reference configuration
+Key("reference_picker_apply")          // Applies the selection
+Key("twelve_tone_circle")              // Harmonic reference visualization
+Key("piano_stage")                     // Full-width instrument dock
 
 // Feature-specific selections
 Key("scales_key_selection")           // Container
@@ -78,8 +80,8 @@ Key("practice_start_button")          // Action buttons
 
 ```dart
 // Correct: Use keys for reliable element targeting
-await tester.tap(find.byKey(const Key("chord_types_mode_button")));
-await tester.tap(find.byKey(const Key("chords_root_fSharp")));
+await tester.tap(find.byKey(const Key("piano_show_notes_button")));
+await tester.tap(find.byKey(const Key("reference_kind_selector")));
 
 // Avoid: Text-based finders are brittle
 await tester.tap(find.text("Chord Types"));  // Breaks if text changes
@@ -91,7 +93,7 @@ Add semantic keys to interactive and testable UI elements:
 
 ```dart
 SegmentedButton(
-  key: const Key("reference_mode_selector"),
+  key: const Key("reference_kind_selector"),
   // ... other properties
 )
 
@@ -133,8 +135,7 @@ testWidgets("should display reference page with initial content", (tester) async
   await tester.pumpAndSettle();
 
   // Use key-based finders
-  expect(find.byKey(const Key("reference_mode_selector")), findsOneWidget);
-  expect(find.byKey(const Key("scales_mode_button")), findsOneWidget);
+  expect(find.byKey(const Key("reference_kind_selector")), findsOneWidget);
 });
 ```
 
@@ -143,24 +144,25 @@ testWidgets("should display reference page with initial content", (tester) async
 Test cross-feature functionality and navigation flows:
 
 ```dart
-testWidgets("should maintain reference page state when switching tabs", (tester) async {
+testWidgets("should keep a piano reference while visiting another section", (tester) async {
   await tester.pumpWidget(createTestApp());
   await tester.pumpAndSettle();
 
-  // Navigate and interact using keys (using helper from Bottom Navigation Best Practices)
-  await navigateToTab(tester, const Key("nav_tab_reference"));
-  await tester.tap(find.byKey(const Key("chord_types_mode_button")));
-  await tester.tap(find.byKey(const Key("chords_root_fSharp")));
+  // Open Piano, configure reference notes, and apply.
+  await navigateToTab(tester, const Key("nav_tab_piano"));
+  await tester.tap(find.byKey(const Key("piano_show_notes_button")));
+  await tester.pumpAndSettle();
+  final selector = find.byKey(const Key("reference_kind_selector"));
+  await tester.tap(find.descendant(of: selector, matching: find.text("Chord")));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(const Key("reference_picker_apply")));
+  await tester.pumpAndSettle();
   
-  // Test state persistence
-  await navigateToTab(tester, const Key("nav_tab_practice"));
-  await navigateToTab(tester, const Key("nav_tab_reference"));
+  // Test state persistence across primary destinations.
+  await navigateToTab(tester, const Key("nav_tab_curriculum"));
+  await navigateToTab(tester, const Key("nav_tab_piano"));
   
-  // Verify state is maintained
-  final selectedChip = tester.widget<FilterChip>(
-    find.widgetWithText(FilterChip, "G♭"),
-  );
-  expect(selectedChip.selected, isTrue);
+  expect(find.byKey(const Key("piano_clear_reference")), findsOneWidget);
 });
 ```
 
@@ -266,14 +268,14 @@ testWidgets("should navigate between pages correctly", (tester) async {
   await tester.pumpWidget(createTestApp());
   await tester.pumpAndSettle();
 
-  // Test navigation to reference page using stable key helper
-  await navigateToTab(tester, const Key("nav_tab_reference"));
+  // Test navigation to Piano using the stable destination key.
+  await navigateToTab(tester, const Key("nav_tab_piano"));
   await tester.pumpAndSettle();
 
   // Verify app bar and content
   final appBarTitleFinder = find.descendant(
     of: find.byType(AppBar),
-    matching: find.text("Reference"),
+    matching: find.text("Piano"),
   );
   expect(appBarTitleFinder, findsOneWidget);
 });
@@ -461,18 +463,24 @@ When updating existing tests to use keys:
 Bottom navigation items and app bar actions should expose stable keys for testing:
 
 - **App bar actions**: Use semantic keys like `Key("midi_settings_button")`, `Key("notification_settings_button")`
-- **Bottom navigation tabs**: Wrap icons in Semantics widgets with unique keys like `Key("nav_tab_practice")`
+- **Navigation destinations**: Wrap icons in Semantics widgets with unique keys like `Key("nav_tab_curriculum")`
 - **Navigation tests**: Create helper functions for key-based navigation
 
 ```dart
-// Good: Individual tab keys in MainNavigation
-BottomNavigationBarItem(
-  icon: Semantics(
-    key: const Key("nav_tab_practice"),
-    button: true,
-    child: const Icon(Icons.school),
-  ),
-  label: "Practice",
+// Good: Individual destination keys in MainNavigation
+NavigationBar(
+  selectedIndex: selectedIndex,
+  onDestinationSelected: onDestinationSelected,
+  destinations: const [
+    NavigationDestination(
+      icon: Semantics(
+        key: Key("nav_tab_curriculum"),
+        button: true,
+        child: Icon(Icons.menu_book),
+      ),
+      label: "Curriculum",
+    ),
+  ],
 ),
 
 // Good: Key-based navigation helper
@@ -483,10 +491,10 @@ Future<void> navigateToTab(WidgetTester tester, Key tabKey) async {
 }
 
 // Good: Using the helper
-await navigateToTab(tester, const Key("nav_tab_reference"));
+await navigateToTab(tester, const Key("nav_tab_piano"));
 
 // Avoid: Text-based navigation
-await tester.tap(find.text("Reference")); // Brittle to text changes
+await tester.tap(find.text("Piano")); // Brittle to text changes
 ```
 
 This migration improves test robustness and supports internationalization efforts.

@@ -35,7 +35,8 @@ class PianoKeyboard extends StatefulWidget {
     this.onKeyUp,
     this.controller,
     this.keyWidth,
-  });
+    this.minimumKeyWidth = ComponentDimensions.minTouchTarget,
+  }) : assert(minimumKeyWidth > 0);
 
   /// The MIDI range to display. Expanded internally to white-key
   /// boundaries if it starts or ends mid-octave.
@@ -72,10 +73,17 @@ class PianoKeyboard extends StatefulWidget {
   /// [PianoKeyboardController.ensureVisible]).
   final PianoKeyboardController? controller;
 
-  /// Preferred white-key width. Floored internally at
-  /// [ComponentDimensions.minTouchTarget]; the keyboard scrolls rather
-  /// than shrinking keys below that floor.
+  /// Preferred white-key width. Floored internally at [minimumKeyWidth]; the
+  /// keyboard scrolls rather than shrinking keys below that floor.
   final double? keyWidth;
+
+  /// Smallest permitted white-key width.
+  ///
+  /// Keep the accessible default for ordinary controls. A dense instrument
+  /// surface may opt into a smaller visual width when showing a complete
+  /// musical range is more important than treating every key as an isolated
+  /// button.
+  final double minimumKeyWidth;
 
   @override
   State<PianoKeyboard> createState() => _PianoKeyboardState();
@@ -178,8 +186,8 @@ class _PianoKeyboardState extends State<PianoKeyboard> {
 
   double _resolveWhiteKeyWidth() {
     final requested = widget.keyWidth ?? ComponentDimensions.minTouchTarget;
-    return requested < ComponentDimensions.minTouchTarget
-        ? ComponentDimensions.minTouchTarget
+    return requested < widget.minimumKeyWidth
+        ? widget.minimumKeyWidth
         : requested;
   }
 

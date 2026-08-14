@@ -11,6 +11,20 @@ import "../../../shared/test_helpers/mock_repositories.mocks.dart";
 import "../../../shared/test_helpers/widget_test_helper.dart";
 import "../../../shared/midi_mocks.dart";
 
+Future<void> selectReferenceMode(
+  WidgetTester tester,
+  ReferenceMode mode,
+) async {
+  final selector = find.byKey(const Key("reference_kind_selector"));
+  await tester.tap(
+    find.descendant(
+      of: selector,
+      matching: find.text(mode == ReferenceMode.scales ? "Scale" : "Chord"),
+    ),
+  );
+  await tester.pumpAndSettle();
+}
+
 void main() {
   setUpAll(MidiMocks.setUp);
 
@@ -23,11 +37,8 @@ void main() {
       await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
-      // Initially in scales mode: mode, key, and scale type dropdowns.
-      expect(
-        find.byType(DropdownButtonFormField<ReferenceMode>),
-        findsOneWidget,
-      );
+      // Initially in scales mode: kind selector, key, and scale type.
+      expect(find.byKey(const Key("reference_kind_selector")), findsOneWidget);
       expect(find.byType(DropdownButtonFormField<scales.Key>), findsOneWidget);
       expect(
         find.byType(DropdownButtonFormField<scales.ScaleType>),
@@ -39,11 +50,10 @@ void main() {
         findsNothing,
       );
 
-      final modeDropdown = tester
-          .widget<DropdownButtonFormField<ReferenceMode>>(
-            find.byType(DropdownButtonFormField<ReferenceMode>),
-          );
-      expect(modeDropdown.initialValue, ReferenceMode.scales);
+      final modeSelector = tester.widget<SegmentedButton<ReferenceMode>>(
+        find.byKey(const Key("reference_kind_selector")),
+      );
+      expect(modeSelector.selected, {ReferenceMode.scales});
     });
 
     testWidgets("should switch between scales and chords mode", (tester) async {
@@ -56,7 +66,7 @@ void main() {
       );
       expect(find.byType(DropdownButtonFormField<ChordType>), findsNothing);
 
-      await selectDropdownValue(tester, ReferenceMode.chordTypes);
+      await selectReferenceMode(tester, ReferenceMode.chordTypes);
 
       expect(
         find.byType(DropdownButtonFormField<scales.ScaleType>),
@@ -68,7 +78,7 @@ void main() {
         findsOneWidget,
       );
 
-      await selectDropdownValue(tester, ReferenceMode.scales);
+      await selectReferenceMode(tester, ReferenceMode.scales);
 
       expect(
         find.byType(DropdownButtonFormField<scales.ScaleType>),
@@ -110,7 +120,7 @@ void main() {
       await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
-      await selectDropdownValue(tester, ReferenceMode.chordTypes);
+      await selectReferenceMode(tester, ReferenceMode.chordTypes);
       await selectDropdownValue(tester, ChordType.minor);
 
       final typeDropdown = tester.widget<DropdownButtonFormField<ChordType>>(
@@ -125,7 +135,7 @@ void main() {
       await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
-      await selectDropdownValue(tester, ReferenceMode.chordTypes);
+      await selectReferenceMode(tester, ReferenceMode.chordTypes);
       await selectDropdownValue(tester, ChordInversion.first);
 
       final inversionDropdown = tester
@@ -165,7 +175,7 @@ void main() {
       await tester.pumpWidget(createTestWidget(const ReferencePage()));
       await tester.pumpAndSettle();
 
-      await selectDropdownValue(tester, ReferenceMode.chordTypes);
+      await selectReferenceMode(tester, ReferenceMode.chordTypes);
       await selectDropdownValue(tester, ChordType.minor);
 
       expect(find.byType(PianoKeyboard), findsOneWidget);

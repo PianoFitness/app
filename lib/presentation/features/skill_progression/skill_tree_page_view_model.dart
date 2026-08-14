@@ -9,6 +9,7 @@ import "package:piano_fitness/domain/models/skill_progression/skill_proficiency_
 import "package:piano_fitness/domain/repositories/exercise_history_repository.dart";
 import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
 import "package:piano_fitness/domain/services/skill_progression/skill_catalogue_validator.dart";
+import "package:piano_fitness/domain/services/skill_progression/skill_history_matcher.dart";
 import "package:piano_fitness/domain/services/skill_progression/skill_proficiency_evaluator.dart";
 
 /// Reactively derives technique-tree proficiency from the active profile's
@@ -33,12 +34,14 @@ class SkillTreePageViewModel extends ChangeNotifier {
   StreamSubscription<List<ExerciseHistoryEntry>>? _historySubscription;
 
   List<SkillNodeProficiency> _nodeProficiencies = const [];
+  RecentSkillPractice? _recentPractice;
   bool _isLoading = true;
   String? _error;
   var _isDisposed = false;
 
   List<SkillNodeProficiency> get nodeProficiencies =>
       List.unmodifiable(_nodeProficiencies);
+  RecentSkillPractice? get recentPractice => _recentPractice;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
@@ -100,9 +103,24 @@ class SkillTreePageViewModel extends ChangeNotifier {
     _nodeProficiencies = catalogue.nodes
         .map((node) => SkillProficiencyEvaluator.evaluateNode(node, entries))
         .toList(growable: false);
+    _recentPractice = _findRecentPractice(entries);
     _isLoading = false;
     _error = null;
     notifyListeners();
+  }
+
+  RecentSkillPractice? _findRecentPractice(List<ExerciseHistoryEntry> entries) {
+    final match = SkillHistoryMatcher.findMostRecentPractice(
+      entries,
+      catalogue,
+    );
+    if (match == null) return null;
+    return RecentSkillPractice(
+      nodeName: match.node.name,
+      checkpointName: match.checkpoint.name,
+      exercise: match.exercise,
+      completedAt: match.entry.completedAt,
+    );
   }
 
   @override
@@ -111,4 +129,20 @@ class SkillTreePageViewModel extends ChangeNotifier {
     _historySubscription?.cancel();
     super.dispose();
   }
+}
+
+/// Most recently recorded curriculum exercise, ready to continue.
+@immutable
+class RecentSkillPractice {
+  const RecentSkillPractice({
+    required this.nodeName,
+    required this.checkpointName,
+    required this.exercise,
+    required this.completedAt,
+  });
+
+  final String nodeName;
+  final String checkpointName;
+  final SkillExercise exercise;
+  final DateTime completedAt;
 }

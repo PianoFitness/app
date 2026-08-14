@@ -16,7 +16,7 @@ void main() {
 
       expect(result.quality, TempoMeasurementQuality.insufficientData);
       expect(result.intervalCount, 2);
-      expect(result.measuredTempoBpm, isNull);
+      expect(result.measuredTempoBpm, closeTo(120, 0.000001));
     });
 
     test("requires a measured span of at least two seconds", () {
@@ -27,7 +27,7 @@ void main() {
 
       expect(result.quality, TempoMeasurementQuality.insufficientData);
       expect(result.intervalCount, 5);
-      expect(result.measuredTempoBpm, isNull);
+      expect(result.measuredTempoBpm, closeTo(200, 0.000001));
     });
 
     test("calculates reliable BPM for steady timing", () {
@@ -44,14 +44,14 @@ void main() {
       expect(result.coefficientOfVariation, 0);
     });
 
-    test("withholds BPM when timing variation exceeds the threshold", () {
+    test("keeps average BPM when timing variation exceeds the threshold", () {
       final result = ExerciseTempoCalculator.calculate(
         onsets([0, 400, 800, 1200, 1600, 3200]),
         noteValue: PracticeStepNoteValue.quarter,
       );
 
       expect(result.quality, TempoMeasurementQuality.inconsistent);
-      expect(result.measuredTempoBpm, isNull);
+      expect(result.measuredTempoBpm, closeTo(93.75, 0.000001));
       expect(
         result.coefficientOfVariation,
         greaterThan(TempoMeasurementThresholds.maximumCoefficientOfVariation),

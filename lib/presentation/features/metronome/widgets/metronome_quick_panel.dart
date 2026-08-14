@@ -10,7 +10,12 @@ import "package:piano_fitness/presentation/features/metronome/widgets/metronome_
 /// doing (Free Play, Reference, a Practice session, ...).
 class MetronomeQuickPanel extends StatelessWidget {
   /// Creates the quick panel content for a modal bottom sheet.
-  const MetronomeQuickPanel({super.key});
+  const MetronomeQuickPanel({this.onOpenFullPage, super.key});
+
+  /// Opens the full metronome inside the persistent application shell.
+  ///
+  /// When omitted, the panel retains its standalone navigation behavior.
+  final VoidCallback? onOpenFullPage;
 
   @override
   Widget build(BuildContext context) {
@@ -45,11 +50,16 @@ class MetronomeQuickPanel extends StatelessWidget {
               key: const Key("metronome_open_full_page"),
               onPressed: () {
                 Navigator.of(context).pop();
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (context) => const MetronomePage(),
-                  ),
-                );
+                final openFullPage = onOpenFullPage;
+                if (openFullPage != null) {
+                  openFullPage();
+                } else {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (context) => const MetronomePage(),
+                    ),
+                  );
+                }
               },
               child: const Text("Open full view"),
             ),

@@ -18,6 +18,7 @@ void main() {
   });
 
   tearDown(() async {
+    repository.dispose();
     await database.close();
   });
 
@@ -134,6 +135,21 @@ void main() {
       expect(activeId, "test-id");
     });
 
+    test("reports active profile changes once per changed ID", () async {
+      final changes = <String?>[];
+      final subscription = repository.activeProfileIdChanges.listen(
+        changes.add,
+      );
+      addTearDown(subscription.cancel);
+
+      await repository.setActiveProfileId("first");
+      await repository.setActiveProfileId("first");
+      await repository.setActiveProfileId("second");
+      await Future<void>.delayed(Duration.zero);
+
+      expect(changes, ["first", "second"]);
+    });
+
     test("deleteProfile clears active profile ID if deleted", () async {
       final profile = await repository.createProfile("John");
       await repository.setActiveProfileId(profile.id);
@@ -142,6 +158,19 @@ void main() {
 
       final activeId = await repository.getActiveProfileId();
       expect(activeId, isNull);
+    });
+
+    test("reports when deleting the active profile clears it", () async {
+      final profile = await repository.createProfile("John");
+      await repository.setActiveProfileId(profile.id);
+      final cleared = expectLater(
+        repository.activeProfileIdChanges,
+        emits(null),
+      );
+
+      await repository.deleteProfile(profile.id);
+
+      await cleared;
     });
 
     test("deleteProfile does not clear different active profile ID", () async {

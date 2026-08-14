@@ -15,7 +15,7 @@ The measurement must:
 - Work whether or not the metronome is enabled.
 - Use the learner’s performed note onsets rather than the configured metronome BPM.
 - Reuse the existing `PracticeStep`, `PracticeRunner`, completion, and history paths.
-- Avoid presenting an exact BPM when the available timing evidence is too short or inconsistent.
+- Present average BPM with enough context to distinguish steady, varied, and short timing samples.
 - Remain conservative when Flutter or MIDI transport timing may have introduced jitter.
 - Store enough statistical evidence with the history entry to support future proficiency calculations.
 
@@ -59,7 +59,7 @@ The system must:
 4. Calculate mean interval, standard deviation, coefficient of variation, and exercise BPM.
 5. Classify each measurement as reliable, insufficient, inconsistent, or unavailable.
 6. Persist the tempo result and its supporting statistics with the existing exercise-history entry.
-7. Display and use BPM only when the measurement is reliable.
+7. Display average BPM whenever it can be calculated, while using only reliable measurements for proficiency.
 8. Operate independently of the metronome.
 9. Preserve the existing practice repetition and history workflow.
 10. Add no periodic timer or alternate practice runner.
@@ -423,7 +423,7 @@ Use `unavailable` when:
 - A clock reset or MIDI reconnect occurred during the repetition.
 - Calculation otherwise fails validation.
 
-No BPM is exposed.
+No BPM is exposed because no valid average can be calculated.
 
 ### 12.2 Insufficient data
 
@@ -440,9 +440,9 @@ The measured span is:
 last onset - first onset
 ```
 
-No BPM is exposed.
-
 This intentionally excludes short exercises and very brief repetitions from progression evidence.
+When at least one valid interval exists, an average BPM may still be displayed
+with **Short tempo sample** feedback.
 
 ### 12.3 Inconsistent
 
@@ -456,7 +456,8 @@ No outlier removal is performed.
 
 A hesitation, acceleration, or isolated long pause is treated as genuine inconsistency rather than silently discarded.
 
-No BPM is exposed to the learner or skill-progression evaluator.
+The average BPM may be displayed with runtime consistency feedback. It is not
+exposed to the skill-progression evaluator as qualifying tempo evidence.
 
 ### 12.4 Reliable
 
@@ -468,7 +469,9 @@ Use `reliable` when:
 - The measured span is at least two seconds.
 - The coefficient of variation is no greater than 0.15.
 
-Only `reliable` results expose `measuredTempoBpm`.
+Reliable results expose `measuredTempoBpm` and may qualify as proficiency
+evidence. Calculable inconsistent and short results also expose their average
+BPM, but do not qualify as proficiency evidence.
 
 ### 12.5 Threshold configuration
 
@@ -496,6 +499,7 @@ class ExerciseTempoResult {
     this.meanInterOnsetMicroseconds,
     this.interOnsetStandardDeviationMicroseconds,
     this.coefficientOfVariation,
+    this.tempoStepNoteValue,
   });
 
   final TempoMeasurementQuality quality;
@@ -503,7 +507,7 @@ class ExerciseTempoResult {
   /// Number of inter-onset intervals, not onset count.
   final int intervalCount;
 
-  /// Present only when quality is reliable.
+  /// Average BPM when at least one valid interval can be measured.
   final double? measuredTempoBpm;
 
   /// May be retained for sufficient and inconsistent measurements.
@@ -514,6 +518,9 @@ class ExerciseTempoResult {
 
   /// May be retained for sufficient and inconsistent measurements.
   final double? coefficientOfVariation;
+
+  /// Uniform step value used to convert the measurement to quarter-note BPM.
+  final PracticeStepNoteValue? tempoStepNoteValue;
 }
 ```
 
@@ -521,8 +528,12 @@ The result must enforce:
 
 ```text
 quality == reliable  → measuredTempoBpm != null
-quality != reliable  → measuredTempoBpm == null
+quality == unavailable → measuredTempoBpm == null
+measuredTempoBpm != null → tempoStepNoteValue != null
 ```
+
+The quality label captures acquisition-time proficiency eligibility. It is not
+the learner-facing consistency band.
 
 ## 14. Tempo tracker
 
@@ -658,11 +669,17 @@ Persist:
 
 Persist:
 
-- `measuredTempoBpm = null`
+- The calculated `measuredTempoBpm` when valid intervals and a declared step
+  note value make an average calculable
 - Available summary statistics
 - Interval count
 - Quality
 - Version 1
+
+Use `measuredTempoBpm = null` only when tempo cannot be calculated. The
+`insufficientData` and `inconsistent` classifications prevent these averages
+from becoming proficiency evidence; they do not erase an observable average
+from learner-facing History.
 
 ### 17.3 Unavailable result
 
@@ -701,47 +718,44 @@ Recording whether the metronome was enabled is deferred. It is contextual inform
 
 ## 19. User experience
 
-### 19.1 Reliable measurement
+### 19.1 Calculable measurement
 
-When the result is reliable, the existing completion overlay may add:
+When an average can be calculated, the completion overlay may add:
 
 ```text
 Exercise completed! 94% accuracy · 82 BPM
 ```
 
-The History page may display:
+History displays the BPM in a compact consistency badge. It derives the
+learner-facing band at runtime from the stored coefficient of variation:
 
 ```text
-82 BPM
-Steady timing
+0%–10%       Steady tempo
+>10%–20%     Mostly steady
+>20%         Varied tempo
 ```
+
+The badge tooltip includes the exact coefficient as a timing-variation
+percentage. These display thresholds are independent of proficiency rules and
+may be refined without migrating history.
 
 ### 19.2 Insufficient data
 
-Do not display an estimated BPM.
-
-The ordinary completion message remains unchanged.
-
-History may show a neutral value such as:
+When at least one valid interval exists, display its average BPM with:
 
 ```text
-Tempo not recorded
-Exercise too short
+Short tempo sample
 ```
 
-This explanatory text is optional for the first UI increment.
+Do not treat the apparent consistency of a short sample as conclusive.
 
 ### 19.3 Inconsistent timing
 
-Do not display an estimated BPM.
-
-The ordinary completion message remains positive and unchanged.
-
-History may show:
+Display the measured average BPM. History derives and shows its consistency
+band from the stored statistics, for example:
 
 ```text
-Tempo not recorded
-Timing varied
+127 BPM · Varied tempo
 ```
 
 Do not use red, failure language, or a punitive visual state.
@@ -840,8 +854,8 @@ Test:
 Test:
 
 - Reliable results round-trip through Drift.
-- Inconsistent results store statistics but no BPM.
-- Insufficient results store no BPM.
+- Inconsistent results store statistics and average BPM.
+- Short results store statistics and average BPM when calculable.
 - Existing rows with null tempo fields remain readable.
 - Measurement version round-trips.
 
@@ -849,10 +863,11 @@ Test:
 
 Test:
 
-- Reliable BPM appears in completion feedback.
-- Unreliable BPM never appears.
+- Calculable average BPM appears in completion feedback and History.
+- History derives steady, mostly-steady, varied, and short-sample feedback from
+  stored statistics.
 - Accuracy feedback remains available.
-- History uses neutral wording for unavailable tempo.
+- History omits unavailable tempo.
 - No colour alone communicates reliability.
 
 ## 22. Real-device timing validation
@@ -964,8 +979,8 @@ lib/application/database/
 ### Increment 4: User-facing BPM
 
 - Complete real-device validation.
-- Display BPM only for reliable results.
-- Preserve neutral behaviour for all other qualities.
+- Display calculable average BPM with runtime consistency feedback.
+- Preserve neutral behaviour when no average is available.
 
 ### Increment 5: Skill-progression consumption
 
@@ -984,20 +999,21 @@ The minimum viable feature is complete when:
 5. Inter-onset intervals are calculated after exercise completion.
 6. One `PracticeStep` is treated as one exercise beat.
 7. Mean interval, standard deviation, coefficient of variation, and interval count are calculated.
-8. Fewer than five intervals or less than two seconds produces no BPM.
-9. Coefficient of variation above 0.15 produces no BPM.
-10. Only reliable results expose a measured BPM.
+8. Fewer than five intervals or less than two seconds cannot qualify as reliable evidence.
+9. Coefficient of variation above 0.15 cannot qualify as reliable evidence.
+10. Calculable short and inconsistent attempts retain their average BPM.
 11. No outliers are silently removed.
 12. Tempo calculation works without the metronome.
 13. The metronome’s configured BPM is never used as performed tempo.
 14. Tempo failure never blocks completion or accuracy history.
-15. Statistics and quality are stored in the existing history event.
+15. Statistics and acquisition quality are stored in the existing history event.
 16. Existing history rows remain readable.
 17. Virtual-piano attempts do not provide progression tempo evidence.
 18. The existing runner and repetition flow remain in use.
 19. No periodic or isolate timer is introduced.
 20. Real-device normal-load validation meets the defined error and jitter limits.
-21. Deliberate timing distortion does not produce a confident user-facing BPM.
+21. Deliberate timing distortion is accompanied by varied-tempo feedback.
+22. Learner-facing consistency bands are derived at runtime from stored timing statistics.
 
 ## 26. Future extensions
 
@@ -1025,4 +1041,7 @@ Version 1 defines one step as one exercise beat. It calculates inter-onset inter
 
 The application uses its own monotonic receive clock at the earliest Dart MIDI callback. It does not use a periodic timer, metronome scheduler, or plugin timestamp to calculate tempo.
 
-Most importantly, PianoFitness does not display or use an exact BPM unless the measurement passes its reliability gates. Timing uncertainty therefore degrades gracefully into “tempo not recorded” rather than becoming a misleading user-facing result.
+Piano Fitness displays a calculable average BPM with runtime feedback derived
+from the stored coefficient of variation. Only acquisition-time reliable
+measurements become proficiency evidence; learner-facing consistency bands can
+evolve independently as the feedback model improves.

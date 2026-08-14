@@ -878,6 +878,51 @@ void main() {
         },
       );
 
+      test(
+        "records average BPM when timing varies too much for proficiency",
+        () async {
+          ExerciseCompletionResult? completion;
+          viewModel.initializePracticeSession(
+            onExerciseCompleted: (result) => completion = result,
+            onHighlightedNotesChanged: (_) {},
+          );
+          final steps = viewModel.practiceSession!.currentExercise!.steps;
+          var elapsedMilliseconds = 0;
+
+          for (var stepIndex = 0; stepIndex < steps.length; stepIndex++) {
+            if (stepIndex > 0) {
+              elapsedMilliseconds += stepIndex.isEven ? 200 : 500;
+            }
+            for (final midiNote in steps[stepIndex].expectedMidiNotes) {
+              helper.simulateMidiData(
+                Uint8List.fromList([0x90, midiNote, 100]),
+                receivedAt: Duration(milliseconds: elapsedMilliseconds),
+              );
+            }
+          }
+
+          await untilCalled(mockExerciseHistoryRepository.saveEntry(any));
+
+          expect(completion, isNotNull);
+          expect(
+            completion!.tempo.quality,
+            TempoMeasurementQuality.inconsistent,
+          );
+          expect(completion!.tempo.measuredTempoBpm, isNotNull);
+
+          final entry =
+              verify(
+                    mockExerciseHistoryRepository.saveEntry(captureAny),
+                  ).captured.single
+                  as ExerciseHistoryEntry;
+          expect(
+            entry.tempoMeasurementQuality,
+            TempoMeasurementQuality.inconsistent,
+          );
+          expect(entry.measuredTempoBpm, completion!.tempo.measuredTempoBpm);
+        },
+      );
+
       test("should call saveEntry once when exercise completes", () async {
         viewModel.startPractice();
 

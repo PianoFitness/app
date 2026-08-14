@@ -42,6 +42,9 @@ abstract class IUserProfileRepository {
   /// Returns null if no active profile is set.
   Future<String?> getActiveProfileId();
 
+  /// Emits when this repository changes or clears the active profile.
+  Stream<String?> get activeProfileIdChanges;
+
   /// Sets the currently active profile ID.
   ///
   /// This persists across app restarts.
@@ -56,4 +59,7 @@ abstract class IUserProfileRepository {
   ///
   /// This persists across app restarts.
   Future<void> setSortOrder(ProfileSortOrder order);
+
+  /// Releases repository-owned observable resources.
+  void dispose();
 }

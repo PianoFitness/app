@@ -116,8 +116,8 @@ void main() {
   group("SkillCatalogueValidator", () {
     test("validates the shipped first-slice catalogue", () {
       SkillCatalogueValidator.validate(DefaultSkillCatalogue.catalogue);
-      expect(DefaultSkillCatalogue.catalogue.version, 3);
-      expect(DefaultSkillCatalogue.catalogue.nodes, hasLength(14));
+      expect(DefaultSkillCatalogue.catalogue.version, 4);
+      expect(DefaultSkillCatalogue.catalogue.nodes, hasLength(13));
     });
   });
 
@@ -125,80 +125,75 @@ void main() {
     SkillNode nodeById(String id) => DefaultSkillCatalogue.catalogue.nodes
         .firstWhere((node) => node.id == id);
 
-    test(
-      "scale and mode nodes cover every key with the correct scale type",
-      () {
-        final expectations =
-            <String, ({music.ScaleType scaleType, bool handsApart})>{
-              "major-scale-apart": (
-                scaleType: music.ScaleType.major,
-                handsApart: true,
-              ),
-              "major-scale": (
-                scaleType: music.ScaleType.major,
-                handsApart: false,
-              ),
-              "natural-minor": (
-                scaleType: music.ScaleType.minor,
-                handsApart: false,
-              ),
-              "dorian-mode": (
-                scaleType: music.ScaleType.dorian,
-                handsApart: false,
-              ),
-              "phrygian-mode": (
-                scaleType: music.ScaleType.phrygian,
-                handsApart: false,
-              ),
-              "lydian-mode": (
-                scaleType: music.ScaleType.lydian,
-                handsApart: false,
-              ),
-              "mixolydian-mode": (
-                scaleType: music.ScaleType.mixolydian,
-                handsApart: false,
-              ),
-              "locrian-mode": (
-                scaleType: music.ScaleType.locrian,
-                handsApart: false,
-              ),
-            };
+    test("version 4 nests major-scale hand exercises under each key", () {
+      final catalogue = DefaultSkillCatalogue.catalogue;
 
-        for (final MapEntry(key: nodeId, value: expected)
-            in expectations.entries) {
-          final node = nodeById(nodeId);
+      expect(catalogue.version, 4);
+      expect(
+        catalogue.nodes.map((node) => node.id),
+        isNot(contains("major-scale-apart")),
+      );
+
+      final majorScale = nodeById("major-scale");
+      expect(majorScale.checkpoints, hasLength(music.Key.values.length));
+      for (final key in music.Key.values) {
+        final checkpoint = majorScale.checkpoints.singleWhere(
+          (candidate) => candidate.id == "major-scale-${key.name}",
+        );
+        expect(checkpoint.exercises.map((exercise) => exercise.id), [
+          "major-scale-${key.name}-left",
+          "major-scale-${key.name}-right",
+          "major-scale-${key.name}-both",
+        ]);
+        expect(
+          checkpoint.exercises.map(
+            (exercise) => exercise.configuration.handSelection,
+          ),
+          [HandSelection.left, HandSelection.right, HandSelection.both],
+        );
+        for (final exercise in checkpoint.exercises) {
+          expect(exercise.configuration.practiceMode, PracticeMode.scales);
+          expect(exercise.configuration.key, key);
+          expect(exercise.configuration.scaleType, music.ScaleType.major);
+        }
+      }
+    });
+
+    test("scale and mode nodes cover every key and hand selection", () {
+      final expectations = <String, music.ScaleType>{
+        "major-scale": music.ScaleType.major,
+        "natural-minor": music.ScaleType.minor,
+        "dorian-mode": music.ScaleType.dorian,
+        "phrygian-mode": music.ScaleType.phrygian,
+        "lydian-mode": music.ScaleType.lydian,
+        "mixolydian-mode": music.ScaleType.mixolydian,
+        "locrian-mode": music.ScaleType.locrian,
+      };
+
+      for (final MapEntry(key: nodeId, value: expected)
+          in expectations.entries) {
+        final node = nodeById(nodeId);
+        expect(
+          node.checkpoints,
+          hasLength(music.Key.values.length),
+          reason: "$nodeId should cover every key",
+        );
+        for (final checkpoint in node.checkpoints) {
+          final exercises = checkpoint.exercises;
+          expect(exercises, hasLength(3));
           expect(
-            node.checkpoints,
-            hasLength(music.Key.values.length),
-            reason: "$nodeId should cover every key",
+            exercises.map((e) => e.configuration.handSelection),
+            [HandSelection.left, HandSelection.right, HandSelection.both],
+            reason: "$nodeId should offer every hand option per key",
           );
-          for (final checkpoint in node.checkpoints) {
-            final exercises = checkpoint.exercises;
-            if (expected.handsApart) {
-              expect(
-                exercises.map((e) => e.configuration.handSelection),
-                unorderedEquals(<HandSelection>[
-                  HandSelection.left,
-                  HandSelection.right,
-                ]),
-                reason: "$nodeId should split hands per key",
-              );
-            } else {
-              expect(exercises, hasLength(1));
-              expect(
-                exercises.single.configuration.handSelection,
-                HandSelection.both,
-              );
-            }
-            for (final exercise in exercises) {
-              expect(exercise.configuration.practiceMode, PracticeMode.scales);
-              expect(exercise.configuration.scaleType, expected.scaleType);
-              expect(exercise.configuration.validate, returnsNormally);
-            }
+          for (final exercise in exercises) {
+            expect(exercise.configuration.practiceMode, PracticeMode.scales);
+            expect(exercise.configuration.scaleType, expected);
+            expect(exercise.configuration.validate, returnsNormally);
           }
         }
-      },
-    );
+      }
+    });
 
     test(
       "chord-vocabulary nodes cover every key with the correct configuration",
@@ -252,9 +247,7 @@ void main() {
 
     test("relations point at real nodes with the expected type", () {
       final expectedRelations = <String, List<(SkillRelationType, String)>>{
-        "major-scale": [
-          (SkillRelationType.recommendedPrerequisite, "major-scale-apart"),
-        ],
+        "major-scale": [],
         "natural-minor": [
           (SkillRelationType.recommendedPrerequisite, "major-scale"),
         ],
@@ -294,7 +287,6 @@ void main() {
       };
 
       expect(groupsById["key-foundations"]!.nodeIds, [
-        "major-scale-apart",
         "major-scale",
         "natural-minor",
         "major-arpeggio",
@@ -436,6 +428,7 @@ void main() {
           "e4",
           quality: TempoMeasurementQuality.inconsistent,
           version: TempoMeasurementVersions.current,
+          bpm: 140,
         ),
       ];
 
@@ -469,6 +462,7 @@ void main() {
       );
 
       expect(proficiency.hasSufficientAccuracyEvidence, isTrue);
+      expect(proficiency.matchingAttemptCount, 3);
       expect(proficiency.hasEstablishedProficiency, isFalse);
       expect(proficiency.recentAverageMeasuredBpm, isNull);
     });
@@ -477,7 +471,10 @@ void main() {
       final scaleNode = DefaultSkillCatalogue.catalogue.nodes.firstWhere(
         (node) => node.id == "major-scale",
       );
-      final scaleExercise = scaleNode.checkpoints.first.exercises.first;
+      final scaleExercise = scaleNode.checkpoints.first.exercises.firstWhere(
+        (exercise) =>
+            exercise.configuration.handSelection == HandSelection.both,
+      );
       final history = List.generate(
         3,
         (index) => entry(

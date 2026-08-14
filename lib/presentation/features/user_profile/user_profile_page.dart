@@ -9,6 +9,7 @@ import "package:piano_fitness/presentation/features/user_profile/utils/profile_d
 import "package:piano_fitness/presentation/features/user_profile/widgets/user_profile_empty_state.dart";
 import "package:piano_fitness/presentation/features/user_profile/widgets/user_profile_error_state.dart";
 import "package:piano_fitness/presentation/features/user_profile/widgets/user_profile_list.dart";
+import "package:piano_fitness/presentation/widgets/main_navigation_scope.dart";
 
 /// Profile chooser page for selecting, creating, and managing user profiles.
 ///
@@ -44,30 +45,44 @@ class UserProfilePage extends StatelessWidget {
     BuildContext context,
     UserProfileViewModel viewModel,
   ) {
+    final isInsideNavigationShell = MainNavigationScope.isActive(context);
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text("Choose Profile"),
-        actions: [
-          IconButton(
-            icon: Icon(
-              viewModel.sortOrder == ProfileSortOrder.alphabetical
-                  ? Icons.sort_by_alpha
-                  : Icons.access_time,
+      appBar: isInsideNavigationShell
+          ? null
+          : AppBar(
+              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+              title: const Text("Choose Profile"),
+              actions: [_buildSortButton(viewModel)],
             ),
-            onPressed: () => viewModel.toggleSortOrder(),
-            tooltip: viewModel.sortOrder == ProfileSortOrder.alphabetical
-                ? "Sort by last active"
-                : "Sort alphabetically",
-          ),
+      body: Column(
+        children: [
+          if (isInsideNavigationShell)
+            Align(
+              alignment: Alignment.centerRight,
+              child: _buildSortButton(viewModel),
+            ),
+          Expanded(child: _buildBody(context, viewModel)),
         ],
       ),
-      body: _buildBody(context, viewModel),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showCreateDialog(context, viewModel),
         icon: const Icon(Icons.add),
         label: const Text("Create Profile"),
       ),
+    );
+  }
+
+  Widget _buildSortButton(UserProfileViewModel viewModel) {
+    return IconButton(
+      icon: Icon(
+        viewModel.sortOrder == ProfileSortOrder.alphabetical
+            ? Icons.sort_by_alpha
+            : Icons.access_time,
+      ),
+      onPressed: () => viewModel.toggleSortOrder(),
+      tooltip: viewModel.sortOrder == ProfileSortOrder.alphabetical
+          ? "Sort by last active"
+          : "Sort alphabetically",
     );
   }
 

@@ -24,6 +24,7 @@ class SkillExerciseProficiency {
   final bool hasEstablishedProficiency;
   final double positiveScore;
 
+  int get matchingAttemptCount => evidence.matching;
   int get accuracyQualifyingAttemptCount => evidence.accuracyQualifying;
   int get reliableTempoAttemptCount => evidence.reliableTempo;
   int get progressionQualifyingAttemptCount => evidence.progressionQualifying;
@@ -32,14 +33,18 @@ class SkillExerciseProficiency {
   double? get suggestedNextTempoBpm => tempo.suggestedNextTempoBpm;
 }
 
-/// Counts of qualifying historical attempts for one skill exercise.
+/// Counts of matching and qualifying historical attempts for one exercise.
 @immutable
 class SkillEvidenceCounts {
   const SkillEvidenceCounts({
+    required this.matching,
     required this.accuracyQualifying,
     required this.reliableTempo,
     required this.progressionQualifying,
   });
+
+  /// All completed attempts with the same exercise configuration.
+  final int matching;
 
   final int accuracyQualifying;
   final int reliableTempo;

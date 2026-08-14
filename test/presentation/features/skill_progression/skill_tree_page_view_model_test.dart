@@ -77,10 +77,13 @@ void main() {
     controller.add([entry("e1"), entry("e2")]);
     await Future<void>.delayed(Duration.zero);
     expect(viewModel.nodeProficiencies.single.establishedCheckpointCount, 0);
+    expect(viewModel.recentPractice?.exercise.id, "c-major");
+    expect(viewModel.recentPractice?.completedAt, entry("e2").completedAt);
 
     controller.add([entry("e1"), entry("e2"), entry("e3")]);
     await Future<void>.delayed(Duration.zero);
     expect(viewModel.nodeProficiencies.single.establishedCheckpointCount, 1);
+    expect(viewModel.recentPractice?.completedAt, entry("e3").completedAt);
   });
 
   test(

@@ -15,18 +15,13 @@ abstract final class DefaultSkillCatalogue {
   static SkillCatalogue _create() {
     final catalogue = SkillCatalogue(
       id: "piano-fitness-foundations",
-      version: 3,
+      version: 4,
       groups: [
         SkillGraphGroup(
           id: "key-foundations",
           name: "Key Foundations",
           description: "Scales and arpeggios across every key.",
-          nodeIds: [
-            "major-scale-apart",
-            "major-scale",
-            "natural-minor",
-            "major-arpeggio",
-          ],
+          nodeIds: ["major-scale", "natural-minor", "major-arpeggio"],
           displayOrder: 0,
         ),
         SkillGraphGroup(
@@ -60,36 +55,21 @@ abstract final class DefaultSkillCatalogue {
       ],
       nodes: [
         SkillNode(
-          id: "major-scale-apart",
-          name: "Major scale, hands apart",
-          description: "Build secure scale technique one hand at a time.",
-          checkpoints: _scaleCheckpoints(
-            "major-scale-apart",
-            music.ScaleType.major,
-            handsApart: true,
-          ),
-          proficiencyRule: SkillProficiencyRule(referenceTempoBpm: 100),
-          tempoProgression: const TempoProgression(incrementBpm: 5),
-        ),
-        SkillNode(
           id: "major-scale",
-          name: "Major scale, hands together",
-          description: "Coordinate both hands through every major scale.",
+          name: "Major scale",
+          description:
+              "Build secure scale technique in each hand, then coordinate "
+              "them together.",
           checkpoints: _scaleCheckpoints("major-scale", music.ScaleType.major),
           proficiencyRule: SkillProficiencyRule(referenceTempoBpm: 90),
           tempoProgression: const TempoProgression(incrementBpm: 5),
-          relations: const [
-            SkillRelation(
-              type: SkillRelationType.recommendedPrerequisite,
-              nodeId: "major-scale-apart",
-              description: "Secure each hand separately first.",
-            ),
-          ],
         ),
         SkillNode(
           id: "natural-minor",
-          name: "Natural minor scale, hands together",
-          description: "Practise the natural minor sound across every key.",
+          name: "Natural minor scale",
+          description:
+              "Practise the natural minor sound in each hand and together "
+              "across every key.",
           checkpoints: _scaleCheckpoints(
             "natural-minor",
             music.ScaleType.minor,
@@ -105,7 +85,7 @@ abstract final class DefaultSkillCatalogue {
         ),
         SkillNode(
           id: "dorian-mode",
-          name: "Dorian mode, hands together",
+          name: "Dorian mode",
           description:
               "Practise the Dorian sound: natural minor with a raised "
               "sixth.",
@@ -122,7 +102,7 @@ abstract final class DefaultSkillCatalogue {
         ),
         SkillNode(
           id: "phrygian-mode",
-          name: "Phrygian mode, hands together",
+          name: "Phrygian mode",
           description:
               "Practise the Phrygian sound: minor with a flattened "
               "second.",
@@ -142,7 +122,7 @@ abstract final class DefaultSkillCatalogue {
         ),
         SkillNode(
           id: "lydian-mode",
-          name: "Lydian mode, hands together",
+          name: "Lydian mode",
           description: "Practise the Lydian sound: major with a raised fourth.",
           checkpoints: _scaleCheckpoints("lydian-mode", music.ScaleType.lydian),
           proficiencyRule: SkillProficiencyRule(referenceTempoBpm: 90),
@@ -157,7 +137,7 @@ abstract final class DefaultSkillCatalogue {
         ),
         SkillNode(
           id: "mixolydian-mode",
-          name: "Mixolydian mode, hands together",
+          name: "Mixolydian mode",
           description:
               "Practise the Mixolydian sound: major with a flattened "
               "seventh.",
@@ -177,7 +157,7 @@ abstract final class DefaultSkillCatalogue {
         ),
         SkillNode(
           id: "locrian-mode",
-          name: "Locrian mode, hands together",
+          name: "Locrian mode",
           description:
               "Practise the Locrian sound: minor with a flattened second "
               "and fifth.",
@@ -319,9 +299,8 @@ abstract final class DefaultSkillCatalogue {
 
   static List<SkillCheckpoint> _scaleCheckpoints(
     String nodeId,
-    music.ScaleType scaleType, {
-    bool handsApart = false,
-  }) {
+    music.ScaleType scaleType,
+  ) {
     return music.Key.values
         .map((key) {
           ExerciseConfiguration configuration(HandSelection hand) =>
@@ -331,26 +310,23 @@ abstract final class DefaultSkillCatalogue {
                 key: key,
                 scaleType: scaleType,
               );
-          final exercises = handsApart
-              ? [
-                  SkillExercise(
-                    id: "$nodeId-${key.name}-left",
-                    name: "${key.displayName} ${scaleType.name}, left hand",
-                    configuration: configuration(HandSelection.left),
-                  ),
-                  SkillExercise(
-                    id: "$nodeId-${key.name}-right",
-                    name: "${key.displayName} ${scaleType.name}, right hand",
-                    configuration: configuration(HandSelection.right),
-                  ),
-                ]
-              : [
-                  SkillExercise(
-                    id: "$nodeId-${key.name}",
-                    name: "${key.displayName} ${scaleType.name} scale",
-                    configuration: configuration(HandSelection.both),
-                  ),
-                ];
+          final exercises = [
+            SkillExercise(
+              id: "$nodeId-${key.name}-left",
+              name: "${key.displayName} ${scaleType.name}, left hand",
+              configuration: configuration(HandSelection.left),
+            ),
+            SkillExercise(
+              id: "$nodeId-${key.name}-right",
+              name: "${key.displayName} ${scaleType.name}, right hand",
+              configuration: configuration(HandSelection.right),
+            ),
+            SkillExercise(
+              id: "$nodeId-${key.name}-both",
+              name: "${key.displayName} ${scaleType.name}, hands together",
+              configuration: configuration(HandSelection.both),
+            ),
+          ];
           return SkillCheckpoint(
             id: "$nodeId-${key.name}",
             name: "${key.displayName} ${scaleType.name}",
