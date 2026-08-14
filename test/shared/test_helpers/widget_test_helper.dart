@@ -4,6 +4,7 @@ import "package:mockito/mockito.dart";
 import "package:piano_fitness/application/state/metronome_state.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
+import "package:piano_fitness/domain/models/profile_sort_order.dart";
 import "package:piano_fitness/domain/repositories/exercise_history_repository.dart";
 import "package:piano_fitness/domain/repositories/metronome_audio_service.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
@@ -11,6 +12,7 @@ import "package:piano_fitness/domain/repositories/notification_repository.dart";
 import "package:piano_fitness/domain/repositories/settings_repository.dart";
 import "package:piano_fitness/domain/repositories/audio_service.dart";
 import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
+import "package:piano_fitness/domain/services/midi_device_discovery_service.dart";
 import "mock_repositories.mocks.dart";
 
 /// Stubs the [IMetronomeAudioService] methods MetronomeState calls
@@ -40,6 +42,7 @@ Widget createTestWidget(Widget child) {
   final mockAudioService = MockIAudioService();
   final mockUserProfileRepository = MockIUserProfileRepository();
   final mockExerciseHistoryRepository = MockIExerciseHistoryRepository();
+  final mockMidiDeviceDiscoveryService = MockIMidiDeviceDiscoveryService();
 
   // Stub createPlayer for AudioService to prevent MissingStubError
   final mockAudioPlayer = MockAudioPlayerHandle();
@@ -49,6 +52,17 @@ Widget createTestWidget(Widget child) {
   when(
     mockUserProfileRepository.getActiveProfileId(),
   ).thenAnswer((_) async => null);
+  when(
+    mockUserProfileRepository.getSortOrder(),
+  ).thenAnswer((_) async => ProfileSortOrder.lastActive);
+  when(mockUserProfileRepository.getAllProfiles()).thenAnswer((_) async => []);
+  when(
+    mockMidiDeviceDiscoveryService.setupChanged,
+  ).thenAnswer((_) => const Stream.empty());
+  when(
+    mockMidiDeviceDiscoveryService.bluetoothStatusChanged,
+  ).thenAnswer((_) => const Stream.empty());
+  when(mockMidiDeviceDiscoveryService.getDevices()).thenAnswer((_) async => []);
 
   return MultiProvider(
     providers: [
@@ -64,6 +78,9 @@ Widget createTestWidget(Widget child) {
       Provider<IUserProfileRepository>.value(value: mockUserProfileRepository),
       Provider<IExerciseHistoryRepository>.value(
         value: mockExerciseHistoryRepository,
+      ),
+      Provider<IMidiDeviceDiscoveryService>.value(
+        value: mockMidiDeviceDiscoveryService,
       ),
       ChangeNotifierProvider<MidiState>(create: (_) => MidiState()),
       Provider<IMetronomeAudioService>.value(
@@ -101,6 +118,7 @@ Widget createTestWidgetWithMocks({
   IAudioService? audioService,
   IUserProfileRepository? userProfileRepository,
   IExerciseHistoryRepository? exerciseHistoryRepository,
+  IMidiDeviceDiscoveryService? midiDeviceDiscoveryService,
   MidiState? midiState,
   MetronomeState? metronomeState,
 }) {
@@ -114,6 +132,8 @@ Widget createTestWidgetWithMocks({
       userProfileRepository ?? MockIUserProfileRepository();
   final mockExerciseHistoryRepository =
       exerciseHistoryRepository ?? MockIExerciseHistoryRepository();
+  final mockMidiDeviceDiscoveryService =
+      midiDeviceDiscoveryService ?? MockIMidiDeviceDiscoveryService();
 
   // Stub createPlayer for AudioService if not already stubbed
   if (audioService == null) {
@@ -126,6 +146,23 @@ Widget createTestWidgetWithMocks({
     when(
       mockUserProfileRepository.getActiveProfileId(),
     ).thenAnswer((_) async => null);
+    when(
+      mockUserProfileRepository.getSortOrder(),
+    ).thenAnswer((_) async => ProfileSortOrder.lastActive);
+    when(
+      mockUserProfileRepository.getAllProfiles(),
+    ).thenAnswer((_) async => []);
+  }
+  if (midiDeviceDiscoveryService == null) {
+    when(
+      mockMidiDeviceDiscoveryService.setupChanged,
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      mockMidiDeviceDiscoveryService.bluetoothStatusChanged,
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      mockMidiDeviceDiscoveryService.getDevices(),
+    ).thenAnswer((_) async => []);
   }
 
   return MultiProvider(
@@ -142,6 +179,9 @@ Widget createTestWidgetWithMocks({
       Provider<IUserProfileRepository>.value(value: mockUserProfileRepository),
       Provider<IExerciseHistoryRepository>.value(
         value: mockExerciseHistoryRepository,
+      ),
+      Provider<IMidiDeviceDiscoveryService>.value(
+        value: mockMidiDeviceDiscoveryService,
       ),
       // Use .value() if custom MidiState provided, otherwise use create for auto-disposal
       if (midiState != null)

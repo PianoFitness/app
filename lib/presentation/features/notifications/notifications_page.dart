@@ -7,6 +7,7 @@ import "package:piano_fitness/presentation/features/notifications/notifications_
 import "package:piano_fitness/presentation/features/notifications/widgets/notification_permission_dialog.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:piano_fitness/presentation/theme/semantic_colors.dart";
+import "package:piano_fitness/presentation/widgets/main_navigation_scope.dart";
 
 /// Notifications configuration page for managing user notification preferences.
 ///
@@ -41,16 +42,18 @@ class NotificationsPage extends StatelessWidget {
     NotificationsPageViewModel viewModel,
   ) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text("Notification Settings"),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
+      appBar: MainNavigationScope.isActive(context)
+          ? null
+          : AppBar(
+              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+              title: const Text("Notification Settings"),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ),
       body: () {
         if (viewModel.isLoading) {
           return const Center(child: CircularProgressIndicator());

@@ -427,6 +427,7 @@ void main() {
       );
 
       expect(proficiency.hasSufficientAccuracyEvidence, isTrue);
+      expect(proficiency.matchingAttemptCount, 3);
       expect(proficiency.hasEstablishedProficiency, isFalse);
       expect(proficiency.recentAverageMeasuredBpm, isNull);
     });

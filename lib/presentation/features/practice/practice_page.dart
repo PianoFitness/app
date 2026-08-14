@@ -20,6 +20,7 @@ import "package:piano_fitness/presentation/widgets/practice_settings_panel.dart"
 import "package:piano_fitness/presentation/utils/piano_accessibility_utils.dart";
 import "package:piano_fitness/presentation/theme/semantic_colors.dart";
 import "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard.dart";
+import "package:piano_fitness/presentation/widgets/main_navigation_scope.dart";
 
 /// A comprehensive piano practice page with guided exercises and real-time feedback.
 ///
@@ -184,7 +185,9 @@ class _PracticePageViewState extends State<_PracticePageView> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: const Key("practice_page_scaffold"),
-      appBar: _buildAppBar(context),
+      appBar: MainNavigationScope.isActive(context)
+          ? null
+          : _buildAppBar(context),
       body: Column(
         children: [_buildContentArea(context), _buildPianoSection(context)],
       ),

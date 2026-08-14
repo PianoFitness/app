@@ -384,7 +384,10 @@ class PracticeHubPage extends StatelessWidget {
   /// Navigates to the metronome tool.
   void _navigateToMetronome(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (context) => const MetronomePage()),
+      MaterialPageRoute<void>(
+        settings: const RouteSettings(name: "Metronome"),
+        builder: (context) => const MetronomePage(),
+      ),
     );
   }
 
@@ -392,6 +395,7 @@ class PracticeHubPage extends StatelessWidget {
   void _navigateToPractice(BuildContext context, PracticeMode mode) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
+        settings: const RouteSettings(name: "Practice Session"),
         builder: (context) => PracticePage(initialMode: mode),
       ),
     );
@@ -404,6 +408,7 @@ class PracticeHubPage extends StatelessWidget {
   ) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
+        settings: const RouteSettings(name: "Practice Session"),
         builder: (context) => PracticePage(
           initialMode: PracticeMode.chordProgressions,
           initialChordProgression: progression,

@@ -46,7 +46,6 @@ class PracticeSettingsStatusControl extends StatelessWidget {
               ),
             ),
             child: Row(
-              mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   practiceActive ? Icons.music_note : Icons.piano,
@@ -56,15 +55,17 @@ class PracticeSettingsStatusControl extends StatelessWidget {
                   size: PracticeUIConstants.statusIconSize,
                 ),
                 const SizedBox(width: Spacing.sm),
-                Text(
-                  practiceActive
-                      ? "Practice Active - Keep Playing!"
-                      : "Ready - Play Any Note to Start",
-                  style: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: practiceActive
-                        ? colorScheme.onPrimaryContainer
-                        : colorScheme.onSecondaryContainer,
+                Expanded(
+                  child: Text(
+                    practiceActive
+                        ? "Practice Active - Keep Playing!"
+                        : "Ready - Play Any Note to Start",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      color: practiceActive
+                          ? colorScheme.onPrimaryContainer
+                          : colorScheme.onSecondaryContainer,
+                    ),
                   ),
                 ),
               ],

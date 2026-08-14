@@ -23,12 +23,17 @@ Future<void> navigateToTab(WidgetTester tester, Key tabKey) async {
   await tester.pumpAndSettle();
 }
 
+Future<void> openGlobalMenu(WidgetTester tester) async {
+  await tester.tap(find.byKey(const Key("global_navigation_menu_button")));
+  await tester.pumpAndSettle();
+}
+
 /// Page titles in MainNavigation's tab order, mirrored here since the
 /// app's own list is private to the widget.
 const List<String> _pageTitlesForTest = [
-  "Free Play",
-  "Practice",
   "Curriculum",
+  "Practice",
+  "Free Play",
   "Reference",
   "Repertoire",
   "History",
@@ -63,12 +68,15 @@ void main() {
     ) async {
       await pumpPortraitMainNavigation(tester);
 
-      // Verify app bar with initial page (Free Play) - text appears in both app bar and bottom nav
-      expect(find.text("Free Play"), findsWidgets);
-      expect(find.byIcon(Icons.piano), findsWidgets);
+      // Curriculum is the app's north-star experience and default page.
+      expectTabActive(tester, 0);
+      expect(find.text("Curriculum"), findsWidgets);
+      expect(find.byIcon(Icons.menu_book), findsWidgets);
 
-      // Verify the overflow menu (MIDI/notification settings) is present
-      expect(find.byKey(const Key("more_actions_button")), findsOneWidget);
+      expect(
+        find.byKey(const Key("global_navigation_menu_button")),
+        findsOneWidget,
+      );
 
       // Verify bottom navigation bar and its items using stable key
       expect(find.byKey(const Key("bottom_navigation_bar")), findsOneWidget);
@@ -94,7 +102,7 @@ void main() {
       // Navigate to Curriculum using stable key
       await navigateToTab(tester, const Key("nav_tab_curriculum"));
 
-      expectTabActive(tester, 2);
+      expectTabActive(tester, 0);
       expect(find.text("Curriculum"), findsWidgets);
       expect(find.byIcon(Icons.menu_book), findsWidgets);
 
@@ -117,109 +125,116 @@ void main() {
       // Navigate back to Free Play using stable key
       await navigateToTab(tester, const Key("nav_tab_free_play"));
 
-      // Verify back to initial state
-      expectTabActive(tester, 0);
+      // Verify Free Play is available as a secondary destination.
+      expectTabActive(tester, 2);
       expect(find.text("Free Play"), findsWidgets);
       expect(find.byIcon(Icons.piano), findsWidgets);
     });
 
-    group("MIDI Controls Integration", () {
-      // MIDI Settings and Notification Settings live behind a shared "more"
-      // overflow menu (see _buildMoreActionsButton) rather than each having
-      // its own app bar icon, so these tests open the menu before asserting
-      // on its items.
-      testWidgets("should display MIDI settings entry with correct label", (
-        tester,
-      ) async {
+    group("Global Menu", () {
+      testWidgets("shows sections and app-wide utilities", (tester) async {
         await pumpPortraitMainNavigation(tester);
 
-        await tester.tap(find.byKey(const Key("more_actions_button")));
-        await tester.pumpAndSettle();
+        await openGlobalMenu(tester);
 
         expect(find.byKey(const Key("midi_settings_button")), findsOneWidget);
         expect(find.text("MIDI Settings"), findsOneWidget);
+        expect(
+          find.byKey(const Key("notification_settings_button")),
+          findsOneWidget,
+        );
+        expect(find.byKey(const Key("profile_button")), findsOneWidget);
+        expect(find.byKey(const Key("drawer_metronome")), findsOneWidget);
+        expect(find.byKey(const Key("drawer_tab_history")), findsOneWidget);
       });
 
-      testWidgets("should have an interactive MIDI settings entry", (
+      testWidgets("stays available across all primary sections", (
         tester,
       ) async {
         await pumpPortraitMainNavigation(tester);
 
-        await tester.tap(find.byKey(const Key("more_actions_button")));
-        await tester.pumpAndSettle();
+        final tabKeys = [
+          const Key("nav_tab_practice"),
+          const Key("nav_tab_free_play"),
+          const Key("nav_tab_reference"),
+          const Key("nav_tab_repertoire"),
+          const Key("nav_tab_history"),
+        ];
 
-        final item = tester.widget<PopupMenuItem<Object?>>(
-          find.byKey(const Key("midi_settings_button")),
-        );
-        expect(item.enabled, isTrue);
-      });
-
-      testWidgets(
-        "should display notification settings entry with correct label",
-        (tester) async {
-          await pumpPortraitMainNavigation(tester);
-
-          await tester.tap(find.byKey(const Key("more_actions_button")));
-          await tester.pumpAndSettle();
-
+        for (final tabKey in tabKeys) {
+          await navigateToTab(tester, tabKey);
           expect(
-            find.byKey(const Key("notification_settings_button")),
+            find.byKey(const Key("global_navigation_menu_button")),
             findsOneWidget,
           );
-          expect(find.text("Notification Settings"), findsOneWidget);
-        },
-      );
+        }
+      });
 
-      testWidgets("should have an interactive notification settings entry", (
+      testWidgets("opens profile switching inside the persistent shell", (
         tester,
       ) async {
         await pumpPortraitMainNavigation(tester);
 
-        await tester.tap(find.byKey(const Key("more_actions_button")));
+        await openGlobalMenu(tester);
+        await tester.tap(find.byKey(const Key("profile_button")));
         await tester.pumpAndSettle();
 
-        final item = tester.widget<PopupMenuItem<Object?>>(
-          find.byKey(const Key("notification_settings_button")),
+        expect(find.text("Profiles"), findsOneWidget);
+        expect(find.text("Create Profile"), findsWidgets);
+        expect(find.byKey(const Key("content_back_button")), findsOneWidget);
+        expect(
+          find.byKey(const Key("global_navigation_menu_button")),
+          findsOneWidget,
         );
-        expect(item.enabled, isTrue);
       });
 
       testWidgets(
-        "should maintain the overflow menu's accessibility across all pages",
+        "remains available from curriculum detail and practice routes",
         (tester) async {
           await pumpPortraitMainNavigation(tester);
 
-          final tabKeys = [
-            const Key("nav_tab_practice"),
-            const Key("nav_tab_curriculum"),
-            const Key("nav_tab_reference"),
-            const Key("nav_tab_repertoire"),
-          ];
+          await tester.tap(find.byKey(const Key("skill_node_major-scale")));
+          await tester.pumpAndSettle();
 
-          for (final tabKey in tabKeys) {
-            // Navigate to page using stable navigation helper
-            await navigateToTab(tester, tabKey);
+          expect(find.text("Major scale"), findsOneWidget);
+          expect(find.byKey(const Key("content_back_button")), findsOneWidget);
+          expect(
+            find.byKey(const Key("global_navigation_menu_button")),
+            findsOneWidget,
+          );
+          expect(find.byKey(const Key("metronome_button")), findsOneWidget);
 
-            // Verify the overflow menu is still present and opens with both
-            // settings entries.
-            expect(
-              find.byKey(const Key("more_actions_button")),
-              findsOneWidget,
-            );
-            await tester.tap(find.byKey(const Key("more_actions_button")));
-            await tester.pumpAndSettle();
-            expect(
-              find.byKey(const Key("midi_settings_button")),
-              findsOneWidget,
-            );
-            expect(
-              find.byKey(const Key("notification_settings_button")),
-              findsOneWidget,
-            );
-            // Close the menu before navigating to the next tab.
-            await tester.tapAt(const Offset(0, 0));
-            await tester.pumpAndSettle();
-          }
+          await tester.tap(
+            find.byKey(const Key("practice_major-scale-c-right")),
+          );
+          await tester.pumpAndSettle();
+
+          expect(find.text("Practice Session"), findsOneWidget);
+          expect(
+            find.byKey(const Key("global_navigation_menu_button")),
+            findsOneWidget,
+          );
+          expect(find.byKey(const Key("metronome_button")), findsOneWidget);
+
+          await openGlobalMenu(tester);
+          expect(find.byKey(const Key("midi_settings_button")), findsOneWidget);
+          expect(find.byKey(const Key("profile_button")), findsOneWidget);
+
+          await tester.tap(find.byKey(const Key("midi_settings_button")));
+          await tester.pumpAndSettle();
+
+          expect(find.text("MIDI Settings"), findsWidgets);
+          expect(
+            find.byKey(const Key("global_navigation_menu_button")),
+            findsOneWidget,
+          );
+
+          await openGlobalMenu(tester);
+          await tester.tap(find.byKey(const Key("drawer_tab_history")));
+          await tester.pumpAndSettle();
+
+          expectTabActive(tester, 5);
+          expect(find.byKey(const Key("content_back_button")), findsNothing);
         },
       );
     });
@@ -361,7 +376,7 @@ void main() {
         final indexedStack = tester.widget<IndexedStack>(
           find.byType(IndexedStack),
         );
-        expect(indexedStack.index, equals(0));
+        expect(indexedStack.index, equals(2));
         expect(indexedStack.children.length, equals(6));
 
         // Navigate to History tab and verify IndexedStack index updates
@@ -392,10 +407,7 @@ void main() {
       testWidgets("should provide tooltips for action buttons", (tester) async {
         await pumpPortraitMainNavigation(tester);
 
-        // The overflow menu button is a PopupMenuButton<_MoreAction>, a
-        // type private to main_navigation.dart, so its tooltip is checked
-        // via the Tooltip it renders rather than casting to the widget type.
-        expect(find.byTooltip("More options"), findsOneWidget);
+        expect(find.byTooltip("Open navigation"), findsOneWidget);
 
         // Test the metronome quick-access tooltip using its stable key
         final metronomeButton = find.byKey(const Key("metronome_button"));
@@ -432,12 +444,10 @@ void main() {
         await tester.pumpWidget(createTestWidget(const MainNavigation()));
         await tester.pumpAndSettle();
 
-        // Open the drawer via the AppBar's automatic menu button.
-        await tester.tap(find.byIcon(Icons.menu));
-        await tester.pumpAndSettle();
+        await openGlobalMenu(tester);
         expect(find.byKey(const Key("navigation_drawer")), findsOneWidget);
 
-        await navigateToTab(tester, const Key("nav_tab_practice"));
+        await navigateToTab(tester, const Key("drawer_tab_practice"));
 
         // Selecting a destination closes the drawer again.
         final scaffoldState = tester.state<ScaffoldState>(
@@ -445,7 +455,7 @@ void main() {
         );
         expect(scaffoldState.isDrawerOpen, isFalse);
         expectTabActive(tester, 1);
-        expect(find.byIcon(Icons.school), findsWidgets);
+        expect(find.text("Practice"), findsWidgets);
       });
     });
   });

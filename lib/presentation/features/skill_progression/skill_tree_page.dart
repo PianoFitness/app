@@ -9,6 +9,7 @@ import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:piano_fitness/presentation/features/practice/practice_page.dart";
 import "package:piano_fitness/presentation/features/skill_progression/skill_tree_page_view_model.dart";
+import "package:piano_fitness/presentation/widgets/main_navigation_scope.dart";
 
 /// A positive, freely navigable map of the curated piano technique catalogue.
 class SkillTreePage extends StatelessWidget {
@@ -35,10 +36,7 @@ class _SkillTreeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<SkillTreePageViewModel>();
-    return Scaffold(
-      appBar: AppBar(title: const Text("Curriculum")),
-      body: _buildBody(context, viewModel),
-    );
+    return Scaffold(body: _buildBody(context, viewModel));
   }
 
   Widget _buildBody(BuildContext context, SkillTreePageViewModel viewModel) {
@@ -119,6 +117,7 @@ class _SkillNodeCard extends StatelessWidget {
         trailing: const Icon(Icons.chevron_right),
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute<void>(
+            settings: RouteSettings(name: node.name),
             builder: (_) => ChangeNotifierProvider.value(
               value: viewModel,
               child: SkillNodeDetailPage(nodeId: node.id),
@@ -146,7 +145,9 @@ class SkillNodeDetailPage extends StatelessWidget {
       return const Scaffold(body: Center(child: Text("Skill not found.")));
     }
     return Scaffold(
-      appBar: AppBar(title: Text(proficiency.node.name)),
+      appBar: MainNavigationScope.isActive(context)
+          ? null
+          : AppBar(title: Text(proficiency.node.name)),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 840),
@@ -299,6 +300,7 @@ class _CheckpointCard extends StatelessWidget {
   ) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
+        settings: const RouteSettings(name: "Practice Session"),
         builder: (_) => PracticePage(
           initialConfiguration: configuration,
           backTooltip: "Back to Curriculum",
@@ -367,7 +369,9 @@ class _PracticeChoiceButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final completed = exercise.progressionQualifyingAttemptCount
+    // Practice dots acknowledge every recorded repetition. Establishing
+    // proficiency remains a separate, stricter accuracy-and-tempo decision.
+    final completed = exercise.matchingAttemptCount
         .clamp(0, requiredAttemptCount)
         .toInt();
     final bpm = exercise.recentAverageMeasuredBpm;
@@ -383,7 +387,7 @@ class _PracticeChoiceButton extends StatelessWidget {
         : colorScheme.onSurface;
     final semanticLabel = [
       exercise.exercise.name,
-      "$completed of $requiredAttemptCount practices complete",
+      "$completed of $requiredAttemptCount practices recorded",
       if (bpm != null) "${bpm.toStringAsFixed(0)} BPM",
     ].join(", ");
 
@@ -466,7 +470,7 @@ class _ProgressDots extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     return Tooltip(
-      message: "$completed of $total practices complete",
+      message: "$completed of $total practices recorded",
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

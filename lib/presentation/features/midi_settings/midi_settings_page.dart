@@ -6,6 +6,7 @@ import "package:piano_fitness/presentation/features/midi_settings/midi_settings_
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:piano_fitness/presentation/theme/semantic_colors.dart";
 import "package:piano_fitness/presentation/features/midi_settings/widgets/midi_device_list_tile.dart";
+import "package:piano_fitness/presentation/widgets/main_navigation_scope.dart";
 import "package:provider/provider.dart";
 
 /// The MIDI settings and device management page.
@@ -35,16 +36,20 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
       child: Consumer<MidiSettingsViewModel>(
         builder: (context, viewModel, child) {
           return Scaffold(
-            appBar: AppBar(
-              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              title: const Text("MIDI Settings"),
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.of(context).pop(viewModel.selectedChannel);
-                },
-              ),
-            ),
+            appBar: MainNavigationScope.isActive(context)
+                ? null
+                : AppBar(
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.inversePrimary,
+                    title: const Text("MIDI Settings"),
+                    leading: IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed: () {
+                        Navigator.of(context).pop(viewModel.selectedChannel);
+                      },
+                    ),
+                  ),
             body: SafeArea(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.all(Spacing.md),
@@ -373,6 +378,7 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
     if (preparedDevice != null && mounted) {
       await Navigator.of(context).push(
         MaterialPageRoute<void>(
+          settings: RouteSettings(name: "${preparedDevice.name} Controller"),
           builder: (context) => DeviceControllerPage(device: preparedDevice),
         ),
       );

@@ -29,9 +29,7 @@ void main() {
           _scaleCheckpoint(music.Key.c),
           _scaleCheckpoint(music.Key.cSharp),
         ],
-        proficiencyRule: SkillProficiencyRule(
-          tempoEvidencePolicy: TempoEvidencePolicy.optional,
-        ),
+        proficiencyRule: SkillProficiencyRule(),
       ),
     ],
   );
@@ -127,6 +125,45 @@ void main() {
 
     expect(find.text("88 BPM"), findsOneWidget);
     expect(find.textContaining("Tempo evidence"), findsNothing);
+  });
+
+  testWidgets("marks recorded practice without compatible tempo evidence", (
+    tester,
+  ) async {
+    final profiles = MockIUserProfileRepository();
+    final history = MockIExerciseHistoryRepository();
+    final entry = ExerciseHistoryEntry.fromConfiguration(
+      id: "older-tempo-entry",
+      profileId: "profile",
+      completedAt: DateTime(2026, 8, 14),
+      config: _configuration(music.Key.c, HandSelection.left),
+      accuracyPercentage: 100,
+      measuredTempoBpm: 176,
+      tempoMeasurementQuality: TempoMeasurementQuality.reliable,
+      tempoMeasurementVersion: TempoMeasurementVersions.declaredStepDurations,
+      tempoStepNoteValue: PracticeStepNoteValue.quarter,
+    );
+    when(profiles.getActiveProfileId()).thenAnswer((_) async => "profile");
+    when(
+      history.watchEntriesForProfile("profile"),
+    ).thenAnswer((_) => Stream.value([entry]));
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          Provider<IUserProfileRepository>.value(value: profiles),
+          Provider<IExerciseHistoryRepository>.value(value: history),
+        ],
+        child: MaterialApp(home: SkillTreePage(catalogue: catalogue)),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key("skill_node_major-scale")));
+    await tester.pumpAndSettle();
+
+    expect(find.byTooltip("1 of 3 practices recorded"), findsOneWidget);
+    expect(find.text("176 BPM"), findsNothing);
   });
 }
 

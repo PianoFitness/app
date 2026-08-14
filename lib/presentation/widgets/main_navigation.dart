@@ -1,25 +1,72 @@
 import "package:flutter/material.dart";
 import "package:piano_fitness/application/state/metronome_state.dart";
 import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
+import "package:piano_fitness/presentation/constants/ui_constants.dart";
+import "package:piano_fitness/presentation/features/history/history_page.dart";
+import "package:piano_fitness/presentation/features/metronome/metronome_page.dart";
 import "package:piano_fitness/presentation/features/metronome/widgets/metronome_quick_panel.dart";
 import "package:piano_fitness/presentation/features/midi_settings/midi_settings_page.dart";
 import "package:piano_fitness/presentation/features/notifications/notifications_page.dart";
-import "package:piano_fitness/presentation/features/history/history_page.dart";
 import "package:piano_fitness/presentation/features/play/play_page.dart";
 import "package:piano_fitness/presentation/features/practice/practice_hub_page.dart";
-import "package:piano_fitness/presentation/features/skill_progression/skill_tree_page.dart";
 import "package:piano_fitness/presentation/features/reference/reference_page.dart";
 import "package:piano_fitness/presentation/features/repertoire/repertoire_page.dart";
+import "package:piano_fitness/presentation/features/skill_progression/skill_tree_page.dart";
 import "package:piano_fitness/presentation/features/user_profile/user_profile_page.dart";
-import "package:piano_fitness/presentation/constants/ui_constants.dart";
+import "package:piano_fitness/presentation/widgets/main_navigation_scope.dart";
 import "package:provider/provider.dart";
 
-/// Main navigation wrapper that provides bottom navigation between core app sections.
+final List<Widget> _pages = <Widget>[
+  const SkillTreePage(),
+  const PracticeHubPage(),
+  const PlayPage(),
+  const ReferencePage(),
+  const RepertoirePage(),
+  const HistoryPage(),
+];
+
+const List<String> _pageTitles = [
+  "Curriculum",
+  "Practice",
+  "Free Play",
+  "Reference",
+  "Repertoire",
+  "History",
+];
+
+const List<IconData> _pageIcons = [
+  Icons.menu_book,
+  Icons.school,
+  Icons.piano,
+  Icons.library_books,
+  Icons.library_music,
+  Icons.history,
+];
+
+const List<Key> _bottomTabKeys = [
+  Key("nav_tab_curriculum"),
+  Key("nav_tab_practice"),
+  Key("nav_tab_free_play"),
+  Key("nav_tab_reference"),
+  Key("nav_tab_repertoire"),
+  Key("nav_tab_history"),
+];
+
+const List<Key> _drawerTabKeys = [
+  Key("drawer_tab_curriculum"),
+  Key("drawer_tab_practice"),
+  Key("drawer_tab_free_play"),
+  Key("drawer_tab_reference"),
+  Key("drawer_tab_repertoire"),
+  Key("drawer_tab_history"),
+];
+
+/// Persistent application shell for sections, utilities, and nested routes.
 ///
-/// This widget manages the primary navigation structure of the Piano Fitness app,
-/// allowing users to switch between Free Play mode and structured Practice sessions.
+/// Detail pages are pushed onto [_contentNavigatorKey], so the shell app bar
+/// remains available instead of being covered by each new route.
 class MainNavigation extends StatefulWidget {
-  /// Creates the main navigation wrapper.
+  /// Creates the main navigation shell.
   const MainNavigation({super.key});
 
   @override
@@ -27,67 +74,99 @@ class MainNavigation extends StatefulWidget {
 }
 
 class _MainNavigationState extends State<MainNavigation> {
+  final _contentNavigatorKey = GlobalKey<NavigatorState>();
+  late final NavigatorObserver _contentNavigatorObserver;
+  late final ValueNotifier<int> _selectedIndexNotifier;
+
   int _selectedIndex = 0;
+  bool _contentCanPop = false;
+  String? _contentRouteTitle;
 
-  /// The main pages available through bottom navigation.
-  static final List<Widget> _pages = <Widget>[
-    const PlayPage(),
-    const PracticeHubPage(),
-    const SkillTreePage(),
-    const ReferencePage(),
-    const RepertoirePage(),
-    const HistoryPage(),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndexNotifier = ValueNotifier(_selectedIndex);
+    _contentNavigatorObserver = _ContentNavigatorObserver(
+      onChanged: _synchronizeContentRoute,
+    );
+  }
 
-  /// Page titles for the app bar.
-  static const List<String> _pageTitles = [
-    "Free Play",
-    "Practice",
-    "Curriculum",
-    "Reference",
-    "Repertoire",
-    "History",
-  ];
+  @override
+  void dispose() {
+    _selectedIndexNotifier.dispose();
+    super.dispose();
+  }
 
-  /// Page icons for the app bar.
-  static const List<IconData> _pageIcons = [
-    Icons.piano,
-    Icons.school,
-    Icons.menu_book,
-    Icons.library_books,
-    Icons.library_music,
-    Icons.history,
-  ];
+  void _synchronizeContentRoute(Route<dynamic>? route) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final canPop = _contentNavigatorKey.currentState?.canPop() ?? false;
+      final title = canPop ? route?.settings.name : null;
+      if (_contentCanPop == canPop && _contentRouteTitle == title) return;
+      setState(() {
+        _contentCanPop = canPop;
+        _contentRouteTitle = title;
+      });
+    });
+  }
 
-  /// Stable keys for each tab's icon, shared between the bottom nav bar
-  /// (portrait) and navigation drawer (landscape) so tests can find a tab
-  /// regardless of which layout is active.
-  static const List<Key> _tabKeys = [
-    Key("nav_tab_free_play"),
-    Key("nav_tab_practice"),
-    Key("nav_tab_curriculum"),
-    Key("nav_tab_reference"),
-    Key("nav_tab_repertoire"),
-    Key("nav_tab_history"),
-  ];
+  Route<void> _buildContentRootRoute() {
+    return MaterialPageRoute<void>(
+      settings: const RouteSettings(name: "app-root"),
+      builder: (context) => ValueListenableBuilder<int>(
+        valueListenable: _selectedIndexNotifier,
+        builder: (context, selectedIndex, child) =>
+            IndexedStack(index: selectedIndex, children: _pages),
+      ),
+    );
+  }
 
-  /// Handles bottom navigation item taps.
   void _onItemTapped(int index) {
+    _contentNavigatorKey.currentState?.popUntil((route) => route.isFirst);
+    _selectedIndexNotifier.value = index;
     setState(() {
       _selectedIndex = index;
+      _contentCanPop = false;
+      _contentRouteTitle = null;
+    });
+  }
+
+  Future<T?> _pushContentPage<T>(Widget page, String title) {
+    return _contentNavigatorKey.currentState!.push<T>(
+      MaterialPageRoute<T>(
+        settings: RouteSettings(name: title),
+        builder: (context) => page,
+      ),
+    );
+  }
+
+  Future<void> _openProfilePage() async {
+    final repository = context.read<IUserProfileRepository>();
+    final profileIdBefore = await repository.getActiveProfileId();
+    await _pushContentPage<void>(const UserProfilePage(), "Profiles");
+    if (!mounted) return;
+    final profileIdAfter = await repository.getActiveProfileId();
+    if (!mounted || profileIdBefore == profileIdAfter) return;
+
+    // Recreate the root route so profile-scoped page subscriptions reload.
+    _contentNavigatorKey.currentState?.pushAndRemoveUntil<void>(
+      _buildContentRootRoute(),
+      (route) => false,
+    );
+    setState(() {
+      _contentCanPop = false;
+      _contentRouteTitle = null;
     });
   }
 
   Widget _buildNavIcon(int index) {
     return Semantics(
-      key: _tabKeys[index],
+      key: _bottomTabKeys[index],
       button: true,
       child: Icon(_pageIcons[index]),
     );
   }
 
-  /// Builds the landscape navigation drawer: closes itself after a
-  /// selection so it never occupies screen space while not in use.
   Widget _buildDrawer(BuildContext context) {
     return Drawer(
       key: const Key("navigation_drawer"),
@@ -95,182 +174,196 @@ class _MainNavigationState extends State<MainNavigation> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                Spacing.md,
+                Spacing.md,
+                Spacing.md,
+                Spacing.sm,
+              ),
+              child: Text(
+                "Piano Fitness",
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
             for (var i = 0; i < _pageTitles.length; i++)
               ListTile(
-                key: _tabKeys[i],
+                key: _drawerTabKeys[i],
                 leading: Icon(_pageIcons[i]),
                 title: Text(_pageTitles[i]),
-                selected: i == _selectedIndex,
+                selected: !_contentCanPop && i == _selectedIndex,
                 onTap: () {
-                  _onItemTapped(i);
                   Navigator.of(context).pop();
+                  _onItemTapped(i);
                 },
               ),
+            const Divider(),
+            ListTile(
+              key: const Key("drawer_metronome"),
+              leading: const Icon(Icons.timer),
+              title: const Text("Metronome"),
+              onTap: () {
+                Navigator.of(context).pop();
+                _pushContentPage<void>(const MetronomePage(), "Metronome");
+              },
+            ),
+            ListTile(
+              key: const Key("midi_settings_button"),
+              leading: const Icon(Icons.settings_input_component),
+              title: const Text("MIDI Settings"),
+              onTap: () {
+                Navigator.of(context).pop();
+                _pushContentPage<void>(
+                  const MidiSettingsPage(),
+                  "MIDI Settings",
+                );
+              },
+            ),
+            ListTile(
+              key: const Key("notification_settings_button"),
+              leading: const Icon(Icons.notifications_outlined),
+              title: const Text("Notifications"),
+              onTap: () {
+                Navigator.of(context).pop();
+                _pushContentPage<void>(
+                  const NotificationsPage(),
+                  "Notifications",
+                );
+              },
+            ),
+            ListTile(
+              key: const Key("profile_button"),
+              leading: const Icon(Icons.person_outline),
+              title: const Text("Switch profile"),
+              onTap: () {
+                Navigator.of(context).pop();
+                _openProfilePage();
+              },
+            ),
           ],
         ),
       ),
     );
   }
 
-  /// Builds the overflow menu for less-frequently-used settings pages.
-  ///
-  /// MIDI Settings and Notification Settings share one "more" icon instead
-  /// of each getting a dedicated app bar icon - the app bar is otherwise
-  /// too narrow on phone-width screens once the profile button and the
-  /// metronome quick-access icon are also present.
-  Widget _buildMoreActionsButton(BuildContext context) {
-    return PopupMenuButton<_MoreAction>(
-      key: const Key("more_actions_button"),
-      tooltip: "More options",
-      icon: const Icon(Icons.more_vert),
-      onSelected: (action) {
-        final page = switch (action) {
-          _MoreAction.midiSettings => const MidiSettingsPage(),
-          _MoreAction.notificationSettings => const NotificationsPage(),
-        };
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute<void>(builder: (context) => page));
-      },
-      itemBuilder: (context) => const [
-        PopupMenuItem(
-          key: Key("midi_settings_button"),
-          value: _MoreAction.midiSettings,
-          child: ListTile(
-            leading: Icon(Icons.settings),
-            title: Text("MIDI Settings"),
-          ),
-        ),
-        PopupMenuItem(
-          key: Key("notification_settings_button"),
-          value: _MoreAction.notificationSettings,
-          child: ListTile(
-            leading: Icon(Icons.notifications),
-            title: Text("Notification Settings"),
-          ),
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    // Landscape phones have little spare height for chrome, so navigation
-    // moves into an auto-hiding drawer instead of a persistent bar/rail,
-    // letting the piano and settings use the full width.
+    final colorScheme = Theme.of(context).colorScheme;
     final isLandscape =
         MediaQuery.orientationOf(context) == Orientation.landscape;
 
-    return Scaffold(
-      key: const Key("main_navigation_scaffold"),
-      drawer: isLandscape ? _buildDrawer(context) : null,
-      appBar: AppBar(
-        backgroundColor: colorScheme.inversePrimary,
-        toolbarHeight: ComponentDimensions.minTouchTarget,
-        title: Semantics(
-          header: true,
-          child: Row(
+    return PopScope(
+      canPop: !_contentCanPop,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && _contentCanPop) {
+          _contentNavigatorKey.currentState?.maybePop();
+        }
+      },
+      child: Scaffold(
+        key: const Key("main_navigation_scaffold"),
+        drawer: _buildDrawer(context),
+        appBar: AppBar(
+          backgroundColor: colorScheme.inversePrimary,
+          toolbarHeight: ComponentDimensions.minTouchTarget,
+          automaticallyImplyLeading: false,
+          leadingWidth: _contentCanPop ? 96 : 56,
+          leading: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(_pageIcons[_selectedIndex], color: colorScheme.primary),
-              const SizedBox(width: 8),
-              Text(_pageTitles[_selectedIndex]),
+              if (_contentCanPop)
+                IconButton(
+                  key: const Key("content_back_button"),
+                  tooltip: "Back",
+                  onPressed: () =>
+                      _contentNavigatorKey.currentState?.maybePop(),
+                  icon: const Icon(Icons.arrow_back),
+                ),
+              Builder(
+                builder: (context) => IconButton(
+                  key: const Key("global_navigation_menu_button"),
+                  tooltip: "Open navigation",
+                  onPressed: () => Scaffold.of(context).openDrawer(),
+                  icon: const Icon(Icons.menu),
+                ),
+              ),
             ],
           ),
-        ),
-        actions: [
-          // Active profile display
-          _buildProfileButton(context),
-          const _MetronomeAppBarButton(),
-          _buildMoreActionsButton(context),
-        ],
-      ),
-      body: IndexedStack(index: _selectedIndex, children: _pages),
-      bottomNavigationBar: isLandscape
-          ? null
-          : NavigationBar(
-              key: const Key("bottom_navigation_bar"),
-              height: ComponentDimensions.minTouchTarget + Spacing.sm,
-              labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-              selectedIndex: _selectedIndex,
-              onDestinationSelected: _onItemTapped,
-              destinations: [
-                for (var i = 0; i < _pageTitles.length; i++)
-                  NavigationDestination(
-                    icon: _buildNavIcon(i),
-                    label: _pageTitles[i],
-                  ),
-              ],
+          title: Semantics(
+            header: true,
+            child: Text(
+              _contentRouteTitle ?? _pageTitles[_selectedIndex],
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
-    );
-  }
-
-  /// Builds the active profile button for the app bar.
-  Widget _buildProfileButton(BuildContext context) {
-    final repository = context.read<IUserProfileRepository>();
-
-    return FutureBuilder<String?>(
-      future: _getActiveProfileName(repository),
-      builder: (context, snapshot) {
-        final profileName = snapshot.data ?? "Select Profile";
-
-        return TextButton.icon(
-          onPressed: () async {
-            await Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (context) => const UserProfilePage(),
-              ),
-            );
-            // Rebuild to show updated profile name (only if still mounted)
-            if (mounted) {
-              setState(() {});
-            }
-          },
-          icon: const Icon(Icons.person, size: 20),
-          label: Text(
-            profileName.length > 12
-                ? "${profileName.substring(0, 12)}..."
-                : profileName,
-            style: Theme.of(context).textTheme.labelLarge,
-            overflow: TextOverflow.ellipsis,
           ),
-        );
-      },
+          actions: [
+            _MetronomeAppBarButton(
+              onOpenFullPage: () =>
+                  _pushContentPage<void>(const MetronomePage(), "Metronome"),
+            ),
+          ],
+        ),
+        body: MainNavigationScope(
+          child: Navigator(
+            key: _contentNavigatorKey,
+            observers: [_contentNavigatorObserver],
+            onGenerateRoute: (settings) => _buildContentRootRoute(),
+          ),
+        ),
+        bottomNavigationBar: isLandscape
+            ? null
+            : NavigationBar(
+                key: const Key("bottom_navigation_bar"),
+                height: ComponentDimensions.minTouchTarget + Spacing.sm,
+                labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+                selectedIndex: _selectedIndex,
+                onDestinationSelected: _onItemTapped,
+                destinations: [
+                  for (var i = 0; i < _pageTitles.length; i++)
+                    NavigationDestination(
+                      icon: _buildNavIcon(i),
+                      label: _pageTitles[i],
+                    ),
+                ],
+              ),
+      ),
     );
-  }
-
-  /// Gets the active profile's display name.
-  Future<String?> _getActiveProfileName(
-    IUserProfileRepository repository,
-  ) async {
-    try {
-      final activeId = await repository.getActiveProfileId();
-      if (activeId == null) return null;
-
-      final profile = await repository.getProfile(activeId);
-      return profile?.displayName;
-    } catch (e) {
-      return null;
-    }
   }
 }
 
-/// Overflow menu entries built by [_MainNavigationState._buildMoreActionsButton].
-enum _MoreAction { midiSettings, notificationSettings }
+class _ContentNavigatorObserver extends NavigatorObserver {
+  _ContentNavigatorObserver({required this.onChanged});
 
-/// App bar icon that opens the metronome quick panel, available on every
-/// page. Isolated into its own widget so only this icon (not the whole
-/// navigation scaffold) rebuilds while the metronome is playing.
+  final ValueChanged<Route<dynamic>?> onChanged;
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    onChanged(route);
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    onChanged(previousRoute);
+  }
+
+  @override
+  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    onChanged(previousRoute);
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    onChanged(newRoute);
+  }
+}
+
 class _MetronomeAppBarButton extends StatelessWidget {
-  const _MetronomeAppBarButton();
+  const _MetronomeAppBarButton({required this.onOpenFullPage});
+
+  final VoidCallback onOpenFullPage;
 
   @override
   Widget build(BuildContext context) {
-    // Scoped to isPlaying/bpm rather than watching MetronomeState as a
-    // whole, so this icon doesn't rebuild on every currentBeat change
-    // (several times a second while playing).
     final isPlaying = context.select<MetronomeState, bool>(
       (state) => state.isPlaying,
     );
@@ -294,7 +387,7 @@ class _MetronomeAppBarButton extends StatelessWidget {
           top: Radius.circular(AppBorderRadius.large),
         ),
       ),
-      builder: (context) => const MetronomeQuickPanel(),
+      builder: (context) => MetronomeQuickPanel(onOpenFullPage: onOpenFullPage),
     );
   }
 }

@@ -8,6 +8,7 @@ import "package:piano_fitness/presentation/features/device_controller/device_con
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:piano_fitness/presentation/theme/semantic_colors.dart";
 import "package:piano_fitness/presentation/utils/piano_key_utils.dart";
+import "package:piano_fitness/presentation/widgets/main_navigation_scope.dart";
 
 /// A detailed controller interface for a specific MIDI device.
 ///
@@ -42,10 +43,12 @@ class _DeviceControllerView extends StatelessWidget {
   Widget build(BuildContext context) {
     final viewModel = context.watch<DeviceControllerViewModel>();
     return Scaffold(
-      appBar: AppBar(
-        title: Text("${viewModel.device.name} Controller"),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
+      appBar: MainNavigationScope.isActive(context)
+          ? null
+          : AppBar(
+              title: Text("${viewModel.device.name} Controller"),
+              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+            ),
       body: ListView(
         padding: const EdgeInsets.all(Spacing.md),
         children: [

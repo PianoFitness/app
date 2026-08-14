@@ -41,12 +41,12 @@ void main() {
     ) async {
       await pumpPortrait(tester, createTestApp());
 
-      // Initially should be on play page - check app bar title specifically
-      final playAppBarTitleFinder = find.descendant(
+      // Curriculum is the default page - check the app bar title specifically.
+      final curriculumAppBarTitleFinder = find.descendant(
         of: find.byType(AppBar),
-        matching: find.text("Free Play"),
+        matching: find.text("Curriculum"),
       );
-      expect(playAppBarTitleFinder, findsOneWidget);
+      expect(curriculumAppBarTitleFinder, findsOneWidget);
 
       // Verify we have the Reference navigation item in the bottom navigation
       expect(

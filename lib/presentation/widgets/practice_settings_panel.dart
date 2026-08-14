@@ -268,13 +268,17 @@ class PracticeSettingsPanel extends StatelessWidget {
                 color: colorScheme.primary,
               ),
               const SizedBox(width: Spacing.sm),
-              Text(
-                "Practice Settings",
-                style:
-                    theme.textTheme.headlineSmall?.copyWith(
-                      color: colorScheme.onSurface,
-                    ) ??
-                    TextStyle(color: colorScheme.onSurface),
+              Expanded(
+                child: Text(
+                  "Practice Settings",
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style:
+                      theme.textTheme.headlineSmall?.copyWith(
+                        color: colorScheme.onSurface,
+                      ) ??
+                      TextStyle(color: colorScheme.onSurface),
+                ),
               ),
             ],
           ),

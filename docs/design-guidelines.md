@@ -63,7 +63,7 @@ over a sentence that makes the student interpret the tracking system.
 - Provide the exact value through semantics or a tooltip when the visual is
   intentionally compact.
 - Use learner-facing language such as **keys complete** or **practices
-  complete**.
+  recorded**.
 - Avoid internal terms such as **evidence**, **qualifying attempt**,
   **established proficiency**, or **measurement version** in the interface.
 
@@ -110,6 +110,21 @@ belong to the same component design. Do not design only the empty state.
 - Complete: a primary tint plus a non-color signifier such as a checkmark or
   filled progress marks.
 - Unavailable: explain why and how to proceed; do not merely gray out an action.
+
+### 7. Keep global navigation global
+
+A student should never need to retrace a workflow simply to reach another
+part of the app or correct their setup.
+
+- Keep the application menu and metronome available on section, detail, and
+  practice screens.
+- Use **Back** to return within the current workflow; use the application menu
+  to move directly to another section.
+- Put profile switching, MIDI setup, notifications, and other app-wide tools
+  in the same predictable menu at every route depth.
+- Selecting a primary section starts from that section's root instead of
+  preserving an invisible stack of detail pages underneath it.
+- Avoid stacking page-specific app bars beneath the application app bar.
 
 ## Visual language
 
@@ -206,6 +221,8 @@ The important characteristics are:
 - Related actions read as a group without a heavy enclosing border.
 - Progress is visible but visually quieter than the action label.
 - BPM appears beside progress only after it exists.
+- Practice marks acknowledge recorded activity; the checkmark remains the
+  stronger signifier for established proficiency.
 - Completion accents the relevant action, not the entire screen.
 
 Use this pattern for other repeated practice choices, but adapt the labels and
