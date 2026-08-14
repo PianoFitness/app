@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
+import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/skill_progression/skill_catalogue.dart";
 import "package:piano_fitness/domain/models/skill_progression/skill_proficiency_snapshot.dart";
@@ -195,21 +196,12 @@ class _CheckpointCard extends StatelessWidget {
               ),
               for (final exercise in checkpoint.exerciseProficiencies) ...[
                 const SizedBox(height: 8),
-                Text(exercise.exercise.name),
-                Text(
-                  "${exercise.progressionQualifyingAttemptCount} of ${rule.evidenceAttemptCount} qualifying attempts"
-                  "${exercise.recentAverageAccuracy == null ? "" : " · ${exercise.recentAverageAccuracy!.toStringAsFixed(0)}% recent accuracy"}",
-                ),
-                Text(_tempoText(exercise)),
-                const SizedBox(height: 4),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: FilledButton(
-                    key: Key("practice_${exercise.exercise.id}"),
-                    onPressed: () =>
-                        _openPractice(context, exercise.exercise.configuration),
-                    child: const Text("Practice"),
-                  ),
+                _HandPracticeOption(
+                  exercise: exercise,
+                  rule: rule,
+                  tempoText: _tempoText(exercise),
+                  onPractice: () =>
+                      _openPractice(context, exercise.exercise.configuration),
                 ),
               ],
             ],
@@ -244,4 +236,57 @@ class _CheckpointCard extends StatelessWidget {
       ),
     );
   }
+}
+
+/// A clearly labelled hand-selection option within a key checkpoint.
+class _HandPracticeOption extends StatelessWidget {
+  const _HandPracticeOption({
+    required this.exercise,
+    required this.rule,
+    required this.tempoText,
+    required this.onPractice,
+  });
+
+  final SkillExerciseProficiency exercise;
+  final SkillProficiencyRule rule;
+  final String tempoText;
+  final VoidCallback onPractice;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _handLabel(exercise.exercise.configuration.handSelection),
+                style: Theme.of(context).textTheme.titleSmall,
+              ),
+              Text(
+                "${exercise.progressionQualifyingAttemptCount} of ${rule.evidenceAttemptCount} qualifying attempts"
+                "${exercise.recentAverageAccuracy == null ? "" : " · ${exercise.recentAverageAccuracy!.toStringAsFixed(0)}% recent accuracy"}",
+              ),
+              Text(tempoText),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        FilledButton(
+          key: Key("practice_${exercise.exercise.id}"),
+          onPressed: onPractice,
+          child: Text(
+            _handLabel(exercise.exercise.configuration.handSelection),
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _handLabel(HandSelection handSelection) => switch (handSelection) {
+    HandSelection.left => "Left hand",
+    HandSelection.right => "Right hand",
+    HandSelection.both => "Hands together",
+  };
 }
