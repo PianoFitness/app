@@ -13,7 +13,7 @@ library;
 
 /// Font size constants for the app's typography system.
 ///
-/// These values are used in the custom TextTheme defined in main.dart.
+/// These values are applied to the Material 3 type scale in `app_theme.dart`.
 /// All sizes are in logical pixels (dp).
 class FontSizes {
   FontSizes._(); // Private constructor to prevent instantiation

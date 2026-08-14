@@ -1,248 +1,328 @@
-# Piano Fitness Design Guidelines
+# Piano Fitness Product Design Direction
 
-## Overview
+> Status: active, living guidance. Last updated August 2026.
 
-Piano Fitness provides a visually engaging, modern, and motivating experience for piano learners. The design aesthetic draws heavily from the Repertoire page feature, which exemplifies our commitment to clarity, beauty, responsive design, and comprehensive accessibility.
+This guide describes how Piano Fitness should feel and gives contributors a
+shared vocabulary for making design decisions. It is intentionally practical:
+use it when designing a page, reviewing a pull request, or deciding whether a
+piece of information belongs on screen.
 
-## Design Philosophy
+The current reference implementation is the compact Curriculum exercise-detail
+page in
+[`skill_tree_page.dart`](../lib/presentation/features/skill_progression/skill_tree_page.dart).
+It is a direction to extend, not a template every page must copy literally.
 
-The Repertoire page represents our design system's core values: clean gradients, intuitive interaction patterns, responsive layouts that adapt to any screen size, and thoughtful accessibility implementations. Every component should feel polished, purposeful, and inspiring to use.
+## North star
 
-## Visual Aesthetic
+**Piano Fitness should feel like a calm, encouraging practice companion: a
+modern fitness app for musicians.**
 
-### Color System
+The interface should help a learner answer three questions quickly:
 
-**Primary Palette:**
+1. What can I practise?
+2. How am I progressing?
+3. What should I tap next?
 
-- **Indigo**: `#6366F1` - Primary brand color for headers, buttons, and key interactive elements
-- **Purple**: `#8B5CF6` - Secondary accent for gradients and visual interest
-- **Orange**: `#F59E0B` - Accent color for highlights, recommendations, and guidance text
-- **Green**: `#10B981` - Success states, active timers, and positive feedback
-- **Amber**: `#FFC107` - Warning states, paused timers, and attention-drawing elements
+It should not feel like an admin dashboard, analytics console, or collection of
+nested control panels. The student is there to play piano; the interface should
+make that action feel easy to begin.
 
-**Supporting Colors:**
+## Experience qualities
 
-- **Blue**: `#3B82F6` - Information containers and secondary actions
-- **White**: `#FFFFFF` - Primary background and container fills
-- **Gray**: `#F8FAFC` - Subtle backgrounds and inactive states
+| Quality | What it means in practice |
+| --- | --- |
+| Calm | Neutral surfaces, limited decoration, and no competing highlights. |
+| Focused | One obvious primary task per screen or section. |
+| Encouraging | Progress is framed positively; incomplete work is an invitation, not a warning. |
+| Efficient | Repeated actions are compact, scannable, and close to the content they affect. |
+| Warm | Plain language, soft shapes, and restrained color keep the product approachable. |
+| Trustworthy | Metrics are shown only when meaningful and never padded with technical placeholders. |
 
-**Gradient Implementations:**
+When qualities compete, prioritize clarity and usability over visual novelty.
+
+## Core principles
 
-- Primary gradient: Indigo to Purple (`#6366F1` → `#8B5CF6`)
-- Success gradient: Green tones for active states
-- Subtle gradients at 5-10% opacity for container backgrounds
+### 1. Practice is the primary action
 
-### Typography Hierarchy
+The most prominent elements should help the student start or continue
+practising. Supporting statistics, explanations, and configuration should not
+compete with that action.
+
+- Put practice choices near the exercise name.
+- Use clear action labels such as **Left**, **Right**, **Together**, or
+  **Practice**.
+- Keep configuration that is not needed for the immediate choice behind a
+  secondary interaction.
 
-**Font Weights & Sizing:**
+### 2. Show progress, not accounting
+
+Progress should be understandable at a glance. Prefer a small visual signifier
+over a sentence that makes the student interpret the tracking system.
+
+- Use dots, rings, bars, or checkmarks for repeated progress.
+- Provide the exact value through semantics or a tooltip when the visual is
+  intentionally compact.
+- Use learner-facing language such as **keys complete** or **practices
+  complete**.
+- Avoid internal terms such as **evidence**, **qualifying attempt**,
+  **established proficiency**, or **measurement version** in the interface.
+
+### 3. Use progressive disclosure
+
+Show information when it becomes useful.
+
+- Do not show “tempo unavailable” or an empty metric field. Show BPM only after
+  a reliable tempo has been recorded.
+- Do not repeat explanatory text on every row.
+- Put detailed history and analysis on a dedicated progress or history view,
+  not inside the action picker.
+
+### 4. Prefer one visual layer
+
+Repeated borders, panels inside panels, and many equal-weight controls create a
+command-console effect. Most sections should need only one containing surface.
+
+- Repeated list rows use a quiet tonal surface and usually no elevation.
+- Related actions may sit inside that row as soft tonal pills.
+- Avoid placing outlined buttons inside outlined cards.
+- Avoid borders when spacing, background tone, or typography already expresses
+  the grouping.
+
+### 5. Density and breathing room are partners
+
+Compact does not mean cramped. Remove low-value content first, then use a
+consistent spacing rhythm.
+
+- Keep repeated rows low-profile so more of the practice plan is visible.
+- Preserve at least a 44 logical-pixel touch target.
+- Use whitespace between groups; do not add a container merely to create
+  separation.
+- Cap content width on large screens so controls do not stretch into long,
+  sparse strips.
+
+### 6. Design every state together
+
+Default, in-progress, completed, unavailable, hover, focus, and pressed states
+belong to the same component design. Do not design only the empty state.
+
+- Default state: neutral and clearly interactive.
+- In progress: a restrained secondary tint or partially filled indicator.
+- Complete: a primary tint plus a non-color signifier such as a checkmark or
+  filled progress marks.
+- Unavailable: explain why and how to proceed; do not merely gray out an action.
+
+## Visual language
+
+### Material 3 foundation
+
+- Piano Fitness uses Material 3 as its component and accessibility baseline.
+  Material 3 provides coherent behavior, but it does not replace product-level
+  judgment about hierarchy, density, language, or progressive disclosure.
+- Prefer current Material components such as `NavigationBar`, `FilledButton`,
+  and `SegmentedButton` when they fit the interaction.
+- Configure shared component behavior in
+  [`app_theme.dart`](../lib/presentation/theme/app_theme.dart), then use the
+  themed component directly. Add local overrides only for a documented need.
+- Migrate older components page by page so each change can be visually and
+  responsively reviewed.
+
+### Surfaces and elevation
+
+- The runtime source of truth is
+  [`app_theme.dart`](../lib/presentation/theme/app_theme.dart). Add shared visual
+  decisions there before styling individual pages independently.
+- Use Material 3 color roles from `Theme.of(context).colorScheme`; do not embed
+  feature-specific light-mode colors.
+- Use `surfaceContainerLow` for quiet repeated rows and
+  `surfaceContainerHighest` for compact controls that need separation.
+- Default repeated cards to zero elevation. Reserve shadows for floating or
+  temporarily elevated elements such as dialogs and menus.
+- A page may have several sections, but it should not look like every piece of
+  content is floating independently.
+
+### Shape
+
+- Use the shared radii in
+  [`ui_constants.dart`](../lib/presentation/constants/ui_constants.dart).
+- Main containers generally use `AppBorderRadius.large` (16).
+- Nested compact controls generally use `AppBorderRadius.medium` (12).
+- Rounded shapes should soften the interface, not turn every label into a
+  decorative badge.
+
+### Color
+
+- Neutral surfaces carry structure.
+- Primary color identifies the current action, meaningful progress, or
+  completion.
+- Secondary and tertiary colors add hierarchy sparingly.
+- Error and warning colors are reserved for states that require attention.
+- Never rely on color alone; pair it with shape, text, an icon, or semantics.
+- Gradients are for rare hero or celebratory moments, not the default treatment
+  for cards and controls.
+
+### Typography
+
+- Use the app `TextTheme`; avoid one-off font sizes unless a component has a
+  documented need.
+- Page titles come from the app bar or a single clear heading.
+- Exercise/key names use a compact, semibold title style.
+- Supporting copy uses `onSurfaceVariant` and should remain readable, not faint.
+- Metrics such as BPM are concise labels, not prose sentences.
+- Use at most three obvious levels of type hierarchy in one section.
+
+### Spacing and layout
+
+- Use the shared 4/8/16/24/32/48 spacing scale in `Spacing`.
+- Align repeated content to the same edges.
+- Keep related actions close together and separate unrelated sections with more
+  space.
+- Test narrow phone, tablet, and desktop widths. Prefer constraint-based layout
+  decisions over device-name checks.
+
+### Motion
+
+- Motion should explain a state change or make progress feel responsive.
+- Keep routine transitions short and subtle.
+- Avoid ambient animation during focused practice.
+- Respect reduced-motion preferences when adding nonessential motion.
+
+## Reference pattern: compact practice list
+
+The Curriculum detail page demonstrates the intended hierarchy:
+
+```text
+Build secure scale technique in each hand, then together.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  3 / 12 keys
+
+C major       [ Left   ● ● ○ ] [ Right  ● ○ ○ ] [ Together  ○ ○ ○ ]
+D♭ major      [ Left   ● ● ● ] [ Right  ● ● ○ ] [ Together  ● ○ ○ ]
+```
+
+The important characteristics are:
+
+- One short context sentence, then one page-level progress summary.
+- One quiet row per practice item.
+- The item name and its actions share a line when space permits.
+- Related actions read as a group without a heavy enclosing border.
+- Progress is visible but visually quieter than the action label.
+- BPM appears beside progress only after it exists.
+- Completion accents the relevant action, not the entire screen.
+
+Use this pattern for other repeated practice choices, but adapt the labels and
+metrics to the learner's task.
+
+## Applying the direction to other pages
+
+### Before redesigning
+
+Write down the primary user action in one sentence. If a page has several
+equally important answers, decide whether it is really one page or several
+steps.
 
-- **Headers**: Bold (FontWeight.bold), 16-20px with -0.3 letter spacing
-- **Subheaders**: Semi-bold (FontWeight.w600), 14-16px with -0.1 letter spacing
-- **Body Text**: Regular (FontWeight.normal), 12-15px with standard spacing
-- **Status Text**: Semi-bold (FontWeight.w600), 10-13px for timer status
-- **Guidance Text**: Italic for instructional content in orange tones
-
-### Component Design Language
-
-**Container Styling:**
-
-- **Border Radius**: 16-20px for main containers, 12-16px for nested elements
-- **Borders**: 1-2px solid with 10-30% opacity of the primary color
-- **Shadows**: Subtle depth with 5-10% opacity, 4-12px blur radius
-- **Background**: White with optional subtle gradients
-
-**Interactive Elements:**
-
-- **Buttons**: Circular for actions, rounded rectangles for selections
-- **Elevation**: 1-4px for depth hierarchy
-- **Gradients**: Used for primary actions and selected states
-- **Touch Targets**: Platform standards take precedence (44x44pt for iOS, 48x48dp for Android). For web accessibility, use a minimum of 44x44px
-
-**Iconography:**
-
-- **Style**: Material Design icons with color accents
-- **Sizing**: 14-24px responsive to screen constraints
-- **Colors**: Match the primary color system
-- **Usage**: Consistent icons for similar actions across features
-
-## Responsive Design Patterns
-
-### Layout Modes
-
-Based on the Repertoire page's responsive layout system:
-
-**Mobile Portrait** (width < 768px, height > width):
-
-- Vertical stacking of components
-- Compact spacing (6-8px)
-- Smaller font sizes and touch targets
-
-**Mobile Landscape** (width < 768px, width > height):
-
-- Horizontal layouts where space permits
-- Optimized button spacing (12-16px)
-- Efficient use of available width
-
-**Tablet Portrait** (width ≥ 768px, height > width):
-
-- Generous spacing (16-24px)
-- Larger typography and touch targets
-- Expanded container padding
-
-**Tablet Landscape** (width ≥ 768px, width > height):
-
-- Side-by-side component layouts
-- Maximum spacing (24-32px)
-- Optimal use of horizontal space
-
-### Adaptive Component Behavior
-
-- **Dynamic sizing**: Components scale based on available space
-- **Flexible layouts**: Graceful degradation for constrained spaces
-- **Content prioritization**: Critical elements remain visible
-- **Touch optimization**: Larger targets on touch devices
-
-## Accessibility Guidelines
-
-### Semantic Structure
-
-**Screen Reader Support:**
-
-- All interactive elements must have semantic labels
-- Use `Semantics` widgets with descriptive `label` properties
-- Implement `button: true` for actionable elements
-- Include context in labels (e.g., "15 minutes, recommended")
-
-**Live Regions:**
-
-- Timer displays use `liveRegion: true` for real-time updates
-- Status changes announced via `SemanticsService.announce()`
-- Progress updates communicated to assistive technologies
-
-### Visual Accessibility
-
-**Color Contrast:**
-
-- Minimum 4.5:1 contrast ratio for normal text
-- Minimum 3:1 contrast ratio for large text
-- Color never used as the sole indicator of meaning
-- High contrast maintained across all color combinations
-
-**Typography Accessibility:**
-
-- Scalable font sizes that respect system settings
-- Clear font weights for proper hierarchy
-- Adequate line spacing (1.2-1.4 line height)
-- Letter spacing optimizations for readability
-
-### Interaction Accessibility
-
-**Touch Targets:**
-
-- Minimum 44x44pt touch targets (iOS) / 48x48dp (Android)
-- Adequate spacing between interactive elements
-- Clear focus indicators for keyboard navigation
-- Consistent interaction patterns across the app
-
-**Motor Accessibility:**
-
-- Generous spacing between controls (12-20px minimum)
-- Large button sizes in landscape orientations
-- Scroll areas when content exceeds viewport
-- Forgiving touch areas with proper padding
-
-### Cognitive Accessibility
-
-**Clear Mental Models:**
-
-- Consistent iconography and color coding
-- Predictable navigation patterns
-- Clear status indicators and feedback
-- Contextual help and guidance
-
-**Information Architecture:**
-
-- Logical grouping of related controls
-- Progressive disclosure of complex features
-- Clear visual hierarchy with proper contrast
-- Descriptive error messages and guidance
-
-## Component Specifications
-
-### Timer Display
-
-- **Circular progress indicator** with gradient color coding
-- **Status badges** with icon + text for current state
-- **Control buttons** with semantic labels and announcements
-- **Responsive sizing** from 30px (constrained) to 70px (expanded)
-
-### Duration Selector
-
-- **Wrapped button layout** with proper spacing
-- **Selected state** indicated by gradient and elevation
-- **Recommended option** marked with star icon and border
-- **Semantic announcements** for selection changes
-
-### Modal Dialogs
-
-- **Draggable bottom sheets** with rounded top corners
-- **Scrollable content** with proper padding
-- **App recommendation cards** with clear CTAs
-- **Close affordance** with accessible labeling
-
-### Container Cards
-
-- **Gradient backgrounds** at low opacity (5-10%)
-- **Border styling** with color-matched outlines
-- **Shadow depth** for visual hierarchy
-- **Responsive padding** (8-16px based on screen size)
-
-## Interaction Patterns
-
-### Timer Controls
-
-- **Start/Resume**: Green gradient button with play icon
-- **Pause**: Amber gradient button with pause icon  
-- **Reset**: Outlined button with refresh icon
-- **Visual feedback**: Color changes and semantic announcements
-
-### Navigation
-
-- **Bottom navigation**: Consistent with app-wide patterns
-- **Modal presentation**: Bottom sheets for supplementary content
-- **App integration**: External link handling with proper feedback
-
-### Responsive Behavior
-
-- **Layout switching**: Automatic adaptation based on constraints
-- **Content prioritization**: Essential elements remain accessible
-- **Graceful degradation**: Functional in minimal space
-
-## Implementation Guidelines
-
-### Code Structure
-
-- **Responsive utilities**: Use `LayoutBuilder` for constraint-based layouts
-- **Semantic widgets**: Implement `Semantics` for all interactive elements
-- **State announcements**: Use `SemanticsService.announce()` for dynamic changes
-- **Flexible sizing**: Implement adaptive sizing based on available space
-
-### Testing Requirements
-
-- **Accessibility testing**: VoiceOver/TalkBack verification
-- **Responsive testing**: Multiple screen sizes and orientations
-- **Color contrast validation**: Automated and manual testing
-- **Touch target verification**: Minimum size compliance
-
-### Performance Considerations
-
-- **Efficient layouts**: Minimize rebuilds with proper state management
-- **Asset optimization**: Appropriate image sizing and caching
-- **Animation performance**: Smooth transitions without jank
-- **Memory usage**: Proper disposal of resources
-
-## Conclusion
-
-The Piano Fitness design system, exemplified by the Repertoire page, creates an inclusive, beautiful, and highly functional user experience. Every design decision should prioritize user accessibility, responsive adaptation, and motivational aesthetics to help users achieve their musical goals.
-
-These guidelines ensure consistency across features while maintaining the flexibility to innovate within our established design language.
+Then inventory every visible element:
+
+- Does it help the user decide or act now?
+- Is it useful only after data exists?
+- Is it repeated elsewhere?
+- Could it be represented by a familiar visual signifier?
+- Could it move to a detail, history, or settings view?
+
+### Common transformations
+
+| Existing pattern | Preferred direction |
+| --- | --- |
+| Several sentences of status text | One visual indicator with accessible detail |
+| Empty metric placeholders | Hide the metric until a value exists |
+| Outlined controls inside outlined cards | Quiet row plus tonal action group |
+| Entire card colored for partial progress | Accent the specific progress indicator |
+| Large cards for repeated simple choices | Compact rows with consistent touch targets |
+| Different decorative language per page | Shared theme roles, spacing, radii, and states |
+| Technical system terminology | Short learner-facing language |
+
+## A small design vocabulary
+
+These terms make design conversations easier:
+
+- **Visual hierarchy**: the order in which the eye notices things. The primary
+  action should usually be noticed before supporting detail.
+- **Density**: how much useful information fits in an area. High density can be
+  efficient; clutter is density without clear hierarchy.
+- **Affordance**: the visual clue that something can be interacted with. A
+  button should look tappable without needing instructional text.
+- **Progressive disclosure**: revealing detail only when it becomes relevant.
+- **Container nesting**: placing panels or bordered elements inside other
+  panels. Too much nesting makes an interface feel mechanical and heavy.
+- **Semantic color**: color chosen for meaning—such as success or error—rather
+  than decoration.
+- **Touch target**: the full tappable area, which can be larger than the visible
+  icon or label.
+- **State**: a component's current condition, such as default, pressed, in
+  progress, complete, disabled, or error.
+
+## Design review questions
+
+Use these questions during implementation and review.
+
+### Two-second test
+
+- What draws the eye first?
+- Is the page's purpose immediately clear?
+- Is the next useful action obvious?
+
+### Content
+
+- Is every visible sentence useful at this moment?
+- Is any wording exposing an internal implementation concept?
+- Are missing values hidden rather than described at length?
+
+### Visual hierarchy
+
+- Are too many elements using borders, color, elevation, or bold type?
+- Can one containing surface be removed?
+- Are repeated items compact and easy to scan?
+- Does whitespace show the grouping without extra decoration?
+
+### Interaction and accessibility
+
+- Are touch targets at least 44 logical pixels?
+- Do hover, focus, pressed, disabled, and completed states remain clear?
+- Does every control have a contextual semantic label?
+- Is meaning available without relying on color?
+- Does text scaling remain usable?
+
+### Responsive behavior
+
+- Does it work at 390 logical pixels without clipping or overflow?
+- Is content width capped on large screens?
+- Does the primary action stay visible across layouts?
+
+## Implementation sources of truth
+
+Use these in order:
+
+1. The active Flutter `ThemeData` and `ColorScheme` in
+   [`app_theme.dart`](../lib/presentation/theme/app_theme.dart).
+2. Shared spacing, radius, size, opacity, and motion tokens in
+   [`ui_constants.dart`](../lib/presentation/constants/ui_constants.dart).
+3. Semantic and piano-key theme extensions in `lib/presentation/theme/`.
+4. Reusable presentation components and documented feature patterns.
+
+The older
+[`design-system.md`](specifications/design-system.md) specification contains
+useful historical ideas, but some example classes, colors, and typography are
+aspirational and are not implemented. Runtime theme values take precedence.
+
+## Evolving this guide
+
+This is a starting point, not a finished design system.
+
+When a pattern works well on a second page:
+
+1. Extract reusable tokens or components only when repetition is real.
+2. Add the pattern and its states to this guide.
+3. Add responsive and accessibility tests.
+4. Record a screenshot or short visual example when practical.
+5. Document intentional exceptions and why they exist.
+
+Consistency should make the product feel coherent, while leaving room for the
+piano, musical feedback, and moments of achievement to feel expressive.

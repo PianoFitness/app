@@ -459,59 +459,55 @@ A node card should show:
 Example:
 
 ```text
-Major scale, hands apart
-7 of 12 keys with established evidence
-Recommended before: Major scale, hands together
+Major scale
+Build secure scale technique in each hand, then together.
+7 of 12 keys complete
 ```
 
 ### 11.4 Key-detail view
 
 Opening a key-based node displays all relevant keys.
 
-Each key cell should show:
+The detail view should follow the compact-practice-list pattern in the
+[Product Design Direction](../design-guidelines.md). Each key row should show:
 
 - Key name.
-- Positive proficiency fill.
-- Recent qualifying accuracy-attempt count.
-- Recent average pitch accuracy.
-- Recent average reliable exercise BPM, when compatible evidence exists.
-- Historical best reliable exercise BPM, when applicable.
-- A neutral tempo status when tempo is optional, unavailable, or insufficient.
-- Suggested next tempo, when available.
-- A direct practice action.
+- A compact action for each available hand configuration.
+- A small visual progress indicator for each action.
+- Recent reliable BPM only when compatible evidence exists.
+- A restrained completion state that does not depend on color alone.
 
-Reliable-tempo example:
+Do not expose proficiency implementation terms such as “qualifying attempts,”
+“tempo evidence,” or “established” in learner-facing copy. Missing metrics
+should remain hidden until they are useful.
+
+Example:
 
 ```text
-C major
-3 qualifying attempts
-96% recent accuracy
-82 BPM exercise tempo
-Practice
+C major  [ Left ●●○ ] [ Right ●○○ ] [ Together ○○○ ]
 ```
 
 Short-exercise example:
 
 ```text
-Dominant cadence in C
-3 accurate attempts
-Tempo not recorded: exercise too short
-Practice
+Dominant cadence in C  [ Practice ●●● ]
 ```
 
 ### 11.5 Accessibility
 
 Every colour state must have a text or icon equivalent.
 
-The interface must expose:
+Compact controls must expose through visible text or semantic labels:
 
-- `2 of 3 qualifying attempts`.
+- Action context, such as `C major, left hand`.
+- Progress such as `2 of 3 practices complete`.
 - `7 of 12 keys`.
-- Numeric accuracy.
 - Numeric exercise BPM when a reliable value is displayed.
-- Accessible labels describing proficiency.
 - Minimum touch-target sizes.
 - Stable semantic ordering.
+
+Detailed numeric accuracy remains available in progress or history views; it
+does not need to compete with the practice action on the key-detail view.
 
 The first release should reuse existing accessibility utilities and semantic colour conventions where applicable.
 
@@ -956,12 +952,14 @@ When fewer progression-qualifying attempts exist than required:
 
 A checkpoint aggregates its required skill exercises.
 
-For example, C major hands apart may aggregate:
+For example, the C major checkpoint may aggregate:
 
 - C major, left hand.
 - C major, right hand.
+- C major, hands together.
 
-The detail view must show individual exercise values if they differ materially.
+The detail view shows each exercise's compact progress state. Detailed metrics
+may be inspected in a dedicated progress or history view.
 
 ### 16.8 Node proficiency and coverage
 
@@ -972,23 +970,20 @@ A node exposes at least:
 - Positive proficiency score.
 - Recent average reliable exercise tempo only when all aggregated child exercises use compatible step-beat semantics and measurement versions.
 
-Example with compatible tempo evidence:
+The node detail header keeps the aggregate intentionally concise:
 
 ```text
-7 of 12 keys
-94% recent qualifying accuracy
-76 BPM recent exercise tempo
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  7 / 12 keys
 ```
 
-Example without compatible node-level tempo:
+Compatible BPM may appear on an individual practice action after it exists:
 
 ```text
-7 of 12 keys
-94% recent qualifying accuracy
-Tempo shown per exercise
+Left  ●●○  76 BPM
 ```
 
-The heatmap colour is a compact summary. The underlying values remain available.
+The visual state is a compact summary. The underlying values remain available
+to progress and history features.
 
 ## 17. Tempo progression
 
@@ -1095,16 +1090,15 @@ Removing a node hides it from the active catalogue but does not delete exercise 
 
 ## 20. Recommended first implementation
 
-Use a small vertical slice of existing practice modes:
+The original implementation began as a small vertical slice of existing
+practice modes. The active catalogue now combines hand configurations beneath
+their musical concept:
 
-1. Major scale, hands apart — tempo `required`.
-2. Major scale, hands together — tempo `required`.
-3. Natural minor scale — tempo `required`.
-4. Major and minor triads — tempo `optional` unless the generated sequence satisfies the minimum timing sample requirements.
-5. Triad inversions — tempo `required` only for sufficiently long generated sequences.
-6. I-IV-V-I progression — tempo `optional` in version 1.
-7. Dominant cadence — tempo `notApplicable` or `optional` in version 1.
-8. One-octave major arpeggio — tempo `required`.
+1. Major scale — left hand, right hand, and hands together.
+2. Natural minor scale — left hand, right hand, and hands together.
+3. Remaining scale modes — left hand, right hand, and hands together.
+4. Major arpeggios.
+5. Diatonic triads, progressions, and dominant cadences.
 
 The slice should demonstrate:
 
@@ -1119,7 +1113,8 @@ The slice should demonstrate:
 - Non-blocking dependencies.
 - Additive catalogue updates.
 
-The shipped catalogue (version 3) has already grown past this illustrative slice: it also covers the remaining scale modes (dorian, phrygian, lydian, mixolydian, locrian) and the i–vi–iv–v and ii–v–i progressions. See `default_skill_catalogue.dart`.
+The shipped catalogue is version 4. See `default_skill_catalogue.dart` for its
+current contents.
 
 ## 21. Suggested file structure
 
@@ -1293,8 +1288,8 @@ The first vertical slice is ready when:
 13. A `required` skill uses only reliable tempo entries with a supported measurement version.
 14. An `optional` or `notApplicable` short exercise can establish proficiency without reliable tempo.
 15. `insufficientData`, `inconsistent`, and `unavailable` results never appear as measured BPM or tempo evidence.
-16. A key detail displays recent accuracy, repetition count, and reliable exercise BPM when available.
-17. A key detail uses neutral explanatory text when tempo is unavailable or the exercise is too short.
+16. A key detail displays compact practice progress and reliable exercise BPM when available.
+17. A key detail omits BPM when tempo is unavailable rather than displaying placeholder copy.
 18. Historical best and next-tempo suggestions use only compatible reliable tempo evidence.
 19. Node-level BPM is omitted when aggregated child exercises have incompatible tempo semantics.
 20. A node displays coverage such as `7 of 12 keys`.

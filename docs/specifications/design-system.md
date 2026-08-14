@@ -1,5 +1,13 @@
 # Piano Fitness Design System Specification
 
+> **Status: historical and aspirational reference.** Some example classes,
+> colors, typography, and directory structures in this document are not
+> implemented. For the active product aesthetic, design principles, review
+> questions, and current sources of truth, use the
+> [Product Design Direction](../design-guidelines.md). Runtime
+> [`ThemeData`](../../lib/presentation/theme/app_theme.dart), shared UI constants,
+> and theme extensions take precedence over examples here.
+
 ## Overview
 
 The Piano Fitness Design System provides a comprehensive visual language and component library that ensures consistency, accessibility, and optimal user experience across the music education application. The design system is specifically tailored for piano practice and learning contexts, considering the unique needs of musicians during focused practice sessions.

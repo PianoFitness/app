@@ -199,7 +199,8 @@ Areas where we especially welcome contributions:
 - [Progress Tracking](docs/specifications/progress-tracking.md)
 - [Visual Feedback System](docs/specifications/visual-feedback-system.md)
 - [Metronome Component](docs/specifications/metronome-component.md)
-- [Design System](docs/specifications/design-system.md)
+- [Product Design Direction](docs/design-guidelines.md)
+- [Design System Specification](docs/specifications/design-system.md)
 - [Authentication System](docs/specifications/authentication-system.md)
 - [Firebase Data Models](docs/specifications/firebase-data-models.md)
 

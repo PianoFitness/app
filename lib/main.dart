@@ -29,9 +29,7 @@ import "package:piano_fitness/domain/repositories/notification_repository.dart";
 import "package:piano_fitness/domain/repositories/settings_repository.dart";
 import "package:piano_fitness/domain/repositories/exercise_history_repository.dart";
 import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
-import "package:piano_fitness/presentation/constants/typography_constants.dart";
-import "package:piano_fitness/presentation/theme/piano_key_colors.dart";
-import "package:piano_fitness/presentation/theme/semantic_colors.dart";
+import "package:piano_fitness/presentation/theme/app_theme.dart";
 import "package:piano_fitness/presentation/widgets/profile_initializer.dart";
 
 /// Entry point for the Piano Fitness application.
@@ -166,40 +164,6 @@ void main() async {
   );
 }
 
-/// Creates a custom TextTheme matching the app's design system.
-///
-/// Based on the Piano Fitness design specification with consistent font sizing
-/// across display, headline, body, and label text styles. Font sizes are defined
-/// in [FontSizes] for maintainability.
-TextTheme _createTextTheme() {
-  return const TextTheme(
-    // Display styles - largest text
-    displayLarge: TextStyle(fontSize: FontSizes.displayLarge),
-    displayMedium: TextStyle(fontSize: FontSizes.displayMedium),
-    displaySmall: TextStyle(fontSize: FontSizes.displaySmall),
-
-    // Headline styles - section headers
-    headlineLarge: TextStyle(fontSize: FontSizes.headlineLarge),
-    headlineMedium: TextStyle(fontSize: FontSizes.headlineMedium),
-    headlineSmall: TextStyle(fontSize: FontSizes.headlineSmall),
-
-    // Title styles - component titles
-    titleLarge: TextStyle(fontSize: FontSizes.titleLarge),
-    titleMedium: TextStyle(fontSize: FontSizes.titleMedium),
-    titleSmall: TextStyle(fontSize: FontSizes.titleSmall),
-
-    // Body styles - main content
-    bodyLarge: TextStyle(fontSize: FontSizes.bodyLarge),
-    bodyMedium: TextStyle(fontSize: FontSizes.bodyMedium),
-    bodySmall: TextStyle(fontSize: FontSizes.bodySmall),
-
-    // Label styles - buttons, chips, small text
-    labelLarge: TextStyle(fontSize: FontSizes.labelLarge),
-    labelMedium: TextStyle(fontSize: FontSizes.labelMedium),
-    labelSmall: TextStyle(fontSize: FontSizes.labelSmall),
-  );
-}
-
 /// The root widget of the Piano Fitness application.
 ///
 /// Sets up the app theme and defines the initial navigation structure.
@@ -213,27 +177,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: "Piano Fitness",
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-        textTheme: _createTextTheme(),
-        extensions: const <ThemeExtension<dynamic>>[
-          SemanticColors.light,
-          PianoKeyColors.light,
-        ],
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-        textTheme: _createTextTheme(),
-        extensions: const <ThemeExtension<dynamic>>[
-          SemanticColors.dark,
-          PianoKeyColors.dark,
-        ],
-      ),
+      theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
       home: const ProfileInitializer(),
     );
   }
