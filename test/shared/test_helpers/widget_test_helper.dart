@@ -57,6 +57,9 @@ Widget createTestWidget(Widget child) {
   ).thenAnswer((_) async => ProfileSortOrder.lastActive);
   when(mockUserProfileRepository.getAllProfiles()).thenAnswer((_) async => []);
   when(
+    mockUserProfileRepository.activeProfileIdChanges,
+  ).thenAnswer((_) => const Stream.empty());
+  when(
     mockMidiDeviceDiscoveryService.setupChanged,
   ).thenAnswer((_) => const Stream.empty());
   when(
@@ -152,6 +155,9 @@ Widget createTestWidgetWithMocks({
     when(
       mockUserProfileRepository.getAllProfiles(),
     ).thenAnswer((_) async => []);
+    when(
+      mockUserProfileRepository.activeProfileIdChanges,
+    ).thenAnswer((_) => const Stream.empty());
   }
   if (midiDeviceDiscoveryService == null) {
     when(

@@ -447,7 +447,10 @@ void main() {
 
       expect(find.text("92.5 BPM"), findsOneWidget);
       expect(find.byIcon(Icons.timelapse_rounded), findsOneWidget);
-      expect(find.byTooltip("Short tempo sample"), findsOneWidget);
+      expect(
+        find.byTooltip("Short tempo sample · 5.0% timing variation"),
+        findsOneWidget,
+      );
       expect(
         find.byKey(const Key("history_tempo_shortSample")),
         findsOneWidget,

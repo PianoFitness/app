@@ -329,16 +329,6 @@ class _PianoDock extends StatelessWidget {
   final MidiState midiState;
   final bool showReferenceNotes;
 
-  MidiNoteRange _rangeForWidth(double width) {
-    if (width >= 1000) {
-      return const MidiNoteRange(fromMidi: 36, toMidi: 84); // C2–C6
-    }
-    if (width >= 600) {
-      return const MidiNoteRange(fromMidi: 48, toMidi: 84); // C3–C6
-    }
-    return const MidiNoteRange(fromMidi: 48, toMidi: 72); // C3–C5
-  }
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -359,7 +349,7 @@ class _PianoDock extends StatelessWidget {
       height: dockHeight,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final range = _rangeForWidth(constraints.maxWidth);
+          const range = PianoRangeUtils.standard49KeyRange;
           final whiteKeyCount = getWhiteKeysInRange(
             range.fromMidi,
             range.toMidi,

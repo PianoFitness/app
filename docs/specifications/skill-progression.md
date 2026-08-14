@@ -124,6 +124,12 @@ The progression evaluator depends only on this contract:
 6. The configured metronome BPM is never substituted for performed exercise BPM.
 7. Unreliable or absent tempo evidence is neutral; it must not reduce existing positive proficiency.
 
+A calculable `insufficientData` or `inconsistent` attempt may retain and show
+its average BPM in History together with learner-facing consistency feedback.
+That display value is not tempo evidence: proficiency, historical-best, and
+next-tempo calculations continue to accept only compatible `reliable` results.
+An `unavailable` result has no measured BPM.
+
 Not every exercise is long enough to satisfy the tempo specification's minimum evidence requirements. In particular, short cadences and chord progressions may always produce `insufficientData` in version 1. Each skill therefore declares whether reliable tempo evidence is required, optional, or not applicable for establishing proficiency.
 
 ## 4. Design principles
@@ -1156,7 +1162,10 @@ Implement `docs/specifications/exercise-tempo-calculation.md`:
 - Record one onset per `PracticeStep` from supported external MIDI input.
 - Calculate version 1 exercise BPM and timing statistics.
 - Persist `tempoMeasurementQuality`, `measuredTempoBpm`, and `tempoMeasurementVersion` with history.
-- Withhold BPM for `insufficientData`, `inconsistent`, and `unavailable` results.
+- Retain calculable average BPM for `insufficientData` and `inconsistent`
+  results so History can pair it with consistency feedback; withhold BPM only
+  when tempo is `unavailable` or otherwise cannot be calculated.
+- Exclude every non-`reliable` result from progression tempo evidence.
 - Complete real-device timing validation before enabling user-facing BPM.
 
 ### Increment 1: Catalogue and matching
@@ -1287,7 +1296,9 @@ The first vertical slice is ready when:
 12. Three progression-qualifying attempts produce a positive key-cell proficiency state.
 13. A `required` skill uses only reliable tempo entries with a supported measurement version.
 14. An `optional` or `notApplicable` short exercise can establish proficiency without reliable tempo.
-15. `insufficientData`, `inconsistent`, and `unavailable` results never appear as measured BPM or tempo evidence.
+15. `insufficientData` and `inconsistent` results may appear in History with a
+    calculable average BPM and consistency feedback, but never contribute tempo
+    evidence; `unavailable` results expose neither.
 16. A key detail displays compact practice progress and reliable exercise BPM when available.
 17. A key detail omits BPM when tempo is unavailable rather than displaying placeholder copy.
 18. Historical best and next-tempo suggestions use only compatible reliable tempo evidence.

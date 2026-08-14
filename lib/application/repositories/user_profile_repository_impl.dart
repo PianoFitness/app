@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:logging/logging.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import "package:uuid/uuid.dart";
@@ -24,6 +26,8 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
   final SharedPreferences _prefs;
   final Uuid _uuid = const Uuid();
   final Logger _logger = Logger("UserProfileRepositoryImpl");
+  final StreamController<String?> _activeProfileIdController =
+      StreamController<String?>.broadcast();
 
   static const String _activeProfileIdKey = "active_profile_id";
   static const String _sortOrderKey = "profile_sort_order";
@@ -103,6 +107,7 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
         if (!success) {
           throw Exception("Failed to clear active profile ID from preferences");
         }
+        _activeProfileIdController.add(null);
       }
     } catch (e, stackTrace) {
       _logger.severe("Error deleting profile $id", e, stackTrace);
@@ -121,12 +126,18 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
   }
 
   @override
+  Stream<String?> get activeProfileIdChanges =>
+      _activeProfileIdController.stream;
+
+  @override
   Future<void> setActiveProfileId(String id) async {
     try {
+      final previousId = _prefs.getString(_activeProfileIdKey);
       final success = await _prefs.setString(_activeProfileIdKey, id);
       if (!success) {
         throw Exception("Failed to save active profile ID to preferences");
       }
+      if (previousId != id) _activeProfileIdController.add(id);
     } catch (e, stackTrace) {
       _logger.severe("Error saving active profile ID", e, stackTrace);
       rethrow;
@@ -162,6 +173,11 @@ class UserProfileRepositoryImpl implements IUserProfileRepository {
       _logger.severe("Error saving sort order", e, stackTrace);
       rethrow;
     }
+  }
+
+  @override
+  void dispose() {
+    _activeProfileIdController.close();
   }
 
   /// Converts a Drift table data object to a domain model.

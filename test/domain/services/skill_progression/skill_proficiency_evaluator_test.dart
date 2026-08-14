@@ -125,6 +125,40 @@ void main() {
     SkillNode nodeById(String id) => DefaultSkillCatalogue.catalogue.nodes
         .firstWhere((node) => node.id == id);
 
+    test("version 4 nests major-scale hand exercises under each key", () {
+      final catalogue = DefaultSkillCatalogue.catalogue;
+
+      expect(catalogue.version, 4);
+      expect(
+        catalogue.nodes.map((node) => node.id),
+        isNot(contains("major-scale-apart")),
+      );
+
+      final majorScale = nodeById("major-scale");
+      expect(majorScale.checkpoints, hasLength(music.Key.values.length));
+      for (final key in music.Key.values) {
+        final checkpoint = majorScale.checkpoints.singleWhere(
+          (candidate) => candidate.id == "major-scale-${key.name}",
+        );
+        expect(checkpoint.exercises.map((exercise) => exercise.id), [
+          "major-scale-${key.name}-left",
+          "major-scale-${key.name}-right",
+          "major-scale-${key.name}-both",
+        ]);
+        expect(
+          checkpoint.exercises.map(
+            (exercise) => exercise.configuration.handSelection,
+          ),
+          [HandSelection.left, HandSelection.right, HandSelection.both],
+        );
+        for (final exercise in checkpoint.exercises) {
+          expect(exercise.configuration.practiceMode, PracticeMode.scales);
+          expect(exercise.configuration.key, key);
+          expect(exercise.configuration.scaleType, music.ScaleType.major);
+        }
+      }
+    });
+
     test("scale and mode nodes cover every key and hand selection", () {
       final expectations = <String, music.ScaleType>{
         "major-scale": music.ScaleType.major,

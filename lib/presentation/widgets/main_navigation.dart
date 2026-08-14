@@ -1,3 +1,5 @@
+import "dart:async";
+
 import "package:flutter/material.dart";
 import "package:piano_fitness/application/state/metronome_state.dart";
 import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
@@ -33,6 +35,15 @@ const List<Key> _drawerTabKeys = [
   Key("drawer_tab_progress"),
 ];
 
+/// Shared names for routes shown within the persistent application shell.
+abstract final class MainNavigationRouteNames {
+  static const metronome = "Metronome";
+  static const midiSettings = "MIDI Settings";
+  static const notifications = "Notifications";
+  static const profiles = "Profiles";
+  static const practiceSession = "Practice Session";
+}
+
 /// Persistent application shell for sections, utilities, and nested routes.
 ///
 /// Detail pages are pushed onto [_contentNavigatorKey], so the shell app bar
@@ -50,6 +61,8 @@ class _MainNavigationState extends State<MainNavigation> {
   late final NavigatorObserver _contentNavigatorObserver;
   late final ValueNotifier<int> _selectedIndexNotifier;
   late final List<Widget> _pages;
+  StreamSubscription<String?>? _activeProfileSubscription;
+  IUserProfileRepository? _profileRepository;
 
   int _selectedIndex = 0;
   bool _contentCanPop = false;
@@ -70,7 +83,20 @@ class _MainNavigationState extends State<MainNavigation> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final repository = context.read<IUserProfileRepository>();
+    if (identical(repository, _profileRepository)) return;
+    _activeProfileSubscription?.cancel();
+    _profileRepository = repository;
+    _activeProfileSubscription = repository.activeProfileIdChanges.listen(
+      _handleActiveProfileChanged,
+    );
+  }
+
+  @override
   void dispose() {
+    _activeProfileSubscription?.cancel();
     _selectedIndexNotifier.dispose();
     super.dispose();
   }
@@ -118,14 +144,8 @@ class _MainNavigationState extends State<MainNavigation> {
     );
   }
 
-  Future<void> _openProfilePage() async {
-    final repository = context.read<IUserProfileRepository>();
-    final profileIdBefore = await repository.getActiveProfileId();
-    await _pushContentPage<void>(const UserProfilePage(), "Profiles");
+  void _handleActiveProfileChanged(String? profileId) {
     if (!mounted) return;
-    final profileIdAfter = await repository.getActiveProfileId();
-    if (!mounted || profileIdBefore == profileIdAfter) return;
-
     // Recreate the root route so profile-scoped page subscriptions reload.
     _contentNavigatorKey.currentState?.pushAndRemoveUntil<void>(
       _buildContentRootRoute(),
@@ -135,6 +155,13 @@ class _MainNavigationState extends State<MainNavigation> {
       _contentCanPop = false;
       _contentRouteTitle = null;
     });
+  }
+
+  void _openProfilePage() {
+    _pushContentPage<void>(
+      const UserProfilePage(),
+      MainNavigationRouteNames.profiles,
+    );
   }
 
   Widget _buildNavIcon(int index) {
@@ -182,7 +209,10 @@ class _MainNavigationState extends State<MainNavigation> {
               title: const Text("Metronome"),
               onTap: () {
                 Navigator.of(context).pop();
-                _pushContentPage<void>(const MetronomePage(), "Metronome");
+                _pushContentPage<void>(
+                  const MetronomePage(),
+                  MainNavigationRouteNames.metronome,
+                );
               },
             ),
             ListTile(
@@ -193,7 +223,7 @@ class _MainNavigationState extends State<MainNavigation> {
                 Navigator.of(context).pop();
                 _pushContentPage<void>(
                   const MidiSettingsPage(),
-                  "MIDI Settings",
+                  MainNavigationRouteNames.midiSettings,
                 );
               },
             ),
@@ -205,7 +235,7 @@ class _MainNavigationState extends State<MainNavigation> {
                 Navigator.of(context).pop();
                 _pushContentPage<void>(
                   const NotificationsPage(),
-                  "Notifications",
+                  MainNavigationRouteNames.notifications,
                 );
               },
             ),
@@ -276,8 +306,10 @@ class _MainNavigationState extends State<MainNavigation> {
           ),
           actions: [
             _MetronomeAppBarButton(
-              onOpenFullPage: () =>
-                  _pushContentPage<void>(const MetronomePage(), "Metronome"),
+              onOpenFullPage: () => _pushContentPage<void>(
+                const MetronomePage(),
+                MainNavigationRouteNames.metronome,
+              ),
             ),
           ],
         ),

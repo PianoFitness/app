@@ -1,9 +1,14 @@
+import "dart:async";
+
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
+import "package:mockito/mockito.dart";
+import "package:piano_fitness/domain/models/profile_sort_order.dart";
 import "package:piano_fitness/presentation/widgets/main_navigation.dart";
 
 import "../../shared/test_helpers/pump_helpers.dart";
 import "../../shared/test_helpers/widget_test_helper.dart";
+import "../../shared/test_helpers/mock_repositories.mocks.dart";
 
 Future<void> pumpPortraitMainNavigation(WidgetTester tester) async {
   await pumpPortrait(tester, createTestWidget(const MainNavigation()));
@@ -213,6 +218,39 @@ void main() {
       );
       expect(stack.index, 1);
       expect(stack.children.length, 3);
+    });
+
+    testWidgets("resets nested content when the active profile changes", (
+      tester,
+    ) async {
+      final profiles = MockIUserProfileRepository();
+      final profileChanges = StreamController<String?>();
+      addTearDown(profileChanges.close);
+      when(profiles.getActiveProfileId()).thenAnswer((_) async => null);
+      when(
+        profiles.activeProfileIdChanges,
+      ).thenAnswer((_) => profileChanges.stream);
+      when(
+        profiles.getSortOrder(),
+      ).thenAnswer((_) async => ProfileSortOrder.lastActive);
+      when(profiles.getAllProfiles()).thenAnswer((_) async => []);
+
+      await pumpPortrait(
+        tester,
+        createTestWidgetWithMocks(
+          child: const MainNavigation(),
+          userProfileRepository: profiles,
+        ),
+      );
+      await tester.tap(find.byKey(const Key("skill_node_major-scale")));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("content_back_button")), findsOneWidget);
+
+      profileChanges.add("new-profile");
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key("content_back_button")), findsNothing);
+      expect(find.text("Curriculum"), findsWidgets);
     });
 
     testWidgets("provides semantic headers and global action tooltips", (

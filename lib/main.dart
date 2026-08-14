@@ -130,6 +130,7 @@ void main() async {
             database: database,
             prefs: sharedPreferences,
           ),
+          dispose: (_, repository) => repository.dispose(),
         ),
 
         // Exercise history repository

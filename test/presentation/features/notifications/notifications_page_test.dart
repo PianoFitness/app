@@ -4,6 +4,7 @@ import "package:piano_fitness/domain/models/notification_settings_data.dart";
 import "package:piano_fitness/domain/repositories/notification_repository.dart";
 import "package:piano_fitness/domain/repositories/settings_repository.dart";
 import "package:piano_fitness/presentation/features/notifications/notifications_page.dart";
+import "package:piano_fitness/presentation/widgets/main_navigation_scope.dart";
 import "package:provider/provider.dart";
 
 class FakeNotificationRepository implements INotificationRepository {
@@ -78,6 +79,26 @@ void main() {
 
       final switches = find.byType(Switch);
       expect(switches, findsNWidgets(2));
+    });
+
+    testWidgets("omits its local app bar inside the navigation shell", (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            Provider<INotificationRepository>.value(value: notificationRepo),
+            Provider<ISettingsRepository>.value(value: settingsRepo),
+          ],
+          child: const MaterialApp(
+            home: MainNavigationScope(child: NotificationsPage()),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final scaffold = tester.widget<Scaffold>(find.byType(Scaffold).first);
+      expect(scaffold.appBar, isNull);
     });
   });
 }

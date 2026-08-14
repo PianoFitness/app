@@ -38,6 +38,7 @@ abstract final class TempoConsistencyInterpreter {
     int? meanInterOnsetMicroseconds,
     int? interOnsetStandardDeviationMicroseconds,
     int? intervalCount,
+    TempoMeasurementQuality? measurementQuality,
   }) {
     final coefficient = _validCoefficient(
       coefficientOfVariation,
@@ -49,6 +50,7 @@ abstract final class TempoConsistencyInterpreter {
     if (_isShortSample(
       meanInterOnsetMicroseconds: meanInterOnsetMicroseconds,
       intervalCount: intervalCount,
+      measurementQuality: measurementQuality,
     )) {
       return TempoConsistencyAssessment(
         band: TempoConsistencyBand.shortSample,
@@ -86,7 +88,11 @@ abstract final class TempoConsistencyInterpreter {
   static bool _isShortSample({
     required int? meanInterOnsetMicroseconds,
     required int? intervalCount,
+    required TempoMeasurementQuality? measurementQuality,
   }) {
+    if (measurementQuality == TempoMeasurementQuality.insufficientData) {
+      return true;
+    }
     if (intervalCount == null) return false;
     if (intervalCount < TempoMeasurementThresholds.minimumIntervalCount) {
       return true;

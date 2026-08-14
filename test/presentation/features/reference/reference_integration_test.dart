@@ -53,11 +53,11 @@ void main() {
         find.byKey(const Key("piano_keyboard")),
       );
       expect(piano.noteLabelMode, NoteLabelMode.none);
-      expect(piano.range, const MidiNoteRange(fromMidi: 48, toMidi: 72));
+      expect(piano.range, const MidiNoteRange(fromMidi: 36, toMidi: 84));
       expect(piano.minimumKeyWidth, 20);
     });
 
-    testWidgets("shows two to four octaves as the available width grows", (
+    testWidgets("keeps the standard 49-key range at every viewport width", (
       tester,
     ) async {
       Future<MidiNoteRange> rangeAt(Size size) async {
@@ -75,11 +75,11 @@ void main() {
 
       expect(
         await rangeAt(const Size(390, 844)),
-        const MidiNoteRange(fromMidi: 48, toMidi: 72),
+        const MidiNoteRange(fromMidi: 36, toMidi: 84),
       );
       expect(
         await rangeAt(const Size(700, 900)),
-        const MidiNoteRange(fromMidi: 48, toMidi: 84),
+        const MidiNoteRange(fromMidi: 36, toMidi: 84),
       );
       expect(
         await rangeAt(const Size(1100, 900)),
@@ -129,7 +129,7 @@ void main() {
         find.byKey(const Key("piano_keyboard")),
       );
       expect(piano.noteLabelMode, NoteLabelMode.name);
-      expect(piano.range, const MidiNoteRange(fromMidi: 48, toMidi: 72));
+      expect(piano.range, const MidiNoteRange(fromMidi: 36, toMidi: 84));
 
       await tester.tap(find.byKey(const Key("piano_clear_reference")));
       await tester.pumpAndSettle();

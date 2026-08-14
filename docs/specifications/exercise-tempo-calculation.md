@@ -499,6 +499,7 @@ class ExerciseTempoResult {
     this.meanInterOnsetMicroseconds,
     this.interOnsetStandardDeviationMicroseconds,
     this.coefficientOfVariation,
+    this.tempoStepNoteValue,
   });
 
   final TempoMeasurementQuality quality;
@@ -517,6 +518,9 @@ class ExerciseTempoResult {
 
   /// May be retained for sufficient and inconsistent measurements.
   final double? coefficientOfVariation;
+
+  /// Uniform step value used to convert the measurement to quarter-note BPM.
+  final PracticeStepNoteValue? tempoStepNoteValue;
 }
 ```
 
@@ -665,11 +669,17 @@ Persist:
 
 Persist:
 
-- `measuredTempoBpm = null`
+- The calculated `measuredTempoBpm` when valid intervals and a declared step
+  note value make an average calculable
 - Available summary statistics
 - Interval count
 - Quality
 - Version 1
+
+Use `measuredTempoBpm = null` only when tempo cannot be calculated. The
+`insufficientData` and `inconsistent` classifications prevent these averages
+from becoming proficiency evidence; they do not erase an observable average
+from learner-facing History.
 
 ### 17.3 Unavailable result
 

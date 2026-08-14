@@ -110,27 +110,17 @@ class SkillTreePageViewModel extends ChangeNotifier {
   }
 
   RecentSkillPractice? _findRecentPractice(List<ExerciseHistoryEntry> entries) {
-    final orderedEntries = [...entries]
-      ..sort((a, b) => b.completedAt.compareTo(a.completedAt));
-    for (final entry in orderedEntries) {
-      for (final nodeProficiency in _nodeProficiencies) {
-        for (final checkpoint in nodeProficiency.checkpointProficiencies) {
-          for (final exercise in checkpoint.exerciseProficiencies) {
-            if (SkillHistoryMatcher.entriesForExercise([
-              entry,
-            ], exercise.exercise).isNotEmpty) {
-              return RecentSkillPractice(
-                nodeName: nodeProficiency.node.name,
-                checkpointName: checkpoint.checkpoint.name,
-                exercise: exercise.exercise,
-                completedAt: entry.completedAt,
-              );
-            }
-          }
-        }
-      }
-    }
-    return null;
+    final match = SkillHistoryMatcher.findMostRecentPractice(
+      entries,
+      catalogue,
+    );
+    if (match == null) return null;
+    return RecentSkillPractice(
+      nodeName: match.node.name,
+      checkpointName: match.checkpoint.name,
+      exercise: match.exercise,
+      completedAt: match.entry.completedAt,
+    );
   }
 
   @override

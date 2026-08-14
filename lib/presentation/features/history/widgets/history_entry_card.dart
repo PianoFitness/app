@@ -47,6 +47,7 @@ class HistoryEntryCard extends StatelessWidget {
       interOnsetStandardDeviationMicroseconds:
           entry.interOnsetStandardDeviationMicroseconds,
       intervalCount: entry.tempoIntervalCount,
+      measurementQuality: entry.tempoMeasurementQuality,
     );
     final tempoQualityLabel = tempoBpm != null
         ? _tempoFeedbackLabel(
@@ -332,9 +333,7 @@ class _TempoBadge extends StatelessWidget {
       fallbackQuality: fallbackQuality,
     );
     final coefficient = assessment?.coefficientOfVariation;
-    final tooltipLabel =
-        coefficient != null &&
-            assessment?.band != TempoConsistencyBand.shortSample
+    final tooltipLabel = coefficient != null
         ? "$feedbackLabel · ${(coefficient * 100).toStringAsFixed(1)}% timing variation"
         : feedbackLabel;
 

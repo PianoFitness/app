@@ -10,6 +10,7 @@ import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:piano_fitness/presentation/features/practice/practice_page.dart";
 import "package:piano_fitness/presentation/features/skill_progression/skill_tree_page_view_model.dart";
 import "package:piano_fitness/presentation/widgets/main_navigation_scope.dart";
+import "package:piano_fitness/presentation/widgets/main_navigation.dart";
 
 /// A positive, freely navigable map of the curated piano technique catalogue.
 class SkillTreePage extends StatelessWidget {
@@ -69,7 +70,7 @@ class _SkillTreeView extends StatelessWidget {
         ),
         const SizedBox(height: Spacing.xs),
         Text(
-          "Choose a skill and practise it across keys.",
+          "Choose a skill and practice it across keys.",
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
@@ -147,7 +148,9 @@ class _ContinuePracticeCard extends StatelessWidget {
             key: const Key("curriculum_continue_button"),
             onPressed: () => Navigator.of(context).push(
               MaterialPageRoute<void>(
-                settings: const RouteSettings(name: "Practice Session"),
+                settings: const RouteSettings(
+                  name: MainNavigationRouteNames.practiceSession,
+                ),
                 builder: (_) => PracticePage(
                   initialConfiguration: recent.exercise.configuration,
                   backTooltip: "Back to Curriculum",
@@ -378,7 +381,9 @@ class _CheckpointCard extends StatelessWidget {
   ) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        settings: const RouteSettings(name: "Practice Session"),
+        settings: const RouteSettings(
+          name: MainNavigationRouteNames.practiceSession,
+        ),
         builder: (_) => PracticePage(
           initialConfiguration: configuration,
           backTooltip: "Back to Curriculum",
@@ -516,10 +521,14 @@ class _PracticeChoiceButton extends StatelessWidget {
                   ),
                   if (bpm != null) ...[
                     const SizedBox(width: Spacing.xs),
-                    Text(
-                      "${bpm.toStringAsFixed(0)} BPM",
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: foregroundColor.withValues(alpha: 0.78),
+                    Flexible(
+                      child: Text(
+                        "${bpm.toStringAsFixed(0)} BPM",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: foregroundColor.withValues(alpha: 0.78),
+                        ),
                       ),
                     ),
                   ],

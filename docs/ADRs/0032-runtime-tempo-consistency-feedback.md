@@ -35,9 +35,12 @@ The initial bands are:
 | Above 0.10, up to 0.20 | Mostly steady |
 | Above 0.20 | Varied tempo |
 
-A sample with fewer than five intervals or an estimated measured span shorter
-than two seconds is shown as **Short tempo sample**, regardless of its apparent
-variation. The estimated span is `mean interval × interval count`.
+A sample classified as `insufficientData` by the acquisition algorithm is shown
+as **Short tempo sample**, regardless of its apparent variation. This preserves
+the calculator's exact-duration decision without reconstructing duration from
+rounded aggregates. For compatible legacy rows without a stored quality, fewer
+than five intervals or an estimated span of `mean interval × interval count`
+shorter than two seconds provides the fallback classification.
 
 The stored coefficient is preferred. For compatible older rows where it is
 missing, the runtime interpreter reconstructs it from the stored mean and

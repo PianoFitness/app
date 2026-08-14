@@ -151,8 +151,12 @@ testWidgets("should keep a piano reference while visiting another section", (tes
   // Open Piano, configure reference notes, and apply.
   await navigateToTab(tester, const Key("nav_tab_piano"));
   await tester.tap(find.byKey(const Key("piano_show_notes_button")));
-  await tester.tap(find.byKey(const Key("reference_kind_selector")));
+  await tester.pumpAndSettle();
+  final selector = find.byKey(const Key("reference_kind_selector"));
+  await tester.tap(find.descendant(of: selector, matching: find.text("Chord")));
+  await tester.pumpAndSettle();
   await tester.tap(find.byKey(const Key("reference_picker_apply")));
+  await tester.pumpAndSettle();
   
   // Test state persistence across primary destinations.
   await navigateToTab(tester, const Key("nav_tab_curriculum"));
@@ -463,14 +467,20 @@ Bottom navigation items and app bar actions should expose stable keys for testin
 - **Navigation tests**: Create helper functions for key-based navigation
 
 ```dart
-// Good: Individual tab keys in MainNavigation
-BottomNavigationBarItem(
-  icon: Semantics(
-    key: const Key("nav_tab_curriculum"),
-    button: true,
-    child: const Icon(Icons.menu_book_outlined),
-  ),
-  label: "Curriculum",
+// Good: Individual destination keys in MainNavigation
+NavigationBar(
+  selectedIndex: selectedIndex,
+  onDestinationSelected: onDestinationSelected,
+  destinations: const [
+    NavigationDestination(
+      icon: Semantics(
+        key: Key("nav_tab_curriculum"),
+        button: true,
+        child: Icon(Icons.menu_book),
+      ),
+      label: "Curriculum",
+    ),
+  ],
 ),
 
 // Good: Key-based navigation helper

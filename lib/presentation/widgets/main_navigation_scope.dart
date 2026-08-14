@@ -7,8 +7,7 @@ class MainNavigationScope extends InheritedWidget {
 
   /// Whether [context] is inside the persistent application shell.
   static bool isActive(BuildContext context) {
-    return context.dependOnInheritedWidgetOfExactType<MainNavigationScope>() !=
-        null;
+    return context.getInheritedWidgetOfExactType<MainNavigationScope>() != null;
   }
 
   @override

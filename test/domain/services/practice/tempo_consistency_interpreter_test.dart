@@ -1,4 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart";
 import "package:piano_fitness/domain/services/practice/tempo_consistency_interpreter.dart";
 
 void main() {
@@ -59,6 +60,20 @@ void main() {
       );
 
       expect(result?.band, TempoConsistencyBand.shortSample);
+    });
+
+    test("preserves the calculator's exact-duration short classification", () {
+      final result = TempoConsistencyInterpreter.assess(
+        coefficientOfVariation: 0.05,
+        meanInterOnsetMicroseconds: 400000,
+        intervalCount: 5,
+        measurementQuality: TempoMeasurementQuality.insufficientData,
+      );
+
+      // Rounded aggregates appear to span exactly two seconds, while the
+      // acquisition quality preserves an exact span just below the threshold.
+      expect(result?.band, TempoConsistencyBand.shortSample);
+      expect(result?.coefficientOfVariation, 0.05);
     });
 
     test("returns null when no valid statistics exist", () {

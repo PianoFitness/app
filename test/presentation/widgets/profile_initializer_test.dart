@@ -15,6 +15,9 @@ void main() {
 
     setUp(() {
       mockRepository = MockIUserProfileRepository();
+      when(
+        mockRepository.activeProfileIdChanges,
+      ).thenAnswer((_) => const Stream.empty());
     });
 
     testWidgets("should show loading indicator initially", (tester) async {

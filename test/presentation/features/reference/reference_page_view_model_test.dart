@@ -195,6 +195,26 @@ void main() {
       expect(notificationCount, 1);
     });
 
+    test("does not notify for an unchanged complete selection", () {
+      var notificationCount = 0;
+      viewModel.addListener(() => notificationCount++);
+
+      viewModel.setSelection(
+        mode: ReferenceMode.scales,
+        key: scales.Key.c,
+        scaleType: scales.ScaleType.major,
+        chordType: ChordType.major,
+        chordInversion: ChordInversion.root,
+      );
+
+      expect(viewModel.selectedMode, ReferenceMode.scales);
+      expect(viewModel.selectedKey, scales.Key.c);
+      expect(viewModel.selectedScaleType, scales.ScaleType.major);
+      expect(viewModel.selectedChordType, ChordType.major);
+      expect(viewModel.selectedChordInversion, ChordInversion.root);
+      expect(notificationCount, 0);
+    });
+
     group("Highlighted MIDI Notes - Scales", () {
       test("should return correct MIDI notes for C Major scale", () {
         viewModel.setSelectedKey(scales.Key.c);
