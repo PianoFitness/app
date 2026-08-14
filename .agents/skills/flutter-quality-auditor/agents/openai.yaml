@@ -1,0 +1,4 @@
+interface:
+  display_name: "Flutter Quality Auditor"
+  short_description: "Audit Flutter quality and architecture"
+  default_prompt: "Use $flutter-quality-auditor to assess recent Flutter changes and report actionable quality findings."

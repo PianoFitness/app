@@ -1,0 +1,4 @@
+interface:
+  display_name: "Piano Theory Instructor"
+  short_description: "Validate piano pedagogy and music theory"
+  default_prompt: "Use $piano-theory-instructor to review an exercise or curriculum concept for musical and pedagogical accuracy."

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Documentation Steward"
+  short_description: "Maintain Piano Fitness specs and ADRs"
+  default_prompt: "Use $documentation-steward to create or reconcile a Piano Fitness specification or ADR."
