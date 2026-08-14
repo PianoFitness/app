@@ -126,6 +126,83 @@ part of the app or correct their setup.
   preserving an invisible stack of detail pages underneath it.
 - Avoid stacking page-specific app bars beneath the application app bar.
 
+## Product information architecture
+
+The primary navigation expresses learner intent, not the application's internal
+feature map:
+
+| Destination | Learner question | Primary content |
+| --- | --- | --- |
+| Curriculum | What should I practise? | Continue, choose a skill, begin a focused session |
+| Piano | Can I play or look this up? | Free play and reference modes on one piano surface |
+| Progress | How is my practice adding up? | Summary first, recent activity second |
+
+Use **learn, play, review** as a quick test for new top-level destinations. A
+new page should usually be contextual or live in the global application menu
+unless it represents a distinct, frequent learner intent that does not fit one
+of these three destinations.
+
+Practice Session is a contextual workflow, not a fourth destination. Metronome,
+MIDI, notifications, profiles, and other setup are globally reachable tools.
+
+## Reusable page patterns
+
+### Action-first page
+
+Lead with the control or content the learner came to use. A short status line is
+enough when context is necessary. Avoid a decorative hero that repeats the page
+title or explains a familiar interaction before revealing it.
+
+Current example: Piano puts its mode switch and playable keyboard before
+supporting detail.
+
+### Continue, then catalogue
+
+On repeat-use learning pages, show a direct continuation of the learner's
+recent work before the complete catalogue. Keep the continuation compact and
+identify both the exercise and its configuration. Do not fabricate a
+recommendation when no meaningful history exists.
+
+Current example: Curriculum shows **Continue** only after a matching practice
+record has been found.
+
+### Summary, then activity
+
+Progress pages should answer “how am I doing?” before presenting the underlying
+event log. Use a few legible metrics with meaningful values; omit unavailable
+metrics rather than filling their place with status prose.
+
+Current example: Progress shows practices, active days, and best accuracy above
+recent activity.
+
+### Standard settings list
+
+Routine preferences use one quiet, width-capped list. Each setting has a clear
+label, optional one-line description, and its control in the trailing position.
+Permission state may be a list item with a direct action. Avoid gradients,
+illustrative headers, and a separate card for every switch.
+
+Current example: Notifications uses standard list and switch rows.
+
+### Status first, advanced details on demand
+
+Hardware pages should first answer whether the instrument is connected and what
+the learner can do next. Technical identifiers, channels, raw MIDI values, and
+diagnostic controls belong in collapsed advanced sections unless they require
+immediate attention.
+
+Current examples: MIDI Settings prioritizes connection and available keyboards;
+Device Controller collapses device metadata and advanced MIDI controls.
+
+### Mode switch on a shared surface
+
+Use a segmented mode switch when two activities operate on the same object and
+the learner benefits from moving between them without changing sections. Keep
+the modes' state alive while switching. Do not use this pattern for unrelated
+destinations merely to reduce navigation count.
+
+Current example: Piano combines **Play** and **Reference**.
+
 ## Visual language
 
 ### Material 3 foundation

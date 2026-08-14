@@ -50,7 +50,7 @@ class HistoryEntryCard extends StatelessWidget {
     return Semantics(
       label: semanticLabel,
       child: Card(
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           child: Column(
@@ -58,10 +58,12 @@ class HistoryEntryCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Chip(
-                    label: Text(modeLabel, style: theme.textTheme.labelSmall),
-                    padding: EdgeInsets.zero,
-                    visualDensity: VisualDensity.compact,
+                  Text(
+                    modeLabel,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const Spacer(),
                   Text(

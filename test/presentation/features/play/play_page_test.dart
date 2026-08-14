@@ -21,10 +21,7 @@ void main() {
       // Verify PlayPage is rendered
       expect(find.byType(PlayPage), findsOneWidget);
       expect(find.byKey(const Key("playPageTitle")), findsOneWidget);
-      expect(
-        find.byIcon(Icons.piano),
-        findsWidgets,
-      ); // There are multiple piano icons
+      expect(find.byType(PianoKeyboard), findsOneWidget);
     });
 
     // Skipping this test due to MIDI initialization timing issues during widget build.
@@ -37,15 +34,18 @@ void main() {
       // This test is intentionally skipped - see comment above
     }, skip: true);
 
-    testWidgets("should display educational content for free play", (
+    testWidgets("should lead with the piano and concise guidance", (
       tester,
     ) async {
       await tester.pumpWidget(createTestWidget(const PlayPage()));
 
-      // Verify free play content is present
-      expect(find.text("Free Play Mode"), findsOneWidget);
-      expect(find.byIcon(Icons.piano), findsWidgets);
-      expect(find.textContaining("Explore and play freely"), findsOneWidget);
+      expect(find.byType(PianoKeyboard), findsOneWidget);
+      expect(
+        find.text("Play with your keyboard or tap the keys"),
+        findsOneWidget,
+      );
+      expect(find.text("Free Play Mode"), findsNothing);
+      expect(find.textContaining("Practice tab"), findsNothing);
     });
 
     testWidgets("should use ViewModel for piano range calculation", (

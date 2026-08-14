@@ -1,6 +1,28 @@
 # Application UX Audit
 
-> Status: working product recommendation. Audited August 2026.
+> Status: implemented baseline. Audited and applied August 2026.
+
+## Implementation outcome
+
+The audit now has a working product baseline rather than only a proposed
+direction:
+
+- Curriculum is the default destination and offers a direct **Continue** action
+  when matching practice history exists.
+- Primary navigation is reduced to **Curriculum**, **Piano**, and **Progress**.
+- Piano combines free play and reference as modes of one surface.
+- Curriculum-launched practice opens in a focused state, with configuration
+  available on demand.
+- Progress leads with practice count, active days, and best accuracy before the
+  chronological activity list.
+- MIDI, notification, and device-controller pages use compact settings patterns
+  and hide advanced controls until requested.
+- Practice Hub and Repertoire are retired from product navigation. Their source
+  remains temporarily so deletion can be evaluated separately from this UX
+  change.
+
+The recommendations below are retained as the reasoning behind the resulting
+information architecture and as a checklist for future work.
 
 ## Product focus
 
@@ -17,9 +39,10 @@ The product hierarchy should therefore be:
 4. **Tools:** use the piano, reference view, metronome, and device settings when
    needed.
 
-Today, six equal navigation destinations make utilities and overlapping entry
-points appear as important as that core loop. The result is capable but harder
-to understand than the underlying product needs to be.
+Previously, six equal navigation destinations made utilities and overlapping
+entry points appear as important as that core loop. The resulting information
+architecture was capable but harder to understand than the underlying product
+needed to be.
 
 ## Main findings
 
@@ -31,9 +54,9 @@ a detour. Curriculum should open first and provide a clear next practice action.
 
 ### 2. Navigation exposes the internal feature map
 
-The bottom bar currently contains Curriculum, Practice, Free Play, Reference,
-Repertoire, and History. Six peer destinations are difficult to scan on a phone
-and do not communicate which journey matters most.
+The previous bottom bar contained Curriculum, Practice, Free Play, Reference,
+Repertoire, and History. Six peer destinations were difficult to scan on a
+phone and did not communicate which journey mattered most.
 
 The structure also mirrors implementation boundaries rather than learner
 intent. A learner should not have to decide whether a scale belongs under
@@ -180,26 +203,26 @@ new active profile.
 History should not be deleted, but it should become the detail layer of a more
 useful Progress experience.
 
-## Recommended sequence
+## Delivery record
 
-### Now
+### Implemented
 
 - Open on Curriculum.
 - Show recorded practice independently from proficiency.
 - Remove Curriculum's duplicate nested app bar.
-
-### Next
-
 - Reduce primary navigation to Curriculum, Piano, and Progress.
 - Merge Free Play and Reference.
 - Move quick starts into Curriculum and retire the Practice hub.
-- Decide whether Repertoire has a real product roadmap; otherwise retire it.
-
-### Then
-
 - Add Curriculum “Continue” and “Suggested next” sections.
 - Turn History into a decision-oriented Progress page.
 - Flatten settings pages and progressively disclose advanced MIDI controls.
+
+### Follow-up discovery
+
+- Add a more opinionated “Suggested next” recommendation when the curriculum
+  progression model can support it.
+- Decide whether Repertoire has a committed product roadmap; otherwise remove
+  its dormant implementation in a dedicated cleanup.
 - Test the complete core loop with learners: launch, choose an exercise,
   practise, return, and recognize the recorded progress.
 

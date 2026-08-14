@@ -3,7 +3,6 @@ import "package:provider/provider.dart";
 import "package:piano_fitness/application/state/midi_state.dart";
 import "package:piano_fitness/application/utils/midi_coordinator.dart";
 import "package:piano_fitness/domain/repositories/midi_repository.dart";
-import "package:piano_fitness/presentation/features/play/play_constants.dart";
 import "package:piano_fitness/presentation/features/play/play_page_view_model.dart";
 import "package:piano_fitness/presentation/accessibility/config/accessibility_labels.dart";
 import "package:piano_fitness/presentation/constants/ui_constants.dart";
@@ -50,105 +49,38 @@ class _PlayPageView extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          Expanded(
-            flex: 3,
-            child: SafeArea(
-              bottom: false,
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(Spacing.sm),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Educational Content Area
-                    Container(
-                      padding: const EdgeInsets.all(Spacing.md),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(
-                          AppBorderRadius.medium,
-                        ),
-                        border: Border.all(color: colorScheme.outline),
-                      ),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.piano,
-                            size: ComponentDimensions.iconSizeXLarge,
-                            color: colorScheme.primary,
-                          ),
-                          const SizedBox(height: Spacing.sm),
-                          Text(
-                            "Free Play Mode",
-                            key: const Key("playPageTitle"),
-                            style:
-                                Theme.of(
-                                  context,
-                                ).textTheme.headlineSmall?.copyWith(
-                                  color: colorScheme.onPrimaryContainer,
-                                ) ??
-                                TextStyle(
-                                  color: colorScheme.onPrimaryContainer,
-                                ),
-                          ),
-                          const SizedBox(height: Spacing.sm),
-                          Text(
-                            "Explore and play freely with the interactive piano. "
-                            "Connect a MIDI keyboard for enhanced experience or use the virtual keys below.",
-                            style:
-                                Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.copyWith(
-                                  color: colorScheme.onPrimaryContainer,
-                                ) ??
-                                TextStyle(
-                                  color: colorScheme.onPrimaryContainer,
-                                ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: Spacing.md),
-                          Container(
-                            padding: PlayUIConstants.infoBannerPadding,
-                            decoration: BoxDecoration(
-                              color: colorScheme.surface,
-                              borderRadius: BorderRadius.circular(
-                                AppBorderRadius.small,
-                              ),
-                              border: Border.all(color: colorScheme.outline),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.info_outline,
-                                  size: ComponentDimensions.iconSizeSmall,
-                                  color: colorScheme.onSurface,
-                                ),
-                                const SizedBox(width: Spacing.sm),
-                                Flexible(
-                                  child: Text(
-                                    "Looking for structured practice? Visit the Practice tab!",
-                                    style:
-                                        Theme.of(
-                                          context,
-                                        ).textTheme.bodySmall?.copyWith(
-                                          color: colorScheme.onSurface,
-                                        ) ??
-                                        TextStyle(color: colorScheme.onSurface),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: Spacing.md,
+              vertical: Spacing.xs,
+            ),
+            child: Row(
+              key: const Key("playPageTitle"),
+              children: [
+                Icon(
+                  viewModel.midiState.hasRecentActivity
+                      ? Icons.graphic_eq
+                      : Icons.touch_app_outlined,
+                  size: ComponentDimensions.iconSizeMedium,
+                  color: viewModel.midiState.hasRecentActivity
+                      ? colorScheme.primary
+                      : colorScheme.onSurfaceVariant,
                 ),
-              ),
+                const SizedBox(width: Spacing.sm),
+                Expanded(
+                  child: Text(
+                    viewModel.midiState.hasRecentActivity
+                        ? "MIDI active"
+                        : "Play with your keyboard or tap the keys",
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           Expanded(
-            flex: 4,
             child: AnimatedBuilder(
               animation: viewModel,
               builder: (context, child) {

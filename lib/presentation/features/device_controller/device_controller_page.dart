@@ -50,15 +50,85 @@ class _DeviceControllerView extends StatelessWidget {
               backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             ),
       body: ListView(
-        padding: const EdgeInsets.all(Spacing.md),
+        padding: const EdgeInsets.fromLTRB(
+          Spacing.md,
+          Spacing.md,
+          Spacing.md,
+          120,
+        ),
         children: [
-          _buildDeviceInfoCard(context, viewModel),
-          _buildLastMessageCard(context, viewModel),
-          _buildChannelCard(context, viewModel),
-          _buildControlChangeCard(context, viewModel),
-          _buildProgramChangeCard(context, viewModel),
-          _buildPitchBendCard(context, viewModel),
+          _buildDeviceStatus(context, viewModel),
+          const SizedBox(height: Spacing.sm),
           _buildVirtualPianoCard(context, viewModel),
+          _buildLastMessageCard(context, viewModel),
+          ExpansionTile(
+            key: const Key("device_details_section"),
+            leading: const Icon(Icons.info_outline),
+            title: const Text("Device details"),
+            subtitle: const Text("Identifiers and ports"),
+            children: [_buildDeviceInfoCard(context, viewModel)],
+          ),
+          ExpansionTile(
+            key: const Key("advanced_midi_controls_section"),
+            leading: const Icon(Icons.tune),
+            title: const Text("Advanced MIDI controls"),
+            subtitle: const Text("Channel, CC, program, and pitch bend"),
+            children: [
+              _buildChannelCard(context, viewModel),
+              _buildControlChangeCard(context, viewModel),
+              _buildProgramChangeCard(context, viewModel),
+              _buildPitchBendCard(context, viewModel),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDeviceStatus(
+    BuildContext context,
+    DeviceControllerViewModel viewModel,
+  ) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      key: const Key("device_connection_status"),
+      padding: const EdgeInsets.all(Spacing.md),
+      decoration: BoxDecoration(
+        color: viewModel.device.connected
+            ? colorScheme.primaryContainer
+            : colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(AppBorderRadius.large),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            viewModel.device.connected
+                ? Icons.check_circle
+                : Icons.link_off_outlined,
+            color: viewModel.device.connected
+                ? colorScheme.primary
+                : colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(width: Spacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  viewModel.device.name,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  viewModel.device.connected ? "Connected" : "Disconnected",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -380,6 +450,7 @@ class _DeviceControllerView extends StatelessWidget {
         : theme.colorScheme.onSurface; // Dark text on light key
 
     return GestureDetector(
+      key: Key("device_piano_key_$midiNote"),
       onTapDown: (_) async => await viewModel.sendNoteOn(midiNote),
       onTapUp: (_) async => await viewModel.sendNoteOff(midiNote),
       onTapCancel: () async => await viewModel.sendNoteOff(midiNote),

@@ -59,10 +59,22 @@ class _SkillTreeView extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text(
-          "Explore exercises and track positive evidence across keys.",
+        if (viewModel.recentPractice case final recent?) ...[
+          _ContinuePracticeCard(recent: recent),
+          const SizedBox(height: Spacing.lg),
+        ],
+        Text(
+          "Build your technique",
+          style: Theme.of(context).textTheme.titleLarge,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: Spacing.xs),
+        Text(
+          "Choose a skill and practise it across keys.",
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: Spacing.md),
         for (final group in viewModel.catalogue.groups) ...[
           Text(group.name, style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 4),
@@ -80,6 +92,72 @@ class _SkillTreeView extends StatelessWidget {
             _SkillNodeCard(proficiency: proficiency),
         ],
       ],
+    );
+  }
+}
+
+class _ContinuePracticeCard extends StatelessWidget {
+  const _ContinuePracticeCard({required this.recent});
+
+  final RecentSkillPractice recent;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      key: const Key("curriculum_continue"),
+      padding: const EdgeInsets.all(Spacing.md),
+      decoration: BoxDecoration(
+        color: colorScheme.secondaryContainer,
+        borderRadius: BorderRadius.circular(AppBorderRadius.large),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.replay, color: colorScheme.onSecondaryContainer),
+          const SizedBox(width: Spacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Continue",
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: colorScheme.onSecondaryContainer,
+                  ),
+                ),
+                const SizedBox(height: Spacing.xs),
+                Text(
+                  recent.checkpointName,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: colorScheme.onSecondaryContainer,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  recent.nodeName,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSecondaryContainer,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: Spacing.sm),
+          FilledButton(
+            key: const Key("curriculum_continue_button"),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                settings: const RouteSettings(name: "Practice Session"),
+                builder: (_) => PracticePage(
+                  initialConfiguration: recent.exercise.configuration,
+                  backTooltip: "Back to Curriculum",
+                ),
+              ),
+            ),
+            child: const Text("Practice"),
+          ),
+        ],
+      ),
     );
   }
 }

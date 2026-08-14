@@ -143,18 +143,19 @@ testWidgets("should display reference page with initial content", (tester) async
 Test cross-feature functionality and navigation flows:
 
 ```dart
-testWidgets("should maintain reference page state when switching tabs", (tester) async {
+testWidgets("should maintain reference state when switching piano modes", (tester) async {
   await tester.pumpWidget(createTestApp());
   await tester.pumpAndSettle();
 
-  // Navigate and interact using keys (using helper from Bottom Navigation Best Practices)
-  await navigateToTab(tester, const Key("nav_tab_reference"));
+  // Open Piano, select Reference, and interact using stable keys.
+  await navigateToTab(tester, const Key("nav_tab_piano"));
+  await tester.tap(find.text("Reference"));
   await tester.tap(find.byKey(const Key("chord_types_mode_button")));
   await tester.tap(find.byKey(const Key("chords_root_fSharp")));
   
-  // Test state persistence
-  await navigateToTab(tester, const Key("nav_tab_practice"));
-  await navigateToTab(tester, const Key("nav_tab_reference"));
+  // Test state persistence across Piano modes.
+  await tester.tap(find.text("Play"));
+  await tester.tap(find.text("Reference"));
   
   // Verify state is maintained
   final selectedChip = tester.widget<FilterChip>(
@@ -266,14 +267,14 @@ testWidgets("should navigate between pages correctly", (tester) async {
   await tester.pumpWidget(createTestApp());
   await tester.pumpAndSettle();
 
-  // Test navigation to reference page using stable key helper
-  await navigateToTab(tester, const Key("nav_tab_reference"));
+  // Test navigation to Piano using the stable destination key.
+  await navigateToTab(tester, const Key("nav_tab_piano"));
   await tester.pumpAndSettle();
 
   // Verify app bar and content
   final appBarTitleFinder = find.descendant(
     of: find.byType(AppBar),
-    matching: find.text("Reference"),
+    matching: find.text("Piano"),
   );
   expect(appBarTitleFinder, findsOneWidget);
 });
@@ -461,18 +462,18 @@ When updating existing tests to use keys:
 Bottom navigation items and app bar actions should expose stable keys for testing:
 
 - **App bar actions**: Use semantic keys like `Key("midi_settings_button")`, `Key("notification_settings_button")`
-- **Bottom navigation tabs**: Wrap icons in Semantics widgets with unique keys like `Key("nav_tab_practice")`
+- **Navigation destinations**: Wrap icons in Semantics widgets with unique keys like `Key("nav_tab_curriculum")`
 - **Navigation tests**: Create helper functions for key-based navigation
 
 ```dart
 // Good: Individual tab keys in MainNavigation
 BottomNavigationBarItem(
   icon: Semantics(
-    key: const Key("nav_tab_practice"),
+    key: const Key("nav_tab_curriculum"),
     button: true,
-    child: const Icon(Icons.school),
+    child: const Icon(Icons.menu_book_outlined),
   ),
-  label: "Practice",
+  label: "Curriculum",
 ),
 
 // Good: Key-based navigation helper
@@ -483,10 +484,10 @@ Future<void> navigateToTab(WidgetTester tester, Key tabKey) async {
 }
 
 // Good: Using the helper
-await navigateToTab(tester, const Key("nav_tab_reference"));
+await navigateToTab(tester, const Key("nav_tab_piano"));
 
 // Avoid: Text-based navigation
-await tester.tap(find.text("Reference")); // Brittle to text changes
+await tester.tap(find.text("Piano")); // Brittle to text changes
 ```
 
 This migration improves test robustness and supports internationalization efforts.

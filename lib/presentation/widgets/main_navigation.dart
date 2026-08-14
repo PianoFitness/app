@@ -7,58 +7,30 @@ import "package:piano_fitness/presentation/features/metronome/metronome_page.dar
 import "package:piano_fitness/presentation/features/metronome/widgets/metronome_quick_panel.dart";
 import "package:piano_fitness/presentation/features/midi_settings/midi_settings_page.dart";
 import "package:piano_fitness/presentation/features/notifications/notifications_page.dart";
-import "package:piano_fitness/presentation/features/play/play_page.dart";
-import "package:piano_fitness/presentation/features/practice/practice_hub_page.dart";
-import "package:piano_fitness/presentation/features/reference/reference_page.dart";
-import "package:piano_fitness/presentation/features/repertoire/repertoire_page.dart";
+import "package:piano_fitness/presentation/features/piano/piano_page.dart";
 import "package:piano_fitness/presentation/features/skill_progression/skill_tree_page.dart";
 import "package:piano_fitness/presentation/features/user_profile/user_profile_page.dart";
 import "package:piano_fitness/presentation/widgets/main_navigation_scope.dart";
 import "package:provider/provider.dart";
 
-final List<Widget> _pages = <Widget>[
-  const SkillTreePage(),
-  const PracticeHubPage(),
-  const PlayPage(),
-  const ReferencePage(),
-  const RepertoirePage(),
-  const HistoryPage(),
-];
-
-const List<String> _pageTitles = [
-  "Curriculum",
-  "Practice",
-  "Free Play",
-  "Reference",
-  "Repertoire",
-  "History",
-];
+const List<String> _pageTitles = ["Curriculum", "Piano", "Progress"];
 
 const List<IconData> _pageIcons = [
   Icons.menu_book,
-  Icons.school,
   Icons.piano,
-  Icons.library_books,
-  Icons.library_music,
-  Icons.history,
+  Icons.insights,
 ];
 
 const List<Key> _bottomTabKeys = [
   Key("nav_tab_curriculum"),
-  Key("nav_tab_practice"),
-  Key("nav_tab_free_play"),
-  Key("nav_tab_reference"),
-  Key("nav_tab_repertoire"),
-  Key("nav_tab_history"),
+  Key("nav_tab_piano"),
+  Key("nav_tab_progress"),
 ];
 
 const List<Key> _drawerTabKeys = [
   Key("drawer_tab_curriculum"),
-  Key("drawer_tab_practice"),
-  Key("drawer_tab_free_play"),
-  Key("drawer_tab_reference"),
-  Key("drawer_tab_repertoire"),
-  Key("drawer_tab_history"),
+  Key("drawer_tab_piano"),
+  Key("drawer_tab_progress"),
 ];
 
 /// Persistent application shell for sections, utilities, and nested routes.
@@ -77,6 +49,7 @@ class _MainNavigationState extends State<MainNavigation> {
   final _contentNavigatorKey = GlobalKey<NavigatorState>();
   late final NavigatorObserver _contentNavigatorObserver;
   late final ValueNotifier<int> _selectedIndexNotifier;
+  late final List<Widget> _pages;
 
   int _selectedIndex = 0;
   bool _contentCanPop = false;
@@ -85,6 +58,11 @@ class _MainNavigationState extends State<MainNavigation> {
   @override
   void initState() {
     super.initState();
+    _pages = [
+      const SkillTreePage(),
+      const PianoPage(),
+      HistoryPage(onOpenCurriculum: () => _onItemTapped(0)),
+    ];
     _selectedIndexNotifier = ValueNotifier(_selectedIndex);
     _contentNavigatorObserver = _ContentNavigatorObserver(
       onChanged: _synchronizeContentRoute,

@@ -68,11 +68,16 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text("Notification Settings"), findsOneWidget);
-      expect(find.text("Practice Timer Completion"), findsOneWidget);
-      expect(find.text("Daily Practice Reminder"), findsOneWidget);
+      expect(find.text("Notification permission"), findsOneWidget);
+      expect(find.text("Timer completion"), findsOneWidget);
+      expect(find.text("Daily practice reminder"), findsOneWidget);
+      expect(
+        find.byKey(const Key("notification_permission_setting")),
+        findsOneWidget,
+      );
 
       final switches = find.byType(Switch);
-      expect(switches, findsWidgets);
+      expect(switches, findsNWidgets(2));
     });
   });
 }

@@ -120,6 +120,8 @@ void main() {
     );
     await tester.pumpAndSettle();
 
+    expect(find.byKey(const Key("curriculum_continue")), findsOneWidget);
+    expect(find.byKey(const Key("curriculum_continue_button")), findsOneWidget);
     await tester.tap(find.byKey(const Key("skill_node_major-scale")));
     await tester.pumpAndSettle();
 

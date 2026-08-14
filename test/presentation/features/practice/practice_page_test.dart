@@ -39,7 +39,7 @@ void main() {
           ),
         ),
       );
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       final scaffoldContext = tester.element(
         find.byKey(const ValueKey("practice_page_scaffold")),
@@ -55,6 +55,12 @@ void main() {
       );
       expect(viewModel.currentConfiguration!.key, music.Key.d);
       expect(find.byTooltip("Back to Curriculum"), findsOneWidget);
+      expect(find.byKey(const Key("focused_practice_header")), findsOneWidget);
+      expect(find.byKey(const Key("practice_settings_panel")), findsNothing);
+
+      await tester.tap(find.byKey(const Key("practice_configuration_button")));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key("practice_settings_panel")), findsOneWidget);
     });
   });
 }

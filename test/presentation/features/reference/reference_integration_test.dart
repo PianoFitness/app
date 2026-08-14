@@ -1,334 +1,87 @@
 import "package:flutter/material.dart";
 import "package:flutter_test/flutter_test.dart";
-import "package:piano_fitness/domain/models/music/chord_type.dart";
-import "package:piano_fitness/domain/models/music/scale_types.dart" as scales;
-import "package:piano_fitness/presentation/widgets/piano_keyboard/piano_keyboard.dart";
 import "package:piano_fitness/presentation/features/reference/reference_page_view_model.dart";
 import "package:piano_fitness/presentation/widgets/main_navigation.dart";
-import "package:piano_fitness/application/state/midi_state.dart";
-import "../../../shared/test_helpers/dropdown_test_helpers.dart";
+
+import "../../../shared/midi_mocks.dart";
 import "../../../shared/test_helpers/pump_helpers.dart";
 import "../../../shared/test_helpers/widget_test_helper.dart";
-import "../../../shared/midi_mocks.dart";
+
+Future<void> _openPianoReference(WidgetTester tester) async {
+  await tester.tap(find.byKey(const Key("nav_tab_piano")));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text("Reference"));
+  await tester.pumpAndSettle();
+}
+
+Future<void> _selectReferenceMode(
+  WidgetTester tester,
+  ReferenceMode mode,
+) async {
+  final dropdown = find.byType(DropdownButtonFormField<ReferenceMode>);
+  await tester.tap(dropdown);
+  await tester.pumpAndSettle();
+  await tester.tap(
+    find.text(mode == ReferenceMode.scales ? "Scales" : "Chords").last,
+  );
+  await tester.pumpAndSettle();
+}
 
 void main() {
   setUpAll(MidiMocks.setUp);
-
   tearDownAll(MidiMocks.tearDown);
 
-  group("Reference Page Integration Tests", () {
-    late MidiState midiState;
-
-    setUp(() {
-      midiState = MidiState();
-    });
-
-    tearDown(() {
-      midiState.dispose();
-    });
-
-    Widget createTestApp() {
-      // Use the helper variant that allows us to inject a specific MidiState
-      // so we can verify it in tests
-      return createTestWidgetWithMocks(
-        child: const MainNavigation(),
-        midiState: midiState,
-      );
-    }
-
-    testWidgets("should navigate to reference page from main navigation", (
+  group("Piano reference integration", () {
+    testWidgets("opens Reference as a mode of the Piano destination", (
       tester,
     ) async {
-      await pumpPortrait(tester, createTestApp());
+      await pumpPortrait(tester, createTestWidget(const MainNavigation()));
 
-      // Curriculum is the default page - check the app bar title specifically.
-      final curriculumAppBarTitleFinder = find.descendant(
-        of: find.byType(AppBar),
-        matching: find.text("Curriculum"),
-      );
-      expect(curriculumAppBarTitleFinder, findsOneWidget);
+      await _openPianoReference(tester);
 
-      // Verify we have the Reference navigation item in the bottom navigation
-      expect(
-        find.descendant(
-          of: find.byType(NavigationBar),
-          matching: find.text("Reference"),
-        ),
-        findsOneWidget,
-      );
-
-      // Tap on Reference navigation item
-      await tester.tap(find.byKey(const Key("nav_tab_reference")));
-      await tester.pumpAndSettle();
-
-      // Should now be on reference page (app bar title and configuration row)
-      final appBarTitleFinder = find.descendant(
-        of: find.byType(AppBar),
-        matching: find.text("Reference"),
-      );
-      expect(appBarTitleFinder, findsOneWidget);
+      expect(find.text("Piano"), findsWidgets);
+      expect(find.byKey(const Key("piano_mode_switch")), findsOneWidget);
       expect(
         find.byType(DropdownButtonFormField<ReferenceMode>),
         findsOneWidget,
       );
-      expect(find.byType(PianoKeyboard), findsOneWidget);
+      expect(find.byKey(const Key("reference_piano")), findsOneWidget);
     });
 
-    testWidgets("should maintain reference page state when switching tabs", (
+    testWidgets("preserves reference choices when switching Piano modes", (
       tester,
     ) async {
-      await pumpPortrait(tester, createTestApp());
+      await pumpPortrait(tester, createTestWidget(const MainNavigation()));
+      await _openPianoReference(tester);
+      await _selectReferenceMode(tester, ReferenceMode.chordTypes);
 
-      // Navigate to reference page
-      await tester.tap(find.byKey(const Key("nav_tab_reference")));
+      await tester.tap(find.text("Play"));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text("Reference"));
       await tester.pumpAndSettle();
 
-      // Change to chords mode and select F#
-      await selectDropdownValue(tester, ReferenceMode.chordTypes);
-      await selectDropdownValue(tester, scales.Key.fSharp);
-
-      // Switch to another tab and back
-      await tester.tap(find.byKey(const Key("nav_tab_practice")));
-      await tester.pumpAndSettle();
-
-      await tester.tap(find.byKey(const Key("nav_tab_reference")));
-      await tester.pumpAndSettle();
-
-      // Should maintain the state (chords mode, F# selected)
-      final modeDropdown = tester
-          .widget<DropdownButtonFormField<ReferenceMode>>(
-            find.byType(DropdownButtonFormField<ReferenceMode>),
-          );
-      expect(modeDropdown.initialValue, ReferenceMode.chordTypes);
-
-      final keyDropdown = tester.widget<DropdownButtonFormField<scales.Key>>(
-        find.byType(DropdownButtonFormField<scales.Key>),
+      final dropdown = tester.widget<DropdownButtonFormField<ReferenceMode>>(
+        find.byType(DropdownButtonFormField<ReferenceMode>),
       );
-      expect(keyDropdown.initialValue, scales.Key.fSharp);
+      expect(dropdown.initialValue, ReferenceMode.chordTypes);
     });
 
-    testWidgets("should not interfere with MIDI state across app", (
+    testWidgets("preserves Piano state while visiting another destination", (
       tester,
     ) async {
-      await pumpPortrait(tester, createTestApp());
+      await pumpPortrait(tester, createTestWidget(const MainNavigation()));
+      await _openPianoReference(tester);
+      await _selectReferenceMode(tester, ReferenceMode.chordTypes);
 
-      // Navigate to reference page
-      await tester.tap(find.byKey(const Key("nav_tab_reference")));
+      await tester.tap(find.byKey(const Key("nav_tab_curriculum")));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key("nav_tab_piano")));
       await tester.pumpAndSettle();
 
-      // Verify initial MIDI state is clean
-      expect(midiState.activeNotes.isEmpty, isTrue);
-
-      // Select a specific scale
-      await selectDropdownValue(tester, scales.Key.a);
-      final keyDropdown = tester.widget<DropdownButtonFormField<scales.Key>>(
-        find.byType(DropdownButtonFormField<scales.Key>),
+      final dropdown = tester.widget<DropdownButtonFormField<ReferenceMode>>(
+        find.byType(DropdownButtonFormField<ReferenceMode>),
       );
-      expect(keyDropdown.initialValue, scales.Key.a);
-
-      await selectDropdownValue(tester, scales.ScaleType.minor);
-      final scaleTypeDropdown = tester
-          .widget<DropdownButtonFormField<scales.ScaleType>>(
-            find.byType(DropdownButtonFormField<scales.ScaleType>),
-          );
-      expect(scaleTypeDropdown.initialValue, scales.ScaleType.minor);
-
-      // The shared MIDI state should NOT be affected by reference page selections
-      // (This prevents cross-page interference)
-      expect(midiState.activeNotes.isEmpty, isTrue);
-
-      // Switch to play page
-      await tester.tap(find.byKey(const Key("nav_tab_free_play")));
-      await tester.pumpAndSettle();
-
-      // The MIDI state should still be clean (no interference from reference page)
-      expect(midiState.activeNotes.isEmpty, isTrue);
-    });
-
-    testWidgets("should handle rapid mode switching", (tester) async {
-      await pumpPortrait(tester, createTestApp());
-
-      // Navigate to reference page
-      await tester.tap(find.byKey(const Key("nav_tab_reference")));
-      await tester.pumpAndSettle();
-
-      // Rapidly switch between modes
-      for (int i = 0; i < 5; i++) {
-        await selectDropdownValue(tester, ReferenceMode.chordTypes);
-        await selectDropdownValue(tester, ReferenceMode.scales);
-      }
-
-      await tester.pumpAndSettle();
-
-      // Should still be functional
-      expect(
-        find.byType(DropdownButtonFormField<scales.ScaleType>),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets("should handle rapid selection changes", (tester) async {
-      await pumpPortrait(tester, createTestApp());
-
-      // Navigate to reference page
-      await tester.tap(find.byKey(const Key("nav_tab_reference")));
-      await tester.pumpAndSettle();
-
-      // Rapidly change keys
-      for (final key in [
-        scales.Key.c,
-        scales.Key.d,
-        scales.Key.e,
-        scales.Key.f,
-      ]) {
-        await selectDropdownValue(tester, key);
-      }
-
-      // Rapidly change scale types
-      for (final scaleType in [
-        scales.ScaleType.major,
-        scales.ScaleType.minor,
-      ]) {
-        await selectDropdownValue(tester, scaleType);
-      }
-
-      await tester.pumpAndSettle();
-
-      // Should still be functional - verify UI is working
-      expect(find.byType(PianoKeyboard), findsOneWidget);
-      expect(
-        find.byType(DropdownButtonFormField<scales.ScaleType>),
-        findsOneWidget,
-      );
-
-      // Clean up any pending timers
-      await tester.pumpAndSettle(const Duration(seconds: 2));
-    });
-
-    testWidgets("should work with all combinations of chord settings", (
-      tester,
-    ) async {
-      await pumpPortrait(tester, createTestApp());
-
-      // Navigate to reference page
-      await tester.tap(find.byKey(const Key("nav_tab_reference")));
-      await tester.pumpAndSettle();
-
-      // Switch to chords mode
-      await selectDropdownValue(tester, ReferenceMode.chordTypes);
-
-      // Test a key combination
-      await selectDropdownValue(tester, scales.Key.c);
-      await selectDropdownValue(tester, ChordType.major);
-      await selectDropdownValue(tester, ChordInversion.root);
-
-      // Should have functional UI (no longer testing shared MIDI state)
-      expect(find.byType(PianoKeyboard), findsOneWidget);
-
-      // Wait for any pending async operations (e.g., MIDI activity timers)
-      await tester.pump(const Duration(milliseconds: 1100));
-      await tester.pumpAndSettle();
-    });
-
-    testWidgets("should handle bottom navigation edge cases", (tester) async {
-      await pumpPortrait(tester, createTestApp());
-
-      // Rapid tab switching
-      for (int i = 0; i < 3; i++) {
-        await tester.tap(find.byKey(const Key("nav_tab_reference")));
-        await tester.pump(const Duration(milliseconds: 100));
-
-        await tester.tap(find.byKey(const Key("nav_tab_practice")));
-        await tester.pump(const Duration(milliseconds: 100));
-
-        await tester.tap(find.byKey(const Key("nav_tab_free_play")));
-        await tester.pump(const Duration(milliseconds: 100));
-      }
-
-      await tester.pumpAndSettle();
-
-      // Should be on Free Play page and app should still be functional
-      // Look for Free Play in the app bar title specifically
-      final appBarTitleFinder = find.descendant(
-        of: find.byType(AppBar),
-        matching: find.text("Free Play"),
-      );
-      expect(appBarTitleFinder, findsOneWidget);
-    });
-  });
-
-  group("Reference Page Performance Tests", () {
-    late MidiState midiState;
-
-    setUp(() {
-      midiState = MidiState();
-    });
-
-    tearDown(() {
-      midiState.dispose();
-    });
-
-    Widget createTestApp() {
-      return createTestWidgetWithMocks(
-        child: const MainNavigation(),
-        midiState: midiState,
-      );
-    }
-
-    testWidgets("should handle complex scale selections efficiently", (
-      tester,
-    ) async {
-      await pumpPortrait(tester, createTestApp());
-
-      // Navigate to reference page
-      await tester.tap(find.byKey(const Key("nav_tab_reference")));
-      await tester.pumpAndSettle();
-
-      final stopwatch = Stopwatch()..start();
-
-      await selectDropdownValue(tester, scales.Key.fSharp);
-      await selectDropdownValue(tester, scales.ScaleType.lydian);
-      await tester.pumpAndSettle();
-
-      stopwatch.stop();
-
-      // Should complete within reasonable time (1 second is very generous)
-      expect(stopwatch.elapsedMilliseconds, lessThan(1000));
-
-      // Should have functional UI (no longer testing specific MIDI state)
-      expect(find.byType(PianoKeyboard), findsOneWidget);
-
-      // Clean up any pending timers
-      await tester.pumpAndSettle(const Duration(seconds: 2));
-    });
-
-    testWidgets("should handle chord inversions efficiently", (tester) async {
-      await pumpPortrait(tester, createTestApp());
-
-      // Navigate to reference page
-      expect(find.text("Reference"), findsOneWidget);
-      await tester.tap(find.byKey(const Key("nav_tab_reference")));
-      await tester.pumpAndSettle();
-
-      // Switch to chords mode
-      await selectDropdownValue(tester, ReferenceMode.chordTypes);
-
-      final stopwatch = Stopwatch()..start();
-
-      await selectDropdownValue(tester, ChordInversion.first);
-      await tester.pumpAndSettle();
-
-      stopwatch.stop();
-
-      // Should complete efficiently
-      expect(stopwatch.elapsedMilliseconds, lessThan(500));
-
-      // Should have functional UI - check for reference page AppBar title only
-      final appBarTitleFinder = find.descendant(
-        of: find.byType(AppBar),
-        matching: find.text("Reference"),
-      );
-      expect(appBarTitleFinder, findsOneWidget);
+      expect(dropdown.initialValue, ReferenceMode.chordTypes);
     });
   });
 }

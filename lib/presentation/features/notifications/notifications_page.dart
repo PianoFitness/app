@@ -1,19 +1,14 @@
 import "package:flutter/material.dart";
-import "package:provider/provider.dart";
 import "package:piano_fitness/domain/repositories/notification_repository.dart";
 import "package:piano_fitness/domain/repositories/settings_repository.dart";
+import "package:piano_fitness/presentation/constants/ui_constants.dart";
 import "package:piano_fitness/presentation/features/notifications/notifications_constants.dart";
 import "package:piano_fitness/presentation/features/notifications/notifications_page_view_model.dart";
 import "package:piano_fitness/presentation/features/notifications/widgets/notification_permission_dialog.dart";
-import "package:piano_fitness/presentation/constants/ui_constants.dart";
-import "package:piano_fitness/presentation/theme/semantic_colors.dart";
 import "package:piano_fitness/presentation/widgets/main_navigation_scope.dart";
+import "package:provider/provider.dart";
 
-/// Notifications configuration page for managing user notification preferences.
-///
-/// This page allows users to configure practice reminders, timer completion
-/// notifications, and manage notification permissions. It follows the app's
-/// design guidelines with responsive layouts and comprehensive accessibility.
+/// A calm, standard settings list for notification preferences.
 class NotificationsPage extends StatelessWidget {
   /// Creates the notifications page.
   const NotificationsPage({super.key});
@@ -30,500 +25,162 @@ class NotificationsPage extends StatelessWidget {
         return viewModel;
       },
       child: Consumer<NotificationsPageViewModel>(
-        builder: (context, viewModel, child) {
-          return _buildScaffold(context, viewModel);
-        },
+        builder: (context, viewModel, child) => Scaffold(
+          appBar: MainNavigationScope.isActive(context)
+              ? null
+              : AppBar(title: const Text("Notification Settings")),
+          body: viewModel.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : _NotificationSettingsList(viewModel: viewModel),
+        ),
       ),
     );
   }
+}
 
-  Scaffold _buildScaffold(
-    BuildContext context,
-    NotificationsPageViewModel viewModel,
-  ) {
-    return Scaffold(
-      appBar: MainNavigationScope.isActive(context)
-          ? null
-          : AppBar(
-              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-              title: const Text("Notification Settings"),
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ),
-      body: () {
-        if (viewModel.isLoading) {
-          return const Center(child: CircularProgressIndicator());
-        }
+class _NotificationSettingsList extends StatelessWidget {
+  const _NotificationSettingsList({required this.viewModel});
 
-        return _buildNotificationSettings(context, viewModel);
-      }(),
-    );
-  }
+  final NotificationsPageViewModel viewModel;
 
-  Widget _buildNotificationSettings(
-    BuildContext context,
-    NotificationsPageViewModel viewModel,
-  ) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isTablet = constraints.maxWidth >= ResponsiveBreakpoints.tablet;
-        final padding = _calculateResponsivePadding(constraints, isTablet);
-
-        return SingleChildScrollView(
-          padding: EdgeInsets.all(padding),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildPermissionSection(context, viewModel, isTablet),
-              SizedBox(height: padding),
-              _buildTimerCompletionSection(context, viewModel, isTablet),
-              SizedBox(height: padding),
-              _buildDailyReminderSection(context, viewModel, isTablet),
-              if (!viewModel.settings.permissionGranted) ...[
-                SizedBox(height: padding * 1.5),
-                _buildPermissionPrompt(context, viewModel, isTablet),
-              ],
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  /// Calculates responsive padding based on screen constraints.
-  double _calculateResponsivePadding(
-    BoxConstraints constraints,
-    bool isTablet,
-  ) {
-    final isLandscape = constraints.maxWidth > constraints.maxHeight;
-    return isTablet
-        ? (isLandscape ? Spacing.lg : Spacing.md)
-        : (isLandscape ? Spacing.md : Spacing.sm);
-  }
-
-  Widget _buildPermissionSection(
-    BuildContext context,
-    NotificationsPageViewModel viewModel,
-    bool isTablet,
-  ) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+  @override
+  Widget build(BuildContext context) {
     final settings = viewModel.settings;
-
-    return Container(
-      padding: EdgeInsets.all(
-        NotificationsUIConstants.sectionPadding(isTablet),
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            colorScheme.primaryContainer.withValues(
-              alpha: OpacityValues.gradientEnd,
-            ),
-            colorScheme.secondaryContainer.withValues(
-              alpha: OpacityValues.gradientMid,
-            ),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(AppBorderRadius.large),
-        border: Border.all(
-          color: colorScheme.primary.withValues(
-            alpha: OpacityValues.borderSubtle,
-          ),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+    return SafeArea(
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 720),
+          child: ListView(
+            padding: const EdgeInsets.symmetric(vertical: Spacing.sm),
             children: [
-              Icon(
-                settings.permissionGranted
-                    ? Icons.check_circle
-                    : Icons.notifications_off,
-                color: settings.permissionGranted
-                    ? context.semanticColors.success
-                    : colorScheme.outline,
-                size: NotificationsUIConstants.sectionIconSize(isTablet),
+              ListTile(
+                key: const Key("notification_permission_setting"),
+                leading: Icon(
+                  settings.permissionGranted
+                      ? Icons.check_circle_outline
+                      : Icons.notifications_off_outlined,
+                ),
+                title: const Text("Notification permission"),
+                subtitle: Text(
+                  settings.permissionGranted
+                      ? "Allowed"
+                      : "Needed for reminders and timer alerts",
+                ),
+                trailing: settings.permissionGranted
+                    ? null
+                    : TextButton(
+                        onPressed: () => _requestPermissions(context),
+                        child: const Text("Enable"),
+                      ),
               ),
-              const SizedBox(width: Spacing.sm),
-              Expanded(
-                child: Text(
-                  "Notification Permission",
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface,
+              const Divider(indent: Spacing.md, endIndent: Spacing.md),
+              SwitchListTile(
+                key: const Key("timer_completion_setting"),
+                secondary: const Icon(Icons.timer_outlined),
+                title: const Text("Timer completion"),
+                subtitle: const Text("Notify me when a practice timer ends"),
+                value: settings.timerCompletionEnabled,
+                onChanged: settings.permissionGranted
+                    ? (value) => _setTimerCompletion(context, value)
+                    : null,
+              ),
+              SwitchListTile(
+                key: const Key("practice_reminder_setting"),
+                secondary: const Icon(Icons.calendar_today_outlined),
+                title: const Text("Daily practice reminder"),
+                subtitle: const Text("A gentle prompt to keep your routine"),
+                value: settings.practiceRemindersEnabled,
+                onChanged: settings.permissionGranted
+                    ? (value) => _setPracticeReminder(context, value)
+                    : null,
+              ),
+              if (settings.practiceRemindersEnabled &&
+                  settings.dailyReminderTime != null)
+                ListTile(
+                  key: const Key("practice_reminder_time_setting"),
+                  contentPadding: const EdgeInsets.only(
+                    left: 72,
+                    right: Spacing.md,
+                  ),
+                  title: const Text("Reminder time"),
+                  subtitle: Text(settings.dailyReminderTime!.format(context)),
+                  trailing: TextButton(
+                    onPressed: () => _changeReminderTime(context),
+                    child: const Text("Change"),
                   ),
                 ),
-              ),
+              if (!settings.permissionGranted)
+                Padding(
+                  padding: const EdgeInsets.all(Spacing.md),
+                  child: Text(
+                    "Enable notification permission first, then choose which reminders you want.",
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
             ],
           ),
-          const SizedBox(height: Spacing.sm),
-          Text(
-            settings.permissionGranted
-                ? "Notifications are enabled and ready to use."
-                : "Grant permission to receive practice reminders and timer notifications.",
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildTimerCompletionSection(
-    BuildContext context,
-    NotificationsPageViewModel viewModel,
-    bool isTablet,
-  ) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final settings = viewModel.settings;
-
-    return Container(
-      padding: EdgeInsets.all(
-        NotificationsUIConstants.sectionPadding(isTablet),
-      ),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(AppBorderRadius.large),
-        border: Border.all(
-          color: colorScheme.outline.withValues(
-            alpha: OpacityValues.borderSubtle,
-          ),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.shadow.withValues(
-              alpha: OpacityValues.shadowSubtle,
-            ),
-            blurRadius: ShadowConfig.subtleBlur,
-            offset: ShadowConfig.subtleOffset,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.timer,
-                color: colorScheme.tertiary,
-                size: NotificationsUIConstants.sectionIconSize(isTablet),
-              ),
-              const SizedBox(width: Spacing.sm),
-              Expanded(
-                child: Text(
-                  "Practice Timer Completion",
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-              ),
-              Semantics(
-                label: settings.timerCompletionEnabled
-                    ? "Timer completion notifications enabled"
-                    : "Timer completion notifications disabled",
-                button: true,
-                child: Switch(
-                  value: settings.timerCompletionEnabled,
-                  onChanged: settings.permissionGranted
-                      ? (value) async {
-                          if (!value) {
-                            await viewModel.setTimerCompletionEnabled(false);
-                          } else {
-                            await _handlePermissionAndToggle(
-                              context,
-                              viewModel,
-                              () => viewModel.setTimerCompletionEnabled(true),
-                            );
-                          }
-                        }
-                      : null,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: Spacing.sm),
-          Text(
-            "Get notified when your practice timer completes, even when the app is in the background.",
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDailyReminderSection(
-    BuildContext context,
-    NotificationsPageViewModel viewModel,
-    bool isTablet,
-  ) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final settings = viewModel.settings;
-
-    return Container(
-      padding: EdgeInsets.all(
-        NotificationsUIConstants.sectionPadding(isTablet),
-      ),
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(AppBorderRadius.large),
-        border: Border.all(
-          color: colorScheme.outline.withValues(
-            alpha: OpacityValues.borderSubtle,
-          ),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: colorScheme.shadow.withValues(
-              alpha: OpacityValues.shadowSubtle,
-            ),
-            blurRadius: ShadowConfig.subtleBlur,
-            offset: ShadowConfig.subtleOffset,
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.schedule,
-                color: colorScheme.secondary,
-                size: NotificationsUIConstants.sectionIconSize(isTablet),
-              ),
-              const SizedBox(width: Spacing.sm),
-              Expanded(
-                child: Text(
-                  "Daily Practice Reminder",
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurface,
-                  ),
-                ),
-              ),
-              Semantics(
-                label: settings.practiceRemindersEnabled
-                    ? "Daily practice reminders enabled"
-                    : "Daily practice reminders disabled",
-                button: true,
-                child: Switch(
-                  value: settings.practiceRemindersEnabled,
-                  onChanged: settings.permissionGranted
-                      ? (value) async {
-                          if (!value) {
-                            await viewModel.setPracticeRemindersEnabled(false);
-                          } else {
-                            await _handlePermissionAndToggle(
-                              context,
-                              viewModel,
-                              () async {
-                                // Show time picker
-                                final time = await _showTimePicker(context);
-                                if (time != null) {
-                                  await viewModel.setPracticeRemindersEnabled(
-                                    true,
-                                    reminderTime: time,
-                                  );
-                                }
-                              },
-                            );
-                          }
-                        }
-                      : null,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: Spacing.sm),
-          if (settings.practiceRemindersEnabled &&
-              settings.dailyReminderTime != null) ...[
-            Row(
-              children: [
-                const SizedBox(width: Spacing.xl),
-                Text(
-                  "Reminder time: ${settings.dailyReminderTime!.format(context)}",
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.primary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const Spacer(),
-                TextButton(
-                  onPressed: () async {
-                    final time = await _showTimePicker(
-                      context,
-                      currentTime: settings.dailyReminderTime,
-                    );
-                    if (time != null) {
-                      await viewModel.updateDailyReminderTime(time);
-                    }
-                  },
-                  child: const Text("Change"),
-                ),
-              ],
-            ),
-            const SizedBox(height: Spacing.sm),
-          ],
-          Text(
-            "Receive a daily notification at your chosen time to remind you to practice piano.",
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-              fontStyle: FontStyle.italic,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPermissionPrompt(
-    BuildContext context,
-    NotificationsPageViewModel viewModel,
-    bool isTablet,
-  ) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Container(
-      padding: EdgeInsets.all(
-        NotificationsUIConstants.sectionPadding(isTablet),
-      ),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            context.semanticColors.warning.withValues(
-              alpha: OpacityValues.shadowMedium,
-            ),
-            colorScheme.tertiaryContainer.withValues(
-              alpha: OpacityValues.shadowMedium,
-            ),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(AppBorderRadius.large),
-        border: Border.all(
-          color: context.semanticColors.warning.withValues(
-            alpha: OpacityValues.gradientEnd,
-          ),
-        ),
-      ),
-      child: Column(
-        children: [
-          Icon(
-            Icons.notifications_active,
-            color: context.semanticColors.warning,
-            size: NotificationsUIConstants.permissionPromptIconSize(isTablet),
-          ),
-          const SizedBox(height: NotificationsUIConstants.sectionInnerSpacing),
-          Text(
-            "Enable Notifications",
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: colorScheme.onSurface,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: Spacing.sm),
-          Text(
-            "To use notification features, please grant permission when prompted.",
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurfaceVariant,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: Spacing.md),
-          ElevatedButton(
-            onPressed: () => _requestPermissions(context, viewModel),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: context.semanticColors.warning,
-              foregroundColor: colorScheme.onTertiary,
-              padding: NotificationsUIConstants.buttonPadding(isTablet),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AppBorderRadius.medium),
-              ),
-            ),
-            child: const Text("Grant Permission"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _handlePermissionAndToggle(
-    BuildContext context,
-    NotificationsPageViewModel viewModel,
-    Future<void> Function() onPermissionGranted,
-  ) async {
-    if (viewModel.settings.permissionGranted) {
-      await onPermissionGranted();
+  Future<void> _setTimerCompletion(BuildContext context, bool value) async {
+    if (!value) {
+      await viewModel.setTimerCompletionEnabled(false);
       return;
     }
-
-    final granted = await _requestPermissions(context, viewModel);
-    if (granted) {
-      await onPermissionGranted();
-    } else if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Notification permission is required for this feature"),
-          duration: AnimationDurations.snackbar,
-        ),
-      );
+    if (await _ensurePermission(context)) {
+      await viewModel.setTimerCompletionEnabled(true);
     }
   }
 
-  Future<bool> _requestPermissions(
-    BuildContext context,
-    NotificationsPageViewModel viewModel,
-  ) async {
-    final granted = await viewModel.requestPermissions();
+  Future<void> _setPracticeReminder(BuildContext context, bool value) async {
+    if (!value) {
+      await viewModel.setPracticeRemindersEnabled(false);
+      return;
+    }
+    if (!await _ensurePermission(context) || !context.mounted) return;
+    final time = await _showTimePicker(context);
+    if (time != null) {
+      await viewModel.setPracticeRemindersEnabled(true, reminderTime: time);
+    }
+  }
 
+  Future<void> _changeReminderTime(BuildContext context) async {
+    final time = await _showTimePicker(
+      context,
+      currentTime: viewModel.settings.dailyReminderTime,
+    );
+    if (time != null) await viewModel.updateDailyReminderTime(time);
+  }
+
+  Future<bool> _ensurePermission(BuildContext context) async {
+    if (viewModel.settings.permissionGranted) return true;
+    return _requestPermissions(context);
+  }
+
+  Future<bool> _requestPermissions(BuildContext context) async {
+    final granted = await viewModel.requestPermissions();
     if (!granted && context.mounted) {
       await showDialog<void>(
         context: context,
         builder: (context) => const NotificationPermissionDialog(),
       );
     }
-
     return granted;
   }
 
   Future<TimeOfDay?> _showTimePicker(
     BuildContext context, {
     TimeOfDay? currentTime,
-  }) async {
+  }) {
     return showTimePicker(
       context: context,
       initialTime: currentTime ?? NotificationsUIConstants.defaultReminderTime,
       helpText: "Select practice reminder time",
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            timePickerTheme: TimePickerThemeData(
-              backgroundColor: Theme.of(context).colorScheme.surface,
-              hourMinuteTextColor: Theme.of(context).colorScheme.primary,
-              dialHandColor: Theme.of(context).colorScheme.primary,
-              dialTextColor: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-          child: child!,
-        );
-      },
     );
   }
 }

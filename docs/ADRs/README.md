@@ -79,3 +79,4 @@ ADRs are numbered sequentially (0001-0024, etc.). When creating new ADRs:
 ### Navigation
 
 - [ADR-0030: Persistent Application Navigation Shell](0030-persistent-application-navigation-shell.md) - 2026-08-14
+- [ADR-0031: Three-Destination Product Navigation](0031-three-destination-product-navigation.md) - 2026-08-15

@@ -96,23 +96,16 @@ void main() {
       );
 
       expect(viewModel.settings.practiceRemindersEnabled, isTrue);
-      // Verify the scheduling called with exact title/body
-      verify(
-        mockNotificationRepository.scheduleDailyNotification(
-          title: "Time to Practice Piano! 🎹",
-          body: "Ready to make some music? Your daily practice session awaits.",
-          scheduledTime: captureAnyNamed("scheduledTime"),
-        ),
-      ).called(1);
-      // Capture the scheduled time and assert hour/minute are 9:30
+      // Verify the copy and capture the scheduled time in one invocation.
       final capturedTime =
           verify(
                 mockNotificationRepository.scheduleDailyNotification(
-                  title: anyNamed("title"),
-                  body: anyNamed("body"),
+                  title: "Time to Practice Piano! 🎹",
+                  body:
+                      "Ready to make some music? Your daily practice session awaits.",
                   scheduledTime: captureAnyNamed("scheduledTime"),
                 ),
-              ).captured.first
+              ).captured.single
               as DateTime;
       expect(capturedTime.hour, equals(9));
       expect(capturedTime.minute, equals(30));
@@ -140,13 +133,6 @@ void main() {
         const newTime = TimeOfDay(hour: 10, minute: 15);
         await viewModel.updateDailyReminderTime(newTime);
 
-        verify(
-          mockNotificationRepository.scheduleDailyNotification(
-            title: anyNamed("title"),
-            body: anyNamed("body"),
-            scheduledTime: captureAnyNamed("scheduledTime"),
-          ),
-        ).called(1);
         final capturedNewTime =
             verify(
                   mockNotificationRepository.scheduleDailyNotification(
@@ -154,7 +140,7 @@ void main() {
                     body: anyNamed("body"),
                     scheduledTime: captureAnyNamed("scheduledTime"),
                   ),
-                ).captured.first
+                ).captured.single
                 as DateTime;
         expect(capturedNewTime.hour, equals(10));
         expect(capturedNewTime.minute, equals(15));

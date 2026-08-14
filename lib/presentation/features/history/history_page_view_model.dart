@@ -34,6 +34,27 @@ class HistoryPageViewModel extends ChangeNotifier {
   /// The loaded history entries for the active profile, most-recent first.
   List<ExerciseHistoryEntry> get entries => List.unmodifiable(_entries);
 
+  /// Number of completed practices in the active profile.
+  int get totalPracticeCount => _entries.length;
+
+  /// Number of distinct local calendar days containing recorded practice.
+  int get practiceDayCount => _entries
+      .map((entry) {
+        final date = entry.completedAt.toLocal();
+        return (date.year, date.month, date.day);
+      })
+      .toSet()
+      .length;
+
+  /// Highest recorded accuracy, hidden when no attempt contains accuracy.
+  double? get bestAccuracyPercentage {
+    final values = _entries
+        .map((entry) => entry.accuracyPercentage)
+        .whereType<double>();
+    if (values.isEmpty) return null;
+    return values.reduce((best, value) => value > best ? value : best);
+  }
+
   /// Whether data fetch/initial load is in progress.
   bool get isLoading => _isLoading;
 

@@ -9,6 +9,25 @@ import "package:piano_fitness/presentation/features/device_controller/device_con
 import "../../../shared/test_helpers/widget_test_helper.dart";
 import "../../../shared/midi_mocks.dart";
 
+Finder findDevicePianoKeys() => find.byWidgetPredicate(
+  (widget) =>
+      widget is GestureDetector &&
+      widget.key is ValueKey<String> &&
+      (widget.key! as ValueKey<String>).value.startsWith("device_piano_key_"),
+);
+
+Future<void> expandSection(WidgetTester tester, Key key) async {
+  await tester.scrollUntilVisible(
+    find.byKey(key),
+    200,
+    scrollable: find.byType(Scrollable).first,
+  );
+  await tester.drag(find.byType(ListView), const Offset(0, -120));
+  await tester.pumpAndSettle();
+  await tester.tap(find.byKey(key));
+  await tester.pumpAndSettle();
+}
+
 void main() {
   setUpAll(MidiMocks.setUp);
 
@@ -35,7 +54,9 @@ void main() {
       // Verify DeviceControllerPage is rendered
       expect(find.byType(DeviceControllerPage), findsOneWidget);
       expect(find.text("Test MIDI Device Controller"), findsOneWidget);
-      expect(find.text("Device Information"), findsOneWidget);
+      expect(find.byKey(const Key("device_connection_status")), findsOneWidget);
+      expect(find.text("Virtual Piano"), findsOneWidget);
+      expect(find.text("Device details"), findsOneWidget);
     });
 
     testWidgets("should display device information", (tester) async {
@@ -44,6 +65,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(DeviceControllerPage(device: mockDevice)),
       );
+      await expandSection(tester, const Key("device_details_section"));
 
       // Verify device information is displayed
       expect(find.text("Device Information"), findsOneWidget);
@@ -62,6 +84,7 @@ void main() {
         createTestWidget(DeviceControllerPage(device: mockDevice)),
       );
       await tester.pump();
+      await expandSection(tester, const Key("advanced_midi_controls_section"));
 
       // Verify basic MIDI control elements are present
       expect(find.text("MIDI Channel"), findsOneWidget);
@@ -82,6 +105,7 @@ void main() {
         createTestWidget(DeviceControllerPage(device: mockDevice)),
       );
       await tester.pump();
+      await expandSection(tester, const Key("advanced_midi_controls_section"));
 
       // Find and interact with channel increment button
       final addButton = find.byIcon(Icons.add_circle);
@@ -101,11 +125,14 @@ void main() {
         createTestWidget(DeviceControllerPage(device: mockDevice)),
       );
       await tester.pump();
+      await expandSection(tester, const Key("advanced_midi_controls_section"));
 
       // Find control change sliders and test interaction
       final sliders = find.byType(Slider);
       if (sliders.evaluate().isNotEmpty) {
         final firstSlider = sliders.first;
+        await tester.ensureVisible(firstSlider);
+        await tester.pumpAndSettle();
         await tester.drag(firstSlider, const Offset(50, 0));
         await tester.pump();
 
@@ -139,10 +166,9 @@ void main() {
         createTestWidget(DeviceControllerPage(device: mockDevice)),
       );
       await tester.pump();
+      await expandSection(tester, const Key("advanced_midi_controls_section"));
 
-      // Try scrolling to find the pitch bend section
-      await tester.drag(find.byType(ListView), const Offset(0, -500));
-      await tester.pump();
+      await tester.ensureVisible(find.text("Pitch Bend"));
 
       // Verify pitch bend section or related controls
       if (find.text("Pitch Bend").evaluate().isNotEmpty) {
@@ -173,11 +199,8 @@ void main() {
 
       // Should render without errors even for disconnected device
       expect(find.byType(DeviceControllerPage), findsOneWidget);
-      expect(find.text("Device name: Disconnected Device"), findsOneWidget);
-      expect(
-        find.textContaining("Connection status: Disconnected"),
-        findsOneWidget,
-      );
+      expect(find.text("Disconnected Device"), findsWidgets);
+      expect(find.text("Disconnected"), findsOneWidget);
     });
 
     testWidgets("should handle program change controls", (tester) async {
@@ -187,10 +210,9 @@ void main() {
         createTestWidget(DeviceControllerPage(device: mockDevice)),
       );
       await tester.pump();
+      await expandSection(tester, const Key("advanced_midi_controls_section"));
 
-      // Try scrolling to find the program change section
-      await tester.drag(find.byType(ListView), const Offset(0, -300));
-      await tester.pump();
+      await tester.ensureVisible(find.text("Program Change"));
 
       // Verify program change section or related controls
       if (find.text("Program Change").evaluate().isNotEmpty) {
@@ -210,12 +232,7 @@ void main() {
       );
       await tester.pump();
 
-      // Scroll down to find virtual piano
-      await tester.drag(find.byType(ListView), const Offset(0, -800));
-      await tester.pump();
-
-      // Look for piano keys (GestureDetector widgets)
-      final gestureDetectors = find.byType(GestureDetector);
+      final gestureDetectors = findDevicePianoKeys();
       if (gestureDetectors.evaluate().isNotEmpty) {
         // Tap a piano key
         await tester.tap(gestureDetectors.first);
@@ -234,15 +251,11 @@ void main() {
       );
       await tester.pump();
 
-      // Scroll to virtual piano section
-      await tester.drag(find.byType(ListView), const Offset(0, -800));
-      await tester.pumpAndSettle();
-
       // Verify Virtual Piano section exists
       expect(find.text("Virtual Piano"), findsOneWidget);
 
       // Count piano keys - should have exactly 12 keys (notes 60-71)
-      final gestureDetectors = find.byType(GestureDetector);
+      final gestureDetectors = findDevicePianoKeys();
       expect(gestureDetectors.evaluate().length, equals(12));
     });
 
@@ -253,10 +266,6 @@ void main() {
         createTestWidget(DeviceControllerPage(device: mockDevice)),
       );
       await tester.pump();
-
-      // Scroll to virtual piano section
-      await tester.drag(find.byType(ListView), const Offset(0, -800));
-      await tester.pumpAndSettle();
 
       // Find all piano key containers
       final containers = find.byType(Container);
@@ -278,11 +287,7 @@ void main() {
       );
       await tester.pump();
 
-      // Scroll to virtual piano section
-      await tester.drag(find.byType(ListView), const Offset(0, -800));
-      await tester.pumpAndSettle();
-
-      final gestureDetectors = find.byType(GestureDetector);
+      final gestureDetectors = findDevicePianoKeys();
       if (gestureDetectors.evaluate().isNotEmpty) {
         final firstKey = gestureDetectors.first;
 
@@ -319,12 +324,8 @@ void main() {
       );
       await tester.pump();
 
-      // Scroll to virtual piano section
-      await tester.drag(find.byType(ListView), const Offset(0, -800));
-      await tester.pumpAndSettle();
-
       // Count all piano key containers (should be 12 total: 7 white + 5 black)
-      final pianoKeys = find.byType(GestureDetector);
+      final pianoKeys = findDevicePianoKeys();
 
       // Verify we have exactly 12 piano keys for the range 60-71
       expect(pianoKeys.evaluate().length, equals(12));
@@ -337,10 +338,6 @@ void main() {
         createTestWidget(DeviceControllerPage(device: mockDevice)),
       );
       await tester.pump();
-
-      // Scroll to virtual piano section
-      await tester.drag(find.byType(ListView), const Offset(0, -800));
-      await tester.pumpAndSettle();
 
       // Verify specific note names are displayed (compact format: no octave numbers)
       // These should correspond to MIDI notes 60-71

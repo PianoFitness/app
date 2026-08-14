@@ -51,41 +51,43 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
                     ),
                   ),
             body: SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(Spacing.md),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: Spacing.md),
-                    Center(
-                      child: Icon(
-                        Icons.bluetooth_audio,
-                        size: ComponentDimensions.iconSizeHeader,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 720),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(Spacing.md),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildConnectionOverview(context, viewModel),
+                        if (viewModel.devices.isNotEmpty) ...[
+                          const SizedBox(height: Spacing.md),
+                          _buildDevicesList(context, viewModel),
+                        ],
+                        if (viewModel.shouldShowErrorButtons) ...[
+                          const SizedBox(height: Spacing.sm),
+                          _buildErrorButtons(context, viewModel),
+                        ],
+                        if (viewModel.shouldShowMidiActivity)
+                          _buildMidiActivity(context, viewModel),
+                        const SizedBox(height: Spacing.md),
+                        ExpansionTile(
+                          key: const Key("midi_advanced_settings"),
+                          tilePadding: const EdgeInsets.symmetric(
+                            horizontal: Spacing.sm,
+                          ),
+                          title: const Text("Advanced settings"),
+                          subtitle: const Text("Output channel and setup help"),
+                          children: [
+                            _buildChannelSelector(context, viewModel),
+                            if (viewModel.shouldShowResetInfo)
+                              _buildResetInfo(),
+                          ],
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: Spacing.md),
-                    Center(
-                      child: Text(
-                        "MIDI Device Configuration",
-                        style: Theme.of(context).textTheme.headlineMedium,
-                      ),
-                    ),
-                    const SizedBox(height: Spacing.md),
-                    _buildChannelSelector(context, viewModel),
-                    const SizedBox(height: Spacing.md),
-                    _buildStatusSection(context, viewModel),
-                    const SizedBox(height: Spacing.md),
-                    if (viewModel.shouldShowErrorButtons)
-                      _buildErrorButtons(context, viewModel),
-                    const SizedBox(height: Spacing.md),
-                    if (viewModel.shouldShowResetInfo) _buildResetInfo(),
-                    if (viewModel.devices.isNotEmpty) ...[
-                      _buildDevicesList(context, viewModel),
-                      if (viewModel.shouldShowMidiActivity)
-                        _buildMidiActivity(context, viewModel),
-                    ],
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -99,21 +101,86 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
     );
   }
 
+  Widget _buildConnectionOverview(
+    BuildContext context,
+    MidiSettingsViewModel viewModel,
+  ) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final connected = viewModel.devices.any((device) => device.connected);
+    final title = viewModel.isScanning
+        ? "Looking for keyboards…"
+        : connected
+        ? "Keyboard connected"
+        : viewModel.devices.isNotEmpty
+        ? "Choose a keyboard"
+        : viewModel.shouldShowErrorButtons
+        ? "MIDI needs attention"
+        : "No keyboard connected";
+    final supportingText = connected
+        ? "Your MIDI keyboard is ready to play."
+        : viewModel.devices.isNotEmpty
+        ? "Tap a device below to connect."
+        : viewModel.shouldShowErrorButtons
+        ? viewModel.midiStatus
+        : "Scan for a USB or Bluetooth MIDI keyboard.";
+
+    return Semantics(
+      container: true,
+      liveRegion: true,
+      label: "$title. $supportingText",
+      child: Container(
+        key: const Key("midi_connection_overview"),
+        padding: const EdgeInsets.all(Spacing.md),
+        decoration: BoxDecoration(
+          color: connected
+              ? colorScheme.primaryContainer
+              : colorScheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(AppBorderRadius.large),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              connected ? Icons.check_circle : Icons.bluetooth_audio,
+              color: connected
+                  ? colorScheme.primary
+                  : colorScheme.onSurfaceVariant,
+              size: ComponentDimensions.iconSizeXLarge,
+            ),
+            const SizedBox(width: Spacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: theme.textTheme.titleLarge),
+                  const SizedBox(height: Spacing.xs),
+                  Text(
+                    supportingText,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildChannelSelector(
     BuildContext context,
     MidiSettingsViewModel viewModel,
   ) {
     final theme = Theme.of(context);
-    final semanticColors = context.semanticColors;
 
     return Container(
       padding: const EdgeInsets.all(Spacing.md),
       decoration: BoxDecoration(
-        color: semanticColors.infoContainer,
-        borderRadius: BorderRadius.circular(AppBorderRadius.small),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.5),
-        ),
+        color: theme.colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(AppBorderRadius.medium),
       ),
       child: Column(
         children: [
@@ -174,79 +241,44 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
     );
   }
 
-  Widget _buildStatusSection(
-    BuildContext context,
-    MidiSettingsViewModel viewModel,
-  ) {
-    return Semantics(
-      container: true,
-      label: "MIDI status: ${viewModel.midiStatus}",
-      liveRegion: true,
-      child: ExcludeSemantics(
-        child: Text(
-          viewModel.midiStatus,
-          style: Theme.of(context).textTheme.bodyLarge,
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-  }
-
   Widget _buildErrorButtons(
     BuildContext context,
     MidiSettingsViewModel viewModel,
   ) {
-    final semanticColors = context.semanticColors;
-
     return Center(
-      child: ElevatedButton.icon(
+      child: FilledButton.tonalIcon(
         onPressed: () => viewModel.retrySetup(),
         icon: const Icon(Icons.refresh),
         label: const Text("Retry"),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: semanticColors.info,
-          foregroundColor: semanticColors.onInfo,
-        ),
       ),
     );
   }
 
   Widget _buildResetInfo() {
     final theme = Theme.of(context);
-    final semanticColors = context.semanticColors;
 
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: semanticColors.infoContainer,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.5),
-        ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        Spacing.md,
+        Spacing.sm,
+        Spacing.md,
+        Spacing.md,
       ),
-      child: Column(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(
             Icons.lightbulb_outline,
-            color: semanticColors.onInfoContainer,
-            size: ComponentDimensions.iconSizeXLarge,
+            color: theme.colorScheme.onSurfaceVariant,
           ),
-          const SizedBox(height: Spacing.sm),
-          Text(
-            "Alternative Options:",
-            style: theme.textTheme.titleMedium?.copyWith(
-              color: semanticColors.onInfoContainer,
+          const SizedBox(width: Spacing.sm),
+          Expanded(
+            child: Text(
+              "Try a physical device, a USB connection, or a virtual MIDI device if Bluetooth is unavailable.",
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
-          ),
-          const SizedBox(height: Spacing.sm),
-          Text(
-            "• Use a physical iPhone/iPad device\n"
-            "• Connect USB MIDI keyboard\n"
-            "• Use virtual MIDI devices\n"
-            "• Enable on-screen piano for testing",
-            textAlign: TextAlign.left,
           ),
         ],
       ),
@@ -258,11 +290,11 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
     MidiSettingsViewModel viewModel,
   ) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          "MIDI Devices:",
+          "Available keyboards",
           style: Theme.of(context).textTheme.titleLarge,
-          textAlign: TextAlign.center,
         ),
         const SizedBox(height: Spacing.sm),
         ...(viewModel.devices.map(
@@ -273,12 +305,6 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
             onOpenController: () => _openDeviceController(device, viewModel),
           ),
         )),
-        const SizedBox(height: 8),
-        Text(
-          "Tap a device to connect/disconnect\nLong press or tap ⚙️ on connected devices for controller",
-          style: Theme.of(context).textTheme.bodySmall,
-          textAlign: TextAlign.center,
-        ),
       ],
     );
   }
@@ -290,39 +316,23 @@ class _MidiSettingsPageState extends State<MidiSettingsPage> {
     return Column(
       children: [
         const SizedBox(height: Spacing.md),
-        Builder(
-          builder: (context) {
-            final semanticColors = context.semanticColors;
-            final theme = Theme.of(context);
-            return Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(Spacing.md),
-              decoration: BoxDecoration(
-                color: semanticColors.successContainer,
-                borderRadius: BorderRadius.circular(AppBorderRadius.small),
-                border: Border.all(color: semanticColors.success.withAlpha(80)),
-              ),
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.music_note,
-                    color: semanticColors.success,
-                    size: ComponentDimensions.iconSizeXLarge,
-                  ),
-                  const SizedBox(height: Spacing.sm),
-                  Text("MIDI Activity:", style: theme.textTheme.titleMedium),
-                  const SizedBox(height: Spacing.xs),
-                  Text(
-                    viewModel.lastNote,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: semanticColors.success,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            );
-          },
+        Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(AppBorderRadius.medium),
+          ),
+          child: ListTile(
+            leading: Icon(
+              Icons.graphic_eq,
+              color: context.semanticColors.success,
+            ),
+            title: const Text("MIDI active"),
+            subtitle: Text(
+              viewModel.lastNote,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ),
       ],
     );

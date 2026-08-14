@@ -58,7 +58,11 @@ void main() {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
-      expect(find.text("MIDI Device Configuration"), findsOneWidget);
+      expect(find.byKey(const Key("midi_connection_overview")), findsOneWidget);
+      expect(find.text("Advanced settings"), findsOneWidget);
+
+      await tester.tap(find.text("Advanced settings"));
+      await tester.pumpAndSettle();
       expect(find.text("MIDI Output Channel"), findsOneWidget);
       expect(find.text("Channel: "), findsOneWidget);
       expect(find.byIcon(Icons.add_circle), findsWidgets);
@@ -68,6 +72,9 @@ void main() {
     testWidgets("should handle channel selection changes", (tester) async {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
+
+      await tester.tap(find.text("Advanced settings"));
+      await tester.pumpAndSettle();
 
       final addButton = find.byIcon(Icons.add_circle);
       if (addButton.evaluate().isNotEmpty) {
@@ -177,6 +184,9 @@ void main() {
       await tester.pumpWidget(buildTestWidget());
       await tester.pump();
 
+      await tester.tap(find.text("Advanced settings"));
+      await tester.pumpAndSettle();
+
       expect(find.text("MIDI Output Channel"), findsOneWidget);
       expect(find.text("Channel: "), findsOneWidget);
       expect(find.text("1"), findsOneWidget); // 0 (0-based) → 1 (user-facing)
@@ -191,6 +201,9 @@ void main() {
       (tester) async {
         await tester.pumpWidget(buildTestWidget());
         await tester.pump();
+
+        await tester.tap(find.text("Advanced settings"));
+        await tester.pumpAndSettle();
 
         expect(find.text("MIDI Output Channel"), findsOneWidget);
         expect(find.text("Channel: "), findsOneWidget);

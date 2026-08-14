@@ -142,7 +142,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text("No practice history yet"), findsOneWidget);
+      expect(find.text("Your progress starts here"), findsOneWidget);
     });
 
     testWidgets("shows empty state when profile has no history", (
@@ -168,7 +168,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.text("No practice history yet"), findsOneWidget);
+      expect(find.text("Your progress starts here"), findsOneWidget);
     });
 
     testWidgets("shows error message when repository throws", (tester) async {
@@ -223,6 +223,13 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(HistoryEntryCard), findsNWidgets(2));
+      expect(find.text("Your practice is adding up"), findsOneWidget);
+      expect(
+        find.byKey(const Key("progress_practices_metric")),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key("progress_days_metric")), findsOneWidget);
+      expect(find.text("Recent activity"), findsOneWidget);
     });
 
     testWidgets("does not show loading indicator after data loads", (
