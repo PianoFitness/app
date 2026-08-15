@@ -1119,7 +1119,7 @@ The slice should demonstrate:
 - Non-blocking dependencies.
 - Additive catalogue updates.
 
-The shipped catalogue is version 7. See `default_skill_catalogue.dart` for its
+The shipped catalogue is version 8. See `default_skill_catalogue.dart` for its
 current contents.
 
 ## 21. Suggested file structure

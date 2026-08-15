@@ -1,4 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/domain/models/music/broken_chord_pattern.dart";
 import "package:piano_fitness/domain/models/music/chord_tone_pattern.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
@@ -195,6 +196,32 @@ void main() {
         expect(entry.practiceMode, equals(PracticeMode.chordProgressions));
         expect(entry.musicalKey, equals(music.Key.g));
         expect(entry.chordProgressionId, equals(progressionId));
+      });
+    });
+
+    group("Broken-chord accompaniment mode", () {
+      test("should copy the accompaniment pattern correctly", () {
+        const config = ExerciseConfiguration(
+          practiceMode: PracticeMode.brokenChordAccompaniment,
+          handSelection: HandSelection.both,
+          key: music.Key.c,
+          chordProgressionId: "I - IV - V - I",
+          brokenChordPattern: BrokenChordPattern.rootFifthThirdFifth,
+        );
+
+        final entry = ExerciseHistoryEntry.fromConfiguration(
+          id: testId,
+          profileId: testProfileId,
+          completedAt: testCompletedAt,
+          config: config,
+        );
+
+        expect(entry.practiceMode, PracticeMode.brokenChordAccompaniment);
+        expect(entry.chordProgressionId, "I - IV - V - I");
+        expect(
+          entry.brokenChordPattern,
+          BrokenChordPattern.rootFifthThirdFifth,
+        );
       });
     });
 

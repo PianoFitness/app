@@ -1,4 +1,5 @@
 import "package:flutter_test/flutter_test.dart";
+import "package:piano_fitness/domain/models/music/broken_chord_pattern.dart";
 import "package:piano_fitness/domain/models/music/chord_tone_pattern.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
@@ -118,6 +119,22 @@ void main() {
           expect(config.chordProgressionId, equals("I - V"));
         },
       );
+
+      test("should create broken-chord accompaniment configuration", () {
+        const config = ExerciseConfiguration(
+          practiceMode: PracticeMode.brokenChordAccompaniment,
+          handSelection: HandSelection.both,
+          key: music.Key.c,
+          chordProgressionId: "I - IV - V - I",
+          brokenChordPattern: BrokenChordPattern.rootFifthThirdFifth,
+        );
+
+        expect(config.validate, returnsNormally);
+        expect(
+          config.brokenChordPattern,
+          BrokenChordPattern.rootFifthThirdFifth,
+        );
+      });
 
       test("should respect non-default boolean values", () {
         final config = ExerciseConfiguration(
@@ -443,6 +460,26 @@ void main() {
           );
         },
       );
+
+      test("brokenChordAccompaniment mode requires its pattern", () {
+        const config = ExerciseConfiguration(
+          practiceMode: PracticeMode.brokenChordAccompaniment,
+          handSelection: HandSelection.both,
+          key: music.Key.c,
+          chordProgressionId: "I - IV - V - I",
+        );
+
+        expect(
+          config.validate,
+          throwsA(
+            isA<ArgumentError>().having(
+              (error) => error.message,
+              "message",
+              contains("brokenChordPattern is required"),
+            ),
+          ),
+        );
+      });
     });
 
     group("JSON Serialization", () {
@@ -595,6 +632,22 @@ void main() {
           expect(json["chordProgressionId"], equals("I - V"));
         },
       );
+
+      test("should serialize and deserialize broken-chord accompaniment", () {
+        const original = ExerciseConfiguration(
+          practiceMode: PracticeMode.brokenChordAccompaniment,
+          handSelection: HandSelection.both,
+          key: music.Key.c,
+          chordProgressionId: "I - IV - V - I",
+          brokenChordPattern: BrokenChordPattern.rootFifthThirdFifth,
+        );
+
+        final json = original.toJson();
+        final deserialized = ExerciseConfiguration.fromJson(json);
+
+        expect(deserialized, original);
+        expect(json["brokenChordPattern"], "rootFifthThirdFifth");
+      });
 
       test("should omit fields with default values in JSON", () {
         final config = ExerciseConfiguration(
@@ -898,6 +951,27 @@ void main() {
 
         expect(updated.includeInversions, equals(true));
         expect(updated.includeSeventhChords, equals(true));
+      });
+
+      test("withMode supplies valid broken-chord accompaniment defaults", () {
+        const scales = ExerciseConfiguration(
+          practiceMode: PracticeMode.scales,
+          handSelection: HandSelection.both,
+          key: music.Key.c,
+          scaleType: music.ScaleType.major,
+        );
+
+        final accompaniment = scales.withMode(
+          PracticeMode.brokenChordAccompaniment,
+        );
+
+        expect(accompaniment.validate, returnsNormally);
+        expect(accompaniment.key, music.Key.c);
+        expect(accompaniment.chordProgressionId, "I - IV - V - I");
+        expect(
+          accompaniment.brokenChordPattern,
+          BrokenChordPattern.rootFifthThirdFifth,
+        );
       });
     });
   });

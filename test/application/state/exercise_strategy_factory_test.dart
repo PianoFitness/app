@@ -1,6 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/application/state/exercise_strategy_factory.dart";
 import "package:piano_fitness/domain/models/music/arpeggio_type.dart";
+import "package:piano_fitness/domain/models/music/broken_chord_pattern.dart";
 import "package:piano_fitness/domain/models/music/chord_type.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
@@ -80,6 +81,19 @@ void main() {
 
       final strategy = ExerciseStrategyFactory.create(config);
       expect(strategy, isA<ChordProgressionsStrategy>());
+    });
+
+    test("creates BrokenChordAccompanimentStrategy for accompaniment mode", () {
+      const config = ExerciseConfiguration(
+        practiceMode: PracticeMode.brokenChordAccompaniment,
+        key: music.Key.c,
+        chordProgressionId: "I - IV - V - I",
+        brokenChordPattern: BrokenChordPattern.rootFifthThirdFifth,
+        handSelection: HandSelection.both,
+      );
+
+      final strategy = ExerciseStrategyFactory.create(config);
+      expect(strategy, isA<BrokenChordAccompanimentStrategy>());
     });
 
     test("creates DominantCadenceStrategy for dominantCadence mode", () {

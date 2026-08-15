@@ -32,6 +32,7 @@ class ExerciseConfigurationIdentity {
         pattern: configuration.pattern.name,
         includeLeftHandRoot: configuration.includeLeftHandRoot,
         chordProgressionId: configuration.chordProgressionId,
+        brokenChordPattern: configuration.brokenChordPattern?.name,
       ),
     );
   }
@@ -54,6 +55,7 @@ class ExerciseConfigurationIdentity {
         pattern: (entry.pattern ?? ChordTonePattern.straight).name,
         includeLeftHandRoot: entry.includeLeftHandRoot,
         chordProgressionId: entry.chordProgressionId,
+        brokenChordPattern: entry.brokenChordPattern?.name,
       ),
     );
   }
@@ -74,6 +76,7 @@ class ExerciseConfigurationIdentity {
     required String pattern,
     required bool includeLeftHandRoot,
     required String? chordProgressionId,
+    required String? brokenChordPattern,
   }) {
     return jsonEncode([
       practiceMode,
@@ -89,6 +92,7 @@ class ExerciseConfigurationIdentity {
       pattern,
       includeLeftHandRoot,
       chordProgressionId,
+      brokenChordPattern,
     ]);
   }
 

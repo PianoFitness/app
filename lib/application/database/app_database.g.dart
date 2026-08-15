@@ -540,6 +540,17 @@ class $ExerciseHistoryTableTable extends ExerciseHistoryTable
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _brokenChordPatternMeta =
+      const VerificationMeta('brokenChordPattern');
+  @override
+  late final GeneratedColumn<String> brokenChordPattern =
+      GeneratedColumn<String>(
+        'broken_chord_pattern',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _accuracyPercentageMeta =
       const VerificationMeta('accuracyPercentage');
   @override
@@ -678,6 +689,7 @@ class $ExerciseHistoryTableTable extends ExerciseHistoryTable
     pattern,
     includeLeftHandRoot,
     chordProgressionId,
+    brokenChordPattern,
     accuracyPercentage,
     correctNoteCount,
     errorCount,
@@ -832,6 +844,15 @@ class $ExerciseHistoryTableTable extends ExerciseHistoryTable
         chordProgressionId.isAcceptableOrUnknown(
           data['chord_progression_id']!,
           _chordProgressionIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('broken_chord_pattern')) {
+      context.handle(
+        _brokenChordPatternMeta,
+        brokenChordPattern.isAcceptableOrUnknown(
+          data['broken_chord_pattern']!,
+          _brokenChordPatternMeta,
         ),
       );
     }
@@ -1007,6 +1028,10 @@ class $ExerciseHistoryTableTable extends ExerciseHistoryTable
         DriftSqlType.string,
         data['${effectivePrefix}chord_progression_id'],
       ),
+      brokenChordPattern: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}broken_chord_pattern'],
+      ),
       accuracyPercentage: attachedDatabase.typeMapping.read(
         DriftSqlType.double,
         data['${effectivePrefix}accuracy_percentage'],
@@ -1115,6 +1140,9 @@ class ExerciseHistoryTableData extends DataClass
   /// Chord progression identifier (chordProgressions mode). Null otherwise.
   final String? chordProgressionId;
 
+  /// Broken-chord accompaniment figure name. Null for other modes.
+  final String? brokenChordPattern;
+
   /// Top-line accuracy metric (0-100 percentage).
   /// Nullable so existing rows and future non-scored modes remain valid.
   final double? accuracyPercentage;
@@ -1172,6 +1200,7 @@ class ExerciseHistoryTableData extends DataClass
     this.pattern,
     required this.includeLeftHandRoot,
     this.chordProgressionId,
+    this.brokenChordPattern,
     this.accuracyPercentage,
     this.correctNoteCount,
     this.errorCount,
@@ -1218,6 +1247,9 @@ class ExerciseHistoryTableData extends DataClass
     map['include_left_hand_root'] = Variable<bool>(includeLeftHandRoot);
     if (!nullToAbsent || chordProgressionId != null) {
       map['chord_progression_id'] = Variable<String>(chordProgressionId);
+    }
+    if (!nullToAbsent || brokenChordPattern != null) {
+      map['broken_chord_pattern'] = Variable<String>(brokenChordPattern);
     }
     if (!nullToAbsent || accuracyPercentage != null) {
       map['accuracy_percentage'] = Variable<double>(accuracyPercentage);
@@ -1297,6 +1329,9 @@ class ExerciseHistoryTableData extends DataClass
       chordProgressionId: chordProgressionId == null && nullToAbsent
           ? const Value.absent()
           : Value(chordProgressionId),
+      brokenChordPattern: brokenChordPattern == null && nullToAbsent
+          ? const Value.absent()
+          : Value(brokenChordPattern),
       accuracyPercentage: accuracyPercentage == null && nullToAbsent
           ? const Value.absent()
           : Value(accuracyPercentage),
@@ -1364,6 +1399,9 @@ class ExerciseHistoryTableData extends DataClass
       chordProgressionId: serializer.fromJson<String?>(
         json['chordProgressionId'],
       ),
+      brokenChordPattern: serializer.fromJson<String?>(
+        json['brokenChordPattern'],
+      ),
       accuracyPercentage: serializer.fromJson<double?>(
         json['accuracyPercentage'],
       ),
@@ -1411,6 +1449,7 @@ class ExerciseHistoryTableData extends DataClass
       'pattern': serializer.toJson<String?>(pattern),
       'includeLeftHandRoot': serializer.toJson<bool>(includeLeftHandRoot),
       'chordProgressionId': serializer.toJson<String?>(chordProgressionId),
+      'brokenChordPattern': serializer.toJson<String?>(brokenChordPattern),
       'accuracyPercentage': serializer.toJson<double?>(accuracyPercentage),
       'correctNoteCount': serializer.toJson<int?>(correctNoteCount),
       'errorCount': serializer.toJson<int?>(errorCount),
@@ -1452,6 +1491,7 @@ class ExerciseHistoryTableData extends DataClass
     Value<String?> pattern = const Value.absent(),
     bool? includeLeftHandRoot,
     Value<String?> chordProgressionId = const Value.absent(),
+    Value<String?> brokenChordPattern = const Value.absent(),
     Value<double?> accuracyPercentage = const Value.absent(),
     Value<int?> correctNoteCount = const Value.absent(),
     Value<int?> errorCount = const Value.absent(),
@@ -1484,6 +1524,9 @@ class ExerciseHistoryTableData extends DataClass
     chordProgressionId: chordProgressionId.present
         ? chordProgressionId.value
         : this.chordProgressionId,
+    brokenChordPattern: brokenChordPattern.present
+        ? brokenChordPattern.value
+        : this.brokenChordPattern,
     accuracyPercentage: accuracyPercentage.present
         ? accuracyPercentage.value
         : this.accuracyPercentage,
@@ -1559,6 +1602,9 @@ class ExerciseHistoryTableData extends DataClass
       chordProgressionId: data.chordProgressionId.present
           ? data.chordProgressionId.value
           : this.chordProgressionId,
+      brokenChordPattern: data.brokenChordPattern.present
+          ? data.brokenChordPattern.value
+          : this.brokenChordPattern,
       accuracyPercentage: data.accuracyPercentage.present
           ? data.accuracyPercentage.value
           : this.accuracyPercentage,
@@ -1615,6 +1661,7 @@ class ExerciseHistoryTableData extends DataClass
           ..write('pattern: $pattern, ')
           ..write('includeLeftHandRoot: $includeLeftHandRoot, ')
           ..write('chordProgressionId: $chordProgressionId, ')
+          ..write('brokenChordPattern: $brokenChordPattern, ')
           ..write('accuracyPercentage: $accuracyPercentage, ')
           ..write('correctNoteCount: $correctNoteCount, ')
           ..write('errorCount: $errorCount, ')
@@ -1650,6 +1697,7 @@ class ExerciseHistoryTableData extends DataClass
     pattern,
     includeLeftHandRoot,
     chordProgressionId,
+    brokenChordPattern,
     accuracyPercentage,
     correctNoteCount,
     errorCount,
@@ -1682,6 +1730,7 @@ class ExerciseHistoryTableData extends DataClass
           other.pattern == this.pattern &&
           other.includeLeftHandRoot == this.includeLeftHandRoot &&
           other.chordProgressionId == this.chordProgressionId &&
+          other.brokenChordPattern == this.brokenChordPattern &&
           other.accuracyPercentage == this.accuracyPercentage &&
           other.correctNoteCount == this.correctNoteCount &&
           other.errorCount == this.errorCount &&
@@ -1715,6 +1764,7 @@ class ExerciseHistoryTableCompanion
   final Value<String?> pattern;
   final Value<bool> includeLeftHandRoot;
   final Value<String?> chordProgressionId;
+  final Value<String?> brokenChordPattern;
   final Value<double?> accuracyPercentage;
   final Value<int?> correctNoteCount;
   final Value<int?> errorCount;
@@ -1744,6 +1794,7 @@ class ExerciseHistoryTableCompanion
     this.pattern = const Value.absent(),
     this.includeLeftHandRoot = const Value.absent(),
     this.chordProgressionId = const Value.absent(),
+    this.brokenChordPattern = const Value.absent(),
     this.accuracyPercentage = const Value.absent(),
     this.correctNoteCount = const Value.absent(),
     this.errorCount = const Value.absent(),
@@ -1774,6 +1825,7 @@ class ExerciseHistoryTableCompanion
     this.pattern = const Value.absent(),
     this.includeLeftHandRoot = const Value.absent(),
     this.chordProgressionId = const Value.absent(),
+    this.brokenChordPattern = const Value.absent(),
     this.accuracyPercentage = const Value.absent(),
     this.correctNoteCount = const Value.absent(),
     this.errorCount = const Value.absent(),
@@ -1808,6 +1860,7 @@ class ExerciseHistoryTableCompanion
     Expression<String>? pattern,
     Expression<bool>? includeLeftHandRoot,
     Expression<String>? chordProgressionId,
+    Expression<String>? brokenChordPattern,
     Expression<double>? accuracyPercentage,
     Expression<int>? correctNoteCount,
     Expression<int>? errorCount,
@@ -1841,6 +1894,8 @@ class ExerciseHistoryTableCompanion
         'include_left_hand_root': includeLeftHandRoot,
       if (chordProgressionId != null)
         'chord_progression_id': chordProgressionId,
+      if (brokenChordPattern != null)
+        'broken_chord_pattern': brokenChordPattern,
       if (accuracyPercentage != null) 'accuracy_percentage': accuracyPercentage,
       if (correctNoteCount != null) 'correct_note_count': correctNoteCount,
       if (errorCount != null) 'error_count': errorCount,
@@ -1881,6 +1936,7 @@ class ExerciseHistoryTableCompanion
     Value<String?>? pattern,
     Value<bool>? includeLeftHandRoot,
     Value<String?>? chordProgressionId,
+    Value<String?>? brokenChordPattern,
     Value<double?>? accuracyPercentage,
     Value<int?>? correctNoteCount,
     Value<int?>? errorCount,
@@ -1911,6 +1967,7 @@ class ExerciseHistoryTableCompanion
       pattern: pattern ?? this.pattern,
       includeLeftHandRoot: includeLeftHandRoot ?? this.includeLeftHandRoot,
       chordProgressionId: chordProgressionId ?? this.chordProgressionId,
+      brokenChordPattern: brokenChordPattern ?? this.brokenChordPattern,
       accuracyPercentage: accuracyPercentage ?? this.accuracyPercentage,
       correctNoteCount: correctNoteCount ?? this.correctNoteCount,
       errorCount: errorCount ?? this.errorCount,
@@ -1985,6 +2042,9 @@ class ExerciseHistoryTableCompanion
     if (chordProgressionId.present) {
       map['chord_progression_id'] = Variable<String>(chordProgressionId.value);
     }
+    if (brokenChordPattern.present) {
+      map['broken_chord_pattern'] = Variable<String>(brokenChordPattern.value);
+    }
     if (accuracyPercentage.present) {
       map['accuracy_percentage'] = Variable<double>(accuracyPercentage.value);
     }
@@ -2053,6 +2113,7 @@ class ExerciseHistoryTableCompanion
           ..write('pattern: $pattern, ')
           ..write('includeLeftHandRoot: $includeLeftHandRoot, ')
           ..write('chordProgressionId: $chordProgressionId, ')
+          ..write('brokenChordPattern: $brokenChordPattern, ')
           ..write('accuracyPercentage: $accuracyPercentage, ')
           ..write('correctNoteCount: $correctNoteCount, ')
           ..write('errorCount: $errorCount, ')
@@ -2431,6 +2492,7 @@ typedef $$ExerciseHistoryTableTableCreateCompanionBuilder =
       Value<String?> pattern,
       Value<bool> includeLeftHandRoot,
       Value<String?> chordProgressionId,
+      Value<String?> brokenChordPattern,
       Value<double?> accuracyPercentage,
       Value<int?> correctNoteCount,
       Value<int?> errorCount,
@@ -2462,6 +2524,7 @@ typedef $$ExerciseHistoryTableTableUpdateCompanionBuilder =
       Value<String?> pattern,
       Value<bool> includeLeftHandRoot,
       Value<String?> chordProgressionId,
+      Value<String?> brokenChordPattern,
       Value<double?> accuracyPercentage,
       Value<int?> correctNoteCount,
       Value<int?> errorCount,
@@ -2590,6 +2653,11 @@ class $$ExerciseHistoryTableTableFilterComposer
 
   ColumnFilters<String> get chordProgressionId => $composableBuilder(
     column: $table.chordProgressionId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get brokenChordPattern => $composableBuilder(
+    column: $table.brokenChordPattern,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2757,6 +2825,11 @@ class $$ExerciseHistoryTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get brokenChordPattern => $composableBuilder(
+    column: $table.brokenChordPattern,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<double> get accuracyPercentage => $composableBuilder(
     column: $table.accuracyPercentage,
     builder: (column) => ColumnOrderings(column),
@@ -2913,6 +2986,11 @@ class $$ExerciseHistoryTableTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get brokenChordPattern => $composableBuilder(
+    column: $table.brokenChordPattern,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<double> get accuracyPercentage => $composableBuilder(
     column: $table.accuracyPercentage,
     builder: (column) => column,
@@ -3045,6 +3123,7 @@ class $$ExerciseHistoryTableTableTableManager
                 Value<String?> pattern = const Value.absent(),
                 Value<bool> includeLeftHandRoot = const Value.absent(),
                 Value<String?> chordProgressionId = const Value.absent(),
+                Value<String?> brokenChordPattern = const Value.absent(),
                 Value<double?> accuracyPercentage = const Value.absent(),
                 Value<int?> correctNoteCount = const Value.absent(),
                 Value<int?> errorCount = const Value.absent(),
@@ -3076,6 +3155,7 @@ class $$ExerciseHistoryTableTableTableManager
                 pattern: pattern,
                 includeLeftHandRoot: includeLeftHandRoot,
                 chordProgressionId: chordProgressionId,
+                brokenChordPattern: brokenChordPattern,
                 accuracyPercentage: accuracyPercentage,
                 correctNoteCount: correctNoteCount,
                 errorCount: errorCount,
@@ -3108,6 +3188,7 @@ class $$ExerciseHistoryTableTableTableManager
                 Value<String?> pattern = const Value.absent(),
                 Value<bool> includeLeftHandRoot = const Value.absent(),
                 Value<String?> chordProgressionId = const Value.absent(),
+                Value<String?> brokenChordPattern = const Value.absent(),
                 Value<double?> accuracyPercentage = const Value.absent(),
                 Value<int?> correctNoteCount = const Value.absent(),
                 Value<int?> errorCount = const Value.absent(),
@@ -3139,6 +3220,7 @@ class $$ExerciseHistoryTableTableTableManager
                 pattern: pattern,
                 includeLeftHandRoot: includeLeftHandRoot,
                 chordProgressionId: chordProgressionId,
+                brokenChordPattern: brokenChordPattern,
                 accuracyPercentage: accuracyPercentage,
                 correctNoteCount: correctNoteCount,
                 errorCount: errorCount,

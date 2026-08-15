@@ -1,4 +1,5 @@
 import "package:meta/meta.dart";
+import "package:piano_fitness/domain/models/music/broken_chord_pattern.dart";
 import "package:piano_fitness/domain/models/music/chord_tone_pattern.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
@@ -49,6 +50,7 @@ class ExerciseConfiguration {
   /// - arpeggios: musicalNote, arpeggioType
   /// - blockChords: musicalNote, arpeggioType
   /// - chordProgressions: key, chordProgressionId
+  /// - brokenChordAccompaniment: key, chordProgressionId, brokenChordPattern
   ///
   /// See [validate] for complete validation rules.
   const ExerciseConfiguration({
@@ -65,6 +67,7 @@ class ExerciseConfiguration {
     this.pattern = ChordTonePattern.straight,
     this.includeLeftHandRoot = false,
     this.chordProgressionId,
+    this.brokenChordPattern,
   });
 
   /// Creates configuration from JSON (for database deserialization).
@@ -101,17 +104,23 @@ class ExerciseConfiguration {
           : ChordTonePattern.straight,
       includeLeftHandRoot: json["includeLeftHandRoot"] as bool? ?? false,
       chordProgressionId: json["chordProgressionId"] as String?,
+      brokenChordPattern: json["brokenChordPattern"] != null
+          ? BrokenChordPattern.values.byName(
+              json["brokenChordPattern"] as String,
+            )
+          : null,
     );
   }
 
-  /// The practice mode (scales, chordsByKey, chordsByType, arpeggios, chordProgressions).
+  /// The selected exercise family.
   final PracticeMode practiceMode;
 
   /// Which hand(s) to practice with (left, right, both).
   final HandSelection handSelection;
 
-  /// The musical key for key-based modes (scales, chordsByKey, chordProgressions).
-  /// Required for: scales, chordsByKey, chordProgressions.
+  /// The musical key for key-based modes.
+  /// Required for: scales, chordsByKey, chordProgressions,
+  /// brokenChordAccompaniment.
   final music.Key? key;
 
   /// The scale type for scale-based modes (scales, chordsByKey).
@@ -152,10 +161,15 @@ class ExerciseConfiguration {
   /// otherwise). Default: false.
   final bool includeLeftHandRoot;
 
-  /// The chord progression identifier (chordProgressions mode).
+  /// The chord progression identifier (chordProgressions and
+  /// brokenChordAccompaniment modes).
   /// Maps to ChordProgression.name (e.g., "I - V", "I - ♭VII").
   /// Required for: chordProgressions.
   final String? chordProgressionId;
+
+  /// The left-hand accompaniment figure for broken chord progressions.
+  /// Required for: brokenChordAccompaniment.
+  final BrokenChordPattern? brokenChordPattern;
 
   /// Converts configuration to JSON (for database serialization).
   ///
@@ -179,6 +193,8 @@ class ExerciseConfiguration {
       if (pattern != ChordTonePattern.straight) "pattern": pattern.name,
       if (includeLeftHandRoot) "includeLeftHandRoot": includeLeftHandRoot,
       if (chordProgressionId != null) "chordProgressionId": chordProgressionId,
+      if (brokenChordPattern != null)
+        "brokenChordPattern": brokenChordPattern!.name,
     };
   }
 
@@ -193,6 +209,8 @@ class ExerciseConfiguration {
   /// - arpeggios: requires musicalNote, arpeggioType
   /// - blockChords: requires musicalNote, arpeggioType
   /// - chordProgressions: requires key, chordProgressionId
+  /// - brokenChordAccompaniment: requires key, chordProgressionId,
+  ///   brokenChordPattern
   /// - dominantCadence: requires key
   void validate() {
     switch (practiceMode) {
@@ -249,6 +267,24 @@ class ExerciseConfiguration {
         }
         break;
 
+      case PracticeMode.brokenChordAccompaniment:
+        if (key == null) {
+          throw ArgumentError(
+            "key is required for brokenChordAccompaniment mode",
+          );
+        }
+        if (chordProgressionId == null) {
+          throw ArgumentError(
+            "chordProgressionId is required for brokenChordAccompaniment mode",
+          );
+        }
+        if (brokenChordPattern == null) {
+          throw ArgumentError(
+            "brokenChordPattern is required for brokenChordAccompaniment mode",
+          );
+        }
+        break;
+
       case PracticeMode.dominantCadence:
         if (key == null) {
           throw ArgumentError("key is required for dominantCadence mode");
@@ -284,6 +320,7 @@ class ExerciseConfiguration {
     ChordTonePattern? pattern,
     bool? includeLeftHandRoot,
     Field<String>? chordProgressionId,
+    Field<BrokenChordPattern>? brokenChordPattern,
   }) {
     return ExerciseConfiguration(
       practiceMode: practiceMode ?? this.practiceMode,
@@ -309,6 +346,9 @@ class ExerciseConfiguration {
       chordProgressionId: chordProgressionId != null && chordProgressionId.isSet
           ? chordProgressionId.value
           : this.chordProgressionId,
+      brokenChordPattern: brokenChordPattern != null && brokenChordPattern.isSet
+          ? brokenChordPattern.value
+          : this.brokenChordPattern,
     );
   }
 
@@ -329,7 +369,8 @@ class ExerciseConfiguration {
           arpeggioOctaves == other.arpeggioOctaves &&
           pattern == other.pattern &&
           includeLeftHandRoot == other.includeLeftHandRoot &&
-          chordProgressionId == other.chordProgressionId;
+          chordProgressionId == other.chordProgressionId &&
+          brokenChordPattern == other.brokenChordPattern;
 
   @override
   int get hashCode => Object.hash(
@@ -346,6 +387,7 @@ class ExerciseConfiguration {
     pattern,
     includeLeftHandRoot,
     chordProgressionId,
+    brokenChordPattern,
   );
 
   /// Progresses to the next key in the circle of fifths.
@@ -378,6 +420,7 @@ class ExerciseConfiguration {
       musicalNote: const Field.set(null),
       arpeggioType: const Field.set(null),
       chordProgressionId: const Field.set(null),
+      brokenChordPattern: const Field.set(null),
     );
 
     switch (newMode) {
@@ -404,6 +447,15 @@ class ExerciseConfiguration {
         newConfig = newConfig.copyWith(
           key: Field.set(key ?? music.Key.c),
           chordProgressionId: Field.set(chordProgressionId ?? "I - V"),
+        );
+        break;
+      case PracticeMode.brokenChordAccompaniment:
+        newConfig = newConfig.copyWith(
+          key: Field.set(key ?? music.Key.c),
+          chordProgressionId: Field.set(chordProgressionId ?? "I - IV - V - I"),
+          brokenChordPattern: Field.set(
+            brokenChordPattern ?? BrokenChordPattern.rootFifthThirdFifth,
+          ),
         );
         break;
       case PracticeMode.dominantCadence:

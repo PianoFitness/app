@@ -28,9 +28,9 @@ void main() {
       expect(db, isA<AppDatabase>());
     });
 
-    test("schemaVersion is 7", () {
-      // Schema version 7 adds the tempo step note value column.
-      expect(db.schemaVersion, 7);
+    test("schemaVersion is 8", () {
+      // Schema version 8 adds the broken-chord accompaniment pattern column.
+      expect(db.schemaVersion, 8);
     });
 
     test("opens and closes without error", () async {

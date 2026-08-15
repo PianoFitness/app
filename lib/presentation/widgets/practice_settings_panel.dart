@@ -154,6 +154,8 @@ class PracticeSettingsPanel extends StatelessWidget {
         return "Block Chords";
       case PracticeMode.chordProgressions:
         return "Chord Progressions";
+      case PracticeMode.brokenChordAccompaniment:
+        return "Broken-Chord Accompaniment";
       case PracticeMode.dominantCadence:
         return "Dominant Cadence";
     }
@@ -242,6 +244,7 @@ class PracticeSettingsPanel extends StatelessWidget {
     return mode == PracticeMode.scales ||
         mode == PracticeMode.chordsByKey ||
         mode == PracticeMode.chordProgressions ||
+        mode == PracticeMode.brokenChordAccompaniment ||
         mode == PracticeMode.dominantCadence;
   }
 
@@ -302,9 +305,7 @@ class PracticeSettingsPanel extends StatelessWidget {
                   }).toList(),
                   onChanged: (value) {
                     if (value != null) {
-                      onConfigurationChanged(
-                        configuration.copyWith(practiceMode: value),
-                      );
+                      onConfigurationChanged(configuration.withMode(value));
                     }
                   },
                 ),
@@ -353,6 +354,13 @@ class PracticeSettingsPanel extends StatelessWidget {
             )
           else if (configuration.practiceMode == PracticeMode.chordProgressions)
             ChordProgressionsSettingsView(
+              configuration: configuration,
+              onConfigurationChanged: onConfigurationChanged,
+              getChordProgressionString: _getChordProgressionString,
+            )
+          else if (configuration.practiceMode ==
+              PracticeMode.brokenChordAccompaniment)
+            BrokenChordAccompanimentSettingsView(
               configuration: configuration,
               onConfigurationChanged: onConfigurationChanged,
               getChordProgressionString: _getChordProgressionString,

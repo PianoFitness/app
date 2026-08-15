@@ -74,6 +74,9 @@ class ExerciseHistoryTable extends Table {
   /// Chord progression identifier (chordProgressions mode). Null otherwise.
   TextColumn get chordProgressionId => text().nullable()();
 
+  /// Broken-chord accompaniment figure name. Null for other modes.
+  TextColumn get brokenChordPattern => text().nullable()();
+
   // ── Accuracy metrics ─────────────────────────────────────────────────────
 
   /// Top-line accuracy metric (0-100 percentage).

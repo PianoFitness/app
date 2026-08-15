@@ -1,5 +1,6 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/application/skill_progression/default_skill_catalogue.dart";
+import "package:piano_fitness/domain/models/music/broken_chord_pattern.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/music/chord_type.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
@@ -117,8 +118,8 @@ void main() {
   group("SkillCatalogueValidator", () {
     test("validates the shipped first-slice catalogue", () {
       SkillCatalogueValidator.validate(DefaultSkillCatalogue.catalogue);
-      expect(DefaultSkillCatalogue.catalogue.version, 7);
-      expect(DefaultSkillCatalogue.catalogue.nodes, hasLength(19));
+      expect(DefaultSkillCatalogue.catalogue.version, 8);
+      expect(DefaultSkillCatalogue.catalogue.nodes, hasLength(20));
     });
   });
 
@@ -126,10 +127,10 @@ void main() {
     SkillNode nodeById(String id) => DefaultSkillCatalogue.catalogue.nodes
         .firstWhere((node) => node.id == id);
 
-    test("version 7 nests major-scale hand exercises under each key", () {
+    test("version 8 nests major-scale hand exercises under each key", () {
       final catalogue = DefaultSkillCatalogue.catalogue;
 
-      expect(catalogue.version, 7);
+      expect(catalogue.version, 8);
       expect(
         catalogue.nodes.map((node) => node.id),
         isNot(contains("major-scale-apart")),
@@ -319,6 +320,31 @@ void main() {
       }
     });
 
+    test("broken-chord accompaniment covers every key", () {
+      final node = nodeById("broken-chord-accompaniment");
+      expect(node.checkpoints, hasLength(music.Key.values.length));
+
+      for (final key in music.Key.values) {
+        final checkpoint = node.checkpoints.singleWhere(
+          (checkpoint) =>
+              checkpoint.id == "broken-chord-accompaniment-${key.name}",
+        );
+        final exercise = checkpoint.exercises.single;
+        expect(
+          exercise.configuration.practiceMode,
+          PracticeMode.brokenChordAccompaniment,
+        );
+        expect(exercise.configuration.key, key);
+        expect(exercise.configuration.chordProgressionId, "I - IV - V - I");
+        expect(
+          exercise.configuration.brokenChordPattern,
+          BrokenChordPattern.rootFifthThirdFifth,
+        );
+        expect(exercise.configuration.handSelection, HandSelection.both);
+        expect(exercise.configuration.validate, returnsNormally);
+      }
+    });
+
     test("relations point at real nodes with the expected type", () {
       final expectedRelations = <String, List<(SkillRelationType, String)>>{
         "major-scale": [],
@@ -357,6 +383,9 @@ void main() {
         ],
         "altered-triads": [
           (SkillRelationType.recommendedPrerequisite, "diatonic-triads"),
+        ],
+        "broken-chord-accompaniment": [
+          (SkillRelationType.recommendedPrerequisite, "i-iv-v-i"),
         ],
       };
 
@@ -402,6 +431,7 @@ void main() {
       expect(groupsById["core-technique"]!.nodeIds, [
         "suspended-chords",
         "altered-triads",
+        "broken-chord-accompaniment",
       ]);
     });
   });

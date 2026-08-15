@@ -3,6 +3,7 @@ import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/application/database/app_database.dart";
 import "package:piano_fitness/application/repositories/exercise_history_repository_impl.dart";
 import "package:piano_fitness/application/repositories/user_profile_repository_impl.dart";
+import "package:piano_fitness/domain/models/music/broken_chord_pattern.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/exercise_history_entry.dart";
@@ -110,6 +111,33 @@ void main() {
       expect(results.first.correctNoteCount, equals(20));
       expect(results.first.errorCount, equals(1));
     });
+
+    test(
+      "should persist and restore broken-chord accompaniment settings",
+      () async {
+        final entry = makeEntry(
+          profileId: testProfileId,
+          config: const ExerciseConfiguration(
+            practiceMode: PracticeMode.brokenChordAccompaniment,
+            handSelection: HandSelection.both,
+            key: music.Key.c,
+            chordProgressionId: "I - IV - V - I",
+            brokenChordPattern: BrokenChordPattern.rootFifthThirdFifth,
+          ),
+        );
+        await repository.saveEntry(entry);
+
+        final result = (await repository.getEntriesForProfile(
+          testProfileId,
+        )).single;
+        expect(result.practiceMode, PracticeMode.brokenChordAccompaniment);
+        expect(result.chordProgressionId, "I - IV - V - I");
+        expect(
+          result.brokenChordPattern,
+          BrokenChordPattern.rootFifthThirdFifth,
+        );
+      },
+    );
 
     test("should persist and restore reliable tempo evidence", () async {
       final entry = makeEntry(

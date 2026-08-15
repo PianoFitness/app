@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:piano_fitness/domain/models/music/broken_chord_pattern.dart";
 import "package:intl/intl.dart";
 import "package:piano_fitness/domain/models/music/arpeggio_type.dart";
 import "package:piano_fitness/domain/models/music/chord_type.dart";
@@ -138,6 +139,8 @@ class HistoryEntryCard extends StatelessWidget {
         return "Block Chords";
       case PracticeMode.chordProgressions:
         return "Chord Progressions";
+      case PracticeMode.brokenChordAccompaniment:
+        return "Broken-Chord Accompaniment";
       case PracticeMode.dominantCadence:
         return "Dominant Cadence";
     }
@@ -189,6 +192,12 @@ class HistoryEntryCard extends StatelessWidget {
         final key = e.musicalKey?.displayName ?? "?";
         final prog = e.chordProgressionId ?? "?";
         return "$key — $prog";
+
+      case PracticeMode.brokenChordAccompaniment:
+        final key = e.musicalKey?.displayName ?? "?";
+        final progression = e.chordProgressionId ?? "?";
+        final pattern = e.brokenChordPattern?.displayName ?? "?";
+        return "$key — $progression ($pattern)";
 
       case PracticeMode.dominantCadence:
         final key = e.musicalKey?.displayName ?? "?";

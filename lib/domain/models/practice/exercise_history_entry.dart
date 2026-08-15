@@ -1,4 +1,5 @@
 import "package:meta/meta.dart";
+import "package:piano_fitness/domain/models/music/broken_chord_pattern.dart";
 import "package:piano_fitness/domain/models/music/chord_tone_pattern.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
@@ -38,6 +39,7 @@ class ExerciseHistoryEntry {
     this.pattern,
     required this.includeLeftHandRoot,
     this.chordProgressionId,
+    this.brokenChordPattern,
     this.accuracyPercentage,
     this.correctNoteCount,
     this.errorCount,
@@ -91,6 +93,7 @@ class ExerciseHistoryEntry {
       pattern: config.pattern,
       includeLeftHandRoot: config.includeLeftHandRoot,
       chordProgressionId: config.chordProgressionId,
+      brokenChordPattern: config.brokenChordPattern,
       accuracyPercentage: accuracyPercentage,
       correctNoteCount: correctNoteCount,
       errorCount: errorCount,
@@ -162,6 +165,9 @@ class ExerciseHistoryEntry {
 
   /// The chord progression identifier (chordProgressions mode).
   final String? chordProgressionId;
+
+  /// The accompaniment figure used by broken-chord progression practice.
+  final BrokenChordPattern? brokenChordPattern;
 
   // ── Accuracy metrics ─────────────────────────────────────────────────────
 

@@ -1,4 +1,5 @@
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/music/broken_chord_pattern.dart";
 import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart";
@@ -16,7 +17,7 @@ abstract final class DefaultSkillCatalogue {
   static SkillCatalogue _create() {
     final catalogue = SkillCatalogue(
       id: "piano-fitness-foundations",
-      version: 7,
+      version: 8,
       groups: [
         SkillGraphGroup(
           id: "key-foundations",
@@ -61,7 +62,11 @@ abstract final class DefaultSkillCatalogue {
           id: "core-technique",
           name: "Core Technique & Coordination",
           description: "Chord shapes that extend the foundational triads.",
-          nodeIds: ["suspended-chords", "altered-triads"],
+          nodeIds: [
+            "suspended-chords",
+            "altered-triads",
+            "broken-chord-accompaniment",
+          ],
           displayOrder: 3,
         ),
       ],
@@ -422,6 +427,27 @@ abstract final class DefaultSkillCatalogue {
             ),
           ],
         ),
+        SkillNode(
+          id: "broken-chord-accompaniment",
+          name: "Broken-chord accompaniment",
+          description:
+              "Keep a steady left-hand 1–5–3–5 pattern while harmony changes.",
+          checkpoints: _brokenChordAccompanimentCheckpoints(),
+          proficiencyRule: SkillProficiencyRule(
+            referenceTempoBpm: 72,
+            supportedTempoMeasurementVersions: {
+              TempoMeasurementVersions.declaredStepDurations,
+              TempoMeasurementVersions.scaleEighthNotes,
+            },
+          ),
+          tempoProgression: const TempoProgression(incrementBpm: 4),
+          relations: const [
+            SkillRelation(
+              type: SkillRelationType.recommendedPrerequisite,
+              nodeId: "i-iv-v-i",
+            ),
+          ],
+        ),
       ],
     );
     SkillCatalogueValidator.validate(catalogue);
@@ -534,6 +560,32 @@ abstract final class DefaultSkillCatalogue {
                   handSelection: HandSelection.both,
                   chordType: chordType,
                   includeInversions: includeInversions,
+                ),
+              ),
+            ],
+          );
+        })
+        .toList(growable: false);
+  }
+
+  static List<SkillCheckpoint> _brokenChordAccompanimentCheckpoints() {
+    const progressionId = "I - IV - V - I";
+    const pattern = BrokenChordPattern.rootFifthThirdFifth;
+    return music.Key.values
+        .map((key) {
+          return SkillCheckpoint(
+            id: "broken-chord-accompaniment-${key.name}",
+            name: "${key.displayName} major",
+            exercises: [
+              SkillExercise(
+                id: "broken-chord-accompaniment-${key.name}",
+                name: "${key.displayName}: 1–5–3–5 accompaniment",
+                configuration: ExerciseConfiguration(
+                  practiceMode: PracticeMode.brokenChordAccompaniment,
+                  handSelection: HandSelection.both,
+                  key: key,
+                  chordProgressionId: progressionId,
+                  brokenChordPattern: pattern,
                 ),
               ),
             ],

@@ -313,7 +313,7 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 
 ## 8. Broken-chord accompaniment patterns
 
-**Priority:** Developing · **Type:** Technique exercise · **Status:** Planned generator
+**Priority:** Developing · **Type:** Technique exercise · **Status:** Available now
 
 **Connections:** builds on arpeggios (§2); combines with Alberti bass (§9) and ostinatos (§10) as accompaniment textures.
 

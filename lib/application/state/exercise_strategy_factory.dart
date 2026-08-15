@@ -1,4 +1,5 @@
 import "package:piano_fitness/domain/constants/musical_constants.dart";
+import "package:piano_fitness/domain/models/music/broken_chord_pattern.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
@@ -68,6 +69,22 @@ class ExerciseStrategyFactory {
               ChordProgressionLibrary.getProgressionByName("I - V")!,
           handSelection: config.handSelection,
           startOctave: defaultStartOctave,
+        );
+
+      case PracticeMode.brokenChordAccompaniment:
+        final progression = ChordProgressionLibrary.getProgressionByName(
+          config.chordProgressionId!,
+        );
+        return BrokenChordAccompanimentStrategy(
+          key: config.key!,
+          chordProgression:
+              progression ??
+              ChordProgressionLibrary.getProgressionByName("I - IV - V - I")!,
+          handSelection: config.handSelection,
+          startOctave: defaultStartOctave,
+          pattern:
+              config.brokenChordPattern ??
+              BrokenChordPattern.rootFifthThirdFifth,
         );
 
       case PracticeMode.dominantCadence:

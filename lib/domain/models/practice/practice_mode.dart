@@ -9,6 +9,8 @@
 ///   (simultaneous) steps across octaves — the blocked counterpart to
 ///   [arpeggios]' broken texture
 /// - [chordProgressions]: Practice chord progressions using roman numeral notation
+/// - [brokenChordAccompaniment]: Practise left-hand accompaniment through
+///   chord progressions, with a right-hand harmony cue when applicable
 enum PracticeMode {
   /// Practice scales in various keys and modes
   scales,
@@ -28,6 +30,9 @@ enum PracticeMode {
   /// Practice chord progressions using roman numeral notation
   chordProgressions,
 
+  /// Practice repeating left-hand broken-chord patterns through progressions.
+  brokenChordAccompaniment,
+
   /// Practice dominant cadence (V→I) resolution in all inversions
   dominantCadence,
 }
@@ -42,7 +47,8 @@ extension PracticeModeJson on PracticeMode {
   ///
   /// Returns the enum name as a string. Valid values are:
   /// `"scales"`, `"chordsByKey"`, `"chordsByType"`, `"arpeggios"`,
-  /// `"chordProgressions"`, `"dominantCadence"`.
+  /// `"chordProgressions"`, `"brokenChordAccompaniment"`,
+  /// `"dominantCadence"`.
   String toJson() => name;
 
   /// Creates a [PracticeMode] from a JSON string value.

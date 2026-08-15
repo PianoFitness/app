@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import "package:piano_fitness/domain/models/music/arpeggio_type.dart";
+import "package:piano_fitness/domain/models/music/broken_chord_pattern.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/music/chord_tone_pattern.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
@@ -353,6 +354,90 @@ class ChordProgressionsSettingsView extends StatelessWidget {
                 configuration.copyWith(
                   chordProgressionId: Field.set(value.name),
                 ),
+              );
+            }
+          },
+        ),
+      ],
+    );
+  }
+}
+
+/// Settings widget for broken-chord accompaniment practice.
+class BrokenChordAccompanimentSettingsView extends StatelessWidget {
+  /// Creates broken-chord accompaniment settings.
+  const BrokenChordAccompanimentSettingsView({
+    required this.configuration,
+    required this.onConfigurationChanged,
+    required this.getChordProgressionString,
+    super.key,
+  });
+
+  /// Current exercise configuration.
+  final ExerciseConfiguration configuration;
+
+  /// Callback when configuration changes.
+  final ValueChanged<ExerciseConfiguration> onConfigurationChanged;
+
+  /// String getter for chord progression types.
+  final String Function(ChordProgression?) getChordProgressionString;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: Spacing.sm),
+        DropdownButtonFormField<ChordProgression>(
+          key: ValueKey(
+            "brokenChordProgression_${configuration.chordProgressionId}",
+          ),
+          initialValue: configuration.chordProgressionId != null
+              ? ChordProgressionLibrary.getProgressionByName(
+                  configuration.chordProgressionId!,
+                )
+              : null,
+          decoration: const InputDecoration(
+            labelText: "Chord Progression",
+            border: OutlineInputBorder(),
+          ),
+          items: ChordProgressionLibrary.getAllProgressions().map((
+            progression,
+          ) {
+            return DropdownMenuItem(
+              value: progression,
+              child: Text(getChordProgressionString(progression)),
+            );
+          }).toList(),
+          onChanged: (value) {
+            if (value != null) {
+              onConfigurationChanged(
+                configuration.copyWith(
+                  chordProgressionId: Field.set(value.name),
+                ),
+              );
+            }
+          },
+        ),
+        const SizedBox(height: Spacing.sm),
+        DropdownButtonFormField<BrokenChordPattern>(
+          key: ValueKey(
+            "brokenChordPattern_${configuration.brokenChordPattern}",
+          ),
+          initialValue: configuration.brokenChordPattern,
+          decoration: const InputDecoration(
+            labelText: "Left-hand Pattern",
+            border: OutlineInputBorder(),
+          ),
+          items: BrokenChordPattern.values.map((pattern) {
+            return DropdownMenuItem(
+              value: pattern,
+              child: Text(pattern.displayName),
+            );
+          }).toList(),
+          onChanged: (value) {
+            if (value != null) {
+              onConfigurationChanged(
+                configuration.copyWith(brokenChordPattern: Field.set(value)),
               );
             }
           },

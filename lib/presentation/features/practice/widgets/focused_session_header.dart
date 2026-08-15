@@ -111,6 +111,7 @@ String _configurationTitle(ExerciseConfiguration configuration) {
     PracticeMode.arpeggios => "Arpeggio",
     PracticeMode.blockChords => "Block chords",
     PracticeMode.chordProgressions => "Chord progression",
+    PracticeMode.brokenChordAccompaniment => "Broken-chord accompaniment",
     PracticeMode.dominantCadence =>
       "${configuration.key?.displayName ?? ""} dominant cadence",
   };

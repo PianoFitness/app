@@ -426,7 +426,9 @@ void main() {
     });
 
     group("Practice mode dropdown", () {
-      testWidgets("offers Block Chords as a selectable mode", (tester) async {
+      testWidgets("offers chord texture modes as selectable modes", (
+        tester,
+      ) async {
         final configuration = ExerciseConfiguration(
           practiceMode: PracticeMode.scales,
           handSelection: HandSelection.both,
@@ -456,6 +458,7 @@ void main() {
             .map((DropdownMenuItem<PracticeMode> item) => item.value)
             .toList();
         expect(values, contains(PracticeMode.blockChords));
+        expect(values, contains(PracticeMode.brokenChordAccompaniment));
       });
     });
 
