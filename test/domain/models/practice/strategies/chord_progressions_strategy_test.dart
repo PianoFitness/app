@@ -140,6 +140,35 @@ void main() {
       }
     });
 
+    test("generates each foundational cadence in every supported key", () {
+      const cadences = <String>{"IV - I", "I - V", "V - vi"};
+
+      for (final cadence in cadences) {
+        final progression = ChordProgressionLibrary.getProgressionByName(
+          cadence,
+        )!;
+        for (final key in music.Key.values) {
+          final exercise = ChordProgressionsStrategy(
+            key: key,
+            chordProgression: progression,
+            handSelection: HandSelection.both,
+            startOctave: 4,
+          ).initializeExercise();
+
+          expect(exercise.steps, hasLength(2));
+          expect(exercise.metadata?["progressionName"], cadence);
+          for (final step in exercise.steps) {
+            expect(step.notes, hasLength(4));
+            expect(step.notes.first.hand, PracticeHand.left);
+            expect(
+              step.notes.skip(1).map((note) => note.hand),
+              everyElement(PracticeHand.right),
+            );
+          }
+        }
+      }
+    });
+
     test("should handle all available progressions", () {
       final allProgressions = ChordProgressionLibrary.progressions;
 

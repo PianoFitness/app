@@ -116,8 +116,8 @@ void main() {
   group("SkillCatalogueValidator", () {
     test("validates the shipped first-slice catalogue", () {
       SkillCatalogueValidator.validate(DefaultSkillCatalogue.catalogue);
-      expect(DefaultSkillCatalogue.catalogue.version, 5);
-      expect(DefaultSkillCatalogue.catalogue.nodes, hasLength(14));
+      expect(DefaultSkillCatalogue.catalogue.version, 6);
+      expect(DefaultSkillCatalogue.catalogue.nodes, hasLength(17));
     });
   });
 
@@ -125,10 +125,10 @@ void main() {
     SkillNode nodeById(String id) => DefaultSkillCatalogue.catalogue.nodes
         .firstWhere((node) => node.id == id);
 
-    test("version 5 nests major-scale hand exercises under each key", () {
+    test("version 6 nests major-scale hand exercises under each key", () {
       final catalogue = DefaultSkillCatalogue.catalogue;
 
-      expect(catalogue.version, 5);
+      expect(catalogue.version, 6);
       expect(
         catalogue.nodes.map((node) => node.id),
         isNot(contains("major-scale-apart")),
@@ -258,6 +258,30 @@ void main() {
             PracticeMode.dominantCadence,
           );
         }
+
+        final cadenceNodes = <String, String>{
+          "plagal-cadence": "IV - I",
+          "half-cadence": "I - V",
+          "deceptive-cadence": "V - vi",
+        };
+        for (final MapEntry(key: nodeId, value: progressionId)
+            in cadenceNodes.entries) {
+          final node = nodeById(nodeId);
+          expect(node.checkpoints, hasLength(music.Key.values.length));
+          for (final key in music.Key.values) {
+            final checkpoint = node.checkpoints.singleWhere(
+              (checkpoint) => checkpoint.id == "$nodeId-${key.name}",
+            );
+            final exercise = checkpoint.exercises.single;
+            expect(
+              exercise.configuration.practiceMode,
+              PracticeMode.chordProgressions,
+            );
+            expect(exercise.configuration.key, key);
+            expect(exercise.configuration.chordProgressionId, progressionId);
+            expect(exercise.configuration.validate, returnsNormally);
+          }
+        }
       },
     );
 
@@ -283,6 +307,15 @@ void main() {
           (SkillRelationType.recommendedPrerequisite, "diatonic-triads"),
         ],
         "dominant-cadence": [
+          (SkillRelationType.recommendedPrerequisite, "diatonic-triads"),
+        ],
+        "plagal-cadence": [
+          (SkillRelationType.recommendedPrerequisite, "diatonic-triads"),
+        ],
+        "half-cadence": [
+          (SkillRelationType.recommendedPrerequisite, "diatonic-triads"),
+        ],
+        "deceptive-cadence": [
           (SkillRelationType.recommendedPrerequisite, "diatonic-triads"),
         ],
       };
@@ -322,6 +355,9 @@ void main() {
         "i-vi-iv-v",
         "ii-v-i",
         "dominant-cadence",
+        "plagal-cadence",
+        "half-cadence",
+        "deceptive-cadence",
       ]);
     });
   });

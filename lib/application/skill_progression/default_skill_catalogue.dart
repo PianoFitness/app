@@ -15,7 +15,7 @@ abstract final class DefaultSkillCatalogue {
   static SkillCatalogue _create() {
     final catalogue = SkillCatalogue(
       id: "piano-fitness-foundations",
-      version: 5,
+      version: 6,
       groups: [
         SkillGraphGroup(
           id: "key-foundations",
@@ -50,6 +50,9 @@ abstract final class DefaultSkillCatalogue {
             "i-vi-iv-v",
             "ii-v-i",
             "dominant-cadence",
+            "plagal-cadence",
+            "half-cadence",
+            "deceptive-cadence",
           ],
           displayOrder: 2,
         ),
@@ -299,9 +302,58 @@ abstract final class DefaultSkillCatalogue {
         ),
         SkillNode(
           id: "dominant-cadence",
-          name: "Dominant cadence",
+          name: "Authentic cadence",
           description: "Resolve V to I through its inversions in every key.",
           checkpoints: _cadenceCheckpoints(),
+          proficiencyRule: SkillProficiencyRule(
+            tempoEvidencePolicy: TempoEvidencePolicy.notApplicable,
+            supportedTempoMeasurementVersions: {},
+          ),
+          relations: const [
+            SkillRelation(
+              type: SkillRelationType.recommendedPrerequisite,
+              nodeId: "diatonic-triads",
+            ),
+          ],
+        ),
+        SkillNode(
+          id: "plagal-cadence",
+          name: "Plagal cadence",
+          description: "Resolve IV to I and hear its gentler arrival.",
+          checkpoints: _progressionCheckpoints("plagal-cadence", "IV - I"),
+          proficiencyRule: SkillProficiencyRule(
+            tempoEvidencePolicy: TempoEvidencePolicy.notApplicable,
+            supportedTempoMeasurementVersions: {},
+          ),
+          relations: const [
+            SkillRelation(
+              type: SkillRelationType.recommendedPrerequisite,
+              nodeId: "diatonic-triads",
+            ),
+          ],
+        ),
+        SkillNode(
+          id: "half-cadence",
+          name: "Half cadence",
+          description: "Move from I to V and hear an open, unfinished ending.",
+          checkpoints: _progressionCheckpoints("half-cadence", "I - V"),
+          proficiencyRule: SkillProficiencyRule(
+            tempoEvidencePolicy: TempoEvidencePolicy.notApplicable,
+            supportedTempoMeasurementVersions: {},
+          ),
+          relations: const [
+            SkillRelation(
+              type: SkillRelationType.recommendedPrerequisite,
+              nodeId: "diatonic-triads",
+            ),
+          ],
+        ),
+        SkillNode(
+          id: "deceptive-cadence",
+          name: "Deceptive cadence",
+          description:
+              "Hear the dominant lead unexpectedly to vi instead of I.",
+          checkpoints: _progressionCheckpoints("deceptive-cadence", "V - vi"),
           proficiencyRule: SkillProficiencyRule(
             tempoEvidencePolicy: TempoEvidencePolicy.notApplicable,
             supportedTempoMeasurementVersions: {},

@@ -215,6 +215,30 @@ class ChordProgressionLibrary {
           "This fundamental progression forms the backbone of Western harmony.",
     ),
     ChordProgression(
+      name: "IV - I",
+      romanNumerals: ["IV", "I"],
+      chords: [
+        [5, 9, 12], // IV: Major triad (subdominant)
+        [0, 4, 7], // I: Major triad (tonic resolution)
+      ],
+      difficulty: ProgressionDifficulty.beginner,
+      description:
+          "The plagal cadence. Its subdominant-to-tonic movement gives a "
+          "gentler sense of arrival than the dominant cadence.",
+    ),
+    ChordProgression(
+      name: "V - vi",
+      romanNumerals: ["V", "vi"],
+      chords: [
+        [7, 11, 14], // V: Major triad (dominant)
+        [9, 12, 16], // vi: Minor triad (deceptive resolution)
+      ],
+      difficulty: ProgressionDifficulty.beginner,
+      description:
+          "The deceptive cadence. The dominant creates an expectation of "
+          "tonic, then resolves unexpectedly to the relative minor.",
+    ),
+    ChordProgression(
       name: "I - vi",
       romanNumerals: ["I", "vi"],
       chords: [
