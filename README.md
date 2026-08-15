@@ -1,230 +1,79 @@
 # Piano Fitness 🎹
 
-*Precision practice for piano students and teachers*
+Piano Fitness is an open-source, MIDI-aware piano practice app. It helps
+learners make technical practice and foundational harmony visible, structured,
+and easier to continue. It is designed to complement lessons, repertoire, and
+self-directed study—not to replace a teacher.
 
-Piano Fitness is a specialized mobile application designed to help piano students and teachers focus on technical development through interactive exercises, real-time feedback, and comprehensive progress tracking. Built with Flutter and powered by precise MIDI integration, Piano Fitness complements repertoire practice by providing targeted exercises for building coordination, muscle memory, and technical proficiency.
+## Current implementation
 
-## 🎯 Vision
+The app currently includes:
 
-**Transform piano practice from repetitive drilling into intelligent, data-driven skill development.**
+- Guided practice for scales, arpeggios, block chords, chord types, chord
+  progressions, broken-chord accompaniment, and cadences.
+- An interactive piano and MIDI device support, including visual note targets
+  and progress through an exercise.
+- Feedback based on completed notes, accuracy, and measured tempo. It does not
+  assess physical hand posture or replace a teacher's musical judgment.
+- A curriculum with skill progression and practice-history views.
+- Local user profiles and persistent exercise history.
+- A metronome, daily practice reminders, dark theme, and accessibility support.
 
-Too many piano students practice scales and technical exercises without understanding their progress or receiving meaningful feedback. Piano Fitness bridges this gap by providing:
+## Data and privacy
 
-- **Real-time visual feedback** during practice sessions
-- **Precise timing analysis** for rhythm and legato development  
-- **Comprehensive progress tracking** across all technical skills
-- **Adaptive difficulty** that grows with the student
-- **Teacher integration** for guided instruction and assignment tracking
+Piano Fitness does not use Firebase, a hosted user account system, cloud
+synchronization, or a first-party analytics service. Profiles, settings, and
+practice history are stored locally using Drift (SQLite) and SharedPreferences.
+MIDI events are handled on-device to run exercises and calculate practice
+results.
 
-## 🎼 What We're Building
+The app does not currently include teacher accounts, assignment workflows,
+cross-device sync, achievement badges, or adaptive recommendations. These may
+be explored later only if they support the product's learner-agency and privacy
+principles.
 
-### Core Features
+## Development
 
-#### 🎹 **Interactive Piano Keyboard**
+### Requirements
 
-- 49-key visual keyboard with real-time MIDI input
-- Multiple key states: pressed, target, correct, incorrect
-- Finger number indicators for proper technique
-- Hand differentiation (left/right) with color coding
+- Flutter `>=3.22.0 <4.0.0`
+- Dart `>=3.8.1 <4.0.0`
 
-#### 📚 **Comprehensive Exercise System**
+### Common commands
 
-- **Scales**: Major, minor (natural, harmonic, melodic), and modal scales
-- **Chords**: Triads, inversions, and progressions in all keys
-- **Arpeggios**: One to three octaves with various patterns
-- **Technical Studies**: Coordination and independence exercises
-- **Custom Exercises**: User and teacher-created practice routines
-
-#### ⏱️ **Precision Practice Tools**
-
-- **High-accuracy metronome** using `ReliableIntervalTimer` for consistent timing
-- **Session timer** with practice goals and intelligent break suggestions
-- **Practice planning** with structured session templates
-- **Break management** to prevent overexertion and maintain focus
-
-#### 📊 **Advanced Progress Tracking**
-
-- **Real-time performance metrics**: accuracy, timing, legato quality
-- **Historical trend analysis** with detailed analytics dashboard
-- **Achievement system** with badges and milestones
-- **Practice calendar** with heat map visualization and streak tracking
-- **Goal setting** with adaptive recommendations
-
-#### 👨‍🏫 **Teacher Integration**
-
-- **Student progress monitoring** with detailed performance insights
-- **Exercise assignment** system with completion tracking
-- **Class management** tools for multiple students
-- **Progress sharing** controls with privacy protection
-
-### Technical Excellence
-
-#### 🎵 **Precision MIDI Integration**
-
-- **Sub-millisecond timing accuracy** for professional-grade practice
-- **Real-time note detection** with velocity and timing analysis
-- **Multiple MIDI device support** (USB, Bluetooth, network)
-- **Cross-platform compatibility** (iOS, Android, Desktop)
-
-#### ☁️ **Cloud-Native Architecture**
-
-- **Firebase backend** with real-time synchronization
-- **Cross-device continuity** - practice on any device
-- **Offline-first design** with automatic sync when connected
-- **Secure authentication** with multiple login options
-
-#### 🎨 **Music Education Design System**
-
-- **Accessibility-first** design following WCAG guidelines
-- **Dark mode support** for comfortable extended practice
-- **Responsive layout** optimized for phones, tablets, and desktop
-- **Musical context colors** and typography designed for learning
-
-## 🔧 Technical Architecture
-
-### Frontend
-
-- **Flutter** - Cross-platform UI framework
-- **flutter_midi_command** - Precise MIDI input/output handling
-- **ReliableIntervalTimer** - High-accuracy timing for metronome
-- **Custom paint widgets** - Optimized piano keyboard rendering
-
-### Backend
-
-- **Firebase Authentication** - Multi-method user authentication
-- **Cloud Firestore** - Real-time database with offline support
-- **Firebase Security Rules** - Data protection and privacy
-- **Cloud Functions** - Server-side processing and analytics
-
-### Data Models
-
-- **Practice session tracking** with detailed MIDI event capture
-- **Exercise progress monitoring** with mastery detection
-- **Daily/weekly analytics** with trend analysis
-- **Achievement and goal systems** for motivation
-- **Teacher-student relationships** with permission controls
-
-## 🎓 Educational Philosophy
-
-### Evidence-Based Practice
-
-Piano Fitness is built on established pedagogical principles:
-
-- **Deliberate practice** with specific, measurable goals
-- **Immediate feedback** for faster skill acquisition
-- **Spaced repetition** for long-term retention
-- **Progressive difficulty** to maintain optimal challenge
-
-### Supporting Traditional Instruction
-
-Piano Fitness enhances rather than replaces traditional piano lessons:
-
-- **Complements repertoire work** with technical foundation building
-- **Provides objective data** for teacher-student discussions
-- **Enables efficient practice** between lessons
-- **Tracks long-term development** across years of study
-
-## 🏗️ Project Structure
-
-Piano Fitness is built with Flutter for cross-platform compatibility and features a comprehensive accessibility framework, MIDI integration system, and modular architecture designed for scalability and maintainability.
-
-```text
-piano-fitness/
-├── app/                          # Flutter application
-│   ├── lib/
-│   │   ├── features/            # Core features (practice, MIDI, reference)
-│   │   ├── shared/              # Shared utilities and components
-│   │   └── main.dart           # App entry point
-│   └── test/                   # Comprehensive test coverage
-├── docs/                       # Technical specifications and documentation
-└── CONTRIBUTING.md             # Development guidelines and setup
+```bash
+flutter pub get
+flutter analyze
+flutter test
+flutter run
 ```
 
-**📋 For detailed architecture information, development setup, and contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).**
+Run `dart format .` before committing source changes. See
+[CONTRIBUTING.md](CONTRIBUTING.md) and [AGENTS.md](AGENTS.md) for the complete
+development and quality workflow.
 
-## 🚀 Development Status
+## Architecture
 
-Piano Fitness is currently in the **specification and design phase**. We're building a solid foundation with:
+The application follows a three-layer architecture:
 
-- ✅ **Complete technical specifications** for all major components
-- ✅ **Authentication and data architecture** designed
-- ✅ **Design system** with accessibility and musical context considerations
-- ✅ **MIDI integration strategy** with precision timing requirements
-- 🔄 **Implementation phase** - coming soon
+```text
+Presentation → Application → Domain
+```
 
-## 🎼 Why Piano Fitness Matters
+- **Presentation** contains Flutter pages, widgets, and view models.
+- **Application** implements repositories, persistence, MIDI coordination, and
+  other application services.
+- **Domain** contains the models and pure musical logic.
 
-### For Students
+See the [architecture decision records](docs/ADRs/README.md) and the
+[specifications index](docs/specifications/README.md) for the detailed design
+and implementation record.
 
-- **Accelerated skill development** through data-driven practice
-- **Motivation through progress visualization** and achievement systems
-- **Consistent practice habits** with goal setting and streak tracking
-- **Objective feedback** independent of teacher availability
+## Contributing
 
-### For Teachers
+Contributions from musicians, educators, designers, and developers are welcome.
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request.
 
-- **Data-driven instruction** with detailed student progress analytics
-- **Efficient lesson time** focusing on interpretation rather than technical issues
-- **Remote monitoring** of student practice between lessons
-- **Standardized assessment** tools for technique evaluation
+## License
 
-### For Institutions
-
-- **Scalable music education** supporting hundreds of students
-- **Progress tracking** across years of study
-- **Assessment tools** for placement and advancement
-- **Analytics** for curriculum optimization
-
-## 🤝 Contributing
-
-Piano Fitness is an open-source project welcoming contributions from developers, musicians, and educators. Whether you're interested in Flutter development, MIDI programming, music education, design, or testing, we'd love to have you involved!
-
-**👉 See our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed contribution guidelines, development setup, and project architecture.**
-
-Areas where we especially welcome contributions:
-
-- **🎹 Flutter Development**: UI components, animations, mobile optimization  
-- **🎵 MIDI Programming**: Timing accuracy, device compatibility, audio processing
-- **📚 Music Education**: Exercise design, pedagogical features, accessibility
-- **🎨 Design**: User experience, visual design, accessibility improvements
-- **🧪 Testing**: Performance testing, user testing, device compatibility
-
-## 📚 Documentation
-
-### Technical Specifications
-
-- [Piano Keyboard Component](docs/specifications/piano-keyboard-component.md)
-- [Exercise System](docs/specifications/exercise-system.md)
-- [Practice Tools](docs/specifications/practice-tools.md)
-- [Progress Tracking](docs/specifications/progress-tracking.md)
-- [Visual Feedback System](docs/specifications/visual-feedback-system.md)
-- [Metronome Component](docs/specifications/metronome-component.md)
-- [Product Design Direction](docs/design-guidelines.md)
-- [Application UX Audit](docs/ux-audit.md)
-- [Design System Specification](docs/specifications/design-system.md)
-- [Authentication System](docs/specifications/authentication-system.md)
-- [Firebase Data Models](docs/specifications/firebase-data-models.md)
-
-### For Contributors
-
-- [Contributing Guide](CONTRIBUTING.md) - Development setup, architecture, and guidelines
-- [Accessibility Plan](lib/features/ACCESSIBILITY_PLAN.md) - Comprehensive accessibility implementation
-
-## 🎵 The Future of Piano Practice
-
-Piano Fitness represents a new paradigm in music education - one where technology amplifies human creativity rather than replacing it. By providing precise feedback, comprehensive tracking, and intelligent guidance, we're building tools that help students develop technical mastery more efficiently, leaving more time for the joy of musical expression.
-
-**Join us in revolutionizing piano education, one practice session at a time.**
-
-## 📄 License
-
-This project is licensed under the Apache 2.0 License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Music educators worldwide who inspire students to reach their potential
-- The Flutter community for building excellent cross-platform tools
-- MIDI technology pioneers who made digital music interaction possible
-- Piano students everywhere who dedicate countless hours to mastering their craft
-
-*Piano Fitness - Where precision meets passion in piano practice.* 🎹✨
+Piano Fitness is licensed under the [Apache License 2.0](LICENSE).
