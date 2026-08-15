@@ -36,8 +36,8 @@ principles.
 
 ### Requirements
 
-- Flutter `>=3.22.0 <4.0.0`
-- Dart `>=3.8.1 <4.0.0`
+- Flutter `>=3.44.0 <4.0.0`
+- Dart `>=3.12.0 <4.0.0`
 
 ### Common commands
 
