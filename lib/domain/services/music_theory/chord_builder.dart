@@ -16,6 +16,8 @@ class ChordBuilder {
     ChordType.minor: [0, 3, 7],
     ChordType.diminished: [0, 3, 6],
     ChordType.augmented: [0, 4, 8],
+    ChordType.suspended2: [0, 2, 7],
+    ChordType.suspended4: [0, 5, 7],
 
     // Seventh chords (4-note chords)
     ChordType.major7: [0, 4, 7, 11], // Major triad + major 7th
@@ -33,6 +35,8 @@ class ChordBuilder {
     ChordType.minor: "m",
     ChordType.diminished: "°",
     ChordType.augmented: "+",
+    ChordType.suspended2: "sus2",
+    ChordType.suspended4: "sus4",
 
     // Seventh chords (standard jazz notation)
     ChordType.major7: "maj7", // Also written as △7 or M7

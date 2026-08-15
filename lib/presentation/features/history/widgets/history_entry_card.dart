@@ -230,6 +230,10 @@ class HistoryEntryCard extends StatelessWidget {
         return "Diminished";
       case ChordType.augmented:
         return "Augmented";
+      case ChordType.suspended2:
+        return "Suspended 2nd";
+      case ChordType.suspended4:
+        return "Suspended 4th";
       case ChordType.major7:
         return "Major 7th";
       case ChordType.dominant7:

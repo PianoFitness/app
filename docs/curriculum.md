@@ -256,7 +256,7 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 
 ## 6. Suspended chords
 
-**Priority:** Developing · **Type:** Technique exercise · **Status:** Planned generator
+**Priority:** Developing · **Type:** Technique exercise · **Status:** Available now
 
 **Connections:** builds on triads (§3); related to dominant harmony in altered dominants (§13) and cadences (§5).
 

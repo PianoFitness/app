@@ -76,6 +76,23 @@ void main() {
       expect(exercise.steps.length, 12);
     });
 
+    test("should initialize suspended chord exercises in all keys", () {
+      for (final chordType in [ChordType.suspended2, ChordType.suspended4]) {
+        final exercise = ChordsByTypeStrategy(
+          chordType: chordType,
+          includeInversions: false,
+          handSelection: HandSelection.both,
+          startOctave: 4,
+        ).initializeExercise();
+
+        expect(exercise.metadata?["chordType"], chordType.name);
+        expect(exercise.steps, hasLength(12));
+        for (final step in exercise.steps) {
+          expect(step.notes, hasLength(6));
+        }
+      }
+    });
+
     test("should handle left hand selection correctly", () {
       final strategy = ChordsByTypeStrategy(
         chordType: ChordType.major,

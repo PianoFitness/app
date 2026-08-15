@@ -1,6 +1,7 @@
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/application/skill_progression/default_skill_catalogue.dart";
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
+import "package:piano_fitness/domain/models/music/chord_type.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
@@ -116,8 +117,8 @@ void main() {
   group("SkillCatalogueValidator", () {
     test("validates the shipped first-slice catalogue", () {
       SkillCatalogueValidator.validate(DefaultSkillCatalogue.catalogue);
-      expect(DefaultSkillCatalogue.catalogue.version, 6);
-      expect(DefaultSkillCatalogue.catalogue.nodes, hasLength(17));
+      expect(DefaultSkillCatalogue.catalogue.version, 7);
+      expect(DefaultSkillCatalogue.catalogue.nodes, hasLength(19));
     });
   });
 
@@ -125,10 +126,10 @@ void main() {
     SkillNode nodeById(String id) => DefaultSkillCatalogue.catalogue.nodes
         .firstWhere((node) => node.id == id);
 
-    test("version 6 nests major-scale hand exercises under each key", () {
+    test("version 7 nests major-scale hand exercises under each key", () {
       final catalogue = DefaultSkillCatalogue.catalogue;
 
-      expect(catalogue.version, 6);
+      expect(catalogue.version, 7);
       expect(
         catalogue.nodes.map((node) => node.id),
         isNot(contains("major-scale-apart")),
@@ -285,6 +286,39 @@ void main() {
       },
     );
 
+    test("core technique nodes use the intended chord types in all keys", () {
+      final expectations = <String, List<(ChordType, bool)>>{
+        "suspended-chords": [
+          (ChordType.suspended2, false),
+          (ChordType.suspended4, false),
+        ],
+        "altered-triads": [
+          (ChordType.augmented, true),
+          (ChordType.diminished, true),
+        ],
+      };
+
+      for (final entry in expectations.entries) {
+        final node = nodeById(entry.key);
+        expect(node.checkpoints, hasLength(entry.value.length));
+        for (final expectation in entry.value) {
+          final checkpoint = node.checkpoints.singleWhere(
+            (checkpoint) =>
+                checkpoint.id == "${entry.key}-${expectation.$1.name}",
+          );
+          final exercise = checkpoint.exercises.single;
+          expect(
+            exercise.configuration.practiceMode,
+            PracticeMode.chordsByType,
+          );
+          expect(exercise.configuration.chordType, expectation.$1);
+          expect(exercise.configuration.includeInversions, expectation.$2);
+          expect(exercise.configuration.handSelection, HandSelection.both);
+          expect(exercise.configuration.validate, returnsNormally);
+        }
+      }
+    });
+
     test("relations point at real nodes with the expected type", () {
       final expectedRelations = <String, List<(SkillRelationType, String)>>{
         "major-scale": [],
@@ -316,6 +350,12 @@ void main() {
           (SkillRelationType.recommendedPrerequisite, "diatonic-triads"),
         ],
         "deceptive-cadence": [
+          (SkillRelationType.recommendedPrerequisite, "diatonic-triads"),
+        ],
+        "suspended-chords": [
+          (SkillRelationType.recommendedPrerequisite, "diatonic-triads"),
+        ],
+        "altered-triads": [
           (SkillRelationType.recommendedPrerequisite, "diatonic-triads"),
         ],
       };
@@ -358,6 +398,10 @@ void main() {
         "plagal-cadence",
         "half-cadence",
         "deceptive-cadence",
+      ]);
+      expect(groupsById["core-technique"]!.nodeIds, [
+        "suspended-chords",
+        "altered-triads",
       ]);
     });
   });

@@ -5,6 +5,7 @@ import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart"
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/models/skill_progression/skill_catalogue.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
+import "package:piano_fitness/domain/services/music_theory/chord_definitions.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/skill_progression/skill_catalogue_validator.dart";
 
@@ -15,7 +16,7 @@ abstract final class DefaultSkillCatalogue {
   static SkillCatalogue _create() {
     final catalogue = SkillCatalogue(
       id: "piano-fitness-foundations",
-      version: 6,
+      version: 7,
       groups: [
         SkillGraphGroup(
           id: "key-foundations",
@@ -55,6 +56,13 @@ abstract final class DefaultSkillCatalogue {
             "deceptive-cadence",
           ],
           displayOrder: 2,
+        ),
+        SkillGraphGroup(
+          id: "core-technique",
+          name: "Core Technique & Coordination",
+          description: "Chord shapes that extend the foundational triads.",
+          nodeIds: ["suspended-chords", "altered-triads"],
+          displayOrder: 3,
         ),
       ],
       nodes: [
@@ -365,6 +373,55 @@ abstract final class DefaultSkillCatalogue {
             ),
           ],
         ),
+        SkillNode(
+          id: "suspended-chords",
+          name: "Suspended chords",
+          description:
+              "Hear the open sound of sus2 and sus4 chords across every key.",
+          checkpoints: _chordTypeCheckpoints("suspended-chords", {
+            ChordType.suspended2: false,
+            ChordType.suspended4: false,
+          }),
+          proficiencyRule: SkillProficiencyRule(
+            referenceTempoBpm: 72,
+            supportedTempoMeasurementVersions: {
+              TempoMeasurementVersions.declaredStepDurations,
+              TempoMeasurementVersions.scaleEighthNotes,
+            },
+          ),
+          tempoProgression: const TempoProgression(incrementBpm: 4),
+          relations: const [
+            SkillRelation(
+              type: SkillRelationType.recommendedPrerequisite,
+              nodeId: "diatonic-triads",
+            ),
+          ],
+        ),
+        SkillNode(
+          id: "altered-triads",
+          name: "Augmented and diminished triads",
+          description:
+              "Practise the symmetrical augmented and diminished triad shapes "
+              "through their inversions in every key.",
+          checkpoints: _chordTypeCheckpoints("altered-triads", {
+            ChordType.augmented: true,
+            ChordType.diminished: true,
+          }),
+          proficiencyRule: SkillProficiencyRule(
+            referenceTempoBpm: 72,
+            supportedTempoMeasurementVersions: {
+              TempoMeasurementVersions.declaredStepDurations,
+              TempoMeasurementVersions.scaleEighthNotes,
+            },
+          ),
+          tempoProgression: const TempoProgression(incrementBpm: 4),
+          relations: const [
+            SkillRelation(
+              type: SkillRelationType.recommendedPrerequisite,
+              nodeId: "diatonic-triads",
+            ),
+          ],
+        ),
       ],
     );
     SkillCatalogueValidator.validate(catalogue);
@@ -449,6 +506,34 @@ abstract final class DefaultSkillCatalogue {
                   handSelection: HandSelection.both,
                   key: key,
                   scaleType: music.ScaleType.major,
+                ),
+              ),
+            ],
+          );
+        })
+        .toList(growable: false);
+  }
+
+  static List<SkillCheckpoint> _chordTypeCheckpoints(
+    String nodeId,
+    Map<ChordType, bool> chordTypes,
+  ) {
+    return chordTypes.entries
+        .map((entry) {
+          final chordType = entry.key;
+          final includeInversions = entry.value;
+          return SkillCheckpoint(
+            id: "$nodeId-${chordType.name}",
+            name: chordType.shortName,
+            exercises: [
+              SkillExercise(
+                id: "$nodeId-${chordType.name}",
+                name: "${chordType.shortName} in all keys",
+                configuration: ExerciseConfiguration(
+                  practiceMode: PracticeMode.chordsByType,
+                  handSelection: HandSelection.both,
+                  chordType: chordType,
+                  includeInversions: includeInversions,
                 ),
               ),
             ],

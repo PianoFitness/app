@@ -7,7 +7,7 @@ import "package:piano_fitness/domain/services/music_theory/scales.dart";
 
 /// Helper to determine expected note count based on chord type.
 ///
-/// Returns 3 for triads (major, minor, diminished, augmented) and
+/// Returns 3 for triads (including suspended chords) and
 /// 4 for seventh chords (all *7 variants).
 int _expectedNoteCount(ChordType type) {
   switch (type) {
@@ -15,6 +15,8 @@ int _expectedNoteCount(ChordType type) {
     case ChordType.minor:
     case ChordType.diminished:
     case ChordType.augmented:
+    case ChordType.suspended2:
+    case ChordType.suspended4:
       return 3; // Triads
     case ChordType.major7:
     case ChordType.dominant7:
@@ -37,6 +39,8 @@ List<ChordInversion> _validInversions(ChordType type) {
     case ChordType.minor:
     case ChordType.diminished:
     case ChordType.augmented:
+    case ChordType.suspended2:
+    case ChordType.suspended4:
       return [ChordInversion.root, ChordInversion.first, ChordInversion.second];
     case ChordType.major7:
     case ChordType.dominant7:
@@ -118,6 +122,24 @@ void main() {
           chord.notes,
           equals([MusicalNote.c, MusicalNote.e, MusicalNote.gSharp]),
         );
+      });
+
+      test("should create C suspended chords correctly", () {
+        final sus2 = ChordBuilder.getChord(
+          MusicalNote.c,
+          ChordType.suspended2,
+          ChordInversion.root,
+        );
+        final sus4 = ChordBuilder.getChord(
+          MusicalNote.c,
+          ChordType.suspended4,
+          ChordInversion.root,
+        );
+
+        expect(sus2.name, "Csus2");
+        expect(sus2.notes, [MusicalNote.c, MusicalNote.d, MusicalNote.g]);
+        expect(sus4.name, "Csus4");
+        expect(sus4.notes, [MusicalNote.c, MusicalNote.f, MusicalNote.g]);
       });
     });
 
@@ -437,6 +459,8 @@ void main() {
         ChordType.minor: "m",
         ChordType.diminished: "°",
         ChordType.augmented: "+",
+        ChordType.suspended2: "sus2",
+        ChordType.suspended4: "sus4",
       };
 
       for (final entry in expectedNames.entries) {
@@ -525,6 +549,22 @@ void main() {
         expect(firstInterval, equals(4)); // Major third
         expect(secondInterval, equals(4)); // Major third
       });
+
+      test("should have correct intervals for suspended chords", () {
+        final sus2 = ChordBuilder.getChord(
+          MusicalNote.c,
+          ChordType.suspended2,
+          ChordInversion.root,
+        );
+        final sus4 = ChordBuilder.getChord(
+          MusicalNote.c,
+          ChordType.suspended4,
+          ChordInversion.root,
+        );
+
+        expect(sus2.notes.map((note) => note.index), [0, 2, 7]);
+        expect(sus4.notes.map((note) => note.index), [0, 5, 7]);
+      });
     });
 
     group("Additional comprehensive coverage", () {
@@ -568,10 +608,10 @@ void main() {
         }
 
         // Ensure we tested all expected combinations
-        // Triads: 12 notes × 4 types × 3 inversions = 144
+        // Triads: 12 notes × 6 types × 3 inversions = 216
         // Seventh chords: 12 notes × 7 types × 4 inversions = 336
-        // Total: 144 + 336 = 480
-        expect(totalCombinations, equals(480));
+        // Total: 216 + 336 = 552
+        expect(totalCombinations, equals(552));
       });
 
       test("should generate correct MIDI notes across different octaves", () {
