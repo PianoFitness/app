@@ -1,6 +1,7 @@
 import "package:piano_fitness/domain/models/music/chord_progression_type.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/practice/exercise.dart";
+import "package:piano_fitness/domain/models/practice/strategies/chord_accompaniment_voicing.dart";
 import "package:piano_fitness/domain/models/practice/strategies/practice_strategy.dart";
 import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
 
@@ -42,11 +43,15 @@ class ChordProgressionsStrategy implements PracticeStrategy {
 
     for (var i = 0; i < generatedChords.length; i++) {
       final chord = generatedChords[i];
-      final chordNotes = chord.getMidiNotesForHand(startOctave, handSelection);
 
       steps.add(
         PracticeStep(
-          notes: chordNotes.toPracticeNotes(handSelection: handSelection),
+          notes: ChordAccompanimentVoicing.create(
+            chord: chord,
+            handSelection: handSelection,
+            rightHandOctave: startOctave,
+            preferredBassOctave: startOctave - 1,
+          ),
           noteValue: PracticeStepNoteValue.whole,
           metadata: {
             "chordName": chord.name,

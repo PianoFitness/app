@@ -123,7 +123,12 @@ void main() {
           expect(exercise.metadata?["progressionName"], entry.key);
           expect(exercise.steps, hasLength(entry.value));
           for (final step in exercise.steps) {
-            expect(step.notes, hasLength(6));
+            expect(step.notes, hasLength(4));
+            expect(step.notes.first.hand, PracticeHand.left);
+            expect(
+              step.notes.skip(1).map((note) => note.hand),
+              everyElement(PracticeHand.right),
+            );
             expect(
               step.midiNotes,
               everyElement(inInclusiveRange(0, 127)),
@@ -173,11 +178,10 @@ void main() {
       expect(exercise.steps, isNotEmpty);
       expect(exercise.metadata?["handSelection"], "left");
 
-      // Verify first chord (C major) has full triad (3 notes) in left hand octave
-      // Left hand plays one octave lower: C3, E3, G3
+      // The left hand establishes the root bass note one octave lower: C3.
       final firstStep = exercise.steps.first;
-      expect(firstStep.notes.length, 3);
-      expect(firstStep.midiNotes, [48, 52, 55]); // C3, E3, G3
+      expect(firstStep.notes.length, 1);
+      expect(firstStep.midiNotes, [48]); // C3
       expect(
         firstStep.notes.map((note) => note.hand),
         everyElement(PracticeHand.left),
@@ -228,18 +232,14 @@ void main() {
       expect(exercise.steps, isNotEmpty);
       expect(exercise.metadata?["handSelection"], "both");
 
-      // Verify first chord (C major) has 6 notes: left hand (C3,E3,G3) + right hand (C4,E4,G4)
+      // The left hand plays C3 while the right hand plays the C major triad.
       final firstStep = exercise.steps.first;
-      expect(firstStep.notes.length, 6);
-      // Left hand one octave lower: [48, 52, 55] = [C3, E3, G3]
-      // Right hand at specified octave: [60, 64, 67] = [C4, E4, G4]
-      expect(firstStep.midiNotes, [48, 52, 55, 60, 64, 67]);
-      expect(firstStep.notes.take(3).map((note) => note.hand), [
-        PracticeHand.left,
-        PracticeHand.left,
+      expect(firstStep.notes.length, 4);
+      expect(firstStep.midiNotes, [48, 60, 64, 67]);
+      expect(firstStep.notes.take(1).map((note) => note.hand), [
         PracticeHand.left,
       ]);
-      expect(firstStep.notes.skip(3).map((note) => note.hand), [
+      expect(firstStep.notes.skip(1).map((note) => note.hand), [
         PracticeHand.right,
         PracticeHand.right,
         PracticeHand.right,

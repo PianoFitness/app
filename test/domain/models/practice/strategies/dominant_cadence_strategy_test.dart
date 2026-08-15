@@ -2,6 +2,7 @@ import "dart:math" show min;
 
 import "package:flutter_test/flutter_test.dart";
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/practice/practice_note.dart";
 import "package:piano_fitness/domain/models/practice/strategies/dominant_cadence_strategy.dart";
 import "package:piano_fitness/domain/services/music_theory/scales.dart"
     as music;
@@ -221,6 +222,45 @@ void main() {
           }
         }
       });
+
+      test("both hands use bass plus right-hand triad voicings", () {
+        const bothHandsStrategy = DominantCadenceStrategy(
+          key: music.Key.c,
+          handSelection: HandSelection.both,
+          startOctave: 4,
+          includeSeventhChords: false,
+        );
+
+        final exercise = bothHandsStrategy.initializeExercise();
+
+        expect(exercise.steps[0].midiNotes, equals([55, 71, 74, 79]));
+        expect(exercise.steps[1].midiNotes, equals([48, 72, 76, 79]));
+        for (final step in exercise.steps) {
+          expect(step.notes.first.hand, PracticeHand.left);
+          expect(
+            step.notes.skip(1).map((note) => note.hand),
+            everyElement(PracticeHand.right),
+          );
+        }
+
+        for (final key in music.Key.values) {
+          final keyExercise = DominantCadenceStrategy(
+            key: key,
+            handSelection: HandSelection.both,
+            startOctave: 4,
+            includeSeventhChords: false,
+          ).initializeExercise();
+
+          for (final step in keyExercise.steps) {
+            expect(step.notes, hasLength(4));
+            expect(step.notes.first.hand, PracticeHand.left);
+            expect(
+              step.notes.skip(1).map((note) => note.hand),
+              everyElement(PracticeHand.right),
+            );
+          }
+        }
+      });
     });
 
     // -------------------------------------------------------------------------
@@ -356,6 +396,26 @@ void main() {
               reason: "Key ${key.displayName} seventh chord pair ${i ~/ 2 + 1}",
               maxStepSize: 14,
               maxCommonToneMovement: 12,
+            );
+          }
+        }
+      });
+
+      test("both hands use bass plus right-hand seventh-chord voicings", () {
+        for (final key in music.Key.values) {
+          final exercise = DominantCadenceStrategy(
+            key: key,
+            handSelection: HandSelection.both,
+            startOctave: 4,
+            includeSeventhChords: true,
+          ).initializeExercise();
+
+          for (final step in exercise.steps) {
+            expect(step.notes, hasLength(5));
+            expect(step.notes.first.hand, PracticeHand.left);
+            expect(
+              step.notes.skip(1).map((note) => note.hand),
+              everyElement(PracticeHand.right),
             );
           }
         }

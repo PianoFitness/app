@@ -3,6 +3,7 @@ import "dart:math" show min;
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
 import "package:piano_fitness/domain/models/music/midi_note.dart";
 import "package:piano_fitness/domain/models/practice/exercise.dart";
+import "package:piano_fitness/domain/models/practice/strategies/chord_accompaniment_voicing.dart";
 import "package:piano_fitness/domain/models/practice/strategies/practice_strategy.dart";
 import "package:piano_fitness/domain/services/music_theory/chord_builder.dart";
 import "package:piano_fitness/domain/services/music_theory/chord_definitions.dart";
@@ -111,13 +112,17 @@ class DominantCadenceStrategy implements PracticeStrategy {
 
       // Build V approach chord.
       final vChord = ChordBuilder.getChord(dominantNote, vChordType, pair.vInv);
-      final vNotes = vChord.getMidiNotesForHand(startOctave, handSelection);
       // Use the right-hand (canonical) register of V to choose the I chord octave.
       final vBaseNotes = vChord.getMidiNotes(startOctave);
 
       steps.add(
         PracticeStep(
-          notes: vNotes.toPracticeNotes(handSelection: handSelection),
+          notes: ChordAccompanimentVoicing.create(
+            chord: vChord,
+            handSelection: handSelection,
+            rightHandOctave: startOctave,
+            preferredBassOctave: startOctave - 1,
+          ),
           metadata: {
             "chordName": vChord.name,
             "rootNote": vChord.rootNote.name,
@@ -135,11 +140,15 @@ class DominantCadenceStrategy implements PracticeStrategy {
       // register as V for smooth voice leading.
       final iChord = ChordBuilder.getChord(tonicNote, iChordType, pair.iInv);
       final iOctave = _selectIChordOctave(iChord, vBaseNotes);
-      final iNotes = iChord.getMidiNotesForHand(iOctave, handSelection);
 
       steps.add(
         PracticeStep(
-          notes: iNotes.toPracticeNotes(handSelection: handSelection),
+          notes: ChordAccompanimentVoicing.create(
+            chord: iChord,
+            handSelection: handSelection,
+            rightHandOctave: iOctave,
+            preferredBassOctave: startOctave - 1,
+          ),
           metadata: {
             "chordName": iChord.name,
             "rootNote": iChord.rootNote.name,
