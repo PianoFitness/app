@@ -116,8 +116,8 @@ void main() {
   group("SkillCatalogueValidator", () {
     test("validates the shipped first-slice catalogue", () {
       SkillCatalogueValidator.validate(DefaultSkillCatalogue.catalogue);
-      expect(DefaultSkillCatalogue.catalogue.version, 4);
-      expect(DefaultSkillCatalogue.catalogue.nodes, hasLength(13));
+      expect(DefaultSkillCatalogue.catalogue.version, 5);
+      expect(DefaultSkillCatalogue.catalogue.nodes, hasLength(14));
     });
   });
 
@@ -125,10 +125,10 @@ void main() {
     SkillNode nodeById(String id) => DefaultSkillCatalogue.catalogue.nodes
         .firstWhere((node) => node.id == id);
 
-    test("version 4 nests major-scale hand exercises under each key", () {
+    test("version 5 nests major-scale hand exercises under each key", () {
       final catalogue = DefaultSkillCatalogue.catalogue;
 
-      expect(catalogue.version, 4);
+      expect(catalogue.version, 5);
       expect(
         catalogue.nodes.map((node) => node.id),
         isNot(contains("major-scale-apart")),
@@ -199,6 +199,7 @@ void main() {
       "chord-vocabulary nodes cover every key with the correct configuration",
       () {
         final progressionNodes = <String, String>{
+          "i-iv-v-i": "I - IV - V - I",
           "i-v-vi-iv": "I - V - vi - IV",
           "i-vi-iv-v": "I - vi - IV - V",
           "ii-v-i": "ii - V - I",
@@ -214,23 +215,38 @@ void main() {
           );
           final node = nodeById(nodeId);
           expect(node.checkpoints, hasLength(music.Key.values.length));
-          for (final checkpoint in node.checkpoints) {
+          for (final key in music.Key.values) {
+            final checkpoint = node.checkpoints.singleWhere(
+              (checkpoint) => checkpoint.id == "$nodeId-${key.name}",
+            );
             final exercise = checkpoint.exercises.single;
+            expect(checkpoint.name, "${key.displayName} major");
             expect(
               exercise.configuration.practiceMode,
               PracticeMode.chordProgressions,
             );
+            expect(exercise.configuration.key, key);
+            expect(exercise.configuration.handSelection, HandSelection.both);
             expect(exercise.configuration.chordProgressionId, progressionId);
             expect(exercise.configuration.validate, returnsNormally);
           }
         }
 
         final diatonicTriads = nodeById("diatonic-triads");
+        expect(diatonicTriads.name, "Foundational triads");
         expect(diatonicTriads.checkpoints, hasLength(music.Key.values.length));
-        for (final checkpoint in diatonicTriads.checkpoints) {
+        for (final key in music.Key.values) {
+          final checkpoint = diatonicTriads.checkpoints.singleWhere(
+            (checkpoint) => checkpoint.id == "diatonic-triads-${key.name}",
+          );
           final exercise = checkpoint.exercises.single;
+          expect(checkpoint.name, "${key.displayName} major");
           expect(exercise.configuration.practiceMode, PracticeMode.chordsByKey);
+          expect(exercise.configuration.key, key);
           expect(exercise.configuration.scaleType, music.ScaleType.major);
+          expect(exercise.configuration.handSelection, HandSelection.both);
+          expect(exercise.configuration.includeSeventhChords, isFalse);
+          expect(exercise.configuration.validate, returnsNormally);
         }
 
         final dominantCadence = nodeById("dominant-cadence");
@@ -260,6 +276,7 @@ void main() {
         "diatonic-triads": [
           (SkillRelationType.recommendedPrerequisite, "major-scale"),
         ],
+        "i-iv-v-i": [(SkillRelationType.appliesIn, "diatonic-triads")],
         "i-v-vi-iv": [(SkillRelationType.appliesIn, "diatonic-triads")],
         "i-vi-iv-v": [(SkillRelationType.appliesIn, "diatonic-triads")],
         "ii-v-i": [
@@ -300,6 +317,7 @@ void main() {
       ]);
       expect(groupsById["chord-vocabulary"]!.nodeIds, [
         "diatonic-triads",
+        "i-iv-v-i",
         "i-v-vi-iv",
         "i-vi-iv-v",
         "ii-v-i",

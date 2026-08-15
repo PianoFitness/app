@@ -15,7 +15,7 @@ abstract final class DefaultSkillCatalogue {
   static SkillCatalogue _create() {
     final catalogue = SkillCatalogue(
       id: "piano-fitness-foundations",
-      version: 4,
+      version: 5,
       groups: [
         SkillGraphGroup(
           id: "key-foundations",
@@ -45,6 +45,7 @@ abstract final class DefaultSkillCatalogue {
           description: "Diatonic chords, progressions, and cadences.",
           nodeIds: [
             "diatonic-triads",
+            "i-iv-v-i",
             "i-v-vi-iv",
             "i-vi-iv-v",
             "ii-v-i",
@@ -197,7 +198,7 @@ abstract final class DefaultSkillCatalogue {
         ),
         SkillNode(
           id: "diatonic-triads",
-          name: "Diatonic triads",
+          name: "Foundational triads",
           description: "Play the seven triads in order in each major key.",
           checkpoints: _chordsByKeyCheckpoints(),
           proficiencyRule: SkillProficiencyRule(
@@ -212,6 +213,27 @@ abstract final class DefaultSkillCatalogue {
             SkillRelation(
               type: SkillRelationType.recommendedPrerequisite,
               nodeId: "major-scale",
+            ),
+          ],
+        ),
+        SkillNode(
+          id: "i-iv-v-i",
+          name: "I–IV–V–I progression",
+          description:
+              "Establish tonic, move through predominant and dominant, "
+              "then resolve home.",
+          checkpoints: _progressionCheckpoints("i-iv-v-i", "I - IV - V - I"),
+          proficiencyRule: SkillProficiencyRule(
+            tempoEvidencePolicy: TempoEvidencePolicy.optional,
+            supportedTempoMeasurementVersions: {
+              TempoMeasurementVersions.declaredStepDurations,
+              TempoMeasurementVersions.scaleEighthNotes,
+            },
+          ),
+          relations: const [
+            SkillRelation(
+              type: SkillRelationType.appliesIn,
+              nodeId: "diatonic-triads",
             ),
           ],
         ),

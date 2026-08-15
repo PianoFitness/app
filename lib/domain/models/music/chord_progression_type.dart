@@ -238,6 +238,20 @@ class ChordProgressionLibrary {
           "Minor to major progression that creates a sense of uplift and resolution. "
           "Common in popular music for emotional contrast.",
     ),
+    ChordProgression(
+      name: "I - IV - V - I",
+      romanNumerals: ["I", "IV", "V", "I"],
+      chords: [
+        [0, 4, 7], // I: Major triad (tonic)
+        [5, 9, 12], // IV: Major triad (predominant)
+        [7, 11, 14], // V: Major triad (dominant)
+        [0, 4, 7], // I: Major triad (tonic resolution)
+      ],
+      difficulty: ProgressionDifficulty.beginner,
+      description:
+          "The primary tonic–predominant–dominant–tonic progression. "
+          "It establishes home, builds motion, and resolves clearly back to tonic.",
+    ),
 
     // Intermediate progressions
     ChordProgression(

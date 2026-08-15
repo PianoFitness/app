@@ -70,6 +70,31 @@ void main() {
       expect(cExercise.steps, isNot(equals(gExercise.steps)));
     });
 
+    test("generates foundational major triads for every supported key", () {
+      for (final key in music.Key.values) {
+        final exercise = ChordsByKeyStrategy(
+          key: key,
+          scaleType: music.ScaleType.major,
+          handSelection: HandSelection.both,
+          startOctave: 4,
+          includeSeventhChords: false,
+        ).initializeExercise();
+
+        expect(exercise.metadata?["key"], key.displayName);
+        // Seven diatonic triads, each in root, first, second, and first
+        // inversion again to make the inversion cycle physically symmetric.
+        expect(exercise.steps, hasLength(28));
+        for (final step in exercise.steps) {
+          expect(step.notes, hasLength(6));
+          expect(
+            step.midiNotes,
+            everyElement(inInclusiveRange(0, 127)),
+            reason: "${key.displayName} must produce valid MIDI notes",
+          );
+        }
+      }
+    });
+
     test("should handle left hand selection correctly", () {
       final strategy = ChordsByKeyStrategy(
         key: music.Key.c,

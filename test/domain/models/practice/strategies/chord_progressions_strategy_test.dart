@@ -99,6 +99,42 @@ void main() {
       expect(cExercise.steps, isNot(equals(gExercise.steps)));
     });
 
+    test("generates every foundational progression in every supported key", () {
+      const foundationalProgressions = <String, int>{
+        "I - IV - V - I": 4,
+        "I - V - vi - IV": 4,
+        "I - vi - IV - V": 4,
+        "ii - V - I": 3,
+      };
+
+      for (final entry in foundationalProgressions.entries) {
+        final progression = ChordProgressionLibrary.getProgressionByName(
+          entry.key,
+        )!;
+        for (final key in music.Key.values) {
+          final exercise = ChordProgressionsStrategy(
+            key: key,
+            chordProgression: progression,
+            handSelection: HandSelection.both,
+            startOctave: 4,
+          ).initializeExercise();
+
+          expect(exercise.metadata?["key"], key.displayName);
+          expect(exercise.metadata?["progressionName"], entry.key);
+          expect(exercise.steps, hasLength(entry.value));
+          for (final step in exercise.steps) {
+            expect(step.notes, hasLength(6));
+            expect(
+              step.midiNotes,
+              everyElement(inInclusiveRange(0, 127)),
+              reason:
+                  "${entry.key} in ${key.displayName} must produce valid MIDI notes",
+            );
+          }
+        }
+      }
+    });
+
     test("should handle all available progressions", () {
       final allProgressions = ChordProgressionLibrary.progressions;
 
