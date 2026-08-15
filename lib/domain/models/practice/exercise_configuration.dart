@@ -164,7 +164,7 @@ class ExerciseConfiguration {
   /// The chord progression identifier (chordProgressions and
   /// brokenChordAccompaniment modes).
   /// Maps to ChordProgression.name (e.g., "I - V", "I - ♭VII").
-  /// Required for: chordProgressions.
+  /// Required for: chordProgressions, brokenChordAccompaniment.
   final String? chordProgressionId;
 
   /// The left-hand accompaniment figure for broken chord progressions.

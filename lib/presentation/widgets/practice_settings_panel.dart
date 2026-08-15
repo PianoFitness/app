@@ -13,6 +13,22 @@ import "package:piano_fitness/presentation/widgets/practice_settings/practice_mo
 import "package:piano_fitness/presentation/widgets/practice_settings/practice_settings_hand_selector.dart";
 import "package:piano_fitness/presentation/widgets/practice_settings/practice_settings_status_control.dart";
 
+enum _SecondarySelector { key, rootNote, chordType }
+
+typedef _ModeSettingsBuilder = Widget Function(PracticeSettingsPanel panel);
+
+class _PracticeModeDefinition {
+  const _PracticeModeDefinition({
+    required this.secondarySelector,
+    required this.supportsKeyProgression,
+    required this.buildSettings,
+  });
+
+  final _SecondarySelector secondarySelector;
+  final bool supportsKeyProgression;
+  final _ModeSettingsBuilder buildSettings;
+}
+
 /// A comprehensive settings panel for configuring piano practice exercises.
 ///
 /// This widget provides controls for selecting practice modes (scales, chords, arpeggios),
@@ -39,6 +55,49 @@ class PracticeSettingsPanel extends StatelessWidget {
 
   /// Key for the practice status container
   static const Key statusKey = Key("practiceStatusContainer");
+
+  static final Map<PracticeMode, _PracticeModeDefinition> _modeDefinitions = {
+    PracticeMode.scales: _PracticeModeDefinition(
+      secondarySelector: _SecondarySelector.key,
+      supportsKeyProgression: true,
+      buildSettings: _buildScalesSettings,
+    ),
+    PracticeMode.chordsByKey: _PracticeModeDefinition(
+      secondarySelector: _SecondarySelector.key,
+      supportsKeyProgression: true,
+      buildSettings: _buildChordsByKeySettings,
+    ),
+    PracticeMode.chordsByType: _PracticeModeDefinition(
+      secondarySelector: _SecondarySelector.chordType,
+      supportsKeyProgression: false,
+      buildSettings: _buildChordsByTypeSettings,
+    ),
+    PracticeMode.arpeggios: _PracticeModeDefinition(
+      secondarySelector: _SecondarySelector.rootNote,
+      supportsKeyProgression: false,
+      buildSettings: _buildArpeggioSettings,
+    ),
+    PracticeMode.blockChords: _PracticeModeDefinition(
+      secondarySelector: _SecondarySelector.rootNote,
+      supportsKeyProgression: false,
+      buildSettings: _buildArpeggioSettings,
+    ),
+    PracticeMode.chordProgressions: _PracticeModeDefinition(
+      secondarySelector: _SecondarySelector.key,
+      supportsKeyProgression: true,
+      buildSettings: _buildChordProgressionSettings,
+    ),
+    PracticeMode.brokenChordAccompaniment: _PracticeModeDefinition(
+      secondarySelector: _SecondarySelector.key,
+      supportsKeyProgression: true,
+      buildSettings: _buildBrokenChordAccompanimentSettings,
+    ),
+    PracticeMode.dominantCadence: _PracticeModeDefinition(
+      secondarySelector: _SecondarySelector.key,
+      supportsKeyProgression: true,
+      buildSettings: _buildDominantCadenceSettings,
+    ),
+  };
 
   /// Whether to automatically progress through keys following the circle of fifths.
   final bool autoProgressKeys;
@@ -128,14 +187,13 @@ class PracticeSettingsPanel extends StatelessWidget {
     );
   }
 
-  Widget _buildSecondarySelector(BuildContext context) {
-    switch (configuration.practiceMode) {
-      case PracticeMode.arpeggios:
-      case PracticeMode.blockChords:
+  Widget _buildSecondarySelector(_SecondarySelector selector) {
+    switch (selector) {
+      case _SecondarySelector.rootNote:
         return _buildRootNoteDropdown();
-      case PracticeMode.chordsByType:
+      case _SecondarySelector.chordType:
         return _buildChordTypeDropdown();
-      default:
+      case _SecondarySelector.key:
         return _buildKeyDropdown();
     }
   }
@@ -239,19 +297,69 @@ class PracticeSettingsPanel extends StatelessWidget {
     return type.shortName;
   }
 
-  bool _supportsKeyProgression() {
-    final mode = configuration.practiceMode;
-    return mode == PracticeMode.scales ||
-        mode == PracticeMode.chordsByKey ||
-        mode == PracticeMode.chordProgressions ||
-        mode == PracticeMode.brokenChordAccompaniment ||
-        mode == PracticeMode.dominantCadence;
+  static Widget _buildScalesSettings(PracticeSettingsPanel panel) {
+    return ScalesSettingsView(
+      configuration: panel.configuration,
+      onConfigurationChanged: panel.onConfigurationChanged,
+      getScaleTypeString: panel._getScaleTypeString,
+    );
+  }
+
+  static Widget _buildChordsByKeySettings(PracticeSettingsPanel panel) {
+    return ChordsByKeySettingsView(
+      configuration: panel.configuration,
+      onConfigurationChanged: panel.onConfigurationChanged,
+      getScaleTypeString: panel._getScaleTypeString,
+    );
+  }
+
+  static Widget _buildArpeggioSettings(PracticeSettingsPanel panel) {
+    return ArpeggiosSettingsView(
+      configuration: panel.configuration,
+      onConfigurationChanged: panel.onConfigurationChanged,
+      getArpeggioTypeString: panel._getArpeggioTypeString,
+      getArpeggioOctavesString: panel._getArpeggioOctavesString,
+      getChordTonePatternString: panel._getChordTonePatternString,
+    );
+  }
+
+  static Widget _buildChordProgressionSettings(PracticeSettingsPanel panel) {
+    return ChordProgressionsSettingsView(
+      configuration: panel.configuration,
+      onConfigurationChanged: panel.onConfigurationChanged,
+      getChordProgressionString: panel._getChordProgressionString,
+    );
+  }
+
+  static Widget _buildBrokenChordAccompanimentSettings(
+    PracticeSettingsPanel panel,
+  ) {
+    return BrokenChordAccompanimentSettingsView(
+      configuration: panel.configuration,
+      onConfigurationChanged: panel.onConfigurationChanged,
+      getChordProgressionString: panel._getChordProgressionString,
+    );
+  }
+
+  static Widget _buildChordsByTypeSettings(PracticeSettingsPanel panel) {
+    return ChordsByTypeSettingsView(
+      configuration: panel.configuration,
+      onConfigurationChanged: panel.onConfigurationChanged,
+    );
+  }
+
+  static Widget _buildDominantCadenceSettings(PracticeSettingsPanel panel) {
+    return DominantCadenceSettingsView(
+      configuration: panel.configuration,
+      onConfigurationChanged: panel.onConfigurationChanged,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final modeDefinition = _modeDefinitions[configuration.practiceMode]!;
 
     return Container(
       key: panelKey,
@@ -311,10 +419,14 @@ class PracticeSettingsPanel extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: Spacing.sm),
-              Expanded(child: _buildSecondarySelector(context)),
+              Expanded(
+                child: _buildSecondarySelector(
+                  modeDefinition.secondarySelector,
+                ),
+              ),
             ],
           ),
-          if (_supportsKeyProgression())
+          if (modeDefinition.supportsKeyProgression)
             AutoProgressKeyToggleView(
               autoProgressKeys: autoProgressKeys,
               onAutoProgressKeysChanged: onAutoProgressKeysChanged,
@@ -330,51 +442,7 @@ class PracticeSettingsPanel extends StatelessWidget {
           ),
           const SizedBox(height: Spacing.sm),
 
-          // Mode-specific settings
-          if (configuration.practiceMode == PracticeMode.scales)
-            ScalesSettingsView(
-              configuration: configuration,
-              onConfigurationChanged: onConfigurationChanged,
-              getScaleTypeString: _getScaleTypeString,
-            )
-          else if (configuration.practiceMode == PracticeMode.chordsByKey)
-            ChordsByKeySettingsView(
-              configuration: configuration,
-              onConfigurationChanged: onConfigurationChanged,
-              getScaleTypeString: _getScaleTypeString,
-            )
-          else if (configuration.practiceMode == PracticeMode.arpeggios ||
-              configuration.practiceMode == PracticeMode.blockChords)
-            ArpeggiosSettingsView(
-              configuration: configuration,
-              onConfigurationChanged: onConfigurationChanged,
-              getArpeggioTypeString: _getArpeggioTypeString,
-              getArpeggioOctavesString: _getArpeggioOctavesString,
-              getChordTonePatternString: _getChordTonePatternString,
-            )
-          else if (configuration.practiceMode == PracticeMode.chordProgressions)
-            ChordProgressionsSettingsView(
-              configuration: configuration,
-              onConfigurationChanged: onConfigurationChanged,
-              getChordProgressionString: _getChordProgressionString,
-            )
-          else if (configuration.practiceMode ==
-              PracticeMode.brokenChordAccompaniment)
-            BrokenChordAccompanimentSettingsView(
-              configuration: configuration,
-              onConfigurationChanged: onConfigurationChanged,
-              getChordProgressionString: _getChordProgressionString,
-            )
-          else if (configuration.practiceMode == PracticeMode.chordsByType)
-            ChordsByTypeSettingsView(
-              configuration: configuration,
-              onConfigurationChanged: onConfigurationChanged,
-            )
-          else if (configuration.practiceMode == PracticeMode.dominantCadence)
-            DominantCadenceSettingsView(
-              configuration: configuration,
-              onConfigurationChanged: onConfigurationChanged,
-            ),
+          modeDefinition.buildSettings(this),
           const SizedBox(height: Spacing.sm),
           PracticeSettingsStatusControl(
             practiceActive: practiceActive,

@@ -33,6 +33,9 @@ class BrokenChordAccompanimentStrategy implements PracticeStrategy {
 
     for (var chordIndex = 0; chordIndex < chords.length; chordIndex++) {
       final chord = chords[chordIndex];
+      final romanNumeral = chordIndex < chordProgression.romanNumerals.length
+          ? chordProgression.romanNumerals[chordIndex]
+          : "?";
       final leftHandTones = chord.getMidiNotes(startOctave - 1);
       final rightHandCue = chord
           .getMidiNotes(startOctave)
@@ -74,13 +77,11 @@ class BrokenChordAccompanimentStrategy implements PracticeStrategy {
             notes: notes,
             metadata: {
               "chordName": chord.name,
-              "romanNumeral": chordProgression.romanNumerals[chordIndex],
+              "romanNumeral": romanNumeral,
               "chordPosition": chordIndex + 1,
               "beatInChord": beatIndex + 1,
               "pattern": pattern.name,
-              "displayName":
-                  "${chordProgression.romanNumerals[chordIndex]} · "
-                  "beat ${beatIndex + 1}",
+              "displayName": "$romanNumeral · beat ${beatIndex + 1}",
             },
           ),
         );

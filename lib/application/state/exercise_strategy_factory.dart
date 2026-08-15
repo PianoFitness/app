@@ -72,9 +72,10 @@ class ExerciseStrategyFactory {
         );
 
       case PracticeMode.brokenChordAccompaniment:
-        final progression = ChordProgressionLibrary.getProgressionByName(
-          config.chordProgressionId!,
-        );
+        final progressionId = config.chordProgressionId;
+        final progression = progressionId != null
+            ? ChordProgressionLibrary.getProgressionByName(progressionId)
+            : null;
         return BrokenChordAccompanimentStrategy(
           key: config.key!,
           chordProgression:

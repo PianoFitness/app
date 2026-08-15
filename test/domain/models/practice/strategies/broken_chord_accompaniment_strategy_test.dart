@@ -60,6 +60,28 @@ void main() {
       );
     });
 
+    test("uses a fallback label when roman numerals are incomplete", () {
+      const incompleteProgression = ChordProgression(
+        name: "Incomplete labels",
+        romanNumerals: ["I"],
+        chords: [
+          [0, 4, 7],
+          [5, 9, 12],
+        ],
+        difficulty: ProgressionDifficulty.beginner,
+      );
+      final exercise = BrokenChordAccompanimentStrategy(
+        key: music.Key.c,
+        chordProgression: incompleteProgression,
+        handSelection: HandSelection.left,
+        startOctave: 4,
+        pattern: BrokenChordPattern.rootFifthThirdFifth,
+      ).initializeExercise();
+
+      expect(exercise.steps[4].metadata?["romanNumeral"], "?");
+      expect(exercise.steps[4].metadata?["displayName"], "? · beat 1");
+    });
+
     test(
       "stays in range through the foundational progression in every key",
       () {

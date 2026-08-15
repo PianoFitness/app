@@ -32,13 +32,15 @@ This gives the following status labels their precise meaning:
   MIDI exercise tree.
 
 The current strategies already cover major/natural-minor/modal scales; the
-available triad and seventh-chord qualities; straight and rolling arpeggios and
-block chords; a small library of fixed triad progressions; and V–I cadences.
-They do **not** yet generate harmonic or melodic minor, pentatonic or blues
-scales, suspended chords, extensions/alterations, accompaniment patterns, or
-the advanced harmonic progressions below. Those are retained as **planned
-generator** families, not promises that an existing configuration can play
-them.
+available triad (including suspended), augmented, diminished, and seventh-chord
+qualities; straight and rolling arpeggios and block chords; a small library of
+fixed triad progressions; V–I cadences; and foundational broken-chord
+accompaniment patterns through I–IV–V–I, with a right-hand triad cue at the
+start of each harmony when both hands are selected. They do **not** yet
+generate harmonic or melodic minor, pentatonic or blues scales,
+extensions/alterations, Alberti bass or ostinato patterns, or the advanced
+harmonic progressions below. Those are retained as **planned generator**
+families, not promises that an existing configuration can play them.
 
 Do not turn hand, octave range, inversion rotation, key, or tempo into separate
 tree nodes. They are exercise variations or checkpoints of one measurable
@@ -77,10 +79,12 @@ own improvisation is not scored by this system.
 
 ### Part IV: Scale Vocabulary and Transfer
 
-20. Modes
-21. Pentatonic and blues scales
-22. Pentatonic and blues patterns
-23. Transposition through keys
+<ol start="20">
+  <li>Modes</li>
+  <li>Pentatonic and blues scales</li>
+  <li>Pentatonic and blues patterns</li>
+  <li>Transposition through keys</li>
+</ol>
 
 ### Part V: Jazz, Chromatic, and Contemporary Harmony
 
@@ -330,7 +334,8 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 - Use different inversions
 - Extend the range
 - Maintain consistent pulse
-- Combine the pattern with a prescribed right-hand melody
+- Use a right-hand triad cue on the first beat of each harmony when practising
+  hands together
 
 ---
 

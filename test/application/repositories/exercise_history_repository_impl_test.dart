@@ -122,7 +122,7 @@ void main() {
             handSelection: HandSelection.both,
             key: music.Key.c,
             chordProgressionId: "I - IV - V - I",
-            brokenChordPattern: BrokenChordPattern.rootFifthThirdFifth,
+            brokenChordPattern: BrokenChordPattern.rootThirdFifthThird,
           ),
         );
         await repository.saveEntry(entry);
@@ -134,7 +134,7 @@ void main() {
         expect(result.chordProgressionId, "I - IV - V - I");
         expect(
           result.brokenChordPattern,
-          BrokenChordPattern.rootFifthThirdFifth,
+          BrokenChordPattern.rootThirdFifthThird,
         );
       },
     );
