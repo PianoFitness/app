@@ -7,6 +7,44 @@ exercise-type labels, category-versus-variation), see [`pedagogy.md`](pedagogy.m
 Every family below is freely explorable regardless of its priority label — see
 [`pedagogy.md`](pedagogy.md) §1 and §3.
 
+## Exercise-system fit
+
+The Curriculum tree contains only **closed, MIDI-assessable exercises**. A
+playable exercise must resolve to an ordered sequence of one or more exact MIDI
+pitch sets: a scale note, a broken-chord note, or a complete blocked chord. The
+runner advances only when the expected set is held, then records pitch accuracy
+and, when enough consistent MIDI onsets are available, performed exercise tempo.
+It can show fingering and hand assignments as guidance, but ordinary MIDI input
+cannot verify either one. A step's note value describes its intended rhythmic
+distance and supports tempo reporting; it does not make the runner enforce a
+metronome beat.
+
+This gives the following status labels their precise meaning:
+
+- **Available now** — the family can be expressed by an existing
+  `ExerciseConfiguration` and strategy.
+- **Planned generator** — the musical goal is a good closed exercise, but it
+  needs a deterministic scale, chord, progression, or pattern generator before
+  it can become a playable tree node.
+- **Outside the current exercise system** — the goal depends on free note
+  choice, backing playback, listening or analysis, subjective musical
+  judgement, or recording. It belongs in a future feature rather than this
+  MIDI exercise tree.
+
+The current strategies already cover major/natural-minor/modal scales; the
+available triad and seventh-chord qualities; straight and rolling arpeggios and
+block chords; a small library of fixed triad progressions; and V–I cadences.
+They do **not** yet generate harmonic or melodic minor, pentatonic or blues
+scales, suspended chords, extensions/alterations, accompaniment patterns, or
+the advanced harmonic progressions below. Those are retained as **planned
+generator** families, not promises that an existing configuration can play
+them.
+
+Do not turn hand, octave range, inversion rotation, key, or tempo into separate
+tree nodes. They are exercise variations or checkpoints of one measurable
+skill. Likewise, a phrase may be taught as a fixed pattern, but the learner's
+own improvisation is not scored by this system.
+
 ## Family index
 
 ### Part I: Start Here (Foundation)
@@ -37,12 +75,12 @@ Every family below is freely explorable regardless of its priority label — see
 18. Modal interchange and borrowed chords
 19. Applied diminished-seventh harmony
 
-### Part IV: Improvisation and Musical Language
+### Part IV: Scale Vocabulary and Transfer
 
 20. Modes
 21. Pentatonic and blues scales
-22. Pentatonic and blues improvisation
-23. Transposition challenges
+22. Pentatonic and blues patterns
+23. Transposition through keys
 
 ### Part V: Jazz, Chromatic, and Contemporary Harmony
 
@@ -56,11 +94,6 @@ Every family below is freely explorable regardless of its priority label — see
 31. Drop-3 voicings
 32. Quartal harmony
 33. Quintal harmony
-
-### Part VI: Creative Application
-
-34. Improvisation challenges
-35. Composition and recording challenges
 
 Plus an appendix of topics awaiting theoretical review, at the end of this document.
 
@@ -90,7 +123,7 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 - Extend the range
 - Increase tempo while maintaining accuracy and consistency
 - Relate major keys to their relative minor keys
-- Apply scales in improvisation and harmonic contexts
+- Hear scales in their associated harmonic contexts
 
 ---
 
@@ -223,7 +256,7 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 
 ## 6. Suspended chords
 
-**Priority:** Developing · **Type:** Technique exercise
+**Priority:** Developing · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** builds on triads (§3); related to dominant harmony in altered dominants (§13) and cadences (§5).
 
@@ -249,7 +282,7 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 
 ## 7. Augmented and diminished triads
 
-**Priority:** Developing · **Type:** Technique exercise
+**Priority:** Developing · **Type:** Technique exercise · **Status:** Available now
 
 **Connections:** builds on triads (§3); leads into applied diminished-seventh harmony (§19) and chromatic mediants (§27).
 
@@ -280,7 +313,7 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 
 ## 8. Broken-chord accompaniment patterns
 
-**Priority:** Developing · **Type:** Technique exercise
+**Priority:** Developing · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** builds on arpeggios (§2); combines with Alberti bass (§9) and ostinatos (§10) as accompaniment textures.
 
@@ -297,13 +330,13 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 - Use different inversions
 - Extend the range
 - Maintain consistent pulse
-- Combine the pattern with right-hand melody or improvisation
+- Combine the pattern with a prescribed right-hand melody
 
 ---
 
 ## 9. Alberti bass
 
-**Priority:** Developing · **Type:** Technique exercise
+**Priority:** Developing · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** a variation on broken-chord accompaniment (§8).
 
@@ -317,16 +350,16 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 - Move through progressions
 - Maintain even rhythm
 - Change inversions smoothly
-- Combine with a right-hand melody
+- Combine with a prescribed right-hand melody
 - Increase tempo without tension
 
 ---
 
 ## 10. Ostinatos
 
-**Priority:** Developing · **Type:** Technique exercise
+**Priority:** Developing · **Type:** Technique exercise · **Status:** Planned generator
 
-**Connections:** builds on broken-chord accompaniment (§8); supports improvisation challenges (§34).
+**Connections:** builds on broken-chord accompaniment (§8); prepares prescribed two-hand patterns (§22).
 
 ### Exercises
 
@@ -336,7 +369,7 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 - Build quartal or quintal ostinatos
 - Create chromatic-mediant ostinatos
 - Create minor ii–V–i ostinatos
-- Maintain the ostinato while improvising with the other hand
+- Maintain the ostinato while playing a prescribed right-hand line
 
 ### Learning goals
 
@@ -352,7 +385,7 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 
 ## 11. Seventh chords
 
-**Priority:** Developing · **Type:** Technique exercise
+**Priority:** Developing · **Type:** Technique exercise · **Status:** Available now
 
 **Connections:** builds on triads (§3); leads into chord extensions (§12) and drop voicings (§30–§31).
 
@@ -377,7 +410,7 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 
 ## 12. Chord extensions
 
-**Priority:** Developing · **Type:** Technique exercise
+**Priority:** Developing · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** builds on seventh chords (§11); leads into altered dominants (§13) and upper-structure triads (§29).
 
@@ -411,7 +444,7 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 
 ## 13. Altered dominant chords
 
-**Priority:** Advanced · **Type:** Technique exercise
+**Priority:** Advanced · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** builds on chord extensions (§12); connects to tritone substitution (§17) and upper-structure triads (§29).
 
@@ -437,7 +470,7 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 
 ## 14. Minor ii–V–i
 
-**Priority:** Developing · **Type:** Technique exercise
+**Priority:** Developing · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** builds on seventh chords (§11) and cadences (§5); leads into tritone substitution (§17) and drop voicings (§30–§31).
 
@@ -465,7 +498,7 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 
 ## 15. General voice-leading exercises
 
-**Priority:** Developing · **Type:** Technique exercise
+**Priority:** Developing · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** applies across progressions (§4), cadences (§5), and minor ii–V–i (§14).
 
@@ -494,7 +527,7 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 
 ## 16. Secondary dominants and tonicization
 
-**Priority:** Developing · **Type:** Technique exercise
+**Priority:** Developing · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** builds on progressions (§4); leads into tritone substitution (§17).
 
@@ -518,7 +551,7 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 
 ## 17. Tritone substitution
 
-**Priority:** Advanced · **Type:** Technique exercise
+**Priority:** Advanced · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** builds on secondary dominants (§16) and minor ii–V–i (§14); connects to upper-structure triads (§29).
 
@@ -530,7 +563,7 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 - Practise descending chromatic bass motion
 - Double tritone substitution
 - Tritone substitutions in turnarounds
-- Improvise while inserting substitutions spontaneously
+- Practise a prescribed turnaround containing a tritone substitution
 
 ### Combined applications
 
@@ -543,7 +576,7 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 
 ## 18. Modal interchange and borrowed chords
 
-**Priority:** Advanced · **Type:** Technique exercise
+**Priority:** Advanced · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** builds on cadences (§5) and triads (§3); connects to chromatic mediants (§27).
 
@@ -574,7 +607,7 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 
 ## 19. Applied diminished-seventh harmony
 
-**Priority:** Advanced · **Type:** Technique exercise
+**Priority:** Advanced · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** builds on diminished triads (§7); connects to modal interchange (§18).
 
@@ -596,13 +629,13 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 
 ---
 
-# Part IV: Improvisation and Musical Language
+# Part IV: Scale Vocabulary and Transfer
 
 ## 20. Modes
 
-**Priority:** Developing · **Type:** Musical application
+**Priority:** Developing · **Type:** Technique exercise · **Status:** Available now
 
-**Connections:** builds on scales (§1); supports improvisation (§22, §34) and quartal harmony's modal voicings (§32).
+**Connections:** builds on scales (§1); supports fixed scale-pattern work (§22) and quartal harmony's modal voicings (§32).
 
 ### Core modes
 
@@ -614,9 +647,9 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 - Aeolian: natural minor
 - Locrian: minor with flattened second and fifth
 
-### Musical applications
+### Context labels
 
-- Dorian for minor improvisation, funk, soul, and modal jazz
+- Dorian for minor, funk, soul, and modal-jazz harmony
 - Mixolydian over dominant-seventh chords and blues
 - Lydian for bright, floating, or cinematic harmony
 - Phrygian for darker or Spanish-influenced sounds
@@ -628,28 +661,18 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 
 ## 21. Pentatonic and blues scales
 
-**Priority:** Foundation · **Type:** Technique exercise
+**Priority:** Foundation · **Type:** Technique exercise · **Status:** Planned generator
 
-**Connections:** builds on scales (§1); leads into pentatonic and blues improvisation (§22).
+**Connections:** builds on scales (§1); leads into pentatonic and blues patterns (§22).
 
 ### Foundational scales
 
 - Major pentatonic: 1–2–3–5–6
 - Minor pentatonic: 1–♭3–4–5–♭7
 - Blues scale: 1–♭3–4–♭5–5–♭7
-- Extended pentatonic scales with an added second or ninth
 
-### Pattern exercises
-
-- Ascending and descending pentatonic patterns
-- Skip patterns
-- Patterns in thirds and fourths
-- Groups of three, four, and five notes
-- Repeated melodic sequences
-- Rhythmic displacement of familiar patterns
-- Blues licks using the ♭5 blue note
-- Chromatic approach notes into chord tones
-- ♭5-to-5 blues resolution
+An added ninth is the same pitch class as scale degree 2; use “9th” only when
+the octave/register of that note is musically relevant.
 
 ### Conceptual relationships
 
@@ -661,60 +684,45 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 
 ---
 
-## 22. Pentatonic and blues improvisation
+## 22. Pentatonic and blues patterns
 
-**Priority:** Developing · **Type:** Musical application
+**Priority:** Developing · **Type:** Technique exercise · **Status:** Planned generator
 
-**Connections:** builds on pentatonic scales (§21) and modes (§20); leads into improvisation challenges (§34).
+**Connections:** builds on pentatonic scales (§21) and modes (§20); supports transposition through keys (§23).
 
-### Foundational contexts
+### Fixed-pattern exercises
 
-- Major pentatonic over I–IV–V
-- Minor pentatonic over a 12-bar blues
-- Major pentatonic over I–vi–IV–V
-- Minor pentatonic over a minor i–iv vamp
-- Major pentatonic over ii–V–I
-- Minor pentatonic over minor ii–V–i
-- Major pentatonic over a one-chord major or Dorian vamp
-- Minor pentatonic over a one-chord minor or Dorian vamp
+- Ascending and descending pentatonic patterns
+- Skip patterns, then patterns in thirds and fourths
+- Groups of three, four, and five notes
+- Repeated melodic sequences
+- Blues patterns that resolve ♭5 to 5
+- Chromatic approach notes into a prescribed chord tone
+- A fixed left-hand ostinato with a prescribed right-hand pentatonic line
 
-### Expressive development
+### Generator requirements
 
-- Create simple, singable melodies
-- Add rhythmic variety
-- Use space between phrases
-- Practise call and response
-- Build four-bar questions and four-bar answers
-- Repeat and vary short motifs
-- Combine major and minor pentatonic for emotional contrast
-- Target chord tones as harmony changes
-- Shift phrases across bar lines
-- Develop reusable riffs and licks
-
-### Advanced pentatonic applications
-
-- Switch between major and minor pentatonic over a dominant chord
-- Use pentatonic material over modal interchange
-- Improvise over borrowed chords
-- Combine a left-hand pentatonic ostinato with right-hand improvisation
-- Trade call-and-response phrases between the hands
-- Use pentatonic scales to outline changing harmony
+- Each exercise must specify every target pitch and its note value.
+- A two-hand variation must specify both hands’ notes at each onset; it may not
+  leave the melody or accompaniment open for learner choice.
+- Phrase shape, swing feel, call-and-response quality, and freely chosen notes
+  remain outside the current scoring model.
 
 ---
 
-## 23. Transposition challenges
+## 23. Transposition through keys
 
-**Priority:** Developing · **Type:** Musical application
+**Priority:** Developing · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** applies across all prior families; reinforces key fluency alongside scales (§1) and progressions (§4).
 
-- Transpose a known lick into three new keys
-- Transpose pentatonic patterns
-- Transpose blues phrases
-- Transpose chord progressions
-- Transpose voicing patterns
-- Transpose accompaniment textures
-- Apply the same melodic idea over several harmonic contexts
+- Practise one prescribed pentatonic or blues pattern in three new keys
+- Practise a prescribed chord progression in the next circle-of-fifths key
+- Practise one prescribed voicing pattern in every supported key
+- Use the same fixed accompaniment pattern over its configured harmonic roots
+
+The curriculum treats this as repeated performance of equivalent generated
+exercises in different keys, not as assessment of a learner-created lick.
 
 ---
 
@@ -722,7 +730,7 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 
 ## 24. Neapolitan sixth chord
 
-**Priority:** Advanced · **Type:** Technique exercise
+**Priority:** Advanced · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** builds on modal interchange (§18); related to augmented-sixth chords (§25).
 
@@ -754,7 +762,7 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 
 ## 25. Augmented-sixth chords
 
-**Priority:** Advanced · **Type:** Technique exercise
+**Priority:** Advanced · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** builds on the Neapolitan sixth (§24); leads into common-tone augmented-sixth chords (§26).
 
@@ -793,7 +801,7 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 
 ## 26. Common-tone augmented-sixth chords
 
-**Priority:** Advanced · **Type:** Technique exercise
+**Priority:** Advanced · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** builds on augmented-sixth chords (§25).
 
@@ -817,7 +825,7 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 
 ## 27. Chromatic mediants
 
-**Priority:** Advanced · **Type:** Musical application
+**Priority:** Advanced · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** builds on modal interchange (§18) and augmented/diminished triads (§7); connects to Neo-Riemannian transformations (§28).
 
@@ -837,8 +845,8 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 - I → ♭VI → ♭III → I
 - I → ♭VI → ♭III → ♭VII → I
 - Combine chromatic mediants with tritone-related harmony
-- Create alternating I/♭VI ostinatos
-- Improvise over repeated chromatic-mediant shifts
+- Practise an alternating I/♭VI ostinato as a fixed pattern
+- Play a prescribed melodic line over repeated chromatic-mediant shifts
 - Catalogue available mediant relationships from one tonic
 
 ### Musical goals
@@ -846,13 +854,13 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 - Develop cinematic harmonic colour
 - Hear non-functional but connected triadic motion
 - Create emotional pivots using shared tones
-- Compose with dramatic third relationships
+- Use shared tones in a prescribed melodic line
 
 ---
 
 ## 28. Neo-Riemannian transformations
 
-**Priority:** Exploratory · **Type:** Musical application
+**Priority:** Exploratory · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** builds on chromatic mediants (§27); see the appendix at the end of this document for unverified extensions to this family.
 
@@ -871,16 +879,14 @@ Plus an appendix of topics awaiting theoretical review, at the end of this docum
 - Explore hexatonic cycles
 - Explore octatonic relationships
 - Derive chromatic-mediant relationships through compound transformations
-- Navigate a Tonnetz or harmonic lattice
 - Reverse transformation chains
-- Compose using only transformation-based harmony
-- Integrate transformation-based chords into tonal progressions
+- Play a prescribed P/L/R chain within a tonal progression
 
 ---
 
 ## 29. Upper-structure triads
 
-**Priority:** Advanced · **Type:** Technique exercise
+**Priority:** Advanced · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** builds on chord extensions (§12) and altered dominants (§13); connects to tritone substitution (§17).
 
@@ -908,18 +914,18 @@ Play a simple right-hand triad over a dominant-chord shell or bass to create upp
 - Apply altered structures to minor ii–V–i
 - Move upper structures with smooth voice leading
 - Combine left-hand guide-tone shells with right-hand triads
-- Use upper structures in comping
-- Arpeggiate upper structures during improvisation
-- Reharmonize melodies
+- Use upper structures in prescribed rhythmic chord steps
+- Arpeggiate an upper structure as a fixed pattern
+- Play a prescribed melody target above an upper structure
 - Combine upper structures with tritone substitutions
 - Use upper structures in extended dominant chains
-- Explore them over modal dominant vamps
+- Use them over a fixed modal-dominant progression
 
 ---
 
 ## 30. Drop-2 voicings
 
-**Priority:** Advanced · **Type:** Technique exercise
+**Priority:** Advanced · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** builds on seventh chords (§11) and minor ii–V–i (§14); compare with drop-3 voicings (§31).
 
@@ -938,8 +944,8 @@ Play a simple right-hand triad over a dominant-chord shell or bass to create upp
 - Minor ii–V–i in drop-2
 - Chromatic parallel motion
 - Contrary motion
-- Melody harmonization
-- Walking bass with drop-2 accompaniment
+- Prescribed melody note above drop-2 targets
+- Prescribed bass-and-drop-2 targets
 - Rootless drop-2 voicings
 - Drop-2 with extensions
 - Chromatic approaches into target voicings
@@ -948,7 +954,7 @@ Play a simple right-hand triad over a dominant-chord shell or bass to create upp
 
 ## 31. Drop-3 voicings
 
-**Priority:** Advanced · **Type:** Technique exercise
+**Priority:** Advanced · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** builds on drop-2 voicings (§30).
 
@@ -967,7 +973,7 @@ Play a simple right-hand triad over a dominant-chord shell or bass to create upp
 - Minor ii–V–i in drop-3
 - Compare drop-2 and drop-3 spacing
 - Mix drop-2 and drop-3 in one progression
-- Harmonize melodies
+- Play prescribed melody notes above drop-3 targets
 - Rootless drop-3 voicings
 - Drop-3 voicings with extensions
 - Chromatic approach voicings
@@ -977,7 +983,7 @@ Play a simple right-hand triad over a dominant-chord shell or bass to create upp
 
 ## 32. Quartal harmony
 
-**Priority:** Exploratory · **Type:** Technique exercise
+**Priority:** Exploratory · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** builds on modes (§20); compare with quintal harmony (§33).
 
@@ -1005,15 +1011,15 @@ Play a simple right-hand triad over a dominant-chord shell or bass to create upp
 - Chromatic planing
 - Quartal voicings over specific bass notes
 - Quartal ii–V–I
-- Quartal voicings over modal vamps
+- Quartal voicings over a fixed modal bass pattern
 - Smooth quartal voice leading
 - Quartal tension resolving to tertian harmony
 
-### Performance applications
+### Fixed-pattern applications
 
-- Left-hand quartal comping
+- Prescribed left-hand quartal chord patterns
 - Quartal ostinatos
-- Improvisation using notes from one quartal voicing
+- Prescribed melodic patterns using one quartal voicing
 - "So What"-style voicings
 - Quartal upper structures over conventional chord roots
 
@@ -1021,7 +1027,7 @@ Play a simple right-hand triad over a dominant-chord shell or bass to create upp
 
 ## 33. Quintal harmony
 
-**Priority:** Exploratory · **Type:** Technique exercise
+**Priority:** Exploratory · **Type:** Technique exercise · **Status:** Planned generator
 
 **Connections:** builds on quartal harmony (§32).
 
@@ -1039,65 +1045,8 @@ Play a simple right-hand triad over a dominant-chord shell or bass to create upp
 - Hybrid fourth-and-fifth voicings
 - Quartal/quintal ostinatos
 - Convert quartal forms into quintal inversions
-- Improvise using only quartal and quintal harmony
-- Compose a short piece without tertian chords
-- Study quartal and quintal harmony in modern jazz and contemporary music
-
----
-
-# Part VI: Creative Application
-
-## 34. Improvisation challenges
-
-**Priority:** Developing · **Type:** Musical application
-
-**Connections:** draws on pentatonic and blues improvisation (§22), modes (§20), upper-structure triads (§29), and quartal/quintal harmony (§32–§33).
-
-### Core challenges
-
-- Improvise one complete pass over I–vi–IV–V
-- Improvise over I–IV–V
-- Improvise over a 12-bar blues
-- Improvise over a modal vamp
-- Improvise over major or minor ii–V–I
-- Improvise over chromatic-mediant harmony
-- Improvise using upper-structure material
-- Improvise using quartal and quintal material
-
-### Development
-
-- Use call and response
-- Target chord tones
-- Vary rhythm and phrase length
-- Repeat and transform motifs
-- Use silence intentionally
-- Shape dynamics
-- Build a beginning, middle, and ending
-
----
-
-## 35. Composition and recording challenges
-
-**Priority:** Exploratory · **Type:** Creative challenge and listening or analysis study
-
-**Connections:** draws on quartal/quintal harmony (§32–§33), Neo-Riemannian transformations (§28), and modal interchange (§18).
-
-### Composition (creative challenge)
-
-- Compose a short piece using quartal and quintal harmony
-- Compose using only Neo-Riemannian transformations
-- Create a chromatic-mediant film-score progression
-- Reharmonize an existing progression
-- Harmonize a melody with drop voicings
-- Build a progression using borrowed chords
-- Build a progression using secondary dominants
-
-### Performance artifacts (listening or analysis study)
-
-- Use one learned arpeggiation pattern beneath a 60-second improvisation
-- Record an improvisation
-- Record a performance the learner would be willing to share
-- Review the recording for phrasing, consistency, harmony, and musical shape
+- Practise a fixed quartal/quintal pattern in several keys
+- Resolve a prescribed quartal or quintal target into a tertian target
 
 ---
 
