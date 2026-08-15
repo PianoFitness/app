@@ -1,10 +1,12 @@
 import "package:piano_fitness/domain/models/music/hand_selection.dart";
+import "package:piano_fitness/domain/models/music/broken_chord_pattern.dart";
 import "package:piano_fitness/domain/models/music/scale_types.dart" as music;
 import "package:piano_fitness/domain/models/practice/exercise_configuration.dart";
 import "package:piano_fitness/domain/models/practice/exercise_tempo_result.dart";
 import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 import "package:piano_fitness/domain/models/skill_progression/skill_catalogue.dart";
 import "package:piano_fitness/domain/services/music_theory/arpeggios.dart";
+import "package:piano_fitness/domain/services/music_theory/chord_definitions.dart";
 import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 import "package:piano_fitness/domain/services/skill_progression/skill_catalogue_validator.dart";
 
@@ -15,7 +17,7 @@ abstract final class DefaultSkillCatalogue {
   static SkillCatalogue _create() {
     final catalogue = SkillCatalogue(
       id: "piano-fitness-foundations",
-      version: 4,
+      version: 8,
       groups: [
         SkillGraphGroup(
           id: "key-foundations",
@@ -45,12 +47,27 @@ abstract final class DefaultSkillCatalogue {
           description: "Diatonic chords, progressions, and cadences.",
           nodeIds: [
             "diatonic-triads",
+            "i-iv-v-i",
             "i-v-vi-iv",
             "i-vi-iv-v",
             "ii-v-i",
             "dominant-cadence",
+            "plagal-cadence",
+            "half-cadence",
+            "deceptive-cadence",
           ],
           displayOrder: 2,
+        ),
+        SkillGraphGroup(
+          id: "core-technique",
+          name: "Core Technique & Coordination",
+          description: "Chord shapes that extend the foundational triads.",
+          nodeIds: [
+            "suspended-chords",
+            "altered-triads",
+            "broken-chord-accompaniment",
+          ],
+          displayOrder: 3,
         ),
       ],
       nodes: [
@@ -197,7 +214,7 @@ abstract final class DefaultSkillCatalogue {
         ),
         SkillNode(
           id: "diatonic-triads",
-          name: "Diatonic triads",
+          name: "Foundational triads",
           description: "Play the seven triads in order in each major key.",
           checkpoints: _chordsByKeyCheckpoints(),
           proficiencyRule: SkillProficiencyRule(
@@ -212,6 +229,27 @@ abstract final class DefaultSkillCatalogue {
             SkillRelation(
               type: SkillRelationType.recommendedPrerequisite,
               nodeId: "major-scale",
+            ),
+          ],
+        ),
+        SkillNode(
+          id: "i-iv-v-i",
+          name: "I–IV–V–I progression",
+          description:
+              "Establish tonic, move through predominant and dominant, "
+              "then resolve home.",
+          checkpoints: _progressionCheckpoints("i-iv-v-i", "I - IV - V - I"),
+          proficiencyRule: SkillProficiencyRule(
+            tempoEvidencePolicy: TempoEvidencePolicy.optional,
+            supportedTempoMeasurementVersions: {
+              TempoMeasurementVersions.declaredStepDurations,
+              TempoMeasurementVersions.scaleEighthNotes,
+            },
+          ),
+          relations: const [
+            SkillRelation(
+              type: SkillRelationType.appliesIn,
+              nodeId: "diatonic-triads",
             ),
           ],
         ),
@@ -277,7 +315,7 @@ abstract final class DefaultSkillCatalogue {
         ),
         SkillNode(
           id: "dominant-cadence",
-          name: "Dominant cadence",
+          name: "Authentic cadence",
           description: "Resolve V to I through its inversions in every key.",
           checkpoints: _cadenceCheckpoints(),
           proficiencyRule: SkillProficiencyRule(
@@ -288,6 +326,125 @@ abstract final class DefaultSkillCatalogue {
             SkillRelation(
               type: SkillRelationType.recommendedPrerequisite,
               nodeId: "diatonic-triads",
+            ),
+          ],
+        ),
+        SkillNode(
+          id: "plagal-cadence",
+          name: "Plagal cadence",
+          description: "Resolve IV to I and hear its gentler arrival.",
+          checkpoints: _progressionCheckpoints("plagal-cadence", "IV - I"),
+          proficiencyRule: SkillProficiencyRule(
+            tempoEvidencePolicy: TempoEvidencePolicy.notApplicable,
+            supportedTempoMeasurementVersions: {},
+          ),
+          relations: const [
+            SkillRelation(
+              type: SkillRelationType.recommendedPrerequisite,
+              nodeId: "diatonic-triads",
+            ),
+          ],
+        ),
+        SkillNode(
+          id: "half-cadence",
+          name: "Half cadence",
+          description: "Move from I to V and hear an open, unfinished ending.",
+          checkpoints: _progressionCheckpoints("half-cadence", "I - V"),
+          proficiencyRule: SkillProficiencyRule(
+            tempoEvidencePolicy: TempoEvidencePolicy.notApplicable,
+            supportedTempoMeasurementVersions: {},
+          ),
+          relations: const [
+            SkillRelation(
+              type: SkillRelationType.recommendedPrerequisite,
+              nodeId: "diatonic-triads",
+            ),
+          ],
+        ),
+        SkillNode(
+          id: "deceptive-cadence",
+          name: "Deceptive cadence",
+          description:
+              "Hear the dominant lead unexpectedly to vi instead of I.",
+          checkpoints: _progressionCheckpoints("deceptive-cadence", "V - vi"),
+          proficiencyRule: SkillProficiencyRule(
+            tempoEvidencePolicy: TempoEvidencePolicy.notApplicable,
+            supportedTempoMeasurementVersions: {},
+          ),
+          relations: const [
+            SkillRelation(
+              type: SkillRelationType.recommendedPrerequisite,
+              nodeId: "diatonic-triads",
+            ),
+          ],
+        ),
+        SkillNode(
+          id: "suspended-chords",
+          name: "Suspended chords",
+          description:
+              "Hear the open sound of sus2 and sus4 chords across every key.",
+          checkpoints: _chordTypeCheckpoints("suspended-chords", {
+            ChordType.suspended2: false,
+            ChordType.suspended4: false,
+          }),
+          proficiencyRule: SkillProficiencyRule(
+            referenceTempoBpm: 72,
+            supportedTempoMeasurementVersions: {
+              TempoMeasurementVersions.declaredStepDurations,
+              TempoMeasurementVersions.scaleEighthNotes,
+            },
+          ),
+          tempoProgression: const TempoProgression(incrementBpm: 4),
+          relations: const [
+            SkillRelation(
+              type: SkillRelationType.recommendedPrerequisite,
+              nodeId: "diatonic-triads",
+            ),
+          ],
+        ),
+        SkillNode(
+          id: "altered-triads",
+          name: "Augmented and diminished triads",
+          description:
+              "Practise the symmetrical augmented and diminished triad shapes "
+              "through their inversions in every key.",
+          checkpoints: _chordTypeCheckpoints("altered-triads", {
+            ChordType.augmented: true,
+            ChordType.diminished: true,
+          }),
+          proficiencyRule: SkillProficiencyRule(
+            referenceTempoBpm: 72,
+            supportedTempoMeasurementVersions: {
+              TempoMeasurementVersions.declaredStepDurations,
+              TempoMeasurementVersions.scaleEighthNotes,
+            },
+          ),
+          tempoProgression: const TempoProgression(incrementBpm: 4),
+          relations: const [
+            SkillRelation(
+              type: SkillRelationType.recommendedPrerequisite,
+              nodeId: "diatonic-triads",
+            ),
+          ],
+        ),
+        SkillNode(
+          id: "broken-chord-accompaniment",
+          name: "Broken-chord accompaniment",
+          description:
+              "Keep a steady left-hand 1–5–3–5 pattern while harmony changes.",
+          checkpoints: _brokenChordAccompanimentCheckpoints(),
+          proficiencyRule: SkillProficiencyRule(
+            referenceTempoBpm: 72,
+            supportedTempoMeasurementVersions: {
+              TempoMeasurementVersions.declaredStepDurations,
+              TempoMeasurementVersions.scaleEighthNotes,
+            },
+          ),
+          tempoProgression: const TempoProgression(incrementBpm: 4),
+          relations: const [
+            SkillRelation(
+              type: SkillRelationType.recommendedPrerequisite,
+              nodeId: "i-iv-v-i",
             ),
           ],
         ),
@@ -375,6 +532,60 @@ abstract final class DefaultSkillCatalogue {
                   handSelection: HandSelection.both,
                   key: key,
                   scaleType: music.ScaleType.major,
+                ),
+              ),
+            ],
+          );
+        })
+        .toList(growable: false);
+  }
+
+  static List<SkillCheckpoint> _chordTypeCheckpoints(
+    String nodeId,
+    Map<ChordType, bool> chordTypes,
+  ) {
+    return chordTypes.entries
+        .map((entry) {
+          final chordType = entry.key;
+          final includeInversions = entry.value;
+          return SkillCheckpoint(
+            id: "$nodeId-${chordType.name}",
+            name: chordType.shortName,
+            exercises: [
+              SkillExercise(
+                id: "$nodeId-${chordType.name}",
+                name: "${chordType.shortName} in all keys",
+                configuration: ExerciseConfiguration(
+                  practiceMode: PracticeMode.chordsByType,
+                  handSelection: HandSelection.both,
+                  chordType: chordType,
+                  includeInversions: includeInversions,
+                ),
+              ),
+            ],
+          );
+        })
+        .toList(growable: false);
+  }
+
+  static List<SkillCheckpoint> _brokenChordAccompanimentCheckpoints() {
+    const progressionId = "I - IV - V - I";
+    const pattern = BrokenChordPattern.rootFifthThirdFifth;
+    return music.Key.values
+        .map((key) {
+          return SkillCheckpoint(
+            id: "broken-chord-accompaniment-${key.name}",
+            name: "${key.displayName} major",
+            exercises: [
+              SkillExercise(
+                id: "broken-chord-accompaniment-${key.name}",
+                name: "${key.displayName}: 1–5–3–5 accompaniment",
+                configuration: ExerciseConfiguration(
+                  practiceMode: PracticeMode.brokenChordAccompaniment,
+                  handSelection: HandSelection.both,
+                  key: key,
+                  chordProgressionId: progressionId,
+                  brokenChordPattern: pattern,
                 ),
               ),
             ],

@@ -2,6 +2,7 @@ import "package:drift/drift.dart";
 import "package:logging/logging.dart";
 
 import "../../domain/models/music/chord_tone_pattern.dart";
+import "../../domain/models/music/broken_chord_pattern.dart";
 import "../../domain/models/music/hand_selection.dart";
 import "../../domain/models/music/scale_types.dart" as music;
 import "../../domain/models/practice/exercise_configuration.dart";
@@ -48,6 +49,7 @@ class ExerciseHistoryRepositoryImpl implements IExerciseHistoryRepository {
         pattern: Value(entry.pattern?.name),
         includeLeftHandRoot: Value(entry.includeLeftHandRoot),
         chordProgressionId: Value(entry.chordProgressionId),
+        brokenChordPattern: Value(entry.brokenChordPattern?.name),
         accuracyPercentage: Value(entry.accuracyPercentage),
         correctNoteCount: Value(entry.correctNoteCount),
         errorCount: Value(entry.errorCount),
@@ -144,6 +146,10 @@ class ExerciseHistoryRepositoryImpl implements IExerciseHistoryRepository {
 
       includeLeftHandRoot: row.includeLeftHandRoot,
       chordProgressionId: row.chordProgressionId,
+      brokenChordPattern: _tryByName(
+        BrokenChordPattern.values,
+        row.brokenChordPattern,
+      ),
     );
 
     return ExerciseHistoryEntry.fromConfiguration(

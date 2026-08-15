@@ -4,13 +4,17 @@ import "package:piano_fitness/domain/models/practice/practice_mode.dart";
 void main() {
   group("PracticeMode", () {
     test("should have all expected values", () {
-      expect(PracticeMode.values.length, equals(7));
+      expect(PracticeMode.values.length, equals(8));
       expect(PracticeMode.values, contains(PracticeMode.scales));
       expect(PracticeMode.values, contains(PracticeMode.chordsByKey));
       expect(PracticeMode.values, contains(PracticeMode.chordsByType));
       expect(PracticeMode.values, contains(PracticeMode.arpeggios));
       expect(PracticeMode.values, contains(PracticeMode.blockChords));
       expect(PracticeMode.values, contains(PracticeMode.chordProgressions));
+      expect(
+        PracticeMode.values,
+        contains(PracticeMode.brokenChordAccompaniment),
+      );
       expect(PracticeMode.values, contains(PracticeMode.dominantCadence));
     });
 
@@ -22,6 +26,10 @@ void main() {
       expect(PracticeMode.arpeggios.name, equals("arpeggios"));
       expect(PracticeMode.blockChords.name, equals("blockChords"));
       expect(PracticeMode.chordProgressions.name, equals("chordProgressions"));
+      expect(
+        PracticeMode.brokenChordAccompaniment.name,
+        equals("brokenChordAccompaniment"),
+      );
       expect(PracticeMode.dominantCadence.name, equals("dominantCadence"));
 
       // toString() includes type prefix, less ideal for serialization
@@ -45,6 +53,10 @@ void main() {
       expect(
         PracticeMode.chordProgressions.toString(),
         equals("PracticeMode.chordProgressions"),
+      );
+      expect(
+        PracticeMode.brokenChordAccompaniment.toString(),
+        equals("PracticeMode.brokenChordAccompaniment"),
       );
       expect(
         PracticeMode.dominantCadence.toString(),
@@ -78,6 +90,8 @@ void main() {
             return "Block Chords";
           case PracticeMode.chordProgressions:
             return "Chord Progressions";
+          case PracticeMode.brokenChordAccompaniment:
+            return "Broken-Chord Accompaniment";
           case PracticeMode.dominantCadence:
             return "Dominant Cadence";
         }
@@ -91,6 +105,10 @@ void main() {
       expect(
         getModeString(PracticeMode.chordProgressions),
         equals("Chord Progressions"),
+      );
+      expect(
+        getModeString(PracticeMode.brokenChordAccompaniment),
+        equals("Broken-Chord Accompaniment"),
       );
       expect(
         getModeString(PracticeMode.dominantCadence),
@@ -108,6 +126,10 @@ void main() {
       expect(
         PracticeMode.chordProgressions.toJson(),
         equals("chordProgressions"),
+      );
+      expect(
+        PracticeMode.brokenChordAccompaniment.toJson(),
+        equals("brokenChordAccompaniment"),
       );
       expect(PracticeMode.dominantCadence.toJson(), equals("dominantCadence"));
 
@@ -132,6 +154,10 @@ void main() {
       expect(
         PracticeModeJson.fromJson("chordProgressions"),
         equals(PracticeMode.chordProgressions),
+      );
+      expect(
+        PracticeModeJson.fromJson("brokenChordAccompaniment"),
+        equals(PracticeMode.brokenChordAccompaniment),
       );
       expect(
         PracticeModeJson.fromJson("dominantCadence"),

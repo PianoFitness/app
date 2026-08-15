@@ -76,10 +76,16 @@ void main() {
           ChordProgressionLibrary.getProgressionsForDifficulty(
             ProgressionDifficulty.beginner,
           );
-      expect(beginnerProgressions.length, equals(3));
+      expect(beginnerProgressions.length, equals(6));
       expect(beginnerProgressions.map((p) => p.name), contains("I - V"));
+      expect(beginnerProgressions.map((p) => p.name), contains("IV - I"));
+      expect(beginnerProgressions.map((p) => p.name), contains("V - vi"));
       expect(beginnerProgressions.map((p) => p.name), contains("I - vi"));
       expect(beginnerProgressions.map((p) => p.name), contains("vi - IV"));
+      expect(
+        beginnerProgressions.map((p) => p.name),
+        contains("I - IV - V - I"),
+      );
 
       final intermediateProgressions =
           ChordProgressionLibrary.getProgressionsForDifficulty(

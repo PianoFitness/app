@@ -1104,7 +1104,7 @@ their musical concept:
 2. Natural minor scale — left hand, right hand, and hands together.
 3. Remaining scale modes — left hand, right hand, and hands together.
 4. Major arpeggios.
-5. Diatonic triads, progressions, and dominant cadences.
+5. Diatonic triads, progressions, and cadences.
 
 The slice should demonstrate:
 
@@ -1119,7 +1119,7 @@ The slice should demonstrate:
 - Non-blocking dependencies.
 - Additive catalogue updates.
 
-The shipped catalogue is version 4. See `default_skill_catalogue.dart` for its
+The shipped catalogue is version 8. See `default_skill_catalogue.dart` for its
 current contents.
 
 ## 21. Suggested file structure

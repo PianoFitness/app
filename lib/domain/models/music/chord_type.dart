@@ -15,6 +15,12 @@ enum ChordType {
   /// Augmented chord - mysterious, floating sound (1-3-#5)
   augmented,
 
+  /// Suspended second chord - open sound without a third (1-2-5)
+  suspended2,
+
+  /// Suspended fourth chord - open sound without a third (1-4-5)
+  suspended4,
+
   /// Major seventh chord - bright, jazzy sound (1-3-5-7)
   major7,
 
@@ -50,6 +56,10 @@ extension ChordTypeDisplay on ChordType {
         return "Diminished";
       case ChordType.augmented:
         return "Augmented";
+      case ChordType.suspended2:
+        return "Sus2";
+      case ChordType.suspended4:
+        return "Sus4";
       case ChordType.major7:
         return "Major 7th";
       case ChordType.dominant7:
@@ -78,6 +88,10 @@ extension ChordTypeDisplay on ChordType {
         return "Diminished Chords";
       case ChordType.augmented:
         return "Augmented Chords";
+      case ChordType.suspended2:
+        return "Suspended 2nd Chords";
+      case ChordType.suspended4:
+        return "Suspended 4th Chords";
       case ChordType.major7:
         return "Major 7th Chords";
       case ChordType.dominant7:
@@ -102,6 +116,8 @@ extension ChordTypeDisplay on ChordType {
       case ChordType.minor:
       case ChordType.diminished:
       case ChordType.augmented:
+      case ChordType.suspended2:
+      case ChordType.suspended4:
         return false;
       case ChordType.major7:
       case ChordType.dominant7:

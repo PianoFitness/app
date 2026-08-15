@@ -122,6 +122,8 @@ class PracticeProgressDisplay extends StatelessWidget {
         return "Chord type practice progress";
       case PracticeMode.chordProgressions:
         return "Chord progression practice progress";
+      case PracticeMode.brokenChordAccompaniment:
+        return "Broken-chord accompaniment practice progress";
       case PracticeMode.dominantCadence:
         return "Dominant cadence practice progress";
     }

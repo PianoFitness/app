@@ -110,13 +110,15 @@ void main() {
       final allExercises =
           ChordByTypeDefinitions.getAllBasicChordTypeExercises();
 
-      expect(allExercises.length, equals(4));
+      expect(allExercises.length, equals(6));
 
       final types = allExercises.map((ex) => ex.type).toSet();
       expect(types.contains(ChordType.major), isTrue);
       expect(types.contains(ChordType.minor), isTrue);
       expect(types.contains(ChordType.diminished), isTrue);
       expect(types.contains(ChordType.augmented), isTrue);
+      expect(types.contains(ChordType.suspended2), isTrue);
+      expect(types.contains(ChordType.suspended4), isTrue);
     });
 
     test("should provide correct display names", () {
@@ -135,6 +137,14 @@ void main() {
       expect(
         ChordByTypeDefinitions.getChordTypeDisplayName(ChordType.augmented),
         equals("Augmented Chords"),
+      );
+      expect(
+        ChordByTypeDefinitions.getChordTypeDisplayName(ChordType.suspended2),
+        equals("Suspended 2nd Chords"),
+      );
+      expect(
+        ChordByTypeDefinitions.getChordTypeDisplayName(ChordType.suspended4),
+        equals("Suspended 4th Chords"),
       );
     });
 

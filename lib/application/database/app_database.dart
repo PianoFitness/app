@@ -45,7 +45,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration {
@@ -134,6 +134,12 @@ class AppDatabase extends _$AppDatabase {
           await m.addColumn(
             schema.exerciseHistoryTable,
             schema.exerciseHistoryTable.tempoStepNoteValue,
+          );
+        },
+        from7To8: (m, schema) async {
+          await m.addColumn(
+            schema.exerciseHistoryTable,
+            schema.exerciseHistoryTable.brokenChordPattern,
           );
         },
       ),

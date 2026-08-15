@@ -5,8 +5,8 @@ import "package:piano_fitness/domain/services/music_theory/note_utils.dart";
 
 /// Represents a chord planing practice exercise focusing on a specific chord type.
 ///
-/// Chord planing involves practicing the same chord type (major, minor, diminished,
-/// augmented) across all 12 chromatic root notes in sequence. This technique helps
+/// Chord planing involves practicing the same chord type across all 12 chromatic
+/// root notes in sequence. This technique helps
 /// students develop consistent chord recognition and fingering patterns while
 /// understanding how chord qualities sound in different harmonic contexts.
 class ChordByType {
@@ -18,7 +18,7 @@ class ChordByType {
     required this.name,
   });
 
-  /// The chord type to practice (major, minor, diminished, augmented).
+  /// The chord type to practice.
   final ChordType type;
 
   /// List of root notes to practice this chord type on.
@@ -168,7 +168,27 @@ class ChordByTypeDefinitions {
     );
   }
 
-  /// Returns all basic chord type exercises (major, minor, diminished, augmented).
+  /// Returns a practice exercise for suspended-second chords.
+  static ChordByType getSuspended2ChordExercise({
+    bool includeInversions = true,
+  }) {
+    return getChordTypeExercise(
+      ChordType.suspended2,
+      includeInversions: includeInversions,
+    );
+  }
+
+  /// Returns a practice exercise for suspended-fourth chords.
+  static ChordByType getSuspended4ChordExercise({
+    bool includeInversions = true,
+  }) {
+    return getChordTypeExercise(
+      ChordType.suspended4,
+      includeInversions: includeInversions,
+    );
+  }
+
+  /// Returns all basic chord type exercises.
   static List<ChordByType> getAllBasicChordTypeExercises({
     bool includeInversions = true,
   }) {
@@ -177,6 +197,8 @@ class ChordByTypeDefinitions {
       getMinorChordExercise(includeInversions: includeInversions),
       getDiminishedChordExercise(includeInversions: includeInversions),
       getAugmentedChordExercise(includeInversions: includeInversions),
+      getSuspended2ChordExercise(includeInversions: includeInversions),
+      getSuspended4ChordExercise(includeInversions: includeInversions),
     ];
   }
 
