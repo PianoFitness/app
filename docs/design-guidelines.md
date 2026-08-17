@@ -7,6 +7,10 @@ shared vocabulary for making design decisions. It is intentionally practical:
 use it when designing a page, reviewing a pull request, or deciding whether a
 piece of information belongs on screen.
 
+The detailed review of prerequisite-driven progression, spaced maintenance,
+and daily-plan mechanics lives in
+[`progressive-regimen-design-review.md`](progressive-regimen-design-review.md).
+
 The current reference implementation is the compact Curriculum exercise-detail
 page in
 [`skill_tree_page.dart`](../lib/presentation/features/skill_progression/skill_tree_page.dart).
@@ -14,26 +18,101 @@ It is a direction to extend, not a template every page must copy literally.
 
 ## North star
 
-**Piano Fitness should feel like a calm, encouraging practice companion: a
-modern fitness app for musicians.**
+**Piano Fitness is an ongoing training regimen for musicians. It removes the
+uncertainty at the start of practice, prescribes useful work for today, and
+develops the capabilities that make creative piano playing possible.**
+
+The fitness metaphor is the product model, not merely the visual theme. A
+musician does not finish scales any more than an athlete finishes strength or
+mobility work. Foundational exercises remain useful as the learner becomes more
+capable; the challenge, dosage, variation, and reason for practising them
+evolve.
+
+Technique is supporting work rather than the final destination. Piano Fitness
+develops fluency, coordination, time, touch, harmonic vocabulary, and physical
+ease so that the learner is better prepared for repertoire, improvisation,
+composition, accompaniment, and playing with other musicians. The app should
+make the training itself satisfying without confusing exercise performance
+with musical fulfilment.
 
 The interface should help a learner answer three questions quickly:
 
-1. What can I practise?
-2. How am I progressing?
-3. What should I tap next?
+1. What exactly should I practise today?
+2. What should I focus on during each exercise?
+3. How is repeated practice developing my capabilities over time?
 
 It should not feel like an admin dashboard, analytics console, or collection of
 nested control panels. The student is there to play piano; the interface should
 make that action feel easy to begin.
+
+## The training model
+
+Piano Fitness should translate the useful structure of physical training into
+musical practice:
+
+| Fitness concept | Piano Fitness meaning |
+| --- | --- |
+| Exercise | A repeatable musical movement or pattern, such as a major scale through all 12 keys. |
+| Rep | One intentional performance of an exercise. |
+| Set | A useful group of repetitions with a shared focus. |
+| Weight | The challenge applied to the exercise, most visibly tempo in BPM. |
+| Form | Accuracy, rhythmic consistency, fingering, coordination, evenness, touch, and physical ease. |
+| Progression | More secure reps, greater range, more keys, coordinated hands, a higher tempo, or a harder variation without sacrificing form. |
+| Recovery | Rest within a session and spacing between sessions so practice remains sustainable. |
+| Training history | Evidence used to choose the next useful dose, not a ledger of tasks crossed off. |
+
+The analogy is directional rather than literal. BPM is often the clearest
+equivalent of weight, but faster is not always better. The app must preserve
+form as the constraint: increase tempo or complexity only when the learner can
+do so with sufficient control.
+
+### A recurring regimen, not a finite course
+
+Exercises cycle through development states instead of moving from incomplete
+to permanently complete:
+
+- **Learning** — understand the movement slowly and accurately.
+- **Building consistency** — accumulate controlled repetitions across the
+  relevant keys, hands, or variations.
+- **Increasing challenge** — add tempo, range, coordination, rhythmic variety,
+  or another appropriate load.
+- **Maintaining** — revisit an established capability often enough to retain
+  it.
+- **Applying** — connect the trained capability to repertoire, improvisation,
+  composition, or accompaniment.
+
+For example, practising a major scale in all 12 keys three times may establish
+an initial level of consistency; it does not finish major scales. The same
+exercise can return with a different tempo, hand combination, articulation,
+range, rhythm, key order, or musical application. Progress indicators should
+describe the learner's current training state and demonstrated capability, not
+imply that a foundational skill has been disposed of forever.
+
+### The daily promise
+
+When a learner sits down at the piano, Piano Fitness should remove planning
+friction. The default experience presents a bounded plan for today with:
+
+- the exercises to perform and their order;
+- the intended number of reps or sets;
+- an appropriate BPM or other challenge level when known;
+- one concise form cue or musical focus;
+- clear transitions, rests, and an achievable stopping point; and
+- enough explanation to understand why the work is in today's plan.
+
+The plan should adapt from training history and remain editable. A learner may
+replace an exercise, explore the catalogue, follow a teacher's direction, or
+move into free play without being punished. Guidance removes uncertainty; it
+does not remove agency.
 
 ## Experience qualities
 
 | Quality | What it means in practice |
 | --- | --- |
 | Calm | Neutral surfaces, limited decoration, and no competing highlights. |
-| Focused | One obvious primary task per screen or section. |
+| Focused | One obvious primary task per screen or section, with no uncertainty about what to do next. |
 | Encouraging | Progress is framed positively; incomplete work is an invitation, not a warning. |
+| Engaging | Repetition has responsive feedback, visible development, and enough variation to remain purposeful without becoming distracting. |
 | Efficient | Repeated actions are compact, scannable, and close to the content they affect. |
 | Warm | Plain language, soft shapes, and restrained color keep the product approachable. |
 | Trustworthy | Metrics are shown only when meaningful and never padded with technical placeholders. |
@@ -45,16 +124,37 @@ When qualities compete, prioritize clarity and usability over visual novelty.
 ### 1. Practice is the primary action
 
 The most prominent elements should help the student start or continue
-practising. Supporting statistics, explanations, and configuration should not
-compete with that action.
+today's practice. Supporting statistics, explanations, and configuration should
+not compete with that action. On the default repeat-use path, the learner
+should not have to assemble a session from the full exercise catalogue before
+playing.
 
+- Lead with **Today's practice** and one clear **Start** or **Continue** action.
 - Put practice choices near the exercise name.
 - Use clear action labels such as **Left**, **Right**, **Together**, or
   **Practice**.
 - Keep configuration that is not needed for the immediate choice behind a
   secondary interaction.
 
-### 2. Show progress, not accounting
+### 2. Develop capabilities, not completion
+
+The interface must not present the curriculum as a one-and-done checklist.
+Recorded reps can complete today's prescribed set, but they do not permanently
+complete the underlying technique.
+
+- Use **Today's reps complete** for a finished daily dose, not **Exercise
+  complete** for an enduring capability.
+- Describe longer-term states with language such as **Learning**, **Building
+  consistency**, **Increasing tempo**, **Maintaining**, or **Ready for a new
+  variation**.
+- Keep established exercises available and intentionally return them to future
+  plans.
+- Celebrate consistency, control, and useful increases in challenge—not simply
+  the disappearance of unfinished items.
+- Show how technique supports musical applications where that connection is
+  known.
+
+### 3. Show progress, not accounting
 
 Progress should be understandable at a glance. Prefer a small visual signifier
 over a sentence that makes the student interpret the tracking system.
@@ -62,12 +162,29 @@ over a sentence that makes the student interpret the tracking system.
 - Use dots, rings, bars, or checkmarks for repeated progress.
 - Provide the exact value through semantics or a tooltip when the visual is
   intentionally compact.
-- Use learner-facing language such as **keys complete** or **practices
-  recorded**.
+- Use learner-facing language such as **keys practised**, **reps today**,
+  **working tempo**, or **last trained**.
 - Avoid internal terms such as **evidence**, **qualifying attempt**,
   **established proficiency**, or **measurement version** in the interface.
 
-### 3. Use progressive disclosure
+### 4. Make repetition engaging
+
+Repetition is the work, so each rep should feel responsive and purposeful.
+Feedback should help the learner make the next attempt better rather than
+merely award completion.
+
+- Give immediate, restrained feedback on accuracy, rhythm, and tempo when the
+  system can measure them reliably.
+- State one useful focus at a time, such as **Keep the left hand even** or
+  **Repeat at 72 BPM**.
+- Make the current rep, remaining dose, and next transition easy to understand
+  without turning practice into a scoreboard.
+- Introduce variation and challenge progressively; do not rely on novelty,
+  streak anxiety, points, or punitive mechanics to manufacture engagement.
+- Let a satisfying final rep close today's set while preserving a clear path
+  back to the exercise in future sessions.
+
+### 5. Use progressive disclosure
 
 Show information when it becomes useful.
 
@@ -83,7 +200,7 @@ Show information when it becomes useful.
 - Put detailed history and analysis on a dedicated progress or history view,
   not inside the action picker.
 
-### 4. Prefer one visual layer
+### 6. Prefer one visual layer
 
 Repeated borders, panels inside panels, and many equal-weight controls create a
 command-console effect. Most sections should need only one containing surface.
@@ -94,7 +211,7 @@ command-console effect. Most sections should need only one containing surface.
 - Avoid borders when spacing, background tone, or typography already expresses
   the grouping.
 
-### 5. Density and breathing room are partners
+### 7. Density and breathing room are partners
 
 Compact does not mean cramped. Remove low-value content first, then use a
 consistent spacing rhythm.
@@ -106,18 +223,21 @@ consistent spacing rhythm.
 - Cap content width on large screens so controls do not stretch into long,
   sparse strips.
 
-### 6. Design every state together
+### 8. Design every state together
 
-Default, in-progress, completed, unavailable, hover, focus, and pressed states
-belong to the same component design. Do not design only the empty state.
+Default, in-progress, today's dose completed, established, maintaining,
+unavailable, hover, focus, and pressed states belong to the same component
+design. Do not design only the empty state.
 
 - Default state: neutral and clearly interactive.
 - In progress: a restrained secondary tint or partially filled indicator.
-- Complete: a primary tint plus a non-color signifier such as a checkmark or
-  filled progress marks.
+- Today's dose completed: a primary tint plus a non-color signifier such as a
+  checkmark or filled rep marks.
+- Established or maintaining: positive capability status that remains clearly
+  available for practice.
 - Unavailable: explain why and how to proceed; do not merely gray out an action.
 
-### 7. Keep global navigation global
+### 9. Keep global navigation global
 
 A student should never need to retrace a workflow simply to reach another
 part of the app or correct their setup.
@@ -139,7 +259,7 @@ feature map:
 
 | Destination | Learner question | Primary content |
 | --- | --- | --- |
-| Curriculum | What should I practise? | Continue, choose a skill, begin a focused session |
+| Curriculum | What am I practising today? | Today's regimen first; exercise catalogue and substitutions second |
 | Piano | Can I play or look this up? | Free play and visual reference on one piano surface |
 | Progress | How is my practice adding up? | Summary first, recent activity second |
 
@@ -162,15 +282,22 @@ title or explains a familiar interaction before revealing it.
 Current example: Piano keeps a full-width keyboard docked at the bottom of the
 screen and gives the learning canvas above it to the optional visual reference.
 
-### Continue, then catalogue
+### Today's practice, then catalogue
 
-On repeat-use learning pages, show a direct continuation of the learner's
-recent work before the complete catalogue. Keep the continuation compact and
-identify both the exercise and its configuration. Do not fabricate a
-recommendation when no meaningful history exists.
+On repeat-use learning pages, show today's bounded practice plan before the
+full catalogue. Make the next exercise, dose, working tempo or challenge, and
+focus cue immediately scannable. Continuing recent work is one input to the
+plan, not the entire recommendation strategy.
 
-Current example: Curriculum shows **Continue** only after a matching practice
-record has been found.
+When meaningful history exists, use it to select an appropriate continuation,
+maintenance exercise, or progressive challenge. When it does not, offer a
+clearly labelled starter regimen based on the learner's stated level or a safe
+foundation sequence. Never leave the primary surface empty merely because the
+system cannot yet personalize it.
+
+The catalogue remains available for exploration, substitution, and
+teacher-directed practice, but browsing it should not be required before a
+normal daily session can begin.
 
 ### Summary, then activity
 
@@ -274,7 +401,7 @@ the representation accurately: a chromatic circle is not a Tonnetz.
 
 - Neutral surfaces carry structure.
 - Primary color identifies the current action, meaningful progress, or
-  completion.
+  completion of today's prescribed dose.
 - Secondary and tertiary colors add hierarchy sparingly.
 - Error and warning colors are reserved for states that require attention.
 - Never rely on color alone; pair it with shape, text, an icon, or semantics.
@@ -309,9 +436,34 @@ the representation accurately: a chromatic circle is not a Tonnetz.
 - Avoid ambient animation during focused practice.
 - Respect reduced-motion preferences when adding nonessential motion.
 
-## Reference pattern: compact practice list
+## Reference pattern: today's regimen
 
-The Curriculum detail page demonstrates the intended hierarchy:
+The default Curriculum surface should make a session feel ready to begin:
+
+```text
+Today's practice                                      18 min
+
+1  Major scales · all 12 keys              3 sets · 72 BPM
+   Focus: even rhythm as the thumb passes under
+
+2  I–IV–V–I progressions                   2 sets · 60 BPM
+   Focus: move between chords without breaking time
+
+3  Apply it · improvise with today's keys             4 min
+
+                                      [ Start practice ]
+```
+
+The exact prescription and amount of personalization will evolve, but the
+hierarchy should remain stable: what to do, how much to do, the appropriate
+challenge, what to focus on, and when the session is done. The application step
+makes the relationship between training and music explicit; it need not be
+MIDI-scored like a closed technique exercise.
+
+## Reference pattern: compact exercise list
+
+The Curriculum detail and substitution surfaces use a compact view of the
+broader exercise catalogue:
 
 ```text
 Build secure scale technique in each hand, then together.
@@ -331,7 +483,8 @@ The important characteristics are:
 - BPM appears beside progress only after it exists.
 - Practice marks acknowledge recorded activity; the checkmark remains the
   stronger signifier for established proficiency.
-- Completion accents the relevant action, not the entire screen.
+- Finishing today's prescribed reps accents the relevant action, not the entire
+  screen or the exercise forever.
 
 Use this pattern for other repeated practice choices, but adapt the labels and
 metrics to the learner's task.
@@ -363,6 +516,9 @@ Then inventory every visible element:
 | Large cards for repeated simple choices | Compact rows with consistent touch targets |
 | Different decorative language per page | Shared theme roles, spacing, radii, and states |
 | Technical system terminology | Short learner-facing language |
+| “3 of 3 complete” as permanent mastery | Today's dose plus a continuing development state |
+| Empty Curriculum with no history | A clearly labelled starter regimen |
+| Catalogue as the default starting point | Today's prescribed practice first; catalogue second |
 
 ## A small design vocabulary
 
@@ -382,7 +538,8 @@ These terms make design conversations easier:
 - **Touch target**: the full tappable area, which can be larger than the visible
   icon or label.
 - **State**: a component's current condition, such as default, pressed, in
-  progress, complete, disabled, or error.
+  progress, today's dose completed, established, maintaining, disabled, or
+  error.
 
 ## Design review questions
 
@@ -393,6 +550,17 @@ Use these questions during implementation and review.
 - What draws the eye first?
 - Is the page's purpose immediately clear?
 - Is the next useful action obvious?
+- Can the learner begin without first designing their own session?
+
+### Training model
+
+- Does the experience distinguish finishing today's reps from permanently
+  completing a technique?
+- Is the prescribed challenge appropriate, and does form constrain progression?
+- Will established foundational exercises return for maintenance or a new
+  variation?
+- Is the connection between technique and musical application visible?
+- Does repetition feel responsive and purposeful without punitive gamification?
 
 ### Content
 
@@ -410,7 +578,8 @@ Use these questions during implementation and review.
 ### Interaction and accessibility
 
 - Are touch targets at least 44 logical pixels?
-- Do hover, focus, pressed, disabled, and completed states remain clear?
+- Do hover, focus, pressed, disabled, today's-dose-completed, established, and
+  maintaining states remain clear?
 - Does every control have a contextual semantic label?
 - Is meaning available without relying on color?
 - Does text scaling remain usable?
