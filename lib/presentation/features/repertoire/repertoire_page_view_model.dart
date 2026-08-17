@@ -12,12 +12,10 @@ import "package:piano_fitness/domain/repositories/settings_repository.dart";
 class RepertoirePageViewModel extends ChangeNotifier {
   /// Creates a new RepertoirePageViewModel.
   RepertoirePageViewModel({
-    required IAudioService audioService,
+    required this._audioService,
     required INotificationRepository notificationRepository,
-    required ISettingsRepository settingsRepository,
-  }) : _audioService = audioService,
-       _notificationRepository = notificationRepository,
-       _settingsRepository = settingsRepository {
+    required this._settingsRepository,
+  }) : _notificationRepository = notificationRepository {
     _player = _audioService.createPlayer();
   }
 

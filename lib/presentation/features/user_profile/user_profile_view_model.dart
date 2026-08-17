@@ -12,8 +12,7 @@ import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
 /// including CRUD operations, profile selection, and sort preferences.
 class UserProfileViewModel extends ChangeNotifier {
   /// Creates a new UserProfileViewModel with injected dependencies.
-  UserProfileViewModel({required IUserProfileRepository userProfileRepository})
-    : _userProfileRepository = userProfileRepository;
+  UserProfileViewModel({required this._userProfileRepository});
 
   static final _log = Logger("UserProfileViewModel");
 

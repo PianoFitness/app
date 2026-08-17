@@ -13,10 +13,9 @@ import "package:piano_fitness/domain/repositories/user_profile_repository.dart";
 class HistoryPageViewModel extends ChangeNotifier {
   /// Creates a [HistoryPageViewModel] with the required repository dependencies.
   HistoryPageViewModel({
-    required IUserProfileRepository userProfileRepository,
+    required this._userProfileRepository,
     required IExerciseHistoryRepository exerciseHistoryRepository,
-  }) : _userProfileRepository = userProfileRepository,
-       _exerciseHistoryRepository = exerciseHistoryRepository {
+  }) : _exerciseHistoryRepository = exerciseHistoryRepository {
     loadEntries();
   }
 

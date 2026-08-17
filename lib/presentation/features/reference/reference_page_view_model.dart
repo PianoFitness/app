@@ -32,10 +32,9 @@ class ReferencePageViewModel extends ChangeNotifier {
   /// Creates a new ReferencePageViewModel.
   ReferencePageViewModel({
     required MidiCoordinator midiCoordinator,
-    required IMidiRepository midiRepository,
+    required this._midiRepository,
     required MidiState midiState,
-  }) : _midiRepository = midiRepository,
-       _localMidiState = midiState {
+  }) : _localMidiState = midiState {
     _subscription = midiCoordinator.subscribe(midiState, _handleMidiEvent);
     _initializeState();
   }

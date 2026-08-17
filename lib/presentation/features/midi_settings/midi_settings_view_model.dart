@@ -16,10 +16,9 @@ class MidiSettingsViewModel extends ChangeNotifier {
   ///
   /// Throws [RangeError] if [initialChannel] is not between 0 and 15 (inclusive).
   MidiSettingsViewModel({
-    required IMidiDeviceDiscoveryService discoveryService,
+    required this._discoveryService,
     int initialChannel = 0,
-  }) : _discoveryService = discoveryService,
-       _selectedChannel = initialChannel {
+  }) : _selectedChannel = initialChannel {
     MidiChannel.validate(initialChannel);
     _setupMidi();
   }

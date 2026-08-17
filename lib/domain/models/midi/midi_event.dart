@@ -36,8 +36,8 @@ class MidiEvent {
     required this.data2,
     required this.type,
     this.occurredAt = Duration.zero,
-    String? displayMessage,
-  }) : _displayMessage = displayMessage;
+    this._displayMessage,
+  });
 
   /// The raw MIDI status byte including channel information.
   final int status;
