@@ -22,9 +22,8 @@ import "../database/app_database.dart";
 /// Enum fields are round-tripped as their `.name` strings so that database
 /// content remains human-readable and is not coupled to Dart ordinal values.
 class ExerciseHistoryRepositoryImpl implements IExerciseHistoryRepository {
-  /// Creates the repository backed by the given [database].
-  ExerciseHistoryRepositoryImpl({required AppDatabase database})
-    : _database = database;
+  /// Creates the repository backed by the given [_database].
+  ExerciseHistoryRepositoryImpl({required this._database});
 
   final AppDatabase _database;
   final Logger _logger = Logger("ExerciseHistoryRepositoryImpl");

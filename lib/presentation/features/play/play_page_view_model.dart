@@ -15,11 +15,10 @@ class PlayPageViewModel extends ChangeNotifier {
   /// Creates a new PlayPageViewModel with dependency injection.
   PlayPageViewModel({
     required MidiCoordinator midiCoordinator,
-    required IMidiRepository midiRepository,
+    required this._midiRepository,
     required MidiState midiState,
     int initialChannel = 0,
-  }) : _midiRepository = midiRepository,
-       _midiState = midiState,
+  }) : _midiState = midiState,
        _midiChannel = initialChannel {
     _midiState.setSelectedChannel(_midiChannel);
     _midiState.addListener(_forwardMidiStateChanges);

@@ -18,12 +18,10 @@ class DeviceControllerViewModel extends ChangeNotifier {
   /// Creates a new DeviceControllerViewModel with dependency injection.
   DeviceControllerViewModel({
     required MidiCoordinator midiCoordinator,
-    required IMidiRepository midiRepository,
+    required this._midiRepository,
     required MidiState midiState,
-    required MidiDevice device,
-  }) : _midiRepository = midiRepository,
-       _midiState = midiState,
-       _device = device {
+    required this._device,
+  }) : _midiState = midiState {
     _subscription = midiCoordinator.subscribe(midiState, _handleMidiEvent);
   }
 

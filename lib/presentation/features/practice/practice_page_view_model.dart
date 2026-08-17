@@ -32,15 +32,12 @@ class PracticePageViewModel extends ChangeNotifier {
   /// Creates a new PracticePageViewModel with injected dependencies.
   PracticePageViewModel({
     required MidiCoordinator midiCoordinator,
-    required IMidiRepository midiRepository,
+    required this._midiRepository,
     required MidiState midiState,
-    required IUserProfileRepository userProfileRepository,
-    required IExerciseHistoryRepository exerciseHistoryRepository,
+    required this._userProfileRepository,
+    required this._exerciseHistoryRepository,
     int initialChannel = 0,
-  }) : _midiRepository = midiRepository,
-       _midiState = midiState,
-       _userProfileRepository = userProfileRepository,
-       _exerciseHistoryRepository = exerciseHistoryRepository,
+  }) : _midiState = midiState,
        _midiChannel = initialChannel {
     _midiState.setSelectedChannel(_midiChannel);
     _midiState.addListener(notifyListeners);

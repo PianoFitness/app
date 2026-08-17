@@ -22,8 +22,7 @@ import "package:piano_fitness/domain/services/metronome/tempo_calculator.dart";
 class MetronomeState extends ChangeNotifier {
   /// Creates the state and starts pre-warming the click sound so the first
   /// beat isn't slower than the rest.
-  MetronomeState({required IMetronomeAudioService audioService})
-    : _audioService = audioService {
+  MetronomeState({required this._audioService}) {
     unawaited(
       _audioService.initialize().catchError((Object error) {
         debugPrint(

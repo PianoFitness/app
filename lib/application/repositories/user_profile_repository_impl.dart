@@ -17,10 +17,9 @@ import "../database/app_database.dart";
 class UserProfileRepositoryImpl implements IUserProfileRepository {
   /// Creates a UserProfileRepositoryImpl with required dependencies.
   UserProfileRepositoryImpl({
-    required AppDatabase database,
+    required this._database,
     required SharedPreferences prefs,
-  }) : _database = database,
-       _prefs = prefs;
+  }) : _prefs = prefs;
 
   final AppDatabase _database;
   final SharedPreferences _prefs;

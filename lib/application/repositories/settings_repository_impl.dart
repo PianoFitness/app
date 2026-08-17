@@ -11,9 +11,7 @@ import "package:piano_fitness/domain/repositories/settings_repository.dart";
 /// application models (NotificationSettings with Flutter types).
 class SettingsRepositoryImpl implements ISettingsRepository {
   /// Creates a settings repository with injected notification manager.
-  const SettingsRepositoryImpl({
-    required INotificationManager notificationManager,
-  }) : _notificationManager = notificationManager;
+  const SettingsRepositoryImpl({required this._notificationManager});
 
   final INotificationManager _notificationManager;
 

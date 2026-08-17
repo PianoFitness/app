@@ -16,11 +16,10 @@ import "package:piano_fitness/domain/services/skill_progression/skill_proficienc
 /// existing history stream.
 class SkillTreePageViewModel extends ChangeNotifier {
   SkillTreePageViewModel({
-    required IUserProfileRepository userProfileRepository,
+    required this._userProfileRepository,
     required IExerciseHistoryRepository exerciseHistoryRepository,
     SkillCatalogue? catalogue,
-  }) : _userProfileRepository = userProfileRepository,
-       _exerciseHistoryRepository = exerciseHistoryRepository,
+  }) : _exerciseHistoryRepository = exerciseHistoryRepository,
        catalogue = catalogue ?? DefaultSkillCatalogue.catalogue {
     SkillCatalogueValidator.validate(this.catalogue);
     loadProgress();

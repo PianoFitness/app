@@ -13,10 +13,9 @@ import "package:piano_fitness/domain/repositories/settings_repository.dart";
 /// It follows the MVVM pattern and provides reactive updates to the UI.
 class NotificationsPageViewModel extends ChangeNotifier {
   NotificationsPageViewModel({
-    required INotificationRepository notificationRepository,
+    required this._notificationRepository,
     required ISettingsRepository settingsRepository,
-  }) : _notificationRepository = notificationRepository,
-       _settingsRepository = settingsRepository;
+  }) : _settingsRepository = settingsRepository;
 
   static final _log = Logger("NotificationsPageViewModel");
 
